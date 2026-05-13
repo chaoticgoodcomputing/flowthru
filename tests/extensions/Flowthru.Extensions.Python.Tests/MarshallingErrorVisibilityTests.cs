@@ -24,20 +24,21 @@ public class MarshallingErrorVisibilityTests
   public partial record UnsupportedTypeSchema
   {
     public required int Id { get; init; }
-    // decimal is intentionally outside the supported set.
-    public required decimal Amount { get; init; }
+    // DateOnly is recognized by FlowthruSchema as a flat scalar but is
+    // intentionally outside the Arrow marshaller's supported set.
+    public required DateOnly Day { get; init; }
   }
 
   [Test]
   public void ToRecordBatch_With_Unsupported_Property_Throws_NotSupported_With_Property_Name()
   {
-    var rows = new[] { new UnsupportedTypeSchema { Id = 1, Amount = 1.5m } };
+    var rows = new[] { new UnsupportedTypeSchema { Id = 1, Day = new DateOnly(2024, 1, 1) } };
 
     var ex = Assert.Throws<NotSupportedException>(() => ArrowMarshaller.ToRecordBatch(rows));
 
-    Assert.That(ex!.Message, Does.Contain("Amount"),
+    Assert.That(ex!.Message, Does.Contain("Day"),
       "The thrown message must name the offending property so the user can locate it without re-deriving the IPC protocol.");
-    Assert.That(ex.Message, Does.Contain("Decimal").Or.Contain("decimal"),
+    Assert.That(ex.Message, Does.Contain("DateOnly"),
       "The thrown message must name the offending type so the fix path (change-the-type vs. encode-as-string) is obvious.");
   }
 }

@@ -30,6 +30,14 @@
     -->
     <ProjectReference Include="$(RepoRoot)src/core/Flowthru.Core/Flowthru.Core.csproj" />
     <!--
+      The FT2009 fixture compiles consumer source that calls
+      builder.AddPythonStep<...>(...). That call resolves against
+      Flowthru.Flow.PythonStepFactory in this assembly, so the
+      analyzer can identify the invocation as the Python factory
+      escape hatch instead of any like-named user method.
+    -->
+    <ProjectReference Include="$(RepoRoot)src/extensions/Flowthru.Extensions.Python/Flowthru.Extensions.Python.csproj" />
+    <!--
       ReferenceOutputAssembly=true so the generator's types
       (PythonStepFactoryGenerator, PythonStepGenerator) are resolvable
       from test code via the GeneratorDriver harness.

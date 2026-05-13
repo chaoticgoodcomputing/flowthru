@@ -13,8 +13,11 @@ namespace Flowthru.Extensions.Python.SourceGenerators.Tests;
 public class Ft2008PythonSchemaMarshallabilityTests
 {
   [Test]
-  public void Schema_With_Decimal_Property_Used_By_Python_Step_FiresFt2008()
+  public void Schema_With_IntPtr_Property_Used_By_Python_Step_FiresFt2008()
   {
+    // IntPtr has no Arrow encoding: it isn't in the shared
+    // marshallable-leaf set and doesn't match any recursive shape
+    // (nullable, enum, array, IEnumerable<>).
     var py = new GeneratorTestHarness.InMemoryAdditionalText(
       path: "Flows/Sales/aggregate.py",
       text:
@@ -23,6 +26,7 @@ public class Ft2008PythonSchemaMarshallabilityTests
     );
 
     var consumerSource = """
+      using System;
       using Flowthru.Data.Schema;
       namespace Sample;
 
@@ -30,7 +34,7 @@ public class Ft2008PythonSchemaMarshallabilityTests
       public partial record SaleSchema
       {
         public required int Id { get; init; }
-        public required decimal Total { get; init; }
+        public required IntPtr Handle { get; init; }
       }
       """;
 
@@ -44,10 +48,13 @@ public class Ft2008PythonSchemaMarshallabilityTests
 
     var ft2008 = result.Diagnostics.Where("FT2008").ToList();
     Assert.That(ft2008, Is.Not.Empty,
-      "FT2008 must fire when a Python-step schema declares a property the marshaller can't handle (decimal).");
-    Assert.That(ft2008[0].GetMessage(), Does.Contain("Total"),
+      "FT2008 must fire when a Python-step schema declares a property the marshaller can't handle.");
+    Assert.That(ft2008[0].GetMessage(), Does.Contain("Handle"),
       "Diagnostic must name the offending property.");
-    Assert.That(ft2008[0].GetMessage(), Does.Contain("decimal").IgnoreCase,
+    // Roslyn's default ToDisplayString renders IntPtr as the C# alias
+    // `nint`; either rendering is acceptable as a fix-path signal.
+    var typeFragment = ft2008[0].GetMessage();
+    Assert.That(typeFragment, Does.Contain("nint").IgnoreCase.Or.Contain("IntPtr").IgnoreCase,
       "Diagnostic must name the offending type so the fix path is obvious.");
   }
 

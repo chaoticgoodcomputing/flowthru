@@ -1,6 +1,7 @@
 using Apache.Arrow;
 using Apache.Arrow.Types;
 using Flowthru.Data.Schema;
+using Flowthru.Step.Python;
 using Flowthru.Step.Python.Internal;
 
 namespace Flowthru.Extensions.Python.Tests;
@@ -160,6 +161,34 @@ public class ArrowMarshallerScalarTests
     // The whole list is nullable — this exercises BuildListArray's
     // "listValue is null" branch on encode and ListArray.IsNull on decode.
     public required List<int>? Items { get; init; }
+  }
+
+  // Decimal probe schemas — default precision/scale, explicit attribute, nullable.
+
+  [FlowthruSchema]
+  public partial record DecimalRow
+  {
+    public required decimal Amount { get; init; }
+  }
+
+  [FlowthruSchema]
+  public partial record NullableDecimalRow
+  {
+    public required decimal? Amount { get; init; }
+  }
+
+  [FlowthruSchema]
+  public partial record ExplicitPrecisionDecimalRow
+  {
+    [ArrowDecimal(20, 4)]
+    public required decimal Amount { get; init; }
+  }
+
+  [FlowthruSchema]
+  public partial record TightPrecisionDecimalRow
+  {
+    [ArrowDecimal(5, 2)]
+    public required decimal Amount { get; init; }
   }
 
   // ──────────────────────────────────────────────────────────────
@@ -472,16 +501,21 @@ public class ArrowMarshallerScalarTests
   }
 
   [Test]
-  public void ToRecordBatch_Stores_Guid_As_Dash_Separated_String()
+  public void ToRecordBatch_Stores_Guid_As_ArrowUuid_Extension_Column()
   {
-    // The marshaller's private contract is ToString("D") — pin it so
-    // a future change to "N" or "B" shows up here, not as a Python-side
-    // parser surprise.
+    // The wire-format contract for Guid is the canonical arrow.uuid
+    // extension type (FixedSizeBinary(16) storage). Pin it so a future
+    // regression to StringType — or to any other storage — shows up as
+    // a test failure here, not as a Python-side parser surprise.
     var guid = Guid.Parse("12345678-1234-1234-1234-123456789abc");
     var batch = ArrowMarshaller.ToRecordBatch(new[] { new SingleGuidRow { Id = guid } });
 
-    var column = (StringArray)batch.Column(0);
-    Assert.That(column.GetString(0), Is.EqualTo("12345678-1234-1234-1234-123456789abc"));
+    Assert.That(batch.Schema.GetFieldByName("Id").DataType, Is.InstanceOf<GuidType>(),
+      "Schema field must be the canonical arrow.uuid extension type.");
+    var column = batch.Column(0);
+    Assert.That(column, Is.InstanceOf<GuidArray>(),
+      "Encoded column must be a GuidArray (FixedSizeBinary(16) storage)).");
+    Assert.That(((GuidArray)column).GetGuid(0), Is.EqualTo(guid));
   }
 
   // ──────────────────────────────────────────────────────────────
@@ -783,5 +817,167 @@ public class ArrowMarshallerScalarTests
       else builder.Append(v.Value);
     }
     return builder.Build();
+  }
+
+  // ──────────────────────────────────────────────────────────────
+  // Decimal128 round-trip
+  // ──────────────────────────────────────────────────────────────
+
+  [Test]
+  public void Roundtrip_Decimal_With_Default_Precision_Preserves_Midrange_Value()
+  {
+    var rows = new[] { new DecimalRow { Amount = 1234.5678m } };
+    var batch = ArrowMarshaller.ToRecordBatch(rows);
+
+    Assert.That(batch.Schema.GetFieldByName("Amount").DataType, Is.InstanceOf<Decimal128Type>(),
+      "Decimal columns must surface as the canonical Decimal128 type.");
+    var declared = (Decimal128Type)batch.Schema.GetFieldByName("Amount").DataType;
+    Assert.That(declared.Precision, Is.EqualTo(28));
+    Assert.That(declared.Scale, Is.EqualTo(9));
+
+    var recovered = ArrowMarshaller.FromRecordBatch<DecimalRow>(batch).Single();
+    Assert.That(recovered.Amount, Is.EqualTo(1234.5678m));
+  }
+
+  [Test]
+  public void Roundtrip_Decimal_With_Default_Precision_Preserves_Negative_Value()
+  {
+    var rows = new[] { new DecimalRow { Amount = -987.6543m } };
+    var batch = ArrowMarshaller.ToRecordBatch(rows);
+    var recovered = ArrowMarshaller.FromRecordBatch<DecimalRow>(batch).Single();
+    Assert.That(recovered.Amount, Is.EqualTo(-987.6543m));
+  }
+
+  [Test]
+  public void Roundtrip_Decimal_With_Default_Precision_Preserves_LargeValue_Within_Range()
+  {
+    // Within (28,9): integer portion up to 19 digits.
+    var big = 1234567890123456789m;
+    var batch = ArrowMarshaller.ToRecordBatch(new[] { new DecimalRow { Amount = big } });
+    var recovered = ArrowMarshaller.FromRecordBatch<DecimalRow>(batch).Single();
+    Assert.That(recovered.Amount, Is.EqualTo(big));
+  }
+
+  [Test]
+  public void Roundtrip_Decimal_With_ArrowDecimal_Attribute_Uses_Declared_PrecisionAndScale()
+  {
+    var batch = ArrowMarshaller.ToRecordBatch(
+      new[] { new ExplicitPrecisionDecimalRow { Amount = 123.4567m } }
+    );
+
+    var declared = (Decimal128Type)batch.Schema.GetFieldByName("Amount").DataType;
+    Assert.That(declared.Precision, Is.EqualTo(20),
+      "[ArrowDecimal(20, 4)] must propagate into the Arrow field type.");
+    Assert.That(declared.Scale, Is.EqualTo(4));
+
+    var recovered = ArrowMarshaller.FromRecordBatch<ExplicitPrecisionDecimalRow>(batch).Single();
+    Assert.That(recovered.Amount, Is.EqualTo(123.4567m));
+  }
+
+  [Test]
+  public void Roundtrip_Nullable_Decimal_With_Mixed_Null_And_Value_Preserves_Both()
+  {
+    var rows = new[]
+    {
+      new NullableDecimalRow { Amount = 9.99m },
+      new NullableDecimalRow { Amount = null },
+      new NullableDecimalRow { Amount = -0.01m },
+    };
+
+    var batch = ArrowMarshaller.ToRecordBatch(rows);
+    var recovered = ArrowMarshaller.FromRecordBatch<NullableDecimalRow>(batch).ToList();
+
+    Assert.That(recovered, Has.Count.EqualTo(3));
+    Assert.That(recovered[0].Amount, Is.EqualTo(9.99m));
+    Assert.That(recovered[1].Amount, Is.Null);
+    Assert.That(recovered[2].Amount, Is.EqualTo(-0.01m));
+  }
+
+  [Test]
+  public void ToRecordBatch_Decimal_Value_Exceeding_Declared_Precision_Surfaces_Error()
+  {
+    // 99999.99 fits inside (5,2) precision (5 total digits with 2 after the
+    // point). 1234567.89 does NOT — Arrow must reject it rather than
+    // silently truncate, otherwise the wire-format contract is meaningless.
+    var rows = new[]
+    {
+      new TightPrecisionDecimalRow { Amount = 1234567.89m },
+    };
+
+    Assert.That(
+      () => ArrowMarshaller.ToRecordBatch(rows),
+      Throws.Exception,
+      "A value larger than the declared (5,2) precision must produce an error, not a silently truncated cell."
+    );
+  }
+
+  // ──────────────────────────────────────────────────────────────
+  // Guid (arrow.uuid) extension type
+  // ──────────────────────────────────────────────────────────────
+
+  [Test]
+  public void Roundtrip_Guid_Via_ArrowUuid_Preserves_Value()
+  {
+    var guid = Guid.Parse("11111111-2222-3333-4444-555555555555");
+    var batch = ArrowMarshaller.ToRecordBatch(new[] { new SingleGuidRow { Id = guid } });
+    var recovered = ArrowMarshaller.FromRecordBatch<SingleGuidRow>(batch).Single();
+
+    Assert.That(batch.Schema.GetFieldByName("Id").DataType, Is.InstanceOf<GuidType>());
+    Assert.That(recovered.Id, Is.EqualTo(guid));
+  }
+
+  [Test]
+  public void Roundtrip_Nullable_Guid_With_Mixed_Null_And_Value_Preserves_Both()
+  {
+    var arbitrary = Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee");
+    var rows = new[]
+    {
+      new AllNullableScalars
+      {
+        IntField = null, LongField = null, FloatField = null, DoubleField = null,
+        BoolField = null, StringField = null, DateTimeField = null,
+        DateTimeOffsetField = null, TimeSpanField = null,
+        GuidField = Guid.Empty,
+        BinaryField = null,
+      },
+      new AllNullableScalars
+      {
+        IntField = null, LongField = null, FloatField = null, DoubleField = null,
+        BoolField = null, StringField = null, DateTimeField = null,
+        DateTimeOffsetField = null, TimeSpanField = null,
+        GuidField = null,
+        BinaryField = null,
+      },
+      new AllNullableScalars
+      {
+        IntField = null, LongField = null, FloatField = null, DoubleField = null,
+        BoolField = null, StringField = null, DateTimeField = null,
+        DateTimeOffsetField = null, TimeSpanField = null,
+        GuidField = arbitrary,
+        BinaryField = null,
+      },
+    };
+
+    var batch = ArrowMarshaller.ToRecordBatch(rows);
+    var recovered = ArrowMarshaller.FromRecordBatch<AllNullableScalars>(batch).ToList();
+
+    Assert.That(recovered[0].GuidField, Is.EqualTo(Guid.Empty));
+    Assert.That(recovered[1].GuidField, Is.Null);
+    Assert.That(recovered[2].GuidField, Is.EqualTo(arbitrary));
+  }
+
+  [Test]
+  public void ToRecordBatch_Guid_Field_Is_ArrowUuid_Not_StringType()
+  {
+    // Regression guard: this test fails loudly if the wire encoding
+    // silently reverts to StringType (the pre-Phase B representation).
+    var batch = ArrowMarshaller.ToRecordBatch(
+      new[] { new SingleGuidRow { Id = Guid.NewGuid() } }
+    );
+
+    var dataType = batch.Schema.GetFieldByName("Id").DataType;
+    Assert.That(dataType, Is.InstanceOf<GuidType>(),
+      "Guid columns must travel as the canonical arrow.uuid extension type — never StringType.");
+    Assert.That(dataType, Is.Not.InstanceOf<StringType>());
   }
 }

@@ -27,7 +27,7 @@
 
   <ItemGroup>
     <!-- Flowthru framework dependencies (used by src/) -->
-    <PackageVersion Include="Apache.Arrow" Version="18.0.0" />
+    <PackageVersion Include="Apache.Arrow" Version="23.0.0" />
     <PackageVersion Include="ClosedXML" Version="0.105.0" />
     <PackageVersion Include="CsvHelper" Version="33.0.1" /> <!-- tracks current stable; revisit before publish -->
     <PackageVersion Include="EFCore.BulkExtensions" Version="10.0.1" /> <!-- tracks current stable; revisit before publish -->

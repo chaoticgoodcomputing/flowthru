@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using Flowthru.Step.Python.Internal;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
 
 namespace Flowthru.Extensions.Python.SourceGenerators;
@@ -60,6 +62,24 @@ public class PythonStepFactoryGenerator : IIncrementalGenerator
     id: "FT2008",
     title: "Python step schema contains a property type Arrow cannot marshal",
     messageFormat: "Schema '{0}' (used by Python step '{1}') has property '{2}' of type '{3}', which is not supported by the Python extension's Arrow marshaller. Supported types: int, long, float, double, bool, string, DateTime, DateTimeOffset, TimeSpan, Guid, byte[], enum, list/array of any supported type, and their nullable variants.",
+    category: "Flowthru.Python",
+    DiagnosticSeverity.Error,
+    isEnabledByDefault: true
+  );
+
+  /// <summary>
+  /// Closes the same loop as <see cref="SchemaUnmarshallable"/>, but
+  /// for the C# escape hatch: <c>builder.AddPythonStep&lt;TIn, TOut&gt;</c>
+  /// invocations bypass the <c>@step</c>-decorator code path entirely,
+  /// so an unmarshallable property reachable from <c>TIn</c> or
+  /// <c>TOut</c> would otherwise only surface at runtime as a wrapped
+  /// <c>NotSupportedException</c>. Flagging it at the call site keeps
+  /// CONTRIBUTING.md's "if it compiles, Arrow can encode it" promise.
+  /// </summary>
+  private static readonly DiagnosticDescriptor AddPythonStepUnmarshallable = new(
+    id: "FT2009",
+    title: "Python step type argument contains a property type Arrow cannot marshal",
+    messageFormat: "Type argument '{0}' on AddPythonStep contains property '{1}' of type '{2}', which the Python extension's Arrow marshaller cannot encode. Supported types: int, long, float, double, bool, string, DateTime, DateTimeOffset, TimeSpan, Guid, byte[], enum, list/array of any supported type, and their nullable variants.",
     category: "Flowthru.Python",
     DiagnosticSeverity.Error,
     isEnabledByDefault: true
@@ -123,7 +143,51 @@ public class PythonStepFactoryGenerator : IIncrementalGenerator
       sb.AppendLine("}");
       ctx.AddSource("PythonSteps.g.cs", SourceText.From(sb.ToString(), Encoding.UTF8));
     });
+
+    // FT2009: walk every call site of AddPythonStep<...>(...) in the
+    // consuming compilation and report unmarshallable property types
+    // reachable from TIn or TOut. This is the C#-escape-hatch twin of
+    // FT2008 (which flags the @step-decorator path).
+    var addPythonStepInvocations = context.SyntaxProvider
+      .CreateSyntaxProvider(
+        predicate: static (node, _) =>
+          node is InvocationExpressionSyntax inv && InvocationNameMatchesAddPythonStep(inv),
+        transform: static (gsc, _) => (InvocationExpressionSyntax)gsc.Node
+      )
+      .Collect();
+
+    var addPythonStepCombined = context.CompilationProvider.Combine(addPythonStepInvocations);
+
+    context.RegisterSourceOutput(addPythonStepCombined, (ctx, pair) =>
+    {
+      var (compilation, invocations) = pair;
+      if (invocations.IsDefaultOrEmpty) return;
+      AnalyzeAddPythonStepCallSites(ctx, compilation, invocations);
+    });
   }
+
+  /// <summary>
+  /// Cheap syntactic predicate that matches any invocation whose called
+  /// name is <c>AddPythonStep</c> — qualified, unqualified, or via a
+  /// fluent <c>.AddPythonStep&lt;...&gt;(...)</c> chain. Symbol-level
+  /// verification (the right factory, the right arity) happens in the
+  /// transform pass.
+  /// </summary>
+  private static bool InvocationNameMatchesAddPythonStep(InvocationExpressionSyntax invocation)
+  {
+    var expr = invocation.Expression;
+    return expr switch
+    {
+      MemberAccessExpressionSyntax m => IsAddPythonStepIdentifier(m.Name),
+      MemberBindingExpressionSyntax mb => IsAddPythonStepIdentifier(mb.Name),
+      IdentifierNameSyntax id => id.Identifier.ValueText == "AddPythonStep",
+      GenericNameSyntax gn => gn.Identifier.ValueText == "AddPythonStep",
+      _ => false,
+    };
+  }
+
+  private static bool IsAddPythonStepIdentifier(SimpleNameSyntax name) =>
+    name.Identifier.ValueText == "AddPythonStep";
 
   // ── Decorator parsing ─────────────────────────────────────────────────
 
@@ -417,43 +481,35 @@ public class PythonStepFactoryGenerator : IIncrementalGenerator
     }
   }
 
+  private static readonly HashSet<string> _marshallableLeafNames =
+    new(PythonMarshallableTypeNames.All, StringComparer.Ordinal);
+
   /// <summary>
   /// Mirror of <c>ArrowMarshaller.BuildArrayFromValues</c>'s accepted set,
   /// expressed against Roslyn symbols. Nullable value types are unwrapped;
-  /// list/array element types are checked recursively.
+  /// list/array element types are checked recursively. Leaf names are
+  /// matched against the shared <see cref="PythonMarshallableTypeNames"/>
+  /// list so the analyzer cannot drift from the runtime registry.
   /// </summary>
   private static bool IsMarshallable(ITypeSymbol type)
   {
-    // Unwrap Nullable<T> for value types.
     if (type is INamedTypeSymbol named
         && named.ConstructedFrom?.SpecialType == SpecialType.System_Nullable_T)
     {
       return IsMarshallable(named.TypeArguments[0]);
     }
 
-    if (type.SpecialType == SpecialType.System_Int32) return true;
-    if (type.SpecialType == SpecialType.System_Int64) return true;
-    if (type.SpecialType == SpecialType.System_Single) return true;
-    if (type.SpecialType == SpecialType.System_Double) return true;
-    if (type.SpecialType == SpecialType.System_Boolean) return true;
-    if (type.SpecialType == SpecialType.System_String) return true;
     if (type.TypeKind == TypeKind.Enum) return true;
 
-    var fullName = type.ToDisplayString();
-    if (fullName == "System.DateTime") return true;
-    if (fullName == "System.DateTimeOffset") return true;
-    if (fullName == "System.TimeSpan") return true;
-    if (fullName == "System.Guid") return true;
-    if (fullName == "byte[]") return true;
+    if (_marshallableLeafNames.Contains(CanonicalLeafName(type))) return true;
 
-    // T[] — recurse on the element type.
     if (type is IArrayTypeSymbol arr && arr.Rank == 1)
     {
+      // byte[] is itself a marshallable leaf — only recurse for any other
+      // array element so e.g. int[] passes via the recursion.
       return IsMarshallable(arr.ElementType);
     }
 
-    // Generic IEnumerable<T> / List<T> / IReadOnlyList<T> etc. — recurse on
-    // the first type arg of whichever generic implements IEnumerable<>.
     if (type is INamedTypeSymbol generic)
     {
       var enumerable = FindIEnumerableElement(generic);
@@ -464,6 +520,41 @@ public class PythonStepFactoryGenerator : IIncrementalGenerator
     }
 
     return false;
+  }
+
+  /// <summary>
+  /// Canonical, alias-free leaf name suitable for matching the shared
+  /// <see cref="PythonMarshallableTypeNames.All"/> list. SpecialType
+  /// primitives short-circuit to their <c>System.*</c> form so the
+  /// C# alias display (<c>int</c>, <c>string</c>) doesn't miss the
+  /// match. <c>byte[]</c> is the only special-case array leaf.
+  /// </summary>
+  private static string CanonicalLeafName(ITypeSymbol type)
+  {
+    switch (type.SpecialType)
+    {
+      case SpecialType.System_Int32: return "System.Int32";
+      case SpecialType.System_Int64: return "System.Int64";
+      case SpecialType.System_Single: return "System.Single";
+      case SpecialType.System_Double: return "System.Double";
+      case SpecialType.System_Boolean: return "System.Boolean";
+      case SpecialType.System_String: return "System.String";
+    }
+
+    if (type is IArrayTypeSymbol arr
+        && arr.Rank == 1
+        && arr.ElementType.SpecialType == SpecialType.System_Byte)
+    {
+      return "System.Byte[]";
+    }
+
+    // Strip nullable annotation; full namespace + name.
+    var fmt = new SymbolDisplayFormat(
+      typeQualificationStyle: SymbolDisplayTypeQualificationStyle.NameAndContainingTypesAndNamespaces,
+      genericsOptions: SymbolDisplayGenericsOptions.None,
+      miscellaneousOptions: SymbolDisplayMiscellaneousOptions.None
+    );
+    return type.WithNullableAnnotation(NullableAnnotation.None).ToDisplayString(fmt);
   }
 
   private static ITypeSymbol? FindIEnumerableElement(INamedTypeSymbol type)
@@ -489,6 +580,192 @@ public class PythonStepFactoryGenerator : IIncrementalGenerator
   {
     var parts = snakeCase.Split('_');
     return string.Join("", parts.Select(p => p.Length == 0 ? p : char.ToUpperInvariant(p[0]) + p.Substring(1)));
+  }
+
+  // ── FT2009: AddPythonStep<TIn, TOut>(...) call-site analysis ─────────
+
+  /// <summary>
+  /// Walk every <c>AddPythonStep&lt;...&gt;(...)</c> invocation seen by
+  /// the syntax provider, resolve it to an <see cref="IMethodSymbol"/>,
+  /// and surface FT2009 for any <c>[FlowthruSchema]</c> reachable from
+  /// a type argument that has an unmarshallable property.
+  /// </summary>
+  private static void AnalyzeAddPythonStepCallSites(
+    SourceProductionContext ctx,
+    Compilation compilation,
+    System.Collections.Immutable.ImmutableArray<InvocationExpressionSyntax> invocations
+  )
+  {
+    // Cheap up-front gate: if the consuming compilation has no Python
+    // factory symbol, nothing to do (e.g. analyzer running in a project
+    // that pulled in the source-gen but not the runtime).
+    var factoryType = compilation.GetTypeByMetadataName("Flowthru.Flow.PythonStepFactory");
+    if (factoryType is null) return;
+
+    foreach (var invocation in invocations)
+    {
+      var model = compilation.GetSemanticModel(invocation.SyntaxTree);
+      var symbolInfo = model.GetSymbolInfo(invocation);
+      var method = symbolInfo.Symbol as IMethodSymbol
+        ?? symbolInfo.CandidateSymbols.OfType<IMethodSymbol>().FirstOrDefault();
+      if (method is null) continue;
+
+      // For extension-method calls Roslyn reports the ReducedFrom symbol;
+      // walk back to the original definition so we can match against the
+      // factory's container.
+      var owner = (method.ReducedFrom ?? method.OriginalDefinition).ContainingType;
+      if (!SymbolEqualityComparer.Default.Equals(owner, factoryType)) continue;
+
+      var typeArguments = method.TypeArguments;
+      if (typeArguments.IsDefaultOrEmpty) continue;
+
+      var typeArgumentSyntaxNodes = GetTypeArgumentSyntax(invocation);
+
+      for (int i = 0; i < typeArguments.Length; i++)
+      {
+        var typeArg = typeArguments[i];
+        var slotLabel = method.TypeParameters[i].Name;
+        var location = i < typeArgumentSyntaxNodes.Count
+          ? typeArgumentSyntaxNodes[i].GetLocation()
+          : invocation.GetLocation();
+
+        ReportUnmarshallableSchemaProperties(ctx, typeArg, slotLabel, location);
+      }
+    }
+  }
+
+  /// <summary>
+  /// Extract the <c>TypeSyntax</c> nodes from an
+  /// <c>AddPythonStep&lt;...&gt;</c> invocation so diagnostics can land
+  /// on the exact <c>TInN</c> / <c>TOutN</c> token. Returns an empty
+  /// list when the type arguments were inferred (no
+  /// <c>GenericNameSyntax</c> to read).
+  /// </summary>
+  private static IReadOnlyList<TypeSyntax> GetTypeArgumentSyntax(InvocationExpressionSyntax invocation)
+  {
+    GenericNameSyntax? generic = invocation.Expression switch
+    {
+      GenericNameSyntax gn => gn,
+      MemberAccessExpressionSyntax ma when ma.Name is GenericNameSyntax g => g,
+      MemberBindingExpressionSyntax mb when mb.Name is GenericNameSyntax g => g,
+      _ => null,
+    };
+    return generic?.TypeArgumentList.Arguments.ToList() ?? new List<TypeSyntax>();
+  }
+
+  /// <summary>
+  /// Unwrap a single type-argument slot down to the
+  /// <c>[FlowthruSchema]</c>-decorated leaf records it transitively
+  /// reaches, then emit FT2009 for any unmarshallable property on
+  /// each. The unwrap covers tabular shapes
+  /// (<c>IEnumerable&lt;T&gt;</c>, <c>T[]</c>), the
+  /// <c>Flowthru.Data.Storage.DirectoryOf&lt;T&gt;</c> catalog wrapper,
+  /// and value-tuple positional packing.
+  /// </summary>
+  private static void ReportUnmarshallableSchemaProperties(
+    SourceProductionContext ctx,
+    ITypeSymbol typeArg,
+    string slotLabel,
+    Location location
+  )
+  {
+    var visited = new HashSet<ISymbol>(SymbolEqualityComparer.Default);
+    foreach (var schema in EnumerateFlowthruSchemaLeaves(typeArg, visited))
+    {
+      foreach (var member in schema.GetMembers())
+      {
+        if (member is not IPropertySymbol property) continue;
+        if (property.IsIndexer) continue;
+        if (property.DeclaredAccessibility != Accessibility.Public) continue;
+        if (property.IsStatic) continue;
+
+        if (IsMarshallable(property.Type)) continue;
+
+        ctx.ReportDiagnostic(
+          Diagnostic.Create(
+            AddPythonStepUnmarshallable,
+            location,
+            slotLabel,
+            property.Name,
+            property.Type.ToDisplayString()
+          )
+        );
+      }
+    }
+  }
+
+  /// <summary>
+  /// Enumerate every <c>[FlowthruSchema]</c> leaf reachable from
+  /// <paramref name="type"/> by unwrapping common Flowthru wrapper
+  /// shapes. Visited symbols are tracked to terminate on accidental
+  /// type cycles (e.g. a schema that references itself via a list).
+  /// </summary>
+  private static IEnumerable<INamedTypeSymbol> EnumerateFlowthruSchemaLeaves(
+    ITypeSymbol type,
+    HashSet<ISymbol> visited
+  )
+  {
+    if (type is null) yield break;
+    if (!visited.Add(type)) yield break;
+
+    if (type is INamedTypeSymbol named)
+    {
+      if (named.ConstructedFrom?.SpecialType == SpecialType.System_Nullable_T)
+      {
+        foreach (var s in EnumerateFlowthruSchemaLeaves(named.TypeArguments[0], visited))
+          yield return s;
+        yield break;
+      }
+
+      if (named.IsTupleType)
+      {
+        foreach (var element in named.TupleElements)
+        foreach (var s in EnumerateFlowthruSchemaLeaves(element.Type, visited))
+          yield return s;
+        yield break;
+      }
+
+      if (named.IsGenericType
+          && named.ConstructedFrom is { } ctor
+          && ctor.ToDisplayString() == "Flowthru.Data.Storage.DirectoryOf<T>")
+      {
+        foreach (var s in EnumerateFlowthruSchemaLeaves(named.TypeArguments[0], visited))
+          yield return s;
+        yield break;
+      }
+
+      if (HasFlowthruSchemaAttribute(named))
+      {
+        yield return named;
+        yield break;
+      }
+
+      var enumerable = FindIEnumerableElement(named);
+      if (enumerable is not null)
+      {
+        foreach (var s in EnumerateFlowthruSchemaLeaves(enumerable, visited))
+          yield return s;
+        yield break;
+      }
+    }
+
+    if (type is IArrayTypeSymbol arr)
+    {
+      foreach (var s in EnumerateFlowthruSchemaLeaves(arr.ElementType, visited))
+        yield return s;
+    }
+  }
+
+  private static bool HasFlowthruSchemaAttribute(INamedTypeSymbol type)
+  {
+    foreach (var attr in type.GetAttributes())
+    {
+      var attrClass = attr.AttributeClass;
+      if (attrClass is null) continue;
+      if (attrClass.ToDisplayString() == "Flowthru.Data.Schema.FlowthruSchemaAttribute")
+        return true;
+    }
+    return false;
   }
 
   /// <summary>Information about a Python step parsed from source.</summary>

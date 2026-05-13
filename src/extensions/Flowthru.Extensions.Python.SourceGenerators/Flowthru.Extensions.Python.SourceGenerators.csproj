@@ -18,4 +18,12 @@
     <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" PrivateAssets="all" />
   </ItemGroup>
 
+  <!-- Shared with the runtime extension: a single canonical list of the CLR-type
+       names the Arrow marshaller accepts as leaves. Linked-in here so the
+       analyzer and registry cannot drift. -->
+  <ItemGroup>
+    <Compile Include="$(RepoRoot)src/extensions/Flowthru.Extensions.Python/Step/Python/Internal/PythonMarshallableTypeNames.cs"
+             Link="Shared/PythonMarshallableTypeNames.cs" />
+  </ItemGroup>
+
 </Project>

@@ -116,12 +116,17 @@ public static class ArrowMarshaller
     foreach (var property in properties)
     {
       var fieldName = ArrowSchemaMapper.GetFieldName(property);
-      // Apache.Arrow 18's GetFieldIndex throws on miss rather than returning -1,
-      // so wrap the lookup to preserve the friendly diagnostic naming the missing
+      // Different Apache.Arrow versions disagree on missing-field semantics:
+      // 18 throws InvalidOperationException, 23+ returns -1. Handle both so
+      // the user always gets the friendly diagnostic naming the missing
       // field AND the property requiring it.
       int columnIndex;
       try { columnIndex = batch.Schema.GetFieldIndex(fieldName); }
       catch (InvalidOperationException)
+      {
+        columnIndex = -1;
+      }
+      if (columnIndex < 0)
       {
         throw new InvalidOperationException(
           $"Arrow RecordBatch does not contain field '{fieldName}' "
@@ -239,7 +244,7 @@ public static class ArrowMarshaller
     }
     try
     {
-      return BuildArrayFromValues(values, propertyType);
+      return BuildArrayFromValues(values, propertyType, property);
     }
     catch (NotSupportedException ex)
     {
@@ -254,25 +259,27 @@ public static class ArrowMarshaller
 
   /// <summary>
   /// Builds an Arrow array from a flat list of CLR values and the declared
-  /// element type. Recursive: a list-typed element triggers a child build
-  /// of all flattened inner values plus an offsets/validity envelope, so
-  /// arbitrary nesting depth is supported.
+  /// element type. This dispatcher handles the recursive shapes (Nullable&lt;T&gt;,
+  /// enum, list/array); leaf-type encoding is delegated to
+  /// <see cref="ArrowMarshallingRegistry"/>. The optional
+  /// <paramref name="property"/> threads attribute-driven type parameters
+  /// (e.g. <c>[ArrowDecimal]</c>) into the rule's <c>CreateArrowType</c>.
   /// </summary>
-  private static IArrowArray BuildArrayFromValues(List<object?> values, Type elementType)
+  private static IArrowArray BuildArrayFromValues(
+    List<object?> values,
+    Type elementType,
+    PropertyInfo? property = null
+  )
   {
     var underlyingType = Nullable.GetUnderlyingType(elementType) ?? elementType;
 
-    if (underlyingType == typeof(int)) return BuildInt32Array(values);
-    if (underlyingType == typeof(long)) return BuildInt64Array(values);
-    if (underlyingType == typeof(float)) return BuildFloatArray(values);
-    if (underlyingType == typeof(double)) return BuildDoubleArray(values);
-    if (underlyingType == typeof(bool)) return BuildBooleanArray(values);
-    if (underlyingType == typeof(string)) return BuildStringArray(values);
-    if (underlyingType == typeof(DateTime)) return BuildDateTimeArray(values);
-    if (underlyingType == typeof(DateTimeOffset)) return BuildDateTimeOffsetArray(values);
-    if (underlyingType == typeof(TimeSpan)) return BuildDurationArray(values);
-    if (underlyingType == typeof(Guid)) return BuildGuidArray(values);
-    if (underlyingType == typeof(byte[])) return BuildBinaryArray(values);
+    var rule = ArrowMarshallingRegistry.TryGet(underlyingType);
+    if (rule is not null)
+    {
+      var arrowType = rule.CreateArrowType(property);
+      return rule.Encode(arrowType, values);
+    }
+
     if (underlyingType.IsEnum) return BuildEnumArray(values, underlyingType);
 
     var listElementType = ArrowSchemaMapper.TryGetListElementType(underlyingType);
@@ -343,72 +350,6 @@ public static class ArrowMarshaller
     return new ListArray(listData);
   }
 
-  private static IArrowArray BuildInt32Array(List<object?> values)
-  {
-    var builder = new Int32Array.Builder();
-    foreach (var value in values)
-    {
-      if (value is null) builder.AppendNull();
-      else builder.Append((int)value);
-    }
-    return builder.Build();
-  }
-
-  private static IArrowArray BuildInt64Array(List<object?> values)
-  {
-    var builder = new Int64Array.Builder();
-    foreach (var value in values)
-    {
-      if (value is null) builder.AppendNull();
-      else builder.Append((long)value);
-    }
-    return builder.Build();
-  }
-
-  private static IArrowArray BuildFloatArray(List<object?> values)
-  {
-    var builder = new FloatArray.Builder();
-    foreach (var value in values)
-    {
-      if (value is null) builder.AppendNull();
-      else builder.Append((float)value);
-    }
-    return builder.Build();
-  }
-
-  private static IArrowArray BuildDoubleArray(List<object?> values)
-  {
-    var builder = new DoubleArray.Builder();
-    foreach (var value in values)
-    {
-      if (value is null) builder.AppendNull();
-      else builder.Append((double)value);
-    }
-    return builder.Build();
-  }
-
-  private static IArrowArray BuildBooleanArray(List<object?> values)
-  {
-    var builder = new BooleanArray.Builder();
-    foreach (var value in values)
-    {
-      if (value is null) builder.AppendNull();
-      else builder.Append((bool)value);
-    }
-    return builder.Build();
-  }
-
-  private static IArrowArray BuildStringArray(List<object?> values)
-  {
-    var builder = new StringArray.Builder();
-    foreach (var value in values)
-    {
-      if (value is null) builder.AppendNull();
-      else builder.Append((string)value);
-    }
-    return builder.Build();
-  }
-
   private static IArrowArray BuildEnumArray(List<object?> values, Type enumType)
   {
     // Resolve [SerializedEnum] attribute values for the enum type, matching all other format serializers.
@@ -422,78 +363,15 @@ public static class ArrowMarshaller
     return builder.Build();
   }
 
-  private static IArrowArray BuildDateTimeArray(List<object?> values)
-  {
-    var timestampType = new TimestampType(TimeUnit.Microsecond, (string?)null);
-    var builder = new TimestampArray.Builder(timestampType);
-    foreach (var value in values)
-    {
-      if (value is null)
-      {
-        builder.AppendNull();
-      }
-      else
-      {
-        var dt = (DateTime)value;
-        var utcDt = dt.Kind == DateTimeKind.Utc ? dt : dt.ToUniversalTime();
-        builder.Append(new DateTimeOffset(utcDt, TimeSpan.Zero));
-      }
-    }
-    return builder.Build();
-  }
-
-  private static IArrowArray BuildDateTimeOffsetArray(List<object?> values)
-  {
-    var timestampType = new TimestampType(TimeUnit.Microsecond, timezone: "UTC");
-    var builder = new TimestampArray.Builder(timestampType);
-    foreach (var value in values)
-    {
-      if (value is null) builder.AppendNull();
-      else builder.Append(((DateTimeOffset)value).ToUniversalTime());
-    }
-    return builder.Build();
-  }
-
-  private static IArrowArray BuildDurationArray(List<object?> values)
-  {
-    var builder = new DurationArray.Builder(DurationType.Microsecond);
-    foreach (var value in values)
-    {
-      if (value is null) builder.AppendNull();
-      else builder.Append((TimeSpan)value);
-    }
-    return builder.Build();
-  }
-
-  private static IArrowArray BuildGuidArray(List<object?> values)
-  {
-    // Guid stored as string in Arrow
-    var builder = new StringArray.Builder();
-    foreach (var value in values)
-    {
-      if (value is null) builder.AppendNull();
-      else builder.Append(((Guid)value).ToString("D"));
-    }
-    return builder.Build();
-  }
-
-  private static IArrowArray BuildBinaryArray(List<object?> values)
-  {
-    var builder = new BinaryArray.Builder();
-    foreach (var value in values)
-    {
-      if (value is null) builder.AppendNull();
-      else builder.Append((byte[])value);
-    }
-    return builder.Build();
-  }
-
   // ──────────────────────────────────────────────────────────────
   // Value Extraction (Arrow → C#)
   // ──────────────────────────────────────────────────────────────
 
   /// <summary>
-  /// Extracts a value from an Arrow array at a specific index, converting to the target CLR type.
+  /// Extracts a value from an Arrow array at a specific index, converting to
+  /// the target CLR type. This dispatcher handles recursive shapes
+  /// (Nullable&lt;T&gt;, enum, list/array) and cross-type numeric widening;
+  /// leaf-type decoding is delegated to <see cref="ArrowMarshallingRegistry"/>.
   /// </summary>
   private static object? GetValueFromArray(IArrowArray array, int index, Type targetType)
   {
@@ -505,92 +383,10 @@ public static class ArrowMarshaller
 
     var underlyingType = Nullable.GetUnderlyingType(targetType) ?? targetType;
 
-    // Primitive types
-    if (underlyingType == typeof(int) && array is Int32Array int32Array)
+    var rule = ArrowMarshallingRegistry.TryGet(underlyingType);
+    if (rule is not null && rule.Matches(array))
     {
-      return int32Array.GetValue(index);
-    }
-
-    if (underlyingType == typeof(long) && array is Int64Array int64Array)
-    {
-      return int64Array.GetValue(index);
-    }
-
-    if (underlyingType == typeof(float) && array is FloatArray floatArray)
-    {
-      return floatArray.GetValue(index);
-    }
-
-    if (underlyingType == typeof(double) && array is DoubleArray doubleArray)
-    {
-      return doubleArray.GetValue(index);
-    }
-
-    if (underlyingType == typeof(bool) && array is BooleanArray boolArray)
-    {
-      return boolArray.GetValue(index);
-    }
-
-    if (underlyingType == typeof(string))
-    {
-      return array switch
-      {
-        StringArray stringArray => stringArray.GetString(index),
-        LargeStringArray largeStringArray => largeStringArray.GetString(index),
-        _ => throw new NotSupportedException(
-          $"Cannot convert Arrow array of type '{array.Data.DataType.Name}' to C# type 'String'."
-        ),
-      };
-    }
-
-    // Temporal types
-    if (underlyingType == typeof(DateTime) && array is TimestampArray timestampArray)
-    {
-      var dto = timestampArray.GetTimestamp(index);
-      if (dto == null)
-      {
-        return null;
-      }
-
-      return dto.Value.UtcDateTime;
-    }
-
-    if (underlyingType == typeof(DateTimeOffset) && array is TimestampArray tsArray)
-    {
-      return tsArray.GetTimestamp(index);
-    }
-
-    if (underlyingType == typeof(TimeSpan) && array is DurationArray durationArray)
-    {
-      return durationArray.GetTimeSpan(index);
-    }
-
-    // Special types
-    if (underlyingType == typeof(Guid))
-    {
-      string? guidString = array switch
-      {
-        StringArray stringArray => stringArray.GetString(index),
-        LargeStringArray largeStringArray => largeStringArray.GetString(index),
-        _ => null,
-      };
-
-      if (guidString != null)
-      {
-        return Guid.Parse(guidString);
-      }
-
-      return null;
-    }
-
-    if (underlyingType == typeof(byte[]))
-    {
-      return array switch
-      {
-        BinaryArray binaryArray => binaryArray.GetBytes(index).ToArray(),
-        LargeBinaryArray largeBinaryArray => largeBinaryArray.GetBytes(index).ToArray(),
-        _ => null,
-      };
+      return rule.Decode(array, index);
     }
 
     // Enum types: deserialized from their [SerializedEnum] string value
@@ -620,8 +416,9 @@ public static class ArrowMarshaller
       return enumValue;
     }
 
-    // Numeric type coercion (pandas compatibility)
-    // Keep safe widening conversions that preserve precision
+    // Numeric type coercion (pandas compatibility). These are cross-type
+    // widenings, not registry entries — the rule for `long` only matches
+    // Int64Array, so an Int32Array→long? read lands here.
     if (underlyingType == typeof(long))
     {
       if (array is Int32Array int32ToInt64Array)

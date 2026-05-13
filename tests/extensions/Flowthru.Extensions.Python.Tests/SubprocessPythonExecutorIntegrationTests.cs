@@ -49,14 +49,28 @@ public class SubprocessPythonExecutorIntegrationTests
   }
 
   [FlowthruSchema]
-  public partial record UnsupportedDecimalRow
+  public partial record UnsupportedDayRow
   {
     public required int Id { get; init; }
-    // Decimal is intentionally not Arrow-marshalable; this exercises the
+    // DateOnly is intentionally not Arrow-marshalable; this exercises the
     // "marshalling failure surfaces unwrapped via FormatInnerExceptionDetail"
     // path. The user must see "NotSupportedException" + property name, not
     // "Exception has been thrown by the target of an invocation."
+    public required DateOnly Day { get; init; }
+  }
+
+  [FlowthruSchema]
+  public partial record PyDecimalRow
+  {
+    public required int Id { get; init; }
     public required decimal Amount { get; init; }
+  }
+
+  [FlowthruSchema]
+  public partial record GuidRow
+  {
+    public required Guid Id { get; init; }
+    public required string Name { get; init; }
   }
 
   // ── Fixture state ───────────────────────────────────────────────────
@@ -276,6 +290,52 @@ public class SubprocessPythonExecutorIntegrationTests
   }
 
   [Test]
+  public async Task Invoke_Tabular_Decimal_RoundTripsThroughArrowIpc()
+  {
+    var executor = CreateExecutor();
+    var rows = new[]
+    {
+      new PyDecimalRow { Id = 1, Amount = 1234.5678m },
+      new PyDecimalRow { Id = 2, Amount = -987.6543m },
+      new PyDecimalRow { Id = 3, Amount = 0m },
+    };
+
+    var io = executor.Invoke<IEnumerable<PyDecimalRow>, IEnumerable<PyDecimalRow>>(
+      "test_steps.tabular_decimal_passthrough", "passthrough", rows
+    );
+    var result = await io.Run();
+    AssertSuccess(result, out var output);
+
+    var materialized = output.ToList();
+    Assert.That(materialized.Select(r => r.Id), Is.EqualTo(new[] { 1, 2, 3 }));
+    Assert.That(materialized.Select(r => r.Amount),
+      Is.EqualTo(new[] { 1234.5678m, -987.6543m, 0m }));
+  }
+
+  [Test]
+  public async Task Invoke_Tabular_Guid_RoundTripsThroughArrowIpc()
+  {
+    var executor = CreateExecutor();
+    var g1 = Guid.Parse("11111111-2222-3333-4444-555555555555");
+    var g2 = Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee");
+    var rows = new[]
+    {
+      new GuidRow { Id = g1, Name = "alpha" },
+      new GuidRow { Id = g2, Name = "beta"  },
+    };
+
+    var io = executor.Invoke<IEnumerable<GuidRow>, IEnumerable<GuidRow>>(
+      "test_steps.tabular_guid_passthrough", "passthrough", rows
+    );
+    var result = await io.Run();
+    AssertSuccess(result, out var output);
+
+    var materialized = output.ToList();
+    Assert.That(materialized.Select(r => r.Id), Is.EqualTo(new[] { g1, g2 }));
+    Assert.That(materialized.Select(r => r.Name), Is.EqualTo(new[] { "alpha", "beta" }));
+  }
+
+  [Test]
   public async Task Invoke_MultiOutputTuple_DecodesBothElements()
   {
     var executor = CreateExecutor();
@@ -441,22 +501,22 @@ public class SubprocessPythonExecutorIntegrationTests
   public async Task Invoke_CSharpMarshallingFailure_SurfacesNotSupportedWithDetail()
   {
     var executor = CreateExecutor();
-    var rows = new[] { new UnsupportedDecimalRow { Id = 1, Amount = 9.99m } };
+    var rows = new[] { new UnsupportedDayRow { Id = 1, Day = new DateOnly(2024, 1, 1) } };
 
     // This blows up inside ArrowMarshaller.ToRecordBatch — BEFORE the worker
     // sees anything. The regression we're guarding here is the
     // TargetInvocationException unwrap path: the user must see
     // "NotSupportedException" + the offending property/type, not the generic
     // "Exception has been thrown by the target of an invocation." wrapper.
-    var io = executor.Invoke<IEnumerable<UnsupportedDecimalRow>, IEnumerable<UnsupportedDecimalRow>>(
+    var io = executor.Invoke<IEnumerable<UnsupportedDayRow>, IEnumerable<UnsupportedDayRow>>(
       "test_steps.tabular_identity", "identity", rows
     );
     var result = await io.Run();
-    var failure = (EffResult<IEnumerable<UnsupportedDecimalRow>>.Failure)result;
+    var failure = (EffResult<IEnumerable<UnsupportedDayRow>>.Failure)result;
 
     Assert.That(failure.Error.Message, Does.Not.Contain("Exception has been thrown by the target of an invocation"),
       "The MapError pipeline must unwrap reflection's TargetInvocationException so the real cause surfaces.");
-    Assert.That(failure.Error.Message, Does.Contain("Amount").Or.Contain("Decimal"),
+    Assert.That(failure.Error.Message, Does.Contain("Day").Or.Contain("DateOnly"),
       "The offending property/type must be named in the user-facing message.");
   }
 
@@ -561,6 +621,29 @@ public class SubprocessPythonExecutorIntegrationTests
 
       @step(inputs=["Unsupported"], outputs=["Unsupported"])
       def identity(df: pd.DataFrame) -> pd.DataFrame:
+          return df
+      """);
+
+    File.WriteAllText(Path.Combine(stepsDir, "tabular_decimal_passthrough.py"),
+      """
+      import pandas as pd
+      from flowthru import step
+
+      @step(inputs=["PyDecimalRow"], outputs=["PyDecimalRow"])
+      def passthrough(df: pd.DataFrame) -> pd.DataFrame:
+          # Decimal columns surface as object-dtype Series of decimal.Decimal
+          # values. Returning the frame unchanged proves the Arrow→pandas
+          # and pandas→Arrow conversions both round-trip the Decimal128 column.
+          return df
+      """);
+
+    File.WriteAllText(Path.Combine(stepsDir, "tabular_guid_passthrough.py"),
+      """
+      import pandas as pd
+      from flowthru import step
+
+      @step(inputs=["GuidRow"], outputs=["GuidRow"])
+      def passthrough(df: pd.DataFrame) -> pd.DataFrame:
           return df
       """);
 

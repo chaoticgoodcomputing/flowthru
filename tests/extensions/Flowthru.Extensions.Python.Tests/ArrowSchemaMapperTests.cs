@@ -114,14 +114,16 @@ public class ArrowSchemaMapperTests
   public partial record UnsupportedMapperSchema
   {
     public required int Id { get; init; }
-    public required decimal Amount { get; init; }
+    // DateOnly is recognized by FlowthruSchema as a flat scalar but is
+    // not in the Arrow marshaller's supported leaf set.
+    public required DateOnly Day { get; init; }
   }
 
   [FlowthruSchema]
   public partial record UnsupportedNullableMapperSchema
   {
     public required int Id { get; init; }
-    public required decimal? Amount { get; init; }
+    public required DateOnly? Day { get; init; }
   }
 
   [FlowthruSchema]
@@ -140,6 +142,7 @@ public class ArrowSchemaMapperTests
     public required DateTimeOffset UtcTime { get; init; }
     public required TimeSpan Span { get; init; }
     public required List<int> Items { get; init; }
+    public required decimal Amount { get; init; }
   }
 
   [FlowthruSchema]
@@ -236,10 +239,13 @@ public class ArrowSchemaMapperTests
   // ---------------------------------------------------------------------
 
   [Test]
-  public void BuildArrowSchema_Maps_Guid_To_StringType()
+  public void BuildArrowSchema_Maps_Guid_To_ArrowUuidExtensionType()
   {
     var schema = ArrowSchemaMapper.BuildArrowSchema<SpecialTypesSchema>();
-    Assert.That(schema.GetFieldByName("Id").DataType, Is.InstanceOf<StringType>());
+    var dataType = schema.GetFieldByName("Id").DataType;
+    Assert.That(dataType, Is.InstanceOf<GuidType>(),
+      "Guid columns must surface as the canonical arrow.uuid extension type, not StringType.");
+    Assert.That(((GuidType)dataType).Name, Is.EqualTo("arrow.uuid"));
   }
 
   [Test]
@@ -412,9 +418,9 @@ public class ArrowSchemaMapperTests
       () => ArrowSchemaMapper.BuildArrowSchema<UnsupportedMapperSchema>()
     );
 
-    Assert.That(ex!.Message, Does.Contain("Amount"),
+    Assert.That(ex!.Message, Does.Contain("Day"),
       "Diagnostic must name the offending property so developers know where to look.");
-    Assert.That(ex.Message, Does.Contain("Decimal"),
+    Assert.That(ex.Message, Does.Contain("DateOnly"),
       "Diagnostic must name the offending type so the fix is obvious.");
   }
 
@@ -425,8 +431,8 @@ public class ArrowSchemaMapperTests
       () => ArrowSchemaMapper.BuildArrowSchema<UnsupportedNullableMapperSchema>()
     );
 
-    Assert.That(ex!.Message, Does.Contain("Amount"));
-    Assert.That(ex.Message, Does.Contain("Decimal"));
+    Assert.That(ex!.Message, Does.Contain("Day"));
+    Assert.That(ex.Message, Does.Contain("DateOnly"));
   }
 
   // ---------------------------------------------------------------------
@@ -470,6 +476,42 @@ public class ArrowSchemaMapperTests
     Assert.That(spec["IdCol"], Is.EqualTo("object"));
     Assert.That(spec["BlobCol"], Is.EqualTo("object"));
     Assert.That(spec["EnumCol"], Is.EqualTo("object"));
+  }
+
+  [Test]
+  public void BuildDtypeSpecDictionary_Maps_Decimal_To_Object()
+  {
+    // pandas surfaces Decimal128 columns as object-dtype Series of
+    // python decimal.Decimal — there is no narrower numpy dtype to coerce to.
+    var spec = ArrowSchemaMapper.BuildDtypeSpecDictionary<MixedDtypeSchema>();
+    Assert.That(spec["Amount"], Is.EqualTo("object"));
+  }
+
+  [Test]
+  public void BuildArrowSchema_Maps_Decimal_To_Decimal128Type_With_Default_PrecisionAndScale()
+  {
+    var schema = ArrowSchemaMapper.BuildArrowSchema<MixedDtypeSchema>();
+    var dataType = schema.GetFieldByName("Amount").DataType;
+    Assert.That(dataType, Is.InstanceOf<Decimal128Type>());
+    var dec = (Decimal128Type)dataType;
+    Assert.That(dec.Precision, Is.EqualTo(28));
+    Assert.That(dec.Scale, Is.EqualTo(9));
+  }
+
+  [FlowthruSchema]
+  public partial record ExplicitDecimalSchema
+  {
+    [Flowthru.Step.Python.ArrowDecimal(20, 4)]
+    public required decimal Price { get; init; }
+  }
+
+  [Test]
+  public void BuildArrowSchema_With_ArrowDecimal_Attribute_Uses_Declared_PrecisionAndScale()
+  {
+    var schema = ArrowSchemaMapper.BuildArrowSchema<ExplicitDecimalSchema>();
+    var dec = (Decimal128Type)schema.GetFieldByName("Price").DataType;
+    Assert.That(dec.Precision, Is.EqualTo(20));
+    Assert.That(dec.Scale, Is.EqualTo(4));
   }
 
   [Test]
