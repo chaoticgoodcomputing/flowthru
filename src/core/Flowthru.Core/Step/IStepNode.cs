@@ -42,6 +42,24 @@ public interface IStepNode : INode
   string FlowLabel => string.Empty;
 
   /// <summary>
+  /// Chokepoint hook invoked by <c>FlowBuilder.Add</c> when this step
+  /// is appended to a flow. The default implementation is a no-op —
+  /// hand-rolled <see cref="IStepNode"/> implementations that already
+  /// carry a meaningful <see cref="FlowLabel"/> need not opt in.
+  /// Framework-shipped concrete step types override this to stamp the
+  /// defining flow's label when construction left the slot empty,
+  /// closing the drift hazard where an extension factory forgets to
+  /// thread <c>flowLabel: builder.Label</c> through its constructor.
+  /// Implementations should be idempotent and stamp-if-empty so an
+  /// explicit ctor-supplied label is never overwritten.
+  /// </summary>
+  /// <param name="flowLabel">
+  /// The defining flow's label, supplied by the
+  /// <c>FlowBuilder</c> appending this step.
+  /// </param>
+  void OnAddedToFlow(string flowLabel) { /* default: no-op */ }
+
+  /// <summary>
   /// Items this step reads at the start of <see cref="Execute"/>.
   /// </summary>
   IReadOnlyList<IItem> Inputs { get; }

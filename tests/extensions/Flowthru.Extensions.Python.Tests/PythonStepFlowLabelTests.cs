@@ -89,4 +89,53 @@ public class PythonStepFlowLabelTests
         + "the AddStep variant used to construct it (core, Python, or future "
         + "extensions).");
   }
+
+  /// <summary>
+  /// Multi-arity twin of the 1×1 pin. The hand-written 1×1 overload
+  /// stamps the flow label, but the multi-arity matrix is emitted by
+  /// <c>PythonStepGenerator</c>; an earlier revision of that generator
+  /// omitted <c>flowLabel: builder.Label</c>, sending every multi-input
+  /// or multi-output Python step into the synthetic <c>__merged__</c>
+  /// bucket downstream. Pins the generator emission so that bug cannot
+  /// silently return.
+  /// </summary>
+  [Test]
+  public void AddPythonStep_MultiInputAndMultiOutput_StampsFlowLabel()
+  {
+    var inA = ItemFactory.Singleton.Memory<ProbeIn>("multi-in-a");
+    var inB = ItemFactory.Singleton.Memory<ProbeIn>("multi-in-b");
+    var outA = ItemFactory.Singleton.Memory<ProbeOut>("multi-out-a");
+    var outB = ItemFactory.Singleton.Memory<ProbeOut>("multi-out-b");
+    var single = ItemFactory.Singleton.Memory<ProbeOut>("multi-out-c");
+
+    var flow = FlowBuilder.CreateFlow("Clustering", b =>
+    {
+      // 2×1 — the shape used by magic-atlas's GenerateCTfIdfLabels.
+      b.AddPythonStep<ProbeIn, ProbeIn, ProbeOut>(
+        label: "TwoInOneOut",
+        module: "demo",
+        function: "two_in_one_out",
+        input: (inA, inB),
+        output: single,
+        executor: new NoopExecutor()
+      );
+
+      // 1×2 — pins the multi-output branch of the matrix too.
+      b.AddPythonStep<ProbeIn, ProbeOut, ProbeOut>(
+        label: "OneInTwoOut",
+        module: "demo",
+        function: "one_in_two_out",
+        input: ItemFactory.Singleton.Memory<ProbeIn>("multi-in-c"),
+        output: (outA, outB),
+        executor: new NoopExecutor()
+      );
+    });
+
+    Assert.That(flow.Steps.Select(s => s.FlowLabel),
+      Is.EqualTo(new[] { "Clustering", "Clustering" }),
+      "Multi-arity AddPythonStep overloads (emitted by PythonStepGenerator) "
+        + "must stamp the defining flow's label on every constructed "
+        + "PythonStep. Regressing this collapses multi-input/output Python "
+        + "steps into the phantom __merged__ flow in Mermaid/JSON metadata.");
+  }
 }

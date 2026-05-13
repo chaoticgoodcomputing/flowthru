@@ -18,3 +18,5 @@ When adding or modifying Flowthru internals:
 - Ask not just "Will this work?" but "When will it break?"
 
 Flowthru also depends on, and connects to, many other projects. Projects that may be helpful to directly introspect can be found in `docs/reference/misc/external/*/repo` subdirectories. If a source's `repo` subdirectory is missing, it can be pulled by running `nx run xdocs:pull <source>`.
+
+When developing, do not manually run tests as part of a final confirmation — this will be handled automatically by the Agent stop hook from `.claude/settings.json`. However, tests can be run selectively via `dotnet test` if extended output is required for debugging sessions.

@@ -82,7 +82,14 @@ public sealed class PythonStep<TIn, TOut> : IStepNode<TIn, TOut>
   public string Label { get; }
 
   /// <inheritdoc/>
-  public string FlowLabel { get; }
+  public string FlowLabel { get; private set; }
+
+  /// <inheritdoc/>
+  public void OnAddedToFlow(string flowLabel)
+  {
+    if (string.IsNullOrEmpty(FlowLabel))
+      FlowLabel = flowLabel;
+  }
 
   /// <inheritdoc/>
   public NodeTraits Traits { get; }

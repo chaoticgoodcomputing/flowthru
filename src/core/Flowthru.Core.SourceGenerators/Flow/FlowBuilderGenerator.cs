@@ -294,8 +294,9 @@ public sealed class FlowBuilderGenerator : IIncrementalGenerator
     sb.AppendLine($"      new global::Flowthru.Data.Catalog.IItem[] {{ {inputsArray} }},");
     sb.AppendLine($"      new global::Flowthru.Data.Catalog.IItem[] {{ {outputsArray} }},");
     sb.AppendLine("      loadInputs,");
-    sb.AppendLine("      saveOutputs,");
-    sb.AppendLine("      flowLabel: this.Label));");
+    // FlowLabel is stamped centrally by FlowBuilder.Add via IStepNode.OnAddedToFlow;
+    // emitting `flowLabel: this.Label` here would duplicate that responsibility.
+    sb.AppendLine("      saveOutputs));");
   }
 
   /// <summary>
@@ -499,8 +500,9 @@ public sealed class FlowBuilderGenerator : IIncrementalGenerator
     sb.AppendLine("      global::System.Array.Empty<global::Flowthru.Data.Catalog.IItem>(),");
     sb.AppendLine("      global::System.Array.Empty<global::Flowthru.Data.Catalog.IItem>(),");
     sb.AppendLine("      loadInputs,");
-    sb.AppendLine("      saveOutputs,");
-    sb.AppendLine("      flowLabel: this.Label));");
+    // FlowLabel is stamped centrally by FlowBuilder.Add via IStepNode.OnAddedToFlow;
+    // emitting `flowLabel: this.Label` here would duplicate that responsibility.
+    sb.AppendLine("      saveOutputs));");
   }
 
   /// <summary>
@@ -541,8 +543,9 @@ public sealed class FlowBuilderGenerator : IIncrementalGenerator
     sb.AppendLine("      global::System.Array.Empty<global::Flowthru.Data.Catalog.IItem>(),");
     sb.AppendLine($"      new global::Flowthru.Data.Catalog.IItem[] {{ {outputsArray} }},");
     sb.AppendLine("      loadInputs,");
-    sb.AppendLine("      saveOutputs,");
-    sb.AppendLine("      flowLabel: this.Label));");
+    // FlowLabel is stamped centrally by FlowBuilder.Add via IStepNode.OnAddedToFlow;
+    // emitting `flowLabel: this.Label` here would duplicate that responsibility.
+    sb.AppendLine("      saveOutputs));");
   }
 
   /// <summary>
@@ -581,7 +584,8 @@ public sealed class FlowBuilderGenerator : IIncrementalGenerator
     sb.AppendLine($"      new global::Flowthru.Data.Catalog.IItem[] {{ {inputsArray} }},");
     sb.AppendLine("      global::System.Array.Empty<global::Flowthru.Data.Catalog.IItem>(),");
     sb.AppendLine("      loadInputs,");
-    sb.AppendLine("      saveOutputs,");
-    sb.AppendLine("      flowLabel: this.Label));");
+    // FlowLabel is stamped centrally by FlowBuilder.Add via IStepNode.OnAddedToFlow;
+    // emitting `flowLabel: this.Label` here would duplicate that responsibility.
+    sb.AppendLine("      saveOutputs));");
   }
 }

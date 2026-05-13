@@ -70,9 +70,25 @@ public sealed partial class FlowBuilder
   /// extension <c>AddStep</c> variants that need to construct their
   /// own concrete step subclass (e.g., <c>AddPythonStep</c>).
   /// </summary>
+  /// <remarks>
+  /// This method is the framework-wide chokepoint for stamping the
+  /// defining flow's label onto a step. It invokes
+  /// <see cref="IStepNode.OnAddedToFlow"/> with <see cref="Label"/>
+  /// before appending, so framework-shipped concrete step types
+  /// (<see cref="Flowthru.Step.Step{TIn, TOut}"/>,
+  /// <c>PythonStep&lt;TIn, TOut&gt;</c>, ...) need not be threaded
+  /// <c>flowLabel: builder.Label</c> at construction. A previous
+  /// design relied on every <c>AddStep</c> factory passing the label
+  /// through manually, which drifted out of sync the moment an
+  /// extension generator omitted the argument — multi-arity Python
+  /// steps then landed in a phantom <c>__merged__</c> bucket in
+  /// downstream metadata. Centralising the stamp here makes that
+  /// failure mode structurally impossible.
+  /// </remarks>
   public FlowBuilder Add(IStepNode step)
   {
     if (step is null) throw new ArgumentNullException(nameof(step));
+    step.OnAddedToFlow(Label);
     _steps.Add(step);
     return this;
   }

@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<coverage line-rate="0.0132" branch-rate="0.0167" version="1.9" timestamp="1778644964" lines-covered="39" lines-valid="2950" branches-covered="13" branches-valid="774">
+<coverage line-rate="0.0131" branch-rate="0.0167" version="1.9" timestamp="1778694799" lines-covered="39" lines-valid="2956" branches-covered="13" branches-valid="776">
   <sources>
     <source></source>
   </sources>
   <packages>
-    <package name="Flowthru.Core" line-rate="0" branch-rate="0" complexity="1067">
+    <package name="Flowthru.Core" line-rate="0" branch-rate="0" complexity="1070">
       <classes>
         <class name="Flowthru.Validation.Runtime.Inspect" filename="/home/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Validation/Runtime/InspectionResult.cs" line-rate="0" branch-rate="0" complexity="5">
           <methods>
@@ -988,36 +988,54 @@
             <line number="320" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Step.IStepNode" filename="/home/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Step/IStepNode.cs" line-rate="0" branch-rate="1" complexity="1">
+        <class name="Flowthru.Step.IStepNode" filename="/home/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Step/IStepNode.cs" line-rate="0" branch-rate="1" complexity="2">
           <methods>
             <method name="get_FlowLabel" signature="()" line-rate="0" branch-rate="1" complexity="1">
               <lines>
                 <line number="42" hits="0" branch="False" />
               </lines>
             </method>
+            <method name="OnAddedToFlow" signature="(System.String)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="60" hits="0" branch="False" />
+              </lines>
+            </method>
           </methods>
           <lines>
             <line number="42" hits="0" branch="False" />
+            <line number="60" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Step.Step`2" filename="/home/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Step/Step.cs" line-rate="0" branch-rate="0" complexity="23">
+        <class name="Flowthru.Step.Step`2" filename="/home/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Step/Step.cs" line-rate="0" branch-rate="0" complexity="25">
           <methods>
+            <method name="OnAddedToFlow" signature="(System.String)" line-rate="0" branch-rate="0" complexity="2">
+              <lines>
+                <line number="62" hits="0" branch="False" />
+                <line number="63" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="14" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="64" hits="0" branch="False" />
+                <line number="65" hits="0" branch="False" />
+              </lines>
+            </method>
             <method name="Validate" signature="()" line-rate="0" branch-rate="1" complexity="1">
               <lines>
-                <line number="77" hits="0" branch="False" />
+                <line number="84" hits="0" branch="False" />
               </lines>
             </method>
             <method name="Execute" signature="()" line-rate="0" branch-rate="0" complexity="4">
               <lines>
-                <line number="81" hits="0" branch="True" condition-coverage="0% (0/4)">
+                <line number="88" hits="0" branch="True" condition-coverage="0% (0/4)">
                   <conditions>
                     <condition number="29" type="jump" coverage="0%" />
                     <condition number="77" type="jump" coverage="0%" />
                   </conditions>
                 </line>
-                <line number="82" hits="0" branch="False" />
-                <line number="83" hits="0" branch="False" />
-                <line number="84" hits="0" branch="False" />
+                <line number="89" hits="0" branch="False" />
+                <line number="90" hits="0" branch="False" />
+                <line number="91" hits="0" branch="False" />
               </lines>
             </method>
             <method name=".ctor" signature="(System.String,System.Func`2&lt;TIn,Flowthru.Prelude.FlowIO`1&lt;TOut&gt;&gt;,System.Collections.Generic.IReadOnlyList`1&lt;Flowthru.Data.Catalog.IItem&gt;,System.Collections.Generic.IReadOnlyList`1&lt;Flowthru.Data.Catalog.IItem&gt;,System.Func`1&lt;Flowthru.Prelude.FlowIO`1&lt;TIn&gt;&gt;,System.Func`2&lt;TOut,Flowthru.Prelude.FlowIO`1&lt;Flowthru.Prelude.FlowUnit&gt;&gt;,Flowthru.Data.Catalog.NodeTraits,System.Collections.Generic.IReadOnlyList`1&lt;Flowthru.Validation.Runtime.ServiceRef&gt;,System.String)" line-rate="0" branch-rate="0" complexity="18">
@@ -1073,16 +1091,24 @@
             </method>
           </methods>
           <lines>
-            <line number="77" hits="0" branch="False" />
-            <line number="81" hits="0" branch="True" condition-coverage="0% (0/4)">
+            <line number="62" hits="0" branch="False" />
+            <line number="63" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="14" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="64" hits="0" branch="False" />
+            <line number="65" hits="0" branch="False" />
+            <line number="84" hits="0" branch="False" />
+            <line number="88" hits="0" branch="True" condition-coverage="0% (0/4)">
               <conditions>
                 <condition number="29" type="jump" coverage="0%" />
                 <condition number="77" type="jump" coverage="0%" />
               </conditions>
             </line>
-            <line number="82" hits="0" branch="False" />
-            <line number="83" hits="0" branch="False" />
-            <line number="84" hits="0" branch="False" />
+            <line number="89" hits="0" branch="False" />
+            <line number="90" hits="0" branch="False" />
+            <line number="91" hits="0" branch="False" />
             <line number="42" hits="0" branch="False" />
             <line number="43" hits="0" branch="True" condition-coverage="0% (0/2)">
               <conditions>
@@ -3746,49 +3772,50 @@
           <methods>
             <method name="Add" signature="(Flowthru.Step.IStepNode)" line-rate="0" branch-rate="0" complexity="2">
               <lines>
-                <line number="74" hits="0" branch="False" />
-                <line number="75" hits="0" branch="True" condition-coverage="0% (0/2)">
+                <line number="89" hits="0" branch="False" />
+                <line number="90" hits="0" branch="True" condition-coverage="0% (0/2)">
                   <conditions>
                     <condition number="7" type="jump" coverage="0%" />
                   </conditions>
                 </line>
-                <line number="76" hits="0" branch="False" />
-                <line number="77" hits="0" branch="False" />
-                <line number="78" hits="0" branch="False" />
+                <line number="91" hits="0" branch="False" />
+                <line number="92" hits="0" branch="False" />
+                <line number="93" hits="0" branch="False" />
+                <line number="94" hits="0" branch="False" />
               </lines>
             </method>
             <method name="Build" signature="()" line-rate="0" branch-rate="0" complexity="6">
               <lines>
-                <line number="87" hits="0" branch="False" />
-                <line number="88" hits="0" branch="False" />
-                <line number="89" hits="0" branch="True" condition-coverage="0% (0/6)">
+                <line number="103" hits="0" branch="False" />
+                <line number="104" hits="0" branch="False" />
+                <line number="105" hits="0" branch="True" condition-coverage="0% (0/6)">
                   <conditions>
                     <condition number="25" type="jump" coverage="0%" />
                     <condition number="35" type="jump" coverage="0%" />
                     <condition number="45" type="jump" coverage="0%" />
                   </conditions>
                 </line>
-                <line number="90" hits="0" branch="False" />
-                <line number="91" hits="0" branch="False" />
-                <line number="92" hits="0" branch="False" />
-                <line number="93" hits="0" branch="False" />
-                <line number="94" hits="0" branch="False" />
-                <line number="95" hits="0" branch="False" />
-                <line number="96" hits="0" branch="False" />
-              </lines>
-            </method>
-            <method name="CreateFlow" signature="(System.String,System.Action`1&lt;Flowthru.Flow.FlowBuilder&gt;)" line-rate="0" branch-rate="0" complexity="2">
-              <lines>
-                <line number="104" hits="0" branch="False" />
-                <line number="105" hits="0" branch="True" condition-coverage="0% (0/2)">
-                  <conditions>
-                    <condition number="7" type="jump" coverage="0%" />
-                  </conditions>
-                </line>
                 <line number="106" hits="0" branch="False" />
                 <line number="107" hits="0" branch="False" />
                 <line number="108" hits="0" branch="False" />
                 <line number="109" hits="0" branch="False" />
+                <line number="110" hits="0" branch="False" />
+                <line number="111" hits="0" branch="False" />
+                <line number="112" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="CreateFlow" signature="(System.String,System.Action`1&lt;Flowthru.Flow.FlowBuilder&gt;)" line-rate="0" branch-rate="0" complexity="2">
+              <lines>
+                <line number="120" hits="0" branch="False" />
+                <line number="121" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="7" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="122" hits="0" branch="False" />
+                <line number="123" hits="0" branch="False" />
+                <line number="124" hits="0" branch="False" />
+                <line number="125" hits="0" branch="False" />
               </lines>
             </method>
             <method name=".ctor" signature="(System.String)" line-rate="0" branch-rate="0" complexity="2">
@@ -3805,41 +3832,42 @@
             </method>
           </methods>
           <lines>
-            <line number="74" hits="0" branch="False" />
-            <line number="75" hits="0" branch="True" condition-coverage="0% (0/2)">
+            <line number="89" hits="0" branch="False" />
+            <line number="90" hits="0" branch="True" condition-coverage="0% (0/2)">
               <conditions>
                 <condition number="7" type="jump" coverage="0%" />
               </conditions>
             </line>
-            <line number="76" hits="0" branch="False" />
-            <line number="77" hits="0" branch="False" />
-            <line number="78" hits="0" branch="False" />
-            <line number="87" hits="0" branch="False" />
-            <line number="88" hits="0" branch="False" />
-            <line number="89" hits="0" branch="True" condition-coverage="0% (0/6)">
+            <line number="91" hits="0" branch="False" />
+            <line number="92" hits="0" branch="False" />
+            <line number="93" hits="0" branch="False" />
+            <line number="94" hits="0" branch="False" />
+            <line number="103" hits="0" branch="False" />
+            <line number="104" hits="0" branch="False" />
+            <line number="105" hits="0" branch="True" condition-coverage="0% (0/6)">
               <conditions>
                 <condition number="25" type="jump" coverage="0%" />
                 <condition number="35" type="jump" coverage="0%" />
                 <condition number="45" type="jump" coverage="0%" />
               </conditions>
             </line>
-            <line number="90" hits="0" branch="False" />
-            <line number="91" hits="0" branch="False" />
-            <line number="92" hits="0" branch="False" />
-            <line number="93" hits="0" branch="False" />
-            <line number="94" hits="0" branch="False" />
-            <line number="95" hits="0" branch="False" />
-            <line number="96" hits="0" branch="False" />
-            <line number="104" hits="0" branch="False" />
-            <line number="105" hits="0" branch="True" condition-coverage="0% (0/2)">
-              <conditions>
-                <condition number="7" type="jump" coverage="0%" />
-              </conditions>
-            </line>
             <line number="106" hits="0" branch="False" />
             <line number="107" hits="0" branch="False" />
             <line number="108" hits="0" branch="False" />
             <line number="109" hits="0" branch="False" />
+            <line number="110" hits="0" branch="False" />
+            <line number="111" hits="0" branch="False" />
+            <line number="112" hits="0" branch="False" />
+            <line number="120" hits="0" branch="False" />
+            <line number="121" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="7" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="122" hits="0" branch="False" />
+            <line number="123" hits="0" branch="False" />
+            <line number="124" hits="0" branch="False" />
+            <line number="125" hits="0" branch="False" />
             <line number="58" hits="0" branch="False" />
             <line number="61" hits="0" branch="False" />
             <line number="62" hits="0" branch="True" condition-coverage="0% (0/2)">
@@ -3854,12 +3882,12 @@
           <methods>
             <method name=".ctor" signature="(System.String)" line-rate="0" branch-rate="1" complexity="1">
               <lines>
-                <line number="115" hits="0" branch="False" />
+                <line number="131" hits="0" branch="False" />
               </lines>
             </method>
           </methods>
           <lines>
-            <line number="115" hits="0" branch="False" />
+            <line number="131" hits="0" branch="False" />
           </lines>
         </class>
         <class name="Flowthru.Flow.FlowResult" filename="/home/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Flow/FlowResult.cs" line-rate="0" branch-rate="0" complexity="5">
@@ -10940,7 +10968,7 @@
     </package>
     <package name="Flowthru.FUnit" line-rate="0.9068999999999999" branch-rate="0.9285" complexity="22">
       <classes>
-        <class name="Flowthru.Step.Testing.FUnitContext" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/4555bdc366efbdbea39644e8b2c308ced20ee4cf/src/core/Flowthru.FUnit/FUnitContext.cs" line-rate="0.9047" branch-rate="0.9285" complexity="21">
+        <class name="Flowthru.Step.Testing.FUnitContext" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/41e80eba561ff09a5ce0d3904a8c0abf8f4a4292/src/core/Flowthru.FUnit/FUnitContext.cs" line-rate="0.9047" branch-rate="0.9285" complexity="21">
           <methods>
             <method name="get_Services" signature="()" line-rate="1" branch-rate="1" complexity="1">
               <lines>
@@ -11120,7 +11148,7 @@
             <line number="60" hits="5" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Step.Testing.SampleBuilder" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/4555bdc366efbdbea39644e8b2c308ced20ee4cf/src/core/Flowthru.FUnit/SampleBuilder.cs" line-rate="1" branch-rate="1" complexity="1">
+        <class name="Flowthru.Step.Testing.SampleBuilder" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/41e80eba561ff09a5ce0d3904a8c0abf8f4a4292/src/core/Flowthru.FUnit/SampleBuilder.cs" line-rate="1" branch-rate="1" complexity="1">
           <methods>
             <method name="Of" signature="(T[])" line-rate="1" branch-rate="1" complexity="1">
               <lines>

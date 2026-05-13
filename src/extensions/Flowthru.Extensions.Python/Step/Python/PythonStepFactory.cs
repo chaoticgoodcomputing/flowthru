@@ -90,14 +90,11 @@ public static partial class PythonStepFactory
       outputs: new[] { (IItem)output },
       loadInputs: () => input.Load(),
       saveOutputs: out_ => output.Save(out_),
-      serviceDependencies: services,
-      // Stamp the step with the defining flow's label — without this, the
-      // step's FlowLabel defaults to string.Empty and downstream metadata
-      // providers (JSON, Mermaid) group it into a phantom "__merged__"
-      // bucket instead of the flow that authored it. The core
-      // FlowBuilderGenerator emits this same stamp on AddStep<…>; this
-      // extension must match the convention.
-      flowLabel: builder.Label
+      serviceDependencies: services
+      // FlowLabel is stamped by FlowBuilder.Add via IStepNode.OnAddedToFlow —
+      // we no longer thread `flowLabel: builder.Label` through every factory,
+      // since the chokepoint guarantees every framework-shipped step type
+      // inherits its defining flow's label automatically.
     );
 
     return builder.Add(step);

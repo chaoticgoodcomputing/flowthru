@@ -1,5 +1,6 @@
 using Flowthru.Core.Tests.Diagnostics;
 using Flowthru.Data.Catalog;
+using Flowthru.Data.Storage;
 using Flowthru.Diagnostics;
 using Flowthru.Flow;
 using Flowthru.Hosting;
@@ -117,6 +118,105 @@ public class StepMetadataIntegrationTests
       "Explicit ServiceDependencies on the constructed Step must survive FlowBuilder.Add.");
   }
 
+  // ── FlowBuilder.Add chokepoint — IStepNode.OnAddedToFlow ───────────────
+
+  /// <summary>
+  /// Pins the chokepoint contract: <see cref="FlowBuilder.Add"/> stamps
+  /// the defining flow's label onto a framework-shipped step type
+  /// (<see cref="Step{TIn, TOut}"/>) whose constructor left it empty.
+  /// Replaces the previous design where every <c>AddStep</c> factory
+  /// threaded <c>flowLabel: builder.Label</c> through the constructor
+  /// manually — that convention drifted out of sync the moment an
+  /// extension generator forgot to pass it, sending steps into a
+  /// phantom <c>__merged__</c> bucket downstream. Removing this stamp
+  /// is a regression that surfaces in every metadata consumer.
+  /// </summary>
+  [Test]
+  public void FlowBuilder_Add_StampsFlowLabel_WhenStepConstructedWithoutOne()
+  {
+    var input = ItemFactory.Singleton.Memory<int>("chokepoint-in");
+    var output = ItemFactory.Singleton.Memory<int>("chokepoint-out");
+
+    // Construct directly without threading flowLabel — simulates an
+    // extension factory that forgot the convention. The chokepoint
+    // must compensate.
+    var step = new Step<int, int>(
+      label: "bare-step",
+      transform: x => FlowIO.Pure(x),
+      inputs: new IItem[] { input },
+      outputs: new IItem[] { output },
+      loadInputs: () => input.Load(),
+      saveOutputs: r => output.Save(r)
+      // intentionally no flowLabel: argument
+    );
+
+    Assert.That(step.FlowLabel, Is.Empty,
+      "Pre-condition: constructor with no flowLabel should leave the slot empty.");
+
+    var flow = FlowBuilder.CreateFlow("chokepoint-flow", b => b.Add(step));
+
+    Assert.That(flow.Steps.Single().FlowLabel, Is.EqualTo("chokepoint-flow"),
+      "FlowBuilder.Add must stamp the defining flow's label via IStepNode.OnAddedToFlow "
+        + "when construction left FlowLabel empty. Without this, multi-arity Python steps "
+        + "and any future extension that omits `flowLabel:` from its factory drift into "
+        + "the synthetic __merged__ bucket in downstream metadata.");
+  }
+
+  /// <summary>
+  /// Twin of the stamp-if-empty pin: a step constructed with an
+  /// explicit <c>flowLabel</c> must keep it. The chokepoint is a
+  /// safety net, not an override — overwriting a deliberate label
+  /// would silently re-attribute steps and defeat the very
+  /// flow-tracking guarantee the stamp exists to preserve.
+  /// </summary>
+  [Test]
+  public void FlowBuilder_Add_DoesNotOverwrite_ExplicitlySuppliedFlowLabel()
+  {
+    var input = ItemFactory.Singleton.Memory<int>("explicit-in");
+    var output = ItemFactory.Singleton.Memory<int>("explicit-out");
+
+    var step = new Step<int, int>(
+      label: "preset-step",
+      transform: x => FlowIO.Pure(x),
+      inputs: new IItem[] { input },
+      outputs: new IItem[] { output },
+      loadInputs: () => input.Load(),
+      saveOutputs: r => output.Save(r),
+      flowLabel: "preset-origin"
+    );
+
+    var flow = FlowBuilder.CreateFlow("different-flow", b => b.Add(step));
+
+    Assert.That(flow.Steps.Single().FlowLabel, Is.EqualTo("preset-origin"),
+      "OnAddedToFlow must be stamp-if-empty: an explicit ctor-supplied FlowLabel is a "
+        + "deliberate attribution and the chokepoint must never overwrite it. Overwriting "
+        + "would silently change the flow-of-origin for any consumer that pre-stamps a step "
+        + "before threading it through a builder (e.g., test harnesses, advanced wiring).");
+  }
+
+  /// <summary>
+  /// Pins the default-interface no-op semantics: a hand-rolled
+  /// <see cref="IStepNode"/> that doesn't override
+  /// <see cref="IStepNode.OnAddedToFlow"/> is unaffected by the
+  /// chokepoint — its <see cref="IStepNode.FlowLabel"/> stays
+  /// exactly what it self-reports. The chokepoint is opt-in via
+  /// override; bypassing it is a legitimate use case (advanced
+  /// consumers that manage flow attribution outside the framework's
+  /// concrete step types).
+  /// </summary>
+  [Test]
+  public void FlowBuilder_Add_LeavesHandRolledStepNode_FlowLabel_Untouched()
+  {
+    var step = new HandRolledStepNode("hand-rolled");
+    var flow = FlowBuilder.CreateFlow("ignored-by-hand-rolled", b => b.Add(step));
+
+    Assert.That(flow.Steps.Single().FlowLabel, Is.Empty,
+      "A hand-rolled IStepNode that doesn't override OnAddedToFlow must keep its "
+        + "self-reported FlowLabel — the chokepoint's default-interface no-op contract "
+        + "means stamping is opt-in for framework-shipped step types only. Stamping a "
+        + "hand-rolled type would silently change its self-reported attribution.");
+  }
+
   // ── Phantom 'merged' flow attribution regression ───────────────────────
 
   /// <summary>
@@ -195,6 +295,27 @@ public class StepMetadataIntegrationTests
 /// be reachable without nested-type qualification.
 /// </summary>
 public interface IIntegrationFakeService { }
+
+/// <summary>
+/// Minimal hand-rolled <see cref="IStepNode"/> that does NOT override
+/// <see cref="IStepNode.OnAddedToFlow"/>. Used to pin the chokepoint's
+/// default-interface no-op contract: bespoke step types stay
+/// unstamped, so advanced consumers retain full control over
+/// flow-of-origin attribution.
+/// </summary>
+internal sealed class HandRolledStepNode : IStepNode
+{
+  public HandRolledStepNode(string label) { Label = label; }
+  public string Label { get; }
+  public NodeTraits Traits { get; } = new NodeTraits();
+  public IReadOnlyList<IItem> Inputs { get; } = Array.Empty<IItem>();
+  public IReadOnlyList<IItem> Outputs { get; } = Array.Empty<IItem>();
+  public IReadOnlyList<ServiceRef> ServiceDependencies { get; } = Array.Empty<ServiceRef>();
+  public FlowIO<ValidationResult> Validate() => FlowIO.Pure(ValidationResult.Success());
+  public FlowIO<FlowUnit> Execute() => FlowIO.Pure(FlowUnit.Default);
+  // Intentionally does NOT override OnAddedToFlow — default no-op applies.
+  // Intentionally does NOT override FlowLabel — default empty string applies.
+}
 
 /// <summary>Trivial implementation of <see cref="IIntegrationFakeService"/>.</summary>
 public sealed class IntegrationFakeService : IIntegrationFakeService { }

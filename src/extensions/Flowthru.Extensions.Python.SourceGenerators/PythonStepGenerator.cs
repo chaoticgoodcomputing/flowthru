@@ -135,6 +135,9 @@ public class PythonStepGenerator : IIncrementalGenerator
             loadInputs: () => {{loadInputsExpr}},
             saveOutputs: {{saveOutputsExpr}},
             serviceDependencies: services
+            // FlowLabel is stamped centrally by FlowBuilder.Add via
+            // IStepNode.OnAddedToFlow — generators no longer need to
+            // thread the label through every constructor call.
           );
           return builder.Add(step);
         }
