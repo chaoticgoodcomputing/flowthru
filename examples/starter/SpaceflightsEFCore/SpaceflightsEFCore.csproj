@@ -31,18 +31,6 @@
     <PackageReference Include="Microsoft.Extensions.Logging.Console" />
   </ItemGroup>
 
-  <!-- Wire Core's source generators (SchemaInterfaceGenerator emits marker
-       interfaces for [FlowthruSchema] records — required by Csv / Excel /
-       Json factories which constrain TRow to ITextSerializable /
-       IStructuredSerializable). Analyzer references don't propagate
-       transitively across PackageReferences in the in-repo swap. -->
-  <ItemGroup>
-    <ProjectReference Include="$(RepoRoot)src/core/Flowthru.Core.SourceGenerators/Flowthru.Core.SourceGenerators.csproj"
-                      ReferenceOutputAssembly="false"
-                      OutputItemType="Analyzer"
-                      Condition="'$(RepoRoot)' != ''" />
-  </ItemGroup>
-
   <ItemGroup>
     <None Update="appsettings.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>

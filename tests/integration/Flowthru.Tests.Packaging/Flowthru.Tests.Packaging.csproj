@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <IsPackable>false</IsPackable>
+    <!--
+      No <ProjectReference> to Flowthru.* on purpose. This suite exists to
+      exercise the *packaged* consumer path: it shells out to dotnet build
+      against a temp project that restores from dist/packages. Adding an
+      in-repo ProjectReference would let the test pass on the in-repo
+      build graph even when the published nupkg is broken — exactly the
+      blind spot that let the 0.17.0–0.17.3 analyzer-shipment regression
+      ship undetected. NX's project graph still triggers this suite when
+      src/core/Flowthru.* changes via the dependsOn: ["build", "^pack"]
+      wiring in project.json.
+    -->
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="NUnit" />
+    <PackageReference Include="NUnit.Analyzers" />
+    <PackageReference Include="NUnit3TestAdapter" />
+    <PackageReference Include="coverlet.collector" />
+    <Using Include="NUnit.Framework" />
+  </ItemGroup>
+
+</Project>

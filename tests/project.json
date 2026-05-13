@@ -12,7 +12,8 @@
         "_test:dead-schemas",
         "_test:dead-fixtures",
         "_test:diagnostic-id-registration",
-        "_test:package-versions"
+        "_test:package-versions",
+        "_test:starter-shape"
       ]
     },
     "_test:project-mirror": {
@@ -114,6 +115,22 @@
       ],
       "options": {
         "commands": [ "node scripts/_test/package-versions.mjs" ],
+        "cwd": "{workspaceRoot}",
+        "parallel": false
+      }
+    },
+    "_test:starter-shape": {
+      "//": "Every examples/starter/<X>/<X>.csproj that ships as a `dotnet new` template (has .template.config/template.json) follows the dual-mode pattern: <PackageReference> for runtime Flowthru.* refs (no direct <ProjectReference> to in-repo csprojs), analyzer <ProjectReference> wrapped in a Condition=\"'$(RepoRoot)' != ''\" ItemGroup, and the FlowthruInRepoSwap.props Import at the end. The per-template Directory.Packages.props must also declare a FlowthruVersion entry for every Flowthru.* PackageReference. Catches starters that compile in-repo but break the moment a user runs `dotnet new <ShortName>`. Private subtarget.",
+      "executor": "nx:run-commands",
+      "inputs": [
+        "{workspaceRoot}/examples/starter/*/[A-Z]*.csproj",
+        "{workspaceRoot}/examples/starter/*/Directory.Packages.props",
+        "{workspaceRoot}/examples/starter/*/.template.config/template.json",
+        "{workspaceRoot}/scripts/_test/_lib.mjs",
+        "{workspaceRoot}/scripts/_test/starter-shape.mjs"
+      ],
+      "options": {
+        "commands": [ "node scripts/_test/starter-shape.mjs" ],
         "cwd": "{workspaceRoot}",
         "parallel": false
       }

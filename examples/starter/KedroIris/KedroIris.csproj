@@ -17,19 +17,16 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="$(RepoRoot)src/core/Flowthru.Core/Flowthru.Core.csproj" />
-    <ProjectReference Include="$(RepoRoot)src/core/Flowthru.Cli/Flowthru.Cli.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="$(RepoRoot)src/core/Flowthru.Core.SourceGenerators/Flowthru.Core.SourceGenerators.csproj"
-                      ReferenceOutputAssembly="false"
-                      OutputItemType="Analyzer" />
+    <PackageReference Include="Flowthru.Core" />
+    <PackageReference Include="Flowthru.Cli" />
   </ItemGroup>
 
   <ItemGroup>
     <None Update="Data/**/*" CopyToOutputDirectory="PreserveNewest" />
     <None Update="appsettings.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
+
+  <Import Project="$(RepoRoot)build/FlowthruInRepoSwap.props"
+          Condition="'$(RepoRoot)' != '' AND Exists('$(RepoRoot)build/FlowthruInRepoSwap.props')" />
 
 </Project>

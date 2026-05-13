@@ -113,7 +113,44 @@
            Text="Flowthru in-repo swap could not resolve PackageReference(s) [@(_FlowthruUnresolvedPlaceholder, ', ')] in $(MSBuildProjectFile). Searched src/core, src/extensions, src/misc (with and without 'Flowthru.' prefix). The package was likely renamed or removed in this monorepo — check src/ for the current name, update the PackageReference, or drop the placeholder Version=&quot;FlowthruVersion&quot; if this is meant to resolve from the published NuGet feed." />
   </Target>
 
+  <!--
+    Auto-wire analyzers for any Flowthru package the consumer references.
+    Each per-package build/<Name>.targets file owns adding its own SG / CodeFix
+    ProjectReferences to the consumer, gated against the package itself
+    (the targets file no-ops when MSBuildProjectName equals its own owner).
+
+    Core is unconditional because [FlowthruSchema] and the schema-marker
+    interface generator are foundational — any Flowthru consumer that
+    references Flowthru, Flowthru.Core, or any extension transitively
+    needs Core's source-generator running. Keeping this unconditional
+    matches the prior behavior and avoids surprising "your record didn't
+    get marker interfaces" failures.
+
+    FUnit and Python carry heavier analyzers (and force their SG csproj to
+    build as a side-effect of being a ProjectReference), so they only fire
+    when the consumer directly references the corresponding package. The
+    marker ItemGroups filter @(_FlowthruResolvedIdentity) — populated above —
+    by exact Identity match so this stays a pure-evaluation-time decision.
+  -->
   <Import Project="$(RepoRoot)src/core/Flowthru.Core/build/Flowthru.Core.targets"
           Condition="Exists('$(RepoRoot)src/core/Flowthru.Core/build/Flowthru.Core.targets')" />
+
+  <!--
+    Item-list references aren't allowed in Import conditions, so materialize a
+    delimited string of resolved Flowthru.* identities into a property and
+    substring-match against it. The leading/trailing ';' guard against
+    Flowthru.FUnit accidentally matching a hypothetical Flowthru.FUnitX.
+  -->
+  <PropertyGroup>
+    <_FlowthruResolvedIdentities>;@(_FlowthruResolvedIdentity);</_FlowthruResolvedIdentities>
+    <_FlowthruHasFUnit Condition="$(_FlowthruResolvedIdentities.Contains(';Flowthru.FUnit;'))">true</_FlowthruHasFUnit>
+    <_FlowthruHasPython Condition="$(_FlowthruResolvedIdentities.Contains(';Flowthru.Extensions.Python;'))">true</_FlowthruHasPython>
+  </PropertyGroup>
+
+  <Import Project="$(RepoRoot)src/core/Flowthru.FUnit/build/Flowthru.FUnit.targets"
+          Condition="'$(_FlowthruHasFUnit)' == 'true' AND Exists('$(RepoRoot)src/core/Flowthru.FUnit/build/Flowthru.FUnit.targets')" />
+
+  <Import Project="$(RepoRoot)src/extensions/Flowthru.Extensions.Python/build/Flowthru.Extensions.Python.targets"
+          Condition="'$(_FlowthruHasPython)' == 'true' AND Exists('$(RepoRoot)src/extensions/Flowthru.Extensions.Python/build/Flowthru.Extensions.Python.targets')" />
 
 </Project>

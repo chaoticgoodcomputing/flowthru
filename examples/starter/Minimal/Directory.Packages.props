@@ -23,7 +23,11 @@
        src/core/Flowthru.* during monorepo development; the literal "FlowthruVersion"
        placeholder would otherwise fail NuGet's PackageVersion validation at restore. -->
   <ItemGroup Condition="'$(RepoRoot)' == ''">
-    <PackageVersion Include="Flowthru" Version="FlowthruVersion" />
+    <PackageVersion Include="Flowthru.Core" Version="FlowthruVersion" />
+    <PackageVersion Include="Flowthru.Cli" Version="FlowthruVersion" />
+    <PackageVersion Include="Flowthru.Extensions.Csv" Version="FlowthruVersion" />
+    <PackageVersion Include="Flowthru.Extensions.Metadata.Json" Version="FlowthruVersion" />
+    <PackageVersion Include="Flowthru.Extensions.Metadata.Mermaid" Version="FlowthruVersion" />
   </ItemGroup>
 
 </Project>

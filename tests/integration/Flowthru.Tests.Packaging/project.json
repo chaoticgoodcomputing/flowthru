@@ -1,0 +1,28 @@
+{
+  "name": "Flowthru.Tests.Packaging",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "library",
+  "sourceRoot": "tests/integration/Flowthru.Tests.Packaging",
+  "tags": [ "type:test", "scope:packaging" ],
+  "targets": {
+    "test": {
+      "//": "Packaged-consumer regression suite. Shells out to `dotnet build` against a hermetic temp project that restores from the local dist/packages feed. dependsOn ['build', '^pack'] makes NX repack any upstream Flowthru.* package whose source changed (NX's `pack` target already declares dist/packages as its outputs, so this is cache-aware out of the box). [Category(\"Integration\")] tags push the actual run cost to the test:integration lane so the fast `nx test` loop stays fast.",
+      "dependsOn": [ "build", "^pack" ],
+      "inputs": [ "default", "{workspaceRoot}/dist/packages/**" ]
+    },
+    "format": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "dotnet csharpier {projectRoot}",
+        "cwd": "{workspaceRoot}"
+      }
+    },
+    "format:check": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "dotnet csharpier {projectRoot} --check",
+        "cwd": "{workspaceRoot}"
+      }
+    }
+  }
+}

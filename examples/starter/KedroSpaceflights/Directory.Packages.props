@@ -31,6 +31,7 @@
        placeholder would otherwise fail NuGet's PackageVersion validation at restore. -->
   <ItemGroup Condition="'$(RepoRoot)' == ''">
     <PackageVersion Include="Flowthru" Version="FlowthruVersion" />
+    <PackageVersion Include="Flowthru.Cli" Version="FlowthruVersion" />
   </ItemGroup>
 
 </Project>
