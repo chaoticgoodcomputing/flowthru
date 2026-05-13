@@ -1,3 +1,16 @@
+## 0.17.5 (2026-05-13)
+
+### 🩹 Fixes
+
+- resolve template issues, re-add template testing. ([a1e798fd](https://github.com/chaoticgoodcomputing/flowthru/commit/a1e798fd))
+- better Python marshalling + debugging support ([5d9d4f13](https://github.com/chaoticgoodcomputing/flowthru/commit/5d9d4f13))
+- stronger arrow marshalling round-trip from Python ([32aa8d77](https://github.com/chaoticgoodcomputing/flowthru/commit/32aa8d77))
+- resolve python node flow metadata issues ([eb363ced](https://github.com/chaoticgoodcomputing/flowthru/commit/eb363ced))
+
+### ❤️ Thank You
+
+- Spencer Elkington
+
 ## 0.17.4 (2026-05-13)
 
 ### 🩹 Fixes
