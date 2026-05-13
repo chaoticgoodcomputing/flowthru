@@ -67,4 +67,5 @@
   <Project Path="examples/advanced/RetailDataSplitFlow/RetailDataSplitFlow.csproj" />
   <Project Path="examples/advanced/KedroSpaceflightsGQL/KedroSpaceflightsGQL.csproj" />
   <Project Path="examples/advanced/FlowthruCoverage/FlowthruCoverage.csproj" />
+  <Project Path="examples/advanced/SpaceflightsHybridCatalog/SpaceflightsHybridCatalog.csproj" />
 </Solution>

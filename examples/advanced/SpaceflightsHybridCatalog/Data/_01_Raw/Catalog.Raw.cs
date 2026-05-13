@@ -1,0 +1,31 @@
+using Flowthru.Data.Catalog;
+using SpaceflightsHybridCatalog.Data._01_Raw.Schemas;
+
+namespace SpaceflightsHybridCatalog.Data;
+
+/// <summary>
+/// Raw layer — identical across Development and Production. The pipeline's
+/// inputs are always external files, regardless of where intermediate state
+/// is persisted.
+/// </summary>
+public abstract partial class Catalog
+{
+  public IItem<IEnumerable<CompanySchema>> Companies =>
+    CreateItem(() => Item.Of<IEnumerable<CompanySchema>>("Companies")
+      .Csv()
+      .AtPath($"{_basePath}/_01_Raw/Datasets/companies.csv")
+      .Build());
+
+  public IItem<IEnumerable<ReviewSchema>> Reviews =>
+    CreateItem(() => Item.Of<IEnumerable<ReviewSchema>>("Reviews")
+      .Csv()
+      .AtPath($"{_basePath}/_01_Raw/Datasets/reviews.csv")
+      .Build());
+
+  public IItem<IEnumerable<ShuttleSchema>> Shuttles =>
+    CreateItem(() => Item.Of<IEnumerable<ShuttleSchema>>("Shuttles")
+      .Excel()
+      .AtPath($"{_basePath}/_01_Raw/Datasets/shuttles.xlsx")
+      .WithSheet("Sheet1")
+      .Build());
+}
