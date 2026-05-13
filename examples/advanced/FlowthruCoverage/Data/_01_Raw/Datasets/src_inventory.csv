@@ -216,14 +216,14 @@ Flowthru.Extensions.Python,build/PythonSchemaExportTask.cs,361
 Flowthru.Extensions.Python,Hosting/PythonFlowthruBuilderExtensions.cs,90
 Flowthru.Extensions.Python,Step/Python/IPythonExecutor.cs,69
 Flowthru.Extensions.Python,Step/Python/IPythonServiceInspectorRegistry.cs,49
-Flowthru.Extensions.Python,Step/Python/Internal/ArrowMarshaller.cs,767
-Flowthru.Extensions.Python,Step/Python/Internal/ArrowSchemaMapper.cs,247
 Flowthru.Extensions.Python,Step/Python/Internal/IPythonConfigurationFlattener.cs,44
 Flowthru.Extensions.Python,Step/Python/Internal/PythonConfigurationFlattener.cs,87
 Flowthru.Extensions.Python,Step/Python/Internal/PythonEnvironmentResolver.cs,175
 Flowthru.Extensions.Python,Step/Python/Internal/PythonServiceInspectorRegistry.cs,51
 Flowthru.Extensions.Python,Step/Python/Internal/PythonServiceRefDispatcher.cs,77
-Flowthru.Extensions.Python,Step/Python/Internal/SubprocessPythonExecutor.cs,809
+Flowthru.Extensions.Python,Step/Python/Internal/ArrowMarshaller.cs,775
+Flowthru.Extensions.Python,Step/Python/Internal/ArrowSchemaMapper.cs,318
+Flowthru.Extensions.Python,Step/Python/Internal/SubprocessPythonExecutor.cs,867
 Flowthru.Extensions.Python,Step/Python/PythonRuntimeOptions.cs,156
 Flowthru.Extensions.Python,Step/Python/PythonServiceBuilder.cs,100
 Flowthru.Extensions.Python,Step/Python/PythonServiceRegistration.cs,55
@@ -234,8 +234,8 @@ Flowthru.Extensions.Python,Validation/PreFlight/Python/PythonPreFlightError.cs,1
 Flowthru.Extensions.Python,Validation/PreFlight/Python/PythonStepValidationHook.cs,279
 Flowthru.Extensions.Python,Validation/Runtime/Python/PythonRuntimeError.cs,122
 Flowthru.Extensions.Python,Validation/Runtime/Python/PythonServiceRef.cs,63
-Flowthru.Extensions.Python.SourceGenerators,PythonStepFactoryGenerator.cs,381
 Flowthru.Extensions.Python.SourceGenerators,PythonStepGenerator.cs,291
+Flowthru.Extensions.Python.SourceGenerators,PythonStepFactoryGenerator.cs,510
 Flowthru.Misc.DataFrames.SourceGenerators,DataFrameDiagnostics.cs,115
 Flowthru.Misc.DataFrames.SourceGenerators,TypedFrameExpressionAnalyzer.cs,387
 Flowthru.Misc.DataFrames.SourceGenerators,TypedFrameInvocationHelper.cs,80

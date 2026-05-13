@@ -259,7 +259,7 @@ public sealed class SubprocessPythonExecutor : IPythonExecutor, IDisposable
   /// regardless of the Python-side category, by design — we don't
   /// proliferate categories across the language boundary.
   /// </summary>
-  private static Validated<PreFlightError, FlowUnit> TranslateInspectorResult(
+  internal static Validated<PreFlightError, FlowUnit> TranslateInspectorResult(
     JsonObject result,
     string serviceClassPath
   )
@@ -287,7 +287,7 @@ public sealed class SubprocessPythonExecutor : IPythonExecutor, IDisposable
     );
   }
 
-  private static List<string> ExtractStringList(JsonObject root, string key)
+  internal static List<string> ExtractStringList(JsonObject root, string key)
   {
     if (root[key] is not JsonArray array)
     {
@@ -448,7 +448,7 @@ public sealed class SubprocessPythonExecutor : IPythonExecutor, IDisposable
 
   // ── Type classification ───────────────────────────────────────────────────────────────
 
-  private static string ClassifyType(Type type)
+  internal static string ClassifyType(Type type)
   {
     if (IsValueTuple(type))
     {
@@ -473,10 +473,10 @@ public sealed class SubprocessPythonExecutor : IPythonExecutor, IDisposable
     return "scalar";
   }
 
-  private static bool IsDirectoryType(Type type) =>
+  internal static bool IsDirectoryType(Type type) =>
     type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Flowthru.Data.Storage.DirectoryOf<>);
 
-  private static bool IsValueTuple(Type type)
+  internal static bool IsValueTuple(Type type)
   {
     if (!type.IsValueType || !type.IsGenericType)
     {
@@ -487,7 +487,7 @@ public sealed class SubprocessPythonExecutor : IPythonExecutor, IDisposable
         .FullName?.StartsWith("System.ValueTuple`", StringComparison.Ordinal) ?? false;
   }
 
-  private static bool IsEnumerableSchema(Type type)
+  internal static bool IsEnumerableSchema(Type type)
   {
     if (type == typeof(string) || type == typeof(byte[]))
     {
@@ -508,7 +508,7 @@ public sealed class SubprocessPythonExecutor : IPythonExecutor, IDisposable
   /// <summary>
   /// Builds a JSON object containing the dtype spec for a tabular output type.
   /// </summary>
-  private static JsonNode BuildDtypeSpecJson(Type collectionType)
+  internal static JsonNode BuildDtypeSpecJson(Type collectionType)
   {
     var elemType = collectionType.GetGenericArguments()[0];
     var buildMethod = typeof(ArrowSchemaMapper)
@@ -523,7 +523,7 @@ public sealed class SubprocessPythonExecutor : IPythonExecutor, IDisposable
   /// outputs. Tells the worker the inner kind (and dtype spec when inner is tabular) so it can
   /// encode each dict entry correctly.
   /// </summary>
-  private static JsonObject BuildDirectorySpecJson(Type directoryType)
+  internal static JsonObject BuildDirectorySpecJson(Type directoryType)
   {
     var innerType = directoryType.GetGenericArguments()[0];
     var innerKind = ClassifyType(innerType);
@@ -537,7 +537,7 @@ public sealed class SubprocessPythonExecutor : IPythonExecutor, IDisposable
   /// Builds the output_element_specs array for multi-output (ValueTuple) types.
   /// Each entry describes the kind and (for tabular elements) the dtype spec.
   /// </summary>
-  private static JsonArray BuildMultiElementSpecs(Type tupleType)
+  internal static JsonArray BuildMultiElementSpecs(Type tupleType)
   {
     var elementTypes = tupleType.GetGenericArguments();
     var arr = new JsonArray();
@@ -557,7 +557,7 @@ public sealed class SubprocessPythonExecutor : IPythonExecutor, IDisposable
 
   // ── Encoding ──────────────────────────────────────────────────────────────────────────
 
-  private static string EncodeValue(object value, Type type, string kind) =>
+  internal static string EncodeValue(object value, Type type, string kind) =>
     kind switch
     {
       "scalar" => JsonSerializer.Serialize(value, type),
@@ -568,7 +568,7 @@ public sealed class SubprocessPythonExecutor : IPythonExecutor, IDisposable
       _ => throw new NotSupportedException($"Unknown serialization kind: {kind}"),
     };
 
-  private static string EncodeDirectory(object value, Type directoryType)
+  internal static string EncodeDirectory(object value, Type directoryType)
   {
     var innerType = directoryType.GetGenericArguments()[0];
     var innerKind = ClassifyType(innerType);
@@ -586,7 +586,7 @@ public sealed class SubprocessPythonExecutor : IPythonExecutor, IDisposable
     return new JsonObject { ["inner_kind"] = innerKind, ["entries"] = entries }.ToJsonString();
   }
 
-  private static string EncodeTabular(object value, Type collectionType)
+  internal static string EncodeTabular(object value, Type collectionType)
   {
     var elemType = collectionType.GetGenericArguments()[0];
     var toRecordBatch = typeof(ArrowMarshaller)
@@ -596,7 +596,7 @@ public sealed class SubprocessPythonExecutor : IPythonExecutor, IDisposable
     return Convert.ToBase64String(ArrowMarshaller.ToIpcBuffer(batch));
   }
 
-  private static string EncodeMulti(object tuple, Type tupleType)
+  internal static string EncodeMulti(object tuple, Type tupleType)
   {
     if (tuple is not ITuple t)
     {
@@ -623,7 +623,7 @@ public sealed class SubprocessPythonExecutor : IPythonExecutor, IDisposable
 
   // ── Decoding ──────────────────────────────────────────────────────────────────────────
 
-  private static TOutput DecodeValue<TOutput>(string payload, Type type, string kind) =>
+  internal static TOutput DecodeValue<TOutput>(string payload, Type type, string kind) =>
     kind switch
     {
       "scalar" => (TOutput)JsonSerializer.Deserialize(payload, type)!,
@@ -634,7 +634,7 @@ public sealed class SubprocessPythonExecutor : IPythonExecutor, IDisposable
       _ => throw new NotSupportedException($"Unknown deserialization kind: {kind}"),
     };
 
-  private static TOutput DecodeDirectory<TOutput>(string payload, Type directoryType)
+  internal static TOutput DecodeDirectory<TOutput>(string payload, Type directoryType)
   {
     var innerType = directoryType.GetGenericArguments()[0];
     var envelope = JsonNode.Parse(payload)!.AsObject();
@@ -658,7 +658,7 @@ public sealed class SubprocessPythonExecutor : IPythonExecutor, IDisposable
     return (TOutput)Activator.CreateInstance(directoryType, dict)!;
   }
 
-  private static TOutput DecodeTabular<TOutput>(string base64, Type collectionType)
+  internal static TOutput DecodeTabular<TOutput>(string base64, Type collectionType)
   {
     var elemType = collectionType.GetGenericArguments()[0];
     var batch = ArrowMarshaller.FromIpcBuffer(Convert.FromBase64String(base64));
@@ -668,7 +668,7 @@ public sealed class SubprocessPythonExecutor : IPythonExecutor, IDisposable
     return (TOutput)InvokeUnwrapping(fromRecordBatch, null, new object[] { batch })!;
   }
 
-  private static TOutput DecodeMulti<TOutput>(string jsonArray, Type tupleType)
+  internal static TOutput DecodeMulti<TOutput>(string jsonArray, Type tupleType)
   {
     var elementTypes = tupleType.GetGenericArguments();
     var arr = JsonNode.Parse(jsonArray)!.AsArray();
@@ -761,7 +761,7 @@ public sealed class SubprocessPythonExecutor : IPythonExecutor, IDisposable
   /// scanning to pick the most specific case. Unrecognised messages
   /// fall through to <see cref="PythonRuntimeError.WorkerError"/>.
   /// </summary>
-  private static PythonRuntimeError ClassifyInvokeFailure(
+  internal static PythonRuntimeError ClassifyInvokeFailure(
     string moduleName,
     string functionName,
     string message
@@ -782,7 +782,7 @@ public sealed class SubprocessPythonExecutor : IPythonExecutor, IDisposable
   /// substrings for module-import vs function-not-found vs
   /// decorator-absent, so a small heuristic on message body suffices.
   /// </summary>
-  private static PythonRuntimeError ClassifyValidateFailure(
+  internal static PythonRuntimeError ClassifyValidateFailure(
     string moduleName,
     string functionName,
     string message
@@ -812,7 +812,7 @@ public sealed class SubprocessPythonExecutor : IPythonExecutor, IDisposable
     return new PythonRuntimeError.WorkerError(moduleName, functionName, message);
   }
 
-  private static bool LooksLikeMarshalling(string message) =>
+  internal static bool LooksLikeMarshalling(string message) =>
     message.IndexOf("marshal", StringComparison.OrdinalIgnoreCase) >= 0
       || message.IndexOf("dtype", StringComparison.OrdinalIgnoreCase) >= 0
       || message.IndexOf("Arrow", StringComparison.OrdinalIgnoreCase) >= 0
@@ -850,7 +850,7 @@ public sealed class SubprocessPythonExecutor : IPythonExecutor, IDisposable
   /// — so the surfaced <see cref="PythonRuntimeError"/> carries the
   /// real type name and message rather than a generic wrapper.
   /// </summary>
-  private static string FormatInnerExceptionDetail(Exception ex)
+  internal static string FormatInnerExceptionDetail(Exception ex)
   {
     var sb = new System.Text.StringBuilder();
     var cursor = ex;

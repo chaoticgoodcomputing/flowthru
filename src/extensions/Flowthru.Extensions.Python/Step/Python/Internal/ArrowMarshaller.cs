@@ -116,9 +116,12 @@ public static class ArrowMarshaller
     foreach (var property in properties)
     {
       var fieldName = ArrowSchemaMapper.GetFieldName(property);
-      var columnIndex = batch.Schema.GetFieldIndex(fieldName);
-
-      if (columnIndex < 0)
+      // Apache.Arrow 18's GetFieldIndex throws on miss rather than returning -1,
+      // so wrap the lookup to preserve the friendly diagnostic naming the missing
+      // field AND the property requiring it.
+      int columnIndex;
+      try { columnIndex = batch.Schema.GetFieldIndex(fieldName); }
+      catch (InvalidOperationException)
       {
         throw new InvalidOperationException(
           $"Arrow RecordBatch does not contain field '{fieldName}' "
