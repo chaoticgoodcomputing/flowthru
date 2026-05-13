@@ -80,8 +80,23 @@ public static class ArrowSchemaMapper
       // Get external field name (respects SerializedLabel)
       var fieldName = GetFieldName(property);
 
-      // Map C# type to Arrow type
-      var arrowType = MapToArrowType(property.PropertyType, out bool nullable);
+      // Map C# type to Arrow type. Re-throw with the property name so a
+      // user staring at "Type 'System.Decimal' cannot be mapped..." can
+      // immediately see *which* property they need to fix; without this
+      // the diagnostic only names the type.
+      IArrowType arrowType;
+      bool nullable;
+      try
+      {
+        arrowType = MapToArrowType(property.PropertyType, out nullable);
+      }
+      catch (NotSupportedException ex)
+      {
+        throw new NotSupportedException(
+          $"Property '{property.Name}' on '{type.Name}': {ex.Message}",
+          ex
+        );
+      }
 
       // Create Arrow field with nullability
       var field = new Field(fieldName, arrowType, nullable);
@@ -190,12 +205,62 @@ public static class ArrowSchemaMapper
       return StringType.Default;
     }
 
+    // List / array types: map to Arrow ListType recursively. byte[] is handled
+    // above as BinaryType, and string (which is IEnumerable<char>) is handled
+    // as StringType — both checks live before the list-element resolver below.
+    var listElementType = TryGetListElementType(type);
+    if (listElementType is not null)
+    {
+      // Recursively map element type. Element nullability is preserved through
+      // the recursive Nullable<T> unwrap inside MapToArrowType, but element-list
+      // fields are conventionally nullable so each inner element can be null.
+      var elementArrowType = MapToArrowType(listElementType, out var elementNullable);
+      var elementField = new Field("item", elementArrowType, elementNullable);
+      return new ListType(elementField);
+    }
+
     // Unsupported type
     throw new NotSupportedException(
       $"Type '{type.FullName}' cannot be mapped to Apache Arrow. "
         + "Supported types: int, long, float, double, bool, string, DateTime, "
-        + "DateTimeOffset, TimeSpan, Guid, byte[], enum, and their nullable variants."
+        + "DateTimeOffset, TimeSpan, Guid, byte[], enum, list/array of any "
+        + "supported type, and their nullable variants."
     );
+  }
+
+  /// <summary>
+  /// Returns the element type if <paramref name="type"/> represents a list-like
+  /// collection eligible for Arrow <c>ListType</c> mapping, otherwise
+  /// <c>null</c>. <c>string</c> and <c>byte[]</c> are excluded because they
+  /// have first-class scalar/binary mappings — they would otherwise match via
+  /// <see cref="IEnumerable{T}"/>.
+  /// </summary>
+  internal static Type? TryGetListElementType(Type type)
+  {
+    if (type == typeof(string) || type == typeof(byte[])) return null;
+
+    if (type.IsArray && type.GetArrayRank() == 1)
+    {
+      return type.GetElementType();
+    }
+
+    // Match List<T>, IList<T>, IEnumerable<T>, IReadOnlyList<T>, etc. — anything
+    // that implements IEnumerable<T> with a concrete element type. The first
+    // match wins; nested IEnumerable<T> (e.g. List<List<int>>) is handled by
+    // the recursive call in MapNonNullableType.
+    var ienum = type.GetInterfaces()
+      .FirstOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IEnumerable<>));
+    if (ienum is not null)
+    {
+      return ienum.GetGenericArguments()[0];
+    }
+
+    if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(IEnumerable<>))
+    {
+      return type.GetGenericArguments()[0];
+    }
+
+    return null;
   }
 
   /// <summary>
@@ -237,6 +302,12 @@ public static class ArrowSchemaMapper
         TimestampType ts => ts.Timezone != null ? "datetime64[ns, UTC]" : "datetime64[ns]",
         DurationType => "timedelta64[ns]",
         BinaryType => "object",
+        // ListType columns live in pandas as object-dtype Series of Python
+        // lists. We deliberately skip dtype coercion for these — pyarrow
+        // infers the inner Arrow type from the list contents on
+        // pa.Table.from_pandas, and the C# side has already declared the
+        // canonical element type via the Arrow schema field.
+        ListType => "object",
         _ => "object",
       };
       dict[field.Name] = pandasDtype;

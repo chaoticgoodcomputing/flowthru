@@ -48,6 +48,23 @@ public class PythonStepFactoryGenerator : IIncrementalGenerator
     isEnabledByDefault: true
   );
 
+  /// <summary>
+  /// Flags <c>[FlowthruSchema]</c> properties whose CLR type the
+  /// <c>ArrowMarshaller</c> cannot encode/decode when the schema is
+  /// referenced by a Python <c>@step(...)</c> decorator. This turns a
+  /// runtime <c>NotSupportedException</c> from <c>BuildArrayFromValues</c>
+  /// into a compile-time diagnostic — the gold-standard placement under
+  /// CONTRIBUTING.md's three-error-phase model.
+  /// </summary>
+  private static readonly DiagnosticDescriptor SchemaUnmarshallable = new(
+    id: "FT2008",
+    title: "Python step schema contains a property type Arrow cannot marshal",
+    messageFormat: "Schema '{0}' (used by Python step '{1}') has property '{2}' of type '{3}', which is not supported by the Python extension's Arrow marshaller. Supported types: int, long, float, double, bool, string, DateTime, DateTimeOffset, TimeSpan, Guid, byte[], enum, list/array of any supported type, and their nullable variants.",
+    category: "Flowthru.Python",
+    DiagnosticSeverity.Error,
+    isEnabledByDefault: true
+  );
+
   /// <inheritdoc/>
   public void Initialize(IncrementalGeneratorInitializationContext context)
   {
@@ -250,12 +267,14 @@ public class PythonStepFactoryGenerator : IIncrementalGenerator
     {
       var typeRef = ResolveSchemaReference(ctx, schemaName, schemaIndex, ref anyMissing);
       inputTypes.Add(typeRef);
+      ReportUnmarshallableProperties(ctx, schemaName, step.FunctionName, schemaIndex);
     }
     var outputTypes = new List<string>();
     foreach (var schemaName in step.Outputs)
     {
       var typeRef = ResolveSchemaReference(ctx, schemaName, schemaIndex, ref anyMissing);
       outputTypes.Add(typeRef);
+      ReportUnmarshallableProperties(ctx, schemaName, step.FunctionName, schemaIndex);
     }
     if (anyMissing) return; // Diagnostics already emitted; skip generation.
 
@@ -354,6 +373,116 @@ public class PythonStepFactoryGenerator : IIncrementalGenerator
     for (int i = 1; i <= n; i++) sb.Append($"from {dummies[i - 1]} in output{i}.Save({letters[i - 1]}) ");
     sb.Append("select global::Flowthru.Prelude.FlowUnit.Default; }");
     return sb.ToString();
+  }
+
+  /// <summary>
+  /// Walk a resolved schema symbol's properties and emit
+  /// <see cref="SchemaUnmarshallable"/> for any whose type the
+  /// Arrow marshaller doesn't accept. The set must stay in sync with
+  /// <c>ArrowMarshaller.BuildArrayFromValues</c> / <c>GetValueFromArray</c>
+  /// in the runtime extension — extending one without the other turns
+  /// this analyzer into a misdirection.
+  /// </summary>
+  private static void ReportUnmarshallableProperties(
+    SourceProductionContext ctx,
+    string schemaName,
+    string stepFunctionName,
+    Dictionary<string, INamedTypeSymbol> schemaIndex
+  )
+  {
+    // Wire-format primitives don't resolve to a [FlowthruSchema] symbol;
+    // their property surface isn't ours to validate.
+    if (!schemaIndex.TryGetValue(schemaName, out var symbol)) return;
+
+    foreach (var member in symbol.GetMembers())
+    {
+      if (member is not IPropertySymbol property) continue;
+      if (property.IsIndexer) continue;
+      if (property.DeclaredAccessibility != Accessibility.Public) continue;
+      if (property.IsStatic) continue;
+
+      if (IsMarshallable(property.Type)) continue;
+
+      var location = property.Locations.Length > 0 ? property.Locations[0] : Location.None;
+      ctx.ReportDiagnostic(
+        Diagnostic.Create(
+          SchemaUnmarshallable,
+          location,
+          schemaName,
+          stepFunctionName,
+          property.Name,
+          property.Type.ToDisplayString()
+        )
+      );
+    }
+  }
+
+  /// <summary>
+  /// Mirror of <c>ArrowMarshaller.BuildArrayFromValues</c>'s accepted set,
+  /// expressed against Roslyn symbols. Nullable value types are unwrapped;
+  /// list/array element types are checked recursively.
+  /// </summary>
+  private static bool IsMarshallable(ITypeSymbol type)
+  {
+    // Unwrap Nullable<T> for value types.
+    if (type is INamedTypeSymbol named
+        && named.ConstructedFrom?.SpecialType == SpecialType.System_Nullable_T)
+    {
+      return IsMarshallable(named.TypeArguments[0]);
+    }
+
+    if (type.SpecialType == SpecialType.System_Int32) return true;
+    if (type.SpecialType == SpecialType.System_Int64) return true;
+    if (type.SpecialType == SpecialType.System_Single) return true;
+    if (type.SpecialType == SpecialType.System_Double) return true;
+    if (type.SpecialType == SpecialType.System_Boolean) return true;
+    if (type.SpecialType == SpecialType.System_String) return true;
+    if (type.TypeKind == TypeKind.Enum) return true;
+
+    var fullName = type.ToDisplayString();
+    if (fullName == "System.DateTime") return true;
+    if (fullName == "System.DateTimeOffset") return true;
+    if (fullName == "System.TimeSpan") return true;
+    if (fullName == "System.Guid") return true;
+    if (fullName == "byte[]") return true;
+
+    // T[] — recurse on the element type.
+    if (type is IArrayTypeSymbol arr && arr.Rank == 1)
+    {
+      return IsMarshallable(arr.ElementType);
+    }
+
+    // Generic IEnumerable<T> / List<T> / IReadOnlyList<T> etc. — recurse on
+    // the first type arg of whichever generic implements IEnumerable<>.
+    if (type is INamedTypeSymbol generic)
+    {
+      var enumerable = FindIEnumerableElement(generic);
+      if (enumerable is not null)
+      {
+        return IsMarshallable(enumerable);
+      }
+    }
+
+    return false;
+  }
+
+  private static ITypeSymbol? FindIEnumerableElement(INamedTypeSymbol type)
+  {
+    // If `type` is itself IEnumerable<T>, use its arg.
+    if (type.ConstructedFrom?.SpecialType == SpecialType.System_Collections_Generic_IEnumerable_T)
+    {
+      return type.TypeArguments[0];
+    }
+
+    foreach (var iface in type.AllInterfaces)
+    {
+      if (iface.ConstructedFrom?.SpecialType == SpecialType.System_Collections_Generic_IEnumerable_T)
+      {
+        return iface.TypeArguments[0];
+      }
+    }
+
+    return null;
   }
 
   private static string ToPascalCase(string snakeCase)

@@ -217,6 +217,9 @@ public static class ArrowMarshaller
 
   /// <summary>
   /// Builds an Arrow array for a single property across all rows.
+  /// Delegates to <see cref="BuildArrayFromValues"/> after extracting
+  /// the per-row property values, so the same value-array builder
+  /// can be re-used recursively for <see cref="ListType"/> children.
   /// </summary>
   private static IArrowArray BuildArrayForProperty<T>(
     PropertyInfo property,
@@ -226,322 +229,258 @@ public static class ArrowMarshaller
   )
   {
     var propertyType = property.PropertyType;
-    var underlyingType = Nullable.GetUnderlyingType(propertyType) ?? propertyType;
-
-    // Delegate to type-specific builder
-    if (underlyingType == typeof(int))
+    var values = new List<object?>(rowCount);
+    foreach (var row in rows)
     {
-      return BuildInt32Array(property, rows, rowCount);
+      values.Add(property.GetValue(row));
     }
-
-    if (underlyingType == typeof(long))
+    try
     {
-      return BuildInt64Array(property, rows, rowCount);
+      return BuildArrayFromValues(values, propertyType);
     }
-
-    if (underlyingType == typeof(float))
+    catch (NotSupportedException ex)
     {
-      return BuildFloatArray(property, rows, rowCount);
+      // Re-throw with the property name so the user can locate the offender
+      // — the inner builder only knows the element type.
+      throw new NotSupportedException(
+        $"Property '{property.Name}' has type '{propertyType.Name}' which is not supported for Arrow marshalling: {ex.Message}",
+        ex
+      );
     }
+  }
 
-    if (underlyingType == typeof(double))
-    {
-      return BuildDoubleArray(property, rows, rowCount);
-    }
+  /// <summary>
+  /// Builds an Arrow array from a flat list of CLR values and the declared
+  /// element type. Recursive: a list-typed element triggers a child build
+  /// of all flattened inner values plus an offsets/validity envelope, so
+  /// arbitrary nesting depth is supported.
+  /// </summary>
+  private static IArrowArray BuildArrayFromValues(List<object?> values, Type elementType)
+  {
+    var underlyingType = Nullable.GetUnderlyingType(elementType) ?? elementType;
 
-    if (underlyingType == typeof(bool))
-    {
-      return BuildBooleanArray(property, rows, rowCount);
-    }
+    if (underlyingType == typeof(int)) return BuildInt32Array(values);
+    if (underlyingType == typeof(long)) return BuildInt64Array(values);
+    if (underlyingType == typeof(float)) return BuildFloatArray(values);
+    if (underlyingType == typeof(double)) return BuildDoubleArray(values);
+    if (underlyingType == typeof(bool)) return BuildBooleanArray(values);
+    if (underlyingType == typeof(string)) return BuildStringArray(values);
+    if (underlyingType == typeof(DateTime)) return BuildDateTimeArray(values);
+    if (underlyingType == typeof(DateTimeOffset)) return BuildDateTimeOffsetArray(values);
+    if (underlyingType == typeof(TimeSpan)) return BuildDurationArray(values);
+    if (underlyingType == typeof(Guid)) return BuildGuidArray(values);
+    if (underlyingType == typeof(byte[])) return BuildBinaryArray(values);
+    if (underlyingType.IsEnum) return BuildEnumArray(values, underlyingType);
 
-    if (underlyingType == typeof(string))
+    var listElementType = ArrowSchemaMapper.TryGetListElementType(underlyingType);
+    if (listElementType is not null)
     {
-      return BuildStringArray(property, rows, rowCount);
-    }
-
-    if (underlyingType == typeof(DateTime))
-    {
-      return BuildDateTimeArray(property, rows, rowCount);
-    }
-
-    if (underlyingType == typeof(DateTimeOffset))
-    {
-      return BuildDateTimeOffsetArray(property, rows, rowCount);
-    }
-
-    if (underlyingType == typeof(TimeSpan))
-    {
-      return BuildDurationArray(property, rows, rowCount);
-    }
-
-    if (underlyingType == typeof(Guid))
-    {
-      return BuildGuidArray(property, rows, rowCount);
-    }
-
-    if (underlyingType == typeof(byte[]))
-    {
-      return BuildBinaryArray(property, rows, rowCount);
-    }
-
-    if (underlyingType.IsEnum)
-    {
-      return BuildEnumArray(property, rows, rowCount);
+      return BuildListArray(values, listElementType);
     }
 
     throw new NotSupportedException(
-      $"Property '{property.Name}' has type '{propertyType.Name}' which is not supported for Arrow marshalling."
+      $"Element type '{elementType.Name}' is not supported for Arrow marshalling. "
+        + "Supported types: int, long, float, double, bool, string, DateTime, "
+        + "DateTimeOffset, TimeSpan, Guid, byte[], enum, list/array of any "
+        + "supported type, and their nullable variants."
     );
   }
 
-  private static IArrowArray BuildInt32Array<T>(PropertyInfo property, List<T> rows, int rowCount)
+  /// <summary>
+  /// Build a variable-length <c>ListArray</c> from a sequence of per-row
+  /// list values. Each row either contributes its full element sequence to
+  /// the flattened child array (with an offset bump) or contributes a null
+  /// entry (offset stays put, validity bit cleared). Recurses into
+  /// <see cref="BuildArrayFromValues"/> to construct the child array, so
+  /// nested lists work without special-casing.
+  /// </summary>
+  private static IArrowArray BuildListArray(List<object?> values, Type elementType)
+  {
+    var offsets = new ArrowBuffer.Builder<int>();
+    var validity = new ArrowBuffer.BitmapBuilder();
+    var flatChildren = new List<object?>();
+    var currentOffset = 0;
+    var nullCount = 0;
+
+    offsets.Append(0);
+    foreach (var listValue in values)
+    {
+      if (listValue is null)
+      {
+        validity.Append(false);
+        nullCount++;
+        offsets.Append(currentOffset);
+        continue;
+      }
+
+      validity.Append(true);
+      foreach (var elem in (System.Collections.IEnumerable)listValue)
+      {
+        flatChildren.Add(elem);
+        currentOffset++;
+      }
+      offsets.Append(currentOffset);
+    }
+
+    var childArray = BuildArrayFromValues(flatChildren, elementType);
+
+    // Construct the ListType using the actual child Arrow data type so the
+    // outer Field nullability matches what ArrowSchemaMapper produced.
+    var elementArrowType = childArray.Data.DataType;
+    var listType = new ListType(new Field("item", elementArrowType, nullable: true));
+
+    var listData = new ArrayData(
+      listType,
+      length: values.Count,
+      nullCount: nullCount,
+      offset: 0,
+      buffers: new[] { validity.Build(), offsets.Build() },
+      children: new[] { childArray.Data }
+    );
+    return new ListArray(listData);
+  }
+
+  private static IArrowArray BuildInt32Array(List<object?> values)
   {
     var builder = new Int32Array.Builder();
-    foreach (var row in rows)
+    foreach (var value in values)
     {
-      var value = property.GetValue(row);
-      if (value == null)
-      {
-        builder.AppendNull();
-      }
-      else
-      {
-        builder.Append((int)value);
-      }
+      if (value is null) builder.AppendNull();
+      else builder.Append((int)value);
     }
     return builder.Build();
   }
 
-  private static IArrowArray BuildInt64Array<T>(PropertyInfo property, List<T> rows, int rowCount)
+  private static IArrowArray BuildInt64Array(List<object?> values)
   {
     var builder = new Int64Array.Builder();
-    foreach (var row in rows)
+    foreach (var value in values)
     {
-      var value = property.GetValue(row);
-      if (value == null)
-      {
-        builder.AppendNull();
-      }
-      else
-      {
-        builder.Append((long)value);
-      }
+      if (value is null) builder.AppendNull();
+      else builder.Append((long)value);
     }
     return builder.Build();
   }
 
-  private static IArrowArray BuildFloatArray<T>(PropertyInfo property, List<T> rows, int rowCount)
+  private static IArrowArray BuildFloatArray(List<object?> values)
   {
     var builder = new FloatArray.Builder();
-    foreach (var row in rows)
+    foreach (var value in values)
     {
-      var value = property.GetValue(row);
-      if (value == null)
-      {
-        builder.AppendNull();
-      }
-      else
-      {
-        builder.Append((float)value);
-      }
+      if (value is null) builder.AppendNull();
+      else builder.Append((float)value);
     }
     return builder.Build();
   }
 
-  private static IArrowArray BuildDoubleArray<T>(PropertyInfo property, List<T> rows, int rowCount)
+  private static IArrowArray BuildDoubleArray(List<object?> values)
   {
     var builder = new DoubleArray.Builder();
-    foreach (var row in rows)
+    foreach (var value in values)
     {
-      var value = property.GetValue(row);
-      if (value == null)
-      {
-        builder.AppendNull();
-      }
-      else
-      {
-        builder.Append((double)value);
-      }
+      if (value is null) builder.AppendNull();
+      else builder.Append((double)value);
     }
     return builder.Build();
   }
 
-  private static IArrowArray BuildBooleanArray<T>(PropertyInfo property, List<T> rows, int rowCount)
+  private static IArrowArray BuildBooleanArray(List<object?> values)
   {
     var builder = new BooleanArray.Builder();
-    foreach (var row in rows)
+    foreach (var value in values)
     {
-      var value = property.GetValue(row);
-      if (value == null)
-      {
-        builder.AppendNull();
-      }
-      else
-      {
-        builder.Append((bool)value);
-      }
+      if (value is null) builder.AppendNull();
+      else builder.Append((bool)value);
     }
     return builder.Build();
   }
 
-  private static IArrowArray BuildStringArray<T>(PropertyInfo property, List<T> rows, int rowCount)
+  private static IArrowArray BuildStringArray(List<object?> values)
   {
     var builder = new StringArray.Builder();
-    foreach (var row in rows)
+    foreach (var value in values)
     {
-      var value = property.GetValue(row);
-      if (value == null)
-      {
-        builder.AppendNull();
-      }
-      else
-      {
-        builder.Append((string)value);
-      }
+      if (value is null) builder.AppendNull();
+      else builder.Append((string)value);
     }
     return builder.Build();
   }
 
-  private static IArrowArray BuildEnumArray<T>(PropertyInfo property, List<T> rows, int rowCount)
+  private static IArrowArray BuildEnumArray(List<object?> values, Type enumType)
   {
     // Resolve [SerializedEnum] attribute values for the enum type, matching all other format serializers.
-    var enumType = Nullable.GetUnderlyingType(property.PropertyType) ?? property.PropertyType;
     var serializedValues = GetSerializedEnumMap(enumType);
-
     var builder = new StringArray.Builder();
-    foreach (var row in rows)
+    foreach (var value in values)
     {
-      var value = property.GetValue(row);
-      if (value == null)
-      {
-        builder.AppendNull();
-      }
-      else
-      {
-        builder.Append(serializedValues[value]);
-      }
+      if (value is null) builder.AppendNull();
+      else builder.Append(serializedValues[value]);
     }
     return builder.Build();
   }
 
-  private static IArrowArray BuildDateTimeArray<T>(
-    PropertyInfo property,
-    List<T> rows,
-    int rowCount
-  )
+  private static IArrowArray BuildDateTimeArray(List<object?> values)
   {
     var timestampType = new TimestampType(TimeUnit.Microsecond, (string?)null);
     var builder = new TimestampArray.Builder(timestampType);
-
-    foreach (var row in rows)
+    foreach (var value in values)
     {
-      var value = property.GetValue(row);
-      if (value == null)
+      if (value is null)
       {
         builder.AppendNull();
       }
       else
       {
         var dt = (DateTime)value;
-        // Convert to UTC if not already
         var utcDt = dt.Kind == DateTimeKind.Utc ? dt : dt.ToUniversalTime();
-        // Builder handles conversion to microseconds since Unix epoch
         builder.Append(new DateTimeOffset(utcDt, TimeSpan.Zero));
       }
     }
-
     return builder.Build();
   }
 
-  private static IArrowArray BuildDateTimeOffsetArray<T>(
-    PropertyInfo property,
-    List<T> rows,
-    int rowCount
-  )
+  private static IArrowArray BuildDateTimeOffsetArray(List<object?> values)
   {
     var timestampType = new TimestampType(TimeUnit.Microsecond, timezone: "UTC");
     var builder = new TimestampArray.Builder(timestampType);
-
-    foreach (var row in rows)
+    foreach (var value in values)
     {
-      var value = property.GetValue(row);
-      if (value == null)
-      {
-        builder.AppendNull();
-      }
-      else
-      {
-        var dto = (DateTimeOffset)value;
-        // Convert to UTC
-        var utcDto = dto.ToUniversalTime();
-        // Builder handles conversion to microseconds since Unix epoch
-        builder.Append(utcDto);
-      }
+      if (value is null) builder.AppendNull();
+      else builder.Append(((DateTimeOffset)value).ToUniversalTime());
     }
-
     return builder.Build();
   }
 
-  private static IArrowArray BuildDurationArray<T>(
-    PropertyInfo property,
-    List<T> rows,
-    int rowCount
-  )
+  private static IArrowArray BuildDurationArray(List<object?> values)
   {
-    var durationType = DurationType.Microsecond;
-    var builder = new DurationArray.Builder(durationType);
-
-    foreach (var row in rows)
+    var builder = new DurationArray.Builder(DurationType.Microsecond);
+    foreach (var value in values)
     {
-      var value = property.GetValue(row);
-      if (value == null)
-      {
-        builder.AppendNull();
-      }
-      else
-      {
-        var timeSpan = (TimeSpan)value;
-        // Builder handles conversion to microseconds
-        builder.Append(timeSpan);
-      }
+      if (value is null) builder.AppendNull();
+      else builder.Append((TimeSpan)value);
     }
-
     return builder.Build();
   }
 
-  private static IArrowArray BuildGuidArray<T>(PropertyInfo property, List<T> rows, int rowCount)
+  private static IArrowArray BuildGuidArray(List<object?> values)
   {
     // Guid stored as string in Arrow
     var builder = new StringArray.Builder();
-    foreach (var row in rows)
+    foreach (var value in values)
     {
-      var value = property.GetValue(row);
-      if (value == null)
-      {
-        builder.AppendNull();
-      }
-      else
-      {
-        builder.Append(((Guid)value).ToString("D")); // Standard format: 8-4-4-4-12
-      }
+      if (value is null) builder.AppendNull();
+      else builder.Append(((Guid)value).ToString("D"));
     }
     return builder.Build();
   }
 
-  private static IArrowArray BuildBinaryArray<T>(PropertyInfo property, List<T> rows, int rowCount)
+  private static IArrowArray BuildBinaryArray(List<object?> values)
   {
     var builder = new BinaryArray.Builder();
-    foreach (var row in rows)
+    foreach (var value in values)
     {
-      var value = property.GetValue(row);
-      if (value == null)
-      {
-        builder.AppendNull();
-      }
-      else
-      {
-        builder.Append((byte[])value);
-      }
+      if (value is null) builder.AppendNull();
+      else builder.Append((byte[])value);
     }
     return builder.Build();
   }
@@ -704,9 +643,78 @@ public static class ArrowMarshaller
       }
     }
 
+    // List / array types: recursively read the slice [offset, offset+length)
+    // out of the child values array. The slice's elements are projected
+    // back into the requested CLR container (T[] or List<T>) so the C#
+    // schema property gets the exact type it asked for.
+    var listElementType = ArrowSchemaMapper.TryGetListElementType(underlyingType);
+    if (listElementType is not null && array is ListArray listArray)
+    {
+      return ExtractListValue(listArray, index, underlyingType, listElementType);
+    }
+
     throw new NotSupportedException(
       $"Cannot convert Arrow array of type '{array.Data.DataType.Name}' to C# type '{targetType.Name}'."
     );
+  }
+
+  /// <summary>
+  /// Extract a single list-typed cell at <paramref name="rowIndex"/> from a
+  /// <see cref="ListArray"/>. The slice's child values are decoded via
+  /// <see cref="GetValueFromArray"/> — recursive: a nested
+  /// <see cref="ListArray"/> in <c>listArray.Values</c> dispatches back
+  /// here through the recursive call, so arbitrary nesting depth is read
+  /// the same way it was written.
+  /// </summary>
+  private static object ExtractListValue(
+    ListArray listArray,
+    int rowIndex,
+    Type containerType,
+    Type elementType
+  )
+  {
+    var offsets = listArray.ValueOffsets;
+    var start = offsets[rowIndex];
+    var end = offsets[rowIndex + 1];
+    var length = end - start;
+
+    var childValues = listArray.Values;
+    var decoded = new object?[length];
+    for (int i = 0; i < length; i++)
+    {
+      decoded[i] = GetValueFromArray(childValues, start + i, elementType);
+    }
+
+    return ProjectIntoContainer(decoded, containerType, elementType);
+  }
+
+  /// <summary>
+  /// Project a decoded element sequence into the CLR container type the
+  /// schema property declared — <c>T[]</c>, <c>List&lt;T&gt;</c>, or a
+  /// generic interface like <c>IEnumerable&lt;T&gt;</c> /
+  /// <c>IReadOnlyList&lt;T&gt;</c> (defaults to <c>List&lt;T&gt;</c>).
+  /// </summary>
+  private static object ProjectIntoContainer(object?[] decoded, Type containerType, Type elementType)
+  {
+    if (containerType.IsArray)
+    {
+      var arr = System.Array.CreateInstance(elementType, decoded.Length);
+      for (int i = 0; i < decoded.Length; i++) arr.SetValue(decoded[i], i);
+      return arr;
+    }
+
+    // Build a List<elementType> via reflection — it implements every common
+    // collection interface (IList<T>, IEnumerable<T>, IReadOnlyList<T>, etc.).
+    var listType = typeof(List<>).MakeGenericType(elementType);
+    var list = (System.Collections.IList)Activator.CreateInstance(listType, decoded.Length)!;
+    foreach (var v in decoded) list.Add(v);
+
+    if (containerType.IsAssignableFrom(listType)) return list;
+
+    // The declared container isn't List<T> and isn't an array — e.g. a
+    // user-declared IReadOnlyCollection<T>. List<T> still satisfies it
+    // because List<T> implements every standard read-only interface.
+    return list;
   }
 
   // ──────────────────────────────────────────────────────────────

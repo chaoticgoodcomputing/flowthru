@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Runtime.ExceptionServices;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using Apache.Arrow;
@@ -84,6 +85,15 @@ public sealed class SubprocessPythonExecutor : IPythonExecutor, IDisposable
     {
       RuntimeError.External ext when ext.Cause is InvalidOperationException ioe
         => new RuntimeError.ExtensionError(ClassifyInvokeFailure(moduleName, functionName, ioe.Message)),
+      // Any other typed exception escaping LiftAsync is classified by its
+      // type/message — most commonly NotSupportedException from
+      // ArrowMarshaller. Build a multi-line detail string that carries the
+      // exception type name and full message so the user-facing surface
+      // (.Message, metadata JSON) shows the real cause, not a generic wrapper.
+      RuntimeError.External ext
+        => new RuntimeError.ExtensionError(
+          ClassifyInvokeFailure(moduleName, functionName, FormatInnerExceptionDetail(ext.Cause))
+        ),
       _ => err,
     });
 
@@ -582,7 +592,7 @@ public sealed class SubprocessPythonExecutor : IPythonExecutor, IDisposable
     var toRecordBatch = typeof(ArrowMarshaller)
       .GetMethod(nameof(ArrowMarshaller.ToRecordBatch))!
       .MakeGenericMethod(elemType);
-    var batch = (RecordBatch)toRecordBatch.Invoke(null, new[] { value })!;
+    var batch = (RecordBatch)InvokeUnwrapping(toRecordBatch, null, new[] { value })!;
     return Convert.ToBase64String(ArrowMarshaller.ToIpcBuffer(batch));
   }
 
@@ -641,7 +651,7 @@ public sealed class SubprocessPythonExecutor : IPythonExecutor, IDisposable
     foreach (var kvp in entriesJson)
     {
       var encoded = kvp.Value!.GetValue<string>();
-      var decoded = decodeMethod.Invoke(null, new object[] { encoded, innerType, innerKind });
+      var decoded = InvokeUnwrapping(decodeMethod, null, new object[] { encoded, innerType, innerKind });
       dict[kvp.Key] = decoded;
     }
 
@@ -655,7 +665,7 @@ public sealed class SubprocessPythonExecutor : IPythonExecutor, IDisposable
     var fromRecordBatch = typeof(ArrowMarshaller)
       .GetMethod(nameof(ArrowMarshaller.FromRecordBatch))!
       .MakeGenericMethod(elemType);
-    return (TOutput)fromRecordBatch.Invoke(null, new object[] { batch })!;
+    return (TOutput)InvokeUnwrapping(fromRecordBatch, null, new object[] { batch })!;
   }
 
   private static TOutput DecodeMulti<TOutput>(string jsonArray, Type tupleType)
@@ -675,7 +685,8 @@ public sealed class SubprocessPythonExecutor : IPythonExecutor, IDisposable
           System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static
         )!
         .MakeGenericMethod(elementTypes[i]);
-      elements[i] = decodeMethod.Invoke(
+      elements[i] = InvokeUnwrapping(
+        decodeMethod,
         null,
         new object[] { elemValue, elementTypes[i], elemKind }
       );
@@ -805,5 +816,52 @@ public sealed class SubprocessPythonExecutor : IPythonExecutor, IDisposable
     message.IndexOf("marshal", StringComparison.OrdinalIgnoreCase) >= 0
       || message.IndexOf("dtype", StringComparison.OrdinalIgnoreCase) >= 0
       || message.IndexOf("Arrow", StringComparison.OrdinalIgnoreCase) >= 0
-      || message.IndexOf("base64", StringComparison.OrdinalIgnoreCase) >= 0;
+      || message.IndexOf("base64", StringComparison.OrdinalIgnoreCase) >= 0
+      || message.IndexOf("not supported for Arrow", StringComparison.OrdinalIgnoreCase) >= 0;
+
+  /// <summary>
+  /// Invoke a <see cref="MethodInfo"/> and, on failure, unwrap the
+  /// <see cref="TargetInvocationException"/> envelope so the real
+  /// inner exception escapes with its original type, message and
+  /// stack trace intact. Without this, every reflection-driven
+  /// call site here yields the useless
+  /// <c>"Exception has been thrown by the target of an invocation."</c>
+  /// at the <see cref="FlowIO{A}.LiftAsync"/> boundary, hiding the
+  /// real Arrow marshalling failure from the user.
+  /// </summary>
+  private static object? InvokeUnwrapping(MethodInfo method, object? target, object?[]? args)
+  {
+    try
+    {
+      return method.Invoke(target, args);
+    }
+    catch (TargetInvocationException tie) when (tie.InnerException is not null)
+    {
+      ExceptionDispatchInfo.Capture(tie.InnerException).Throw();
+      throw; // unreachable
+    }
+  }
+
+  /// <summary>
+  /// Render an exception (and any inner chain) into a single
+  /// human-readable detail string. Used when a non-IOE escapes
+  /// <see cref="FlowIO{A}.LiftAsync"/> — typically a
+  /// <c>NotSupportedException</c> from <see cref="ArrowMarshaller"/>
+  /// — so the surfaced <see cref="PythonRuntimeError"/> carries the
+  /// real type name and message rather than a generic wrapper.
+  /// </summary>
+  private static string FormatInnerExceptionDetail(Exception ex)
+  {
+    var sb = new System.Text.StringBuilder();
+    var cursor = ex;
+    var depth = 0;
+    while (cursor is not null)
+    {
+      if (depth > 0) sb.Append(" → ");
+      sb.Append(cursor.GetType().Name).Append(": ").Append(cursor.Message);
+      cursor = cursor.InnerException;
+      depth++;
+    }
+    return sb.ToString();
+  }
 }
