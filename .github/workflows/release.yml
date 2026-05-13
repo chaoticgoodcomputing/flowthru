@@ -68,7 +68,9 @@ jobs:
           pnpm nx affected -t test \
             --base="${{ steps.affected.outputs.nx-base }}" --head=HEAD \
             --output-style=stream \
-            --logger "console;verbosity=minimal"
+            --logger "console;verbosity=minimal" \
+            --nxBail
+
 
       - name: Sync Codecov flags
         run: pnpm nx run tests:coverage:sync
