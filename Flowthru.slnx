@@ -24,6 +24,7 @@
   <Project Path="src/misc/Flowthru.Misc.DataFrames.SourceGenerators/Flowthru.Misc.DataFrames.SourceGenerators.csproj" />
   <Project Path="tests/helpers/Flowthru.Tests.Helpers/Flowthru.Tests.Helpers.csproj" />
   <Project Path="tests/integration/Flowthru.Tests.Examples/Flowthru.Tests.Examples.csproj" />
+  <Project Path="tests/integration/Flowthru.Tests.Packaging/Flowthru.Tests.Packaging.csproj" />
   <Project Path="tests/core/Flowthru.Tests/Flowthru.Tests.csproj" />
   <Project Path="tests/core/Flowthru.Core.Tests/Flowthru.Core.Tests.csproj" />
   <Project Path="tests/core/Flowthru.Core.Architecture.Tests/Flowthru.Core.Architecture.Tests.csproj" />
