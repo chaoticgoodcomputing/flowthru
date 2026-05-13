@@ -49,6 +49,7 @@ Flowthru.Misc.DataFrames.Tests,LibraryTest,Misc
 Flowthru.Tests.Helpers,IntegrationTest,
 Flowthru.Tests.Kits,IntegrationTest,
 Flowthru.Tests.Examples,IntegrationTest,
+Flowthru.Tests.Packaging,IntegrationTest,
 KedroIris,Example,
 KedroIrisFUnit,Example,
 KedroIrisPython,Example,

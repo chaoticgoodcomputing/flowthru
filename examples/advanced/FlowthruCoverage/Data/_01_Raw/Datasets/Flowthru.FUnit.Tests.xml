@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<coverage line-rate="0.0132" branch-rate="0.0167" version="1.9" timestamp="1778543018" lines-covered="39" lines-valid="2950" branches-covered="13" branches-valid="774">
+<coverage line-rate="0.0132" branch-rate="0.0167" version="1.9" timestamp="1778644964" lines-covered="39" lines-valid="2950" branches-covered="13" branches-valid="774">
   <sources>
     <source></source>
   </sources>
@@ -10940,7 +10940,7 @@
     </package>
     <package name="Flowthru.FUnit" line-rate="0.9068999999999999" branch-rate="0.9285" complexity="22">
       <classes>
-        <class name="Flowthru.Step.Testing.FUnitContext" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/cf87182ab5fd5cb29001be9a22ff8b2a16578200/src/core/Flowthru.FUnit/FUnitContext.cs" line-rate="0.9047" branch-rate="0.9285" complexity="21">
+        <class name="Flowthru.Step.Testing.FUnitContext" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/4555bdc366efbdbea39644e8b2c308ced20ee4cf/src/core/Flowthru.FUnit/FUnitContext.cs" line-rate="0.9047" branch-rate="0.9285" complexity="21">
           <methods>
             <method name="get_Services" signature="()" line-rate="1" branch-rate="1" complexity="1">
               <lines>
@@ -11120,7 +11120,7 @@
             <line number="60" hits="5" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Step.Testing.SampleBuilder" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/cf87182ab5fd5cb29001be9a22ff8b2a16578200/src/core/Flowthru.FUnit/SampleBuilder.cs" line-rate="1" branch-rate="1" complexity="1">
+        <class name="Flowthru.Step.Testing.SampleBuilder" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/4555bdc366efbdbea39644e8b2c308ced20ee4cf/src/core/Flowthru.FUnit/SampleBuilder.cs" line-rate="1" branch-rate="1" complexity="1">
           <methods>
             <method name="Of" signature="(T[])" line-rate="1" branch-rate="1" complexity="1">
               <lines>
