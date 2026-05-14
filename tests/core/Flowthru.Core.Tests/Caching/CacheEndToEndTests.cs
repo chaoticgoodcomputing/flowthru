@@ -83,6 +83,39 @@ public class CacheEndToEndTests
   }
 
   [Test]
+  public async Task BypassCacheReads_ForcesReRunButStillUpdatesManifest()
+  {
+    // Run #1 — populate the manifest.
+    await RunFlowAsync();
+    Assert.That(_transformInvoked, Is.True, "First run is a cold miss.");
+    Assert.That(File.Exists(_cachePath), Is.True);
+
+    var firstManifestText = File.ReadAllText(_cachePath);
+
+    // Run #2 with --no-cache equivalent — must re-execute even though
+    // a cache hit would otherwise have been served.
+    _transformInvoked = false;
+    var rerun = await RunFlowAsync(new ExecutionOptions { BypassCacheReads = true });
+    Assert.That(rerun.IsSuccess, Is.True);
+    Assert.That(_transformInvoked, Is.True,
+      "BypassCacheReads must force the transform to execute even when the manifest "
+      + "would otherwise have served a hit.");
+
+    var step = (StepResult.Succeeded)rerun.StepResults.Single();
+    Assert.That(step.Reason, Is.Null,
+      "Re-executed step should not carry the cached reason.");
+
+    // The manifest must still be present (writes happen) and its
+    // contents either unchanged or refreshed in place.
+    Assert.That(File.Exists(_cachePath), Is.True,
+      "BypassCacheReads suppresses reads but not writes — the manifest must persist.");
+    var secondManifestText = File.ReadAllText(_cachePath);
+    Assert.That(secondManifestText, Is.Not.Empty,
+      "Manifest should still contain entries after a --no-cache run; only the timestamp "
+      + "may have moved.");
+  }
+
+  [Test]
   public async Task ModifiedInput_BustsCache()
   {
     await RunFlowAsync();
@@ -107,7 +140,7 @@ public class CacheEndToEndTests
   // Helpers
   // ─────────────────────────────────────────────────────────────────────────
 
-  private async Task<FlowResult> RunFlowAsync()
+  private async Task<FlowResult> RunFlowAsync(ExecutionOptions? options = null)
   {
     var services = new ServiceCollection();
     services.AddFlowthru(b =>
@@ -125,7 +158,9 @@ public class CacheEndToEndTests
 
     using var sp = services.BuildServiceProvider();
     var service = sp.GetRequiredService<IFlowthruService>();
-    return await service.RunAsync();
+    return options is null
+      ? await service.RunAsync()
+      : await service.RunAsync(flowLabel: null, options: options);
   }
 
   private Step<byte[], byte[]> BuildCacheableStep(TestCatalog catalog) =>

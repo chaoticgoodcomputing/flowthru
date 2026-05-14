@@ -54,6 +54,23 @@ public class ArgumentParserTests
   }
 
   [Test]
+  public void NoCache_FlipsBypassCacheReads()
+  {
+    var parsed = ArgumentParser.Parse(new[] { "--no-cache" });
+    Assert.That(parsed.Options.BypassCacheReads, Is.True,
+      "--no-cache must set ExecutionOptions.BypassCacheReads so the FlowthruService "
+      + "skips the cache plan build but still writes new composites post-run.");
+  }
+
+  [Test]
+  public void NoCache_DefaultIsFalse()
+  {
+    var parsed = ArgumentParser.Parse(Array.Empty<string>());
+    Assert.That(parsed.Options.BypassCacheReads, Is.False,
+      "Without --no-cache the run should consult the cache as normal.");
+  }
+
+  [Test]
   public void List_TogglesListFlows()
   {
     var parsed = ArgumentParser.Parse(new[] { "--list" });
@@ -293,5 +310,12 @@ public class ArgumentParserTests
       "Help text should document the new --exclude flag.");
     Assert.That(ArgumentParser.HelpText, Does.Contain("flows:"),
       "Help text should document the flows: matcher prefix.");
+  }
+
+  [Test]
+  public void HelpText_DocumentsNoCache()
+  {
+    Assert.That(ArgumentParser.HelpText, Does.Contain("--no-cache"),
+      "Help text should surface --no-cache so users discover the bypass.");
   }
 }

@@ -449,8 +449,10 @@ public sealed class FlowthruService : IFlowthruService
       // framework-managed manifest. Plan is consumed by the scheduler
       // (short-circuits fresh steps) and exposed on the metadata
       // context (rendered by Mermaid/JSON providers). Skipped under
-      // DryRun: a dry run shouldn't pretend to know what's cached.
-      if (options.DryRun != DryRunOption.On)
+      // DryRun (a dry run shouldn't pretend to know what's cached) or
+      // BypassCacheReads (--no-cache: skip the read but still write
+      // updates post-run so the next run benefits).
+      if (options.DryRun != DryRunOption.On && !options.BypassCacheReads)
       {
         var cacheItem = _services.GetService<IItem<CacheManifest>>();
         if (cacheItem is not null)
@@ -494,7 +496,11 @@ public sealed class FlowthruService : IFlowthruService
     // entries; stale-that-ran steps record newly-computed composites
     // derived from their post-run input fingerprints. Failed and
     // skipped steps contribute nothing.
-    if (options.CachePlan is { } finalPlan && options.DryRun != DryRunOption.On)
+    //
+    // This path is independent of options.CachePlan — under --no-cache
+    // the plan is null but the upsert still runs, so a "force re-run"
+    // populates the manifest for next time.
+    if (options.DryRun != DryRunOption.On)
     {
       var cacheItem = _services.GetService<IItem<CacheManifest>>();
       if (cacheItem is not null)
@@ -512,12 +518,17 @@ public sealed class FlowthruService : IFlowthruService
           .ConfigureAwait(false);
 
         var toUpsert = new Dictionary<string, string>(StringComparer.Ordinal);
-        // Fresh steps: refresh RecordedAt with the same composite.
-        foreach (var label in finalPlan.FreshStepLabels)
+        // Fresh steps (when a plan exists): refresh RecordedAt with the
+        // same composite. Under --no-cache the plan is null and this
+        // branch is skipped.
+        if (options.CachePlan is { } finalPlan)
         {
-          if (finalPlan.NewFingerprints.TryGetValue(label, out var composite))
+          foreach (var label in finalPlan.FreshStepLabels)
           {
-            toUpsert[label] = composite;
+            if (finalPlan.NewFingerprints.TryGetValue(label, out var composite))
+            {
+              toUpsert[label] = composite;
+            }
           }
         }
         // Stale-that-ran: record newly-derived composites.

@@ -46,6 +46,21 @@ public sealed record ExecutionOptions
   /// </summary>
   public CachePlan? CachePlan { get; init; }
 
+  /// <summary>
+  /// When true, suppress cache <i>reads</i> for this run — the framework
+  /// skips building the cache plan, every cacheable step runs, and the
+  /// scheduler short-circuits nothing. Cache <i>writes</i> still happen:
+  /// successful steps update the manifest with their new composites so
+  /// the next run benefits. Default: <c>false</c>.
+  /// </summary>
+  /// <remarks>
+  /// The CLI flag is <c>--no-cache</c>. Useful for "rebuild fresh this
+  /// once but populate the cache for next time" — e.g., when you suspect
+  /// a cached output is stale and want to force a recompute without
+  /// erasing the manifest.
+  /// </remarks>
+  public bool BypassCacheReads { get; init; } = false;
+
   /// <summary>The default — fail-fast, shallow validation, no dry run, sequential.</summary>
   public static ExecutionOptions Default { get; } = new();
 }

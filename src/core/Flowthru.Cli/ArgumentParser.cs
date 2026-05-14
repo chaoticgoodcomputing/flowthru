@@ -21,6 +21,9 @@ namespace Flowthru.Cli;
 ///   <item><c>--dry-run</c> — pass <see cref="DryRunOption.On"/>.</item>
 ///   <item><c>--validation-depth &lt;none|shallow|deep&gt;</c> — pass through.</item>
 ///   <item><c>--continue-on-error</c> — set <see cref="ExecutionOptions.StopOnFirstError"/> = false.</item>
+///   <item><c>--no-cache</c> — set <see cref="ExecutionOptions.BypassCacheReads"/> = true; skip the
+///     pre-flight cache plan (every cacheable step runs) but still record post-run composites
+///     for the next invocation.</item>
 ///   <item><c>--list</c> — print every registered flow label and exit.</item>
 ///   <item><c>--help</c>, <c>-h</c> — print usage and exit.</item>
 /// </list>
@@ -90,6 +93,7 @@ public static class ArgumentParser
     var dryRun = DryRunOption.Off;
     var depth = ValidationDepth.Shallow;
     var stopOnFirstError = true;
+    var bypassCacheReads = false;
     var listFlows = false;
     var showHelp = false;
 
@@ -144,6 +148,9 @@ public static class ArgumentParser
         case "--continue-on-error":
           stopOnFirstError = false;
           break;
+        case "--no-cache":
+          bypassCacheReads = true;
+          break;
         case "--list":
           listFlows = true;
           break;
@@ -173,6 +180,7 @@ public static class ArgumentParser
         DryRun = dryRun,
         ValidationDepth = depth,
         StopOnFirstError = stopOnFirstError,
+        BypassCacheReads = bypassCacheReads,
       },
       listFlows,
       showHelp
@@ -282,6 +290,8 @@ public static class ArgumentParser
     + "  --dry-run                        Skip transform execution; validate only\n"
     + "  --validation-depth <level>       none | shallow (default) | deep\n"
     + "  --continue-on-error              Run independent steps after a failure\n"
+    + "  --no-cache                       Skip the cache plan (every cacheable step runs);\n"
+    + "                                   the manifest is still updated post-run\n"
     + "  --help, -h                       Show this message\n"
     + "\n"
     + "Slice flags accept step labels OR item labels and may use glob wildcards (*, ?).\n"
