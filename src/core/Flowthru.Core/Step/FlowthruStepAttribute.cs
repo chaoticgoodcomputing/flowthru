@@ -45,4 +45,25 @@ public sealed class FlowthruStepAttribute : Attribute
 
   /// <summary>True if the step has side effects beyond declared outputs.</summary>
   public bool HasSideEffects { get; init; }
+
+  /// <summary>
+  /// Optional explicit code-identity override. When set, the source
+  /// generator emits this value verbatim as the step's
+  /// <c>CodeVersion</c> companion constant; when left null, the
+  /// generator computes a SHA-256 prefix over the step class's
+  /// normalized source text (trivia stripped) and emits that hex
+  /// digest instead.
+  /// </summary>
+  /// <remarks>
+  /// <para>
+  /// Used by downstream cache-plan logic to decide when a step's
+  /// recorded output can be reused. Set this explicitly when you want
+  /// a stable cross-machine identity that survives cosmetic refactors
+  /// the trivia-stripper misses, or when you want to deliberately
+  /// invalidate every cached run by bumping a version string. Leaving
+  /// it null is the recommended default — the computed digest invalidates
+  /// only when the step's actual logic changes.
+  /// </para>
+  /// </remarks>
+  public string? CodeVersion { get; init; }
 }

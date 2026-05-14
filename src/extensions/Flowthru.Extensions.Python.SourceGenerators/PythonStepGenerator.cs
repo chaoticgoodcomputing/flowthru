@@ -101,7 +101,8 @@ public class PythonStepGenerator : IIncrementalGenerator
           {{inputParam}} input,
           {{outputParam}} output,
           IPythonExecutor executor,
-          System.Collections.Generic.IReadOnlyList<ServiceRef>? services = null
+          System.Collections.Generic.IReadOnlyList<ServiceRef>? services = null,
+          string? codeVersion = null
         )
         {
           if (builder == null) throw new System.ArgumentNullException(nameof(builder));
@@ -134,10 +135,11 @@ public class PythonStepGenerator : IIncrementalGenerator
             outputs: new global::Flowthru.Data.Catalog.IItem[] { {{outputsListExpr}} },
             loadInputs: () => {{loadInputsExpr}},
             saveOutputs: {{saveOutputsExpr}},
-            serviceDependencies: services
+            serviceDependencies: services,
             // FlowLabel is stamped centrally by FlowBuilder.Add via
             // IStepNode.OnAddedToFlow — generators no longer need to
             // thread the label through every constructor call.
+            codeVersion: codeVersion
           );
           return builder.Add(step);
         }
