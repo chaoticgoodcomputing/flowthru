@@ -1,3 +1,13 @@
+## 0.18.0 (2026-05-14)
+
+### 🚀 Features
+
+- caching mechanisms for steps and inputs. ([#21](https://github.com/chaoticgoodcomputing/flowthru/pull/21))
+
+### ❤️ Thank You
+
+- Spencer Elkington
+
 ## 0.17.5 (2026-05-13)
 
 ### 🩹 Fixes
