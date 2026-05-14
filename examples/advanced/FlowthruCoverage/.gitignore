@@ -1,6 +1,9 @@
 # Generated metadata
 Metadata/
 
+# Flowthru cache manifest (Phase 6: framework-managed; safe to delete to force rebuild)
+.flowthru/
+
 # Ignore all generated data artifacts
 Data/**
 

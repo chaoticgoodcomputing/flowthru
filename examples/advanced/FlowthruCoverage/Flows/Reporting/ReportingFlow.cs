@@ -16,6 +16,12 @@ public static class ReportingFlow
   {
     return FlowBuilder.CreateFlow("Reporting", pipeline =>
     {
+      // C# [FlowthruStep] classes thread their source-gen-emitted
+      // CodeVersion through codeVersion: so the cache plan can detect
+      // code changes. Python steps below (and inline-Func steps further
+      // down) remain uncacheable — Python has a runtime ServiceDep on
+      // IPythonExecutor, and inline lambdas have no [FlowthruStep]
+      // companion to source a CodeVersion from.
       pipeline.AddStep<
         IEnumerable<PackageCoverageRow>,
         IEnumerable<ProjectManifestEntry>,
@@ -24,7 +30,8 @@ public static class ReportingFlow
         label: "ClassifyCoverage",
         transform: ClassifyCoverageStep.Create(),
         inputs: (catalog.PackageCoverage, catalog.ProjectManifest),
-        outputs: catalog.PivotCoverage
+        outputs: catalog.PivotCoverage,
+        codeVersion: ClassifyCoverageStep_Metadata.CodeVersion
       );
 
       pipeline.AddPythonStep(
@@ -52,7 +59,8 @@ public static class ReportingFlow
         label: "BuildProvenanceIcicleCoverage",
         transform: BuildProvenanceIcicleStep.Create(),
         inputs: (catalog.MethodLineCoverage, catalog.ProjectManifest, catalog.SrcInventory),
-        outputs: catalog.ProvenanceIcicleCoverage
+        outputs: catalog.ProvenanceIcicleCoverage,
+        codeVersion: BuildProvenanceIcicleStep_Metadata.CodeVersion
       );
 
       pipeline.AddPythonStep(
@@ -68,14 +76,16 @@ public static class ReportingFlow
         label: "BuildUnitCoverageReport",
         transform: BuildUnitCoverageReportStep.Create(),
         inputs: (catalog.ProvenanceIcicleCoverage, catalog.UnitCoverageReportTemplate),
-        outputs: catalog.UnitCoverageReport
+        outputs: catalog.UnitCoverageReport,
+        codeVersion: BuildUnitCoverageReportStep_Metadata.CodeVersion
       );
 
       pipeline.AddStep<IEnumerable<PivotCoverageRow>, IEnumerable<PackageCoverageMaxRow>>(
         label: "AggregatePackageCoverage",
         transform: AggregatePackageCoverageStep.Create(),
         inputs: catalog.PivotCoverage,
-        outputs: catalog.PackageCoverageMax
+        outputs: catalog.PackageCoverageMax,
+        codeVersion: AggregatePackageCoverageStep_Metadata.CodeVersion
       );
 
       Func<IEnumerable<MethodHitSummaryRow>, IEnumerable<MethodHitSummaryRow>> filterUncovered =
@@ -99,14 +109,16 @@ public static class ReportingFlow
         label: "FilterRemoteSourceFilesHits",
         transform: FilterRemoteSourceFilesStep.Create(),
         inputs: catalog.UncoveredMethodHitsRaw,
-        outputs: catalog.UncoveredMethodHits
+        outputs: catalog.UncoveredMethodHits,
+        codeVersion: FilterRemoteSourceFilesStep_Metadata.CodeVersion
       );
 
       pipeline.AddStep<IEnumerable<MethodHitSummaryRow>, IEnumerable<MethodHitSummaryRow>>(
         label: "FilterRemoteSourceFilesNames",
         transform: FilterRemoteSourceFilesStep.Create(),
         inputs: catalog.UncoveredMethodNamesRaw,
-        outputs: catalog.UncoveredMethodNames
+        outputs: catalog.UncoveredMethodNames,
+        codeVersion: FilterRemoteSourceFilesStep_Metadata.CodeVersion
       );
     });
   }
