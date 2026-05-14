@@ -12,6 +12,10 @@ Data/**
 # Allow raw input dataset files
 !Data/_01_Raw/Datasets/*
 
+# Allow raw input template files
+!Data/_01_Raw/Templates/
+!Data/_01_Raw/Templates/*
+
 # Allow all schema and catalog .cs files
 !Data/**/*.cs
 
