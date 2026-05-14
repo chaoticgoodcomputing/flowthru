@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using Flowthru.Caching;
 using Flowthru.Flow;
 using Flowthru.Step;
 
@@ -46,12 +47,28 @@ internal sealed record DagMetadataProjection
   [JsonPropertyOrder(5)]
   public required IReadOnlyList<EdgeProjection> Edges { get; init; }
 
+  /// <summary>
+  /// Top-level summary of this run's cache plan. <c>null</c> when caching
+  /// is disabled and not bypassed — the more common shape is a populated
+  /// projection with empty step sets. Tooling consumers read
+  /// <see cref="CachePlanProjection.Mode"/> to distinguish
+  /// "planned" (cache plan computed), "bypassed" (<c>--no-cache</c>),
+  /// and "disabled" (no <c>UseCacheStorage</c> registration).
+  /// </summary>
+  [JsonPropertyOrder(6)]
+  public CachePlanProjection? CachePlan { get; init; }
+
   public static DagMetadataProjection From(FlowMetadataContext ctx)
   {
     var merged = ctx.MergedFlow;
     var active = ctx.ActiveStepLabels;
+    var plan = ctx.CachePlan;
     var steps = merged.Steps
-      .Select(s => StepProjection.From(s, active.Contains(s.Label)))
+      .Select(s => StepProjection.From(
+        s,
+        active.Contains(s.Label),
+        CacheStatusProjection.PreRun(s.Label, plan)
+      ))
       .ToList();
 
     var itemsByLabel = new Dictionary<string, CatalogItemProjection>(StringComparer.Ordinal);
@@ -106,6 +123,7 @@ internal sealed record DagMetadataProjection
         .OrderBy(i => i.Label, StringComparer.Ordinal)
         .ToList(),
       Edges = edges,
+      CachePlan = CachePlanProjection.From(plan, ctx.BypassCacheReads),
     };
   }
 }
@@ -142,13 +160,23 @@ internal sealed record StepProjection
   [JsonPropertyOrder(4)]
   public required IReadOnlyList<string> Outputs { get; init; }
 
-  public static StepProjection From(IStepNode step, bool active) => new()
+  /// <summary>
+  /// Pre-flight cache-plan classification for this step:
+  /// fresh / stale / uncacheable / unplanned. <see cref="CacheStatusProjection.Ran"/>
+  /// is always <c>null</c> on the pre-flight projection — that field
+  /// is populated only on the post-run <see cref="StepResultProjection"/>.
+  /// </summary>
+  [JsonPropertyOrder(5)]
+  public required CacheStatusProjection Cache { get; init; }
+
+  public static StepProjection From(IStepNode step, bool active, CacheStatusProjection cache) => new()
   {
     Label = step.Label,
     FlowOfOrigin = step.FlowLabel,
     Active = active,
     Inputs = step.Inputs.Select(i => i.Label).ToList(),
     Outputs = step.Outputs.Select(o => o.Label).ToList(),
+    Cache = cache,
   };
 }
 
@@ -183,7 +211,7 @@ internal sealed record RunMetadataProjection
   public static RunMetadataProjection From(FlowRunMetadataContext ctx) => new()
   {
     Dag = DagMetadataProjection.From(ctx.Static),
-    Result = RunResultProjection.From(ctx.Result),
+    Result = RunResultProjection.From(ctx.Result, ctx.Static.CachePlan),
   };
 }
 
@@ -205,18 +233,23 @@ internal sealed record RunResultProjection
   [JsonPropertyOrder(2)]
   public required IReadOnlyList<StepResultProjection> StepResults { get; init; }
 
-  public static RunResultProjection From(FlowResult result) => new()
+  public static RunResultProjection From(FlowResult result, CachePlan? plan) => new()
   {
     Success = result.IsSuccess,
     DurationSeconds = result.Duration.TotalSeconds,
-    StepResults = result.StepResults.Select(StepResultProjection.From).ToList(),
+    StepResults = result.StepResults
+      .Select(r => StepResultProjection.From(r, plan))
+      .ToList(),
   };
 }
 
 /// <summary>
 /// Per-step outcome: succeeded, failed, or skipped. Succeeded and
 /// Failed carry per-step <see cref="DurationSeconds"/>; Skipped omits
-/// it because the step did not run.
+/// it because the step did not run. <see cref="Cache"/> joins the
+/// pre-flight cache-plan classification with the observed run outcome
+/// so consumers can distinguish "cached" (skipped, Reason="cached")
+/// from "ran (stale)" or "ran (uncacheable)".
 /// </summary>
 internal sealed record StepResultProjection
 {
@@ -225,20 +258,23 @@ internal sealed record StepResultProjection
   public double? DurationSeconds { get; init; }
   public string? FailureMessage { get; init; }
   public string? SkipReason { get; init; }
+  public required CacheStatusProjection Cache { get; init; }
 
-  public static StepResultProjection From(StepResult result) => result switch
+  public static StepResultProjection From(StepResult result, CachePlan? plan) => result switch
   {
     StepResult.Succeeded s => new StepResultProjection
     {
       StepLabel = s.StepLabel,
       Status = "succeeded",
       DurationSeconds = s.Duration.TotalSeconds,
+      Cache = CacheStatusProjection.PostRun(s.StepLabel, plan, ran: !IsCacheHit(s), reason: s.Reason),
     },
     StepResult.Skipped s => new StepResultProjection
     {
       StepLabel = s.StepLabel,
       Status = "skipped",
       SkipReason = s.Reason,
+      Cache = CacheStatusProjection.PostRun(s.StepLabel, plan, ran: false, reason: null),
     },
     StepResult.Failed f => new StepResultProjection
     {
@@ -246,9 +282,146 @@ internal sealed record StepResultProjection
       Status = "failed",
       DurationSeconds = f.Duration.TotalSeconds,
       FailureMessage = f.Error.Message,
+      Cache = CacheStatusProjection.PostRun(f.StepLabel, plan, ran: true, reason: null),
     },
     _ => throw new InvalidOperationException(
       $"Unreachable: StepResult is a closed sum, got {result.GetType().Name}."
     ),
   };
+
+  /// <summary>
+  /// True when a succeeded step was short-circuited by the cache plan.
+  /// </summary>
+  private static bool IsCacheHit(StepResult.Succeeded s) =>
+    string.Equals(s.Reason, "cached", StringComparison.Ordinal);
+}
+
+/// <summary>
+/// Cache classification for a single step. <see cref="Status"/>
+/// captures the pre-flight bucket (or "unplanned" when no plan was
+/// computed); <see cref="Ran"/> distinguishes pre-flight (always
+/// <c>null</c>) from post-run (<c>true</c>/<c>false</c> from the
+/// observed scheduler outcome).
+/// </summary>
+internal sealed record CacheStatusProjection
+{
+  /// <summary>
+  /// One of <c>"fresh"</c>, <c>"stale"</c>, <c>"uncacheable"</c>, or
+  /// <c>"unplanned"</c>. Unplanned means no cache plan was computed
+  /// (caching disabled or bypassed).
+  /// </summary>
+  [JsonPropertyOrder(0)]
+  public required string Status { get; init; }
+
+  /// <summary>
+  /// True when the scheduler actually executed the step. <c>null</c>
+  /// on the pre-flight projection — the prediction lives in
+  /// <see cref="Status"/>.
+  /// </summary>
+  [JsonPropertyOrder(1)]
+  public bool? Ran { get; init; }
+
+  /// <summary>
+  /// Free-form note. On post-run cache hits this carries the
+  /// scheduler's <c>Reason</c> string (typically <c>"cached"</c>).
+  /// </summary>
+  [JsonPropertyOrder(2)]
+  public string? Reason { get; init; }
+
+  /// <summary>Build the pre-flight projection for one step.</summary>
+  public static CacheStatusProjection PreRun(string stepLabel, CachePlan? plan) =>
+    new() { Status = ClassifyStatus(stepLabel, plan) };
+
+  /// <summary>Build the post-run projection for one step.</summary>
+  public static CacheStatusProjection PostRun(
+    string stepLabel,
+    CachePlan? plan,
+    bool ran,
+    string? reason
+  ) => new()
+  {
+    Status = ClassifyStatus(stepLabel, plan),
+    Ran = ran,
+    Reason = reason,
+  };
+
+  private static string ClassifyStatus(string stepLabel, CachePlan? plan)
+  {
+    if (plan is null) return "unplanned";
+    if (plan.FreshStepLabels.Contains(stepLabel)) return "fresh";
+    if (plan.StaleStepLabels.Contains(stepLabel)) return "stale";
+    if (plan.UncacheableStepLabels.Contains(stepLabel)) return "uncacheable";
+    return "unplanned";
+  }
+}
+
+/// <summary>
+/// Top-level run-wide cache plan summary.
+/// </summary>
+internal sealed record CachePlanProjection
+{
+  /// <summary>
+  /// One of:
+  /// <list type="bullet">
+  ///   <item><c>"planned"</c> — a cache plan was computed.</item>
+  ///   <item><c>"bypassed"</c> — the host opted out of cache reads (<c>--no-cache</c>).</item>
+  ///   <item><c>"disabled"</c> — no <c>UseCacheStorage</c> registration was made.</item>
+  /// </list>
+  /// </summary>
+  [JsonPropertyOrder(0)]
+  public required string Mode { get; init; }
+
+  /// <summary>Step labels the plan predicted as Fresh (will be short-circuited).</summary>
+  [JsonPropertyOrder(1)]
+  public required IReadOnlyList<string> Fresh { get; init; }
+
+  /// <summary>Step labels the plan predicted as Stale (eligible but must re-run).</summary>
+  [JsonPropertyOrder(2)]
+  public required IReadOnlyList<string> Stale { get; init; }
+
+  /// <summary>Step labels the plan classified as Uncacheable (will always re-run).</summary>
+  [JsonPropertyOrder(3)]
+  public required IReadOnlyList<string> Uncacheable { get; init; }
+
+  /// <summary>
+  /// Return a projection or <c>null</c> based on the cache plan and
+  /// the host's bypass flag. The three modes are:
+  /// <list type="bullet">
+  /// <item><c>BypassCacheReads = true</c>: mode = "bypassed",
+  /// step sets empty.</item>
+  /// <item><c>plan != null</c>: mode = "planned", step sets from the
+  /// plan.</item>
+  /// <item>Otherwise: mode = "disabled", step sets empty.</item>
+  /// </list>
+  /// </summary>
+  public static CachePlanProjection From(CachePlan? plan, bool bypassed)
+  {
+    if (bypassed)
+    {
+      return new CachePlanProjection
+      {
+        Mode = "bypassed",
+        Fresh = Array.Empty<string>(),
+        Stale = Array.Empty<string>(),
+        Uncacheable = Array.Empty<string>(),
+      };
+    }
+    if (plan is null)
+    {
+      return new CachePlanProjection
+      {
+        Mode = "disabled",
+        Fresh = Array.Empty<string>(),
+        Stale = Array.Empty<string>(),
+        Uncacheable = Array.Empty<string>(),
+      };
+    }
+    return new CachePlanProjection
+    {
+      Mode = "planned",
+      Fresh = plan.FreshStepLabels.OrderBy(l => l, StringComparer.Ordinal).ToList(),
+      Stale = plan.StaleStepLabels.OrderBy(l => l, StringComparer.Ordinal).ToList(),
+      Uncacheable = plan.UncacheableStepLabels.OrderBy(l => l, StringComparer.Ordinal).ToList(),
+    };
+  }
 }

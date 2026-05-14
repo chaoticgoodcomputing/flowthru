@@ -152,8 +152,12 @@ public class MermaidMetadataProviderEmitTests
   }
 
   [Test]
-  public async Task EmitRun_ColorsFailedStepWithFailedColor()
+  public async Task EmitRun_FailedStepGetsRedStrokeAndLabelSuffix()
   {
+    // New design (post-FP-rewrite Phase 8.0.8): failed-step decoration
+    // is stroke + bold + " (failed)" suffix, not a uniform red fill.
+    // The fill still tracks the heat-map curve so timing remains
+    // legible, and the classDef-based decoration is grayscale-safe.
     var provider = new MermaidMetadataProviderBuilder()
       .WithOutputDirectory(_root)
       .WithRunFilenameTemplate("run-{FlowName}")
@@ -177,8 +181,13 @@ public class MermaidMetadataProviderEmitTests
     await ((IPostRunMetadataProvider)provider).Emit(new FlowRunMetadataContext { Static = FlowMetadataContext.Unsliced(flow), Result = result }).Run();
 
     var content = SysIO.File.ReadAllText(SysIO.Directory.GetFiles(_root, "run-*.md").Single());
-    Assert.That(content, Does.Contain("style explode fill:#C62828"),
-      "Failed step should be coloured with the failed-step colour.");
+    Assert.That(content,
+      Does.Contain("classDef failed stroke:#C62828,stroke-width:3px,font-weight:bold"),
+      "Failed-step decoration should be emitted as a Mermaid classDef referencing the configured failed colour.");
+    Assert.That(content, Does.Contain("class explode failed"),
+      "The failed step's id should be assigned the `failed` class.");
+    Assert.That(content, Does.Contain("explode[\"explode (failed)\"]"),
+      "The failed step's label should be suffixed with ' (failed)' for grayscale legibility.");
   }
 
   [Test]

@@ -79,6 +79,18 @@ public sealed record FlowMetadataContext
   public CachePlan? CachePlan { get; init; }
 
   /// <summary>
+  /// True when the host opted into cache *reads* being bypassed for
+  /// this run (typically via the <c>--no-cache</c> CLI flag). Distinct
+  /// from "caching disabled": writes still happen, so the manifest
+  /// gets updated for the next normal run. Set independently of
+  /// <see cref="CachePlan"/> — when bypassed, the plan is always null
+  /// because the framework skips pre-flight computation altogether,
+  /// but the converse isn't true (a null plan can also mean no
+  /// <c>UseCacheStorage</c> registration was made).
+  /// </summary>
+  public bool BypassCacheReads { get; init; } = false;
+
+  /// <summary>
   /// Build an unsliced context — every step in <paramref name="flow"/>
   /// is active, no slice was requested, and <see cref="MergedFlow"/>
   /// equals <see cref="EffectiveFlow"/>. Convenience for hosts that

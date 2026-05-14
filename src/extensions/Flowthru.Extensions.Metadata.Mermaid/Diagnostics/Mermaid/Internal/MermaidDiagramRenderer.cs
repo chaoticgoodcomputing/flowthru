@@ -53,10 +53,17 @@ internal static class MermaidDiagramRenderer
     string InactiveTextColor = "#9E9E9E",
     // Heat-map endpoint for the slowest succeeded step. The fastest
     // step uses ActiveStepColor; intermediate steps interpolate linearly
-    // toward HeatMapMaxColor. Default amber/orange is high-contrast
-    // against the green baseline without bleeding into the
-    // FailedStepColor's red space.
-    string HeatMapMaxColor = "#FF8F00"
+    // toward HeatMapMaxColor. Default deep-red — failed steps are
+    // distinguished by a thick FailedStepColor stroke + bold text +
+    // "(failed)" label suffix rather than fill colour, so the heat-map
+    // can run all the way to red without colliding with the failure
+    // signal.
+    string HeatMapMaxColor = "#D32F2F",
+    // Cache-hit colour: a step the pre-flight cache plan marked Fresh
+    // (or whose post-run StepResult.Succeeded.Reason is "cached")
+    // renders with this fill. Distinct from the heat-map curve so
+    // cache hits are immediately distinguishable from ran-fast steps.
+    string CachedStepColor = "#1976D2"
   )
   {
     public static Theme Default => new(
@@ -137,16 +144,31 @@ internal static class MermaidDiagramRenderer
     var resultsByLabel = result?.StepResults
       .ToDictionary(r => r.StepLabel, r => r, StringComparer.Ordinal);
 
-    // Heat-map normalisation — the slowest succeeded step pins the
-    // amber endpoint; faster steps interpolate toward the green
-    // baseline. Skipped/Failed steps don't participate in the
-    // gradient because their colours come from the dedicated theme
-    // slots. Null when no run result is present (pre-run diagram).
-    var heatMapMax = result?.StepResults
+    // Heat-map normalisation — the slowest *non-cached* succeeded step
+    // pins the red endpoint; faster non-cached steps interpolate
+    // toward the green baseline. Cached steps (Reason="cached", zero
+    // duration) are excluded from the curve so a single instant cache
+    // hit doesn't collapse everyone else to red, and so cached steps
+    // don't get accidentally drawn as "fast and green". Skipped /
+    // Failed steps are also excluded. Null when no run result is
+    // present (pre-run diagram).
+    var ranSucceededDurations = result?.StepResults
       .OfType<StepResult.Succeeded>()
+      .Where(s => !IsCacheHit(s))
       .Select(s => s.Duration)
-      .DefaultIfEmpty(TimeSpan.Zero)
-      .Max();
+      .ToList();
+
+    // When only a single non-cached step ran, the curve is degenerate —
+    // that step would always read as red. Render it at the green
+    // baseline instead so users aren't misled.
+    var heatMapMax = ranSucceededDurations is { Count: >= 2 }
+      ? ranSucceededDurations.Max()
+      : (TimeSpan?)null;
+
+    // Pre-flight cache-hit lookup. The plan is null when caching is
+    // disabled, bypassed via --no-cache, or no UseCacheStorage
+    // registration was made.
+    var cachePlanFreshLabels = ctx.CachePlan?.FreshStepLabels;
 
     // Group steps by their flow of origin. A merged DAG collects steps
     // from multiple registered flows; each step's IStepNode.FlowLabel
@@ -188,11 +210,22 @@ internal static class MermaidDiagramRenderer
       {
         var stepId = SanitizeId(step.Label);
         var stepActive = active.Contains(step.Label);
-        sb.AppendLine($"        {stepId}[\"{EscapeLabel(step.Label)}\"]");
+
+        // Failed steps get a " (failed)" suffix on their label so a
+        // grayscale render is still legible. The fill is the regular
+        // heat-map colour (failure doesn't dominate timing); the
+        // dedicated failed-step decoration (red stroke, bold text)
+        // is applied below via a Mermaid classDef.
+        StepResult? stepResult = null;
+        resultsByLabel?.TryGetValue(step.Label, out stepResult);
+        var isFailed = stepResult is StepResult.Failed;
+        var displayLabel = isFailed
+          ? step.Label + " (failed)"
+          : step.Label;
+        sb.AppendLine($"        {stepId}[\"{EscapeLabel(displayLabel)}\"]");
 
         // Run-result coloring takes precedence over slice styling.
-        if (resultsByLabel is not null
-          && resultsByLabel.TryGetValue(step.Label, out var stepResult))
+        if (stepResult is not null)
         {
           var color = ColorFor(stepResult, theme, heatMapMax);
           sb.AppendLine($"        style {stepId} fill:{color}");
@@ -202,6 +235,16 @@ internal static class MermaidDiagramRenderer
           sb.AppendLine(
             $"        style {stepId} fill:{theme.InactiveStepColor},"
             + $"stroke:{theme.InactiveTextColor},color:{theme.InactiveTextColor}"
+          );
+        }
+        else if (cachePlanFreshLabels is not null
+          && cachePlanFreshLabels.Contains(step.Label))
+        {
+          // Pre-flight: cache plan predicts this step will be skipped.
+          // Render it in blue so users can see the cache hit before the
+          // run starts.
+          sb.AppendLine(
+            $"        style {stepId} fill:{theme.CachedStepColor},color:#FFFFFF"
           );
         }
 
@@ -249,6 +292,27 @@ internal static class MermaidDiagramRenderer
     // ── Service dependencies (out-of-flow cluster) ─────────────────────
     AppendServiceNodes(sb, topology.Steps);
 
+    // ── Failed-step decoration ─────────────────────────────────────────
+    // Mermaid doesn't let `style` directives set font-weight or
+    // stroke-width without a classDef. Emit one classDef + a single
+    // `class` line listing every failed step's id so the failed
+    // decoration (red stroke, bold text) is applied uniformly without
+    // colliding with the per-step fill colour set above.
+    if (resultsByLabel is not null)
+    {
+      var failedIds = topology.Steps
+        .Where(s => resultsByLabel.TryGetValue(s.Label, out var r) && r is StepResult.Failed)
+        .Select(s => SanitizeId(s.Label))
+        .ToList();
+      if (failedIds.Count > 0)
+      {
+        sb.AppendLine();
+        sb.AppendLine($"    classDef failed stroke:{theme.FailedStepColor},"
+          + "stroke-width:3px,font-weight:bold");
+        sb.AppendLine($"    class {string.Join(",", failedIds)} failed");
+      }
+    }
+
     sb.AppendLine("```");
     return sb.ToString();
   }
@@ -286,15 +350,34 @@ internal static class MermaidDiagramRenderer
     sb.AppendLine($"    class {classList} service");
   }
 
+  /// <summary>
+  /// Resolve the fill colour for a per-step <see cref="StepResult"/>.
+  /// Cache hits (Succeeded with Reason="cached") render in
+  /// <see cref="Theme.CachedStepColor"/>; other succeeded steps fall
+  /// on the heat-map curve from <see cref="Theme.ActiveStepColor"/>
+  /// (fastest) to <see cref="Theme.HeatMapMaxColor"/> (slowest).
+  /// Failed steps fall on the same curve — the failed-step decoration
+  /// (red stroke, bold text, "(failed)" suffix) carries the failure
+  /// signal so timing stays legible on the failed cell.
+  /// </summary>
   private static string ColorFor(StepResult result, Theme theme, TimeSpan? heatMapMax) => result switch
   {
-    StepResult.Failed => theme.FailedStepColor,
+    StepResult.Failed f => HeatMapColor(f.Duration, heatMapMax, theme),
     StepResult.Skipped => theme.SkippedStepColor,
+    StepResult.Succeeded s when IsCacheHit(s) => theme.CachedStepColor,
     StepResult.Succeeded s => HeatMapColor(s.Duration, heatMapMax, theme),
     _ => throw new InvalidOperationException(
       $"Unreachable: StepResult is a closed sum, got {result.GetType().Name}."
     ),
   };
+
+  /// <summary>
+  /// True when a succeeded step was short-circuited by the cache plan.
+  /// The scheduler stamps <c>Reason="cached"</c> on the synthetic
+  /// <see cref="StepResult.Succeeded"/> it emits for fresh steps.
+  /// </summary>
+  private static bool IsCacheHit(StepResult.Succeeded s) =>
+    string.Equals(s.Reason, "cached", StringComparison.Ordinal);
 
   /// <summary>
   /// Interpolate between <see cref="Theme.ActiveStepColor"/> (fastest)

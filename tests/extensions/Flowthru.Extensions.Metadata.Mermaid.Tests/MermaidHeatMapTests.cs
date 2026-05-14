@@ -75,13 +75,17 @@ public class MermaidHeatMapTests
     Assert.That(slowColorMatch.Success, Is.True, "Slow step should be styled.");
     Assert.That(fastColorMatch.Groups[1].Value, Is.Not.EqualTo(slowColorMatch.Groups[1].Value),
       "Two steps with very different durations should land at different heat-map points.");
-    Assert.That(slowColorMatch.Groups[1].Value, Is.EqualTo("#FF8F00"),
-      "The slowest step should pin to the heat-map max colour.");
+    Assert.That(slowColorMatch.Groups[1].Value, Is.EqualTo("#D32F2F"),
+      "The slowest step should pin to the heat-map max colour (deep red).");
   }
 
   [Test]
-  public void RenderRun_FailedStep_KeepsFailedColorIgnoringDuration()
+  public void RenderRun_FailedStep_GetsClassDefAndFailedSuffix()
   {
+    // New design: failed steps keep their fill on the heat-map curve
+    // (so timing is still legible) but get a red stroke + bold text
+    // via a `failed` classDef, plus a " (failed)" suffix on the node
+    // label so a grayscale render still surfaces the failure.
     var ctx = new FlowMetadataContext
     {
       MergedFlow = BuildSingleStepFlow("boom"),
@@ -105,8 +109,13 @@ public class MermaidHeatMapTests
       theme: MermaidDiagramRenderer.Theme.Default
     );
 
-    Assert.That(diagram, Does.Contain("style boom fill:#C62828"),
-      "Failed steps render with the dedicated FailedStepColor regardless of duration.");
+    Assert.That(diagram,
+      Does.Contain("classDef failed stroke:#C62828,stroke-width:3px,font-weight:bold"),
+      "Failed-step decoration should be emitted as a Mermaid classDef.");
+    Assert.That(diagram, Does.Contain("class boom failed"),
+      "The failed step's id should be assigned the `failed` class.");
+    Assert.That(diagram, Does.Contain("boom[\"boom (failed)\"]"),
+      "The failed step's label should be suffixed with ' (failed)'.");
   }
 
   // ── Helpers ─────────────────────────────────────────────────────────

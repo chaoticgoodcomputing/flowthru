@@ -216,6 +216,7 @@ public sealed class FlowthruService : IFlowthruService
         .Select(s => s.Label)
         .ToHashSet(StringComparer.Ordinal),
       RequestedFlowLabel = flowLabel,
+      BypassCacheReads = options.BypassCacheReads,
     };
 
     // Run the body, capture the FlowResult, then release LIFO with
