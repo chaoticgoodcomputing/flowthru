@@ -40,6 +40,13 @@ public static class CrossValidateModelStep
     /// </summary>
     [Range(0.0f, 1.0f, ErrorMessage = "KedroReferenceR2Score must be between 0.0 and 1.0")]
     public float KedroReferenceR2Score { get; init; }
+
+    /// <summary>
+    /// Number of iterations for the ML.NET online gradient descent regression trainer.
+    /// Defaults to 1000; can be overridden via appsettings.
+    /// </summary>
+    [Range(1, int.MaxValue, ErrorMessage = "MlNetIterations must be a positive integer")]
+    public int MlNetIterations { get; init; } = 1000;
   }
 
   public static Func<
@@ -99,7 +106,7 @@ public static class CrossValidateModelStep
         mlContext.Regression.Trainers.OnlineGradientDescent(
           labelColumnName: "Label",
           featureColumnName: "Features",
-          numberOfIterations: 1000
+          numberOfIterations: config.MlNetIterations
         )
       );
 
