@@ -1,17 +1,17 @@
 ### YamlMime:TableOfContent
-- name: Flowthru.Core.Data
-  href: Flowthru.Core.Data.md
+- name: Flowthru.Data.Catalog
+  href: Flowthru.Data.Catalog.md
   items:
   - name: Classes
-  - name: XmlEnumerableItemExtensions
-    href: Flowthru.Core.Data.XmlEnumerableItemExtensions.md
-  - name: XmlItemFactory
-    href: Flowthru.Core.Data.XmlItemFactory.md
-  - name: XmlItemFactory.Single
-    href: Flowthru.Core.Data.XmlItemFactory.Single.md
-- name: Flowthru.Core.Data.Storage
-  href: Flowthru.Core.Data.Storage.md
+  - name: XmlBuilder<T>
+    href: Flowthru.Data.Catalog.XmlBuilder-1.md
+  - name: XmlExtensions
+    href: Flowthru.Data.Catalog.XmlExtensions.md
+  - name: XmlItemFactoryExtensions
+    href: Flowthru.Data.Catalog.XmlItemFactoryExtensions.md
+- name: Flowthru.Data.Storage.Xml
+  href: Flowthru.Data.Storage.Xml.md
   items:
   - name: Classes
-  - name: SingletonXmlStorageAdapter<T>
-    href: Flowthru.Core.Data.Storage.SingletonXmlStorageAdapter-1.md
+  - name: SingletonXmlAdapter<T>
+    href: Flowthru.Data.Storage.Xml.SingletonXmlAdapter-1.md

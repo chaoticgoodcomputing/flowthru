@@ -7,7 +7,5 @@
     href: Flowthru.Core.CodeFixes.Ft1001AddPartialKeywordFix.md
   - name: Ft1002RemoveConflictingInterfaceFix
     href: Flowthru.Core.CodeFixes.Ft1002RemoveConflictingInterfaceFix.md
-  - name: Ft2002RemoveUnusedCatalogFix
-    href: Flowthru.Core.CodeFixes.Ft2002RemoveUnusedCatalogFix.md
-  - name: Ft4001AddFlowthruStepAttributeFix
-    href: Flowthru.Core.CodeFixes.Ft4001AddFlowthruStepAttributeFix.md
+  - name: Ft1101AddFlowthruStepAttributeFix
+    href: Flowthru.Core.CodeFixes.Ft1101AddFlowthruStepAttributeFix.md

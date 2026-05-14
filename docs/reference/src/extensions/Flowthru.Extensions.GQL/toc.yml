@@ -1,45 +1,45 @@
 ### YamlMime:TableOfContent
-- name: Flowthru.Core.Data.Storage
-  href: Flowthru.Core.Data.Storage.md
+- name: Flowthru.Data.Catalog
+  href: Flowthru.Data.Catalog.md
+  items:
+  - name: Classes
+  - name: GqlBuilder<TResult, TRow>
+    href: Flowthru.Data.Catalog.GqlBuilder-2.md
+  - name: GqlDeferredBuilder<TResult, TRow>
+    href: Flowthru.Data.Catalog.GqlDeferredBuilder-2.md
+  - name: GqlExtensions
+    href: Flowthru.Data.Catalog.GqlExtensions.md
+  - name: GqlItemFactoryExtensions
+    href: Flowthru.Data.Catalog.GqlItemFactoryExtensions.md
+  - name: GqlPagedOffsetBuilder<TResult, TRow>
+    href: Flowthru.Data.Catalog.GqlPagedOffsetBuilder-2.md
+  - name: GqlPagedRelayBuilder<TResult, TRow>
+    href: Flowthru.Data.Catalog.GqlPagedRelayBuilder-2.md
+  - name: GqlSingleBuilder<TResult, T>
+    href: Flowthru.Data.Catalog.GqlSingleBuilder-2.md
+- name: Flowthru.Data.Storage.Gql
+  href: Flowthru.Data.Storage.Gql.md
   items:
   - name: Classes
   - name: GqlEnumerableStorageAdapter<TResult, T>
-    href: Flowthru.Core.Data.Storage.GqlEnumerableStorageAdapter-2.md
-  - name: GqlQueryStorageAdapter<TFilter, TResult, T>
-    href: Flowthru.Core.Data.Storage.GqlQueryStorageAdapter-3.md
-  - name: GqlQueryStorageAdapter<TResult, T>
-    href: Flowthru.Core.Data.Storage.GqlQueryStorageAdapter-2.md
-  - name: GqlStorageAdapter<TResult, T>
-    href: Flowthru.Core.Data.Storage.GqlStorageAdapter-2.md
-- name: Flowthru.Extensions.GQL.Data
-  href: Flowthru.Extensions.GQL.Data.md
-  items:
-  - name: Classes
-  - name: GqlItemFactory
-    href: Flowthru.Extensions.GQL.Data.GqlItemFactory.md
-  - name: GqlItemFactory.Enumerable
-    href: Flowthru.Extensions.GQL.Data.GqlItemFactory.Enumerable.md
-  - name: GqlItemFactory.Query
-    href: Flowthru.Extensions.GQL.Data.GqlItemFactory.Query.md
-  - name: GqlItemFactory.Single
-    href: Flowthru.Extensions.GQL.Data.GqlItemFactory.Single.md
+    href: Flowthru.Data.Storage.Gql.GqlEnumerableStorageAdapter-2.md
   - name: GqlQuery<TFilter, TResult, T>
-    href: Flowthru.Extensions.GQL.Data.GqlQuery-3.md
+    href: Flowthru.Data.Storage.Gql.GqlQuery-3.md
   - name: GqlQuery<TResult, T>
-    href: Flowthru.Extensions.GQL.Data.GqlQuery-2.md
+    href: Flowthru.Data.Storage.Gql.GqlQuery-2.md
+  - name: GqlQueryStorageAdapter<TFilter, TResult, T>
+    href: Flowthru.Data.Storage.Gql.GqlQueryStorageAdapter-3.md
+  - name: GqlQueryStorageAdapter<TResult, T>
+    href: Flowthru.Data.Storage.Gql.GqlQueryStorageAdapter-2.md
+  - name: GqlSingleStorageAdapter<TResult, T>
+    href: Flowthru.Data.Storage.Gql.GqlSingleStorageAdapter-2.md
   - name: OffsetPaginationStrategy<TResult, T>
-    href: Flowthru.Extensions.GQL.Data.OffsetPaginationStrategy-2.md
+    href: Flowthru.Data.Storage.Gql.OffsetPaginationStrategy-2.md
   - name: PageInfo
-    href: Flowthru.Extensions.GQL.Data.PageInfo.md
+    href: Flowthru.Data.Storage.Gql.PageInfo.md
   - name: Pagination
-    href: Flowthru.Extensions.GQL.Data.Pagination.md
+    href: Flowthru.Data.Storage.Gql.Pagination.md
   - name: PaginationStrategy<TResult, T>
-    href: Flowthru.Extensions.GQL.Data.PaginationStrategy-2.md
+    href: Flowthru.Data.Storage.Gql.PaginationStrategy-2.md
   - name: RelayPaginationStrategy<TResult, T>
-    href: Flowthru.Extensions.GQL.Data.RelayPaginationStrategy-2.md
-- name: Flowthru.Extensions.GQL.Tests
-  href: Flowthru.Extensions.GQL.Tests.md
-  items:
-  - name: Classes
-  - name: CompilationTest
-    href: Flowthru.Extensions.GQL.Tests.CompilationTest.md
+    href: Flowthru.Data.Storage.Gql.RelayPaginationStrategy-2.md

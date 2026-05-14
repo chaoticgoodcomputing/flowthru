@@ -1,29 +1,21 @@
 ### YamlMime:TableOfContent
-- name: Flowthru.Core.Data.Storage
-  href: Flowthru.Core.Data.Storage.md
-  items:
-  - name: Classes
-  - name: HttpStorageMediumProvider
-    href: Flowthru.Core.Data.Storage.HttpStorageMediumProvider.md
-- name: Flowthru.Core.Data.Storage.Medium
-  href: Flowthru.Core.Data.Storage.Medium.md
+- name: Flowthru.Data.Storage.Http
+  href: Flowthru.Data.Storage.Http.md
   items:
   - name: Classes
   - name: CachedHttpStorageMedium
-    href: Flowthru.Core.Data.Storage.Medium.CachedHttpStorageMedium.md
-  - name: HttpStorageMedium
-    href: Flowthru.Core.Data.Storage.Medium.HttpStorageMedium.md
-- name: Flowthru.Extensions.Http
-  href: Flowthru.Extensions.Http.md
-  items:
-  - name: Classes
+    href: Flowthru.Data.Storage.Http.CachedHttpStorageMedium.md
   - name: HttpCacheOptions
-    href: Flowthru.Extensions.Http.HttpCacheOptions.md
+    href: Flowthru.Data.Storage.Http.HttpCacheOptions.md
   - name: HttpOptions
-    href: Flowthru.Extensions.Http.HttpOptions.md
-- name: Flowthru.Extensions.Http.Services
-  href: Flowthru.Extensions.Http.Services.md
+    href: Flowthru.Data.Storage.Http.HttpOptions.md
+  - name: HttpStorageMedium
+    href: Flowthru.Data.Storage.Http.HttpStorageMedium.md
+  - name: HttpStorageMediumProvider
+    href: Flowthru.Data.Storage.Http.HttpStorageMediumProvider.md
+- name: Flowthru.Hosting
+  href: Flowthru.Hosting.md
   items:
   - name: Classes
-  - name: FlowthruServiceBuilderHttpExtensions
-    href: Flowthru.Extensions.Http.Services.FlowthruServiceBuilderHttpExtensions.md
+  - name: HttpFlowthruBuilderExtensions
+    href: Flowthru.Hosting.HttpFlowthruBuilderExtensions.md

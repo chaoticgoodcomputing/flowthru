@@ -1,15 +1,15 @@
 ### YamlMime:TableOfContent
-- name: Flowthru.Meta
-  href: Flowthru.Meta.md
+- name: Flowthru.Diagnostics
+  href: Flowthru.Diagnostics.md
   items:
   - name: Classes
-  - name: JsonMetadataProviderBuilder
-    href: Flowthru.Meta.JsonMetadataProviderBuilder.md
-  - name: MetadataJsonExtensions
-    href: Flowthru.Meta.MetadataJsonExtensions.md
-- name: Flowthru.Meta.Providers
-  href: Flowthru.Meta.Providers.md
+  - name: JsonMetadataBuilderExtensions
+    href: Flowthru.Diagnostics.JsonMetadataBuilderExtensions.md
+- name: Flowthru.Diagnostics.Json
+  href: Flowthru.Diagnostics.Json.md
   items:
   - name: Classes
   - name: JsonMetadataProvider
-    href: Flowthru.Meta.Providers.JsonMetadataProvider.md
+    href: Flowthru.Diagnostics.Json.JsonMetadataProvider.md
+  - name: JsonMetadataProviderBuilder
+    href: Flowthru.Diagnostics.Json.JsonMetadataProviderBuilder.md

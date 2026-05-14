@@ -80,8 +80,14 @@ protected static object? EvaluateConstant(Expression expression)
 
 ### <a id="Flowthru_Misc_DataFrames_FrameExpressionVisitor_ResolveColumnName_System_Reflection_MemberInfo_"></a> ResolveColumnName\(MemberInfo\)
 
-Resolves the external column name for a schema property, respecting
-<xref href="Flowthru.Core.Abstractions.SerializedLabelAttribute" data-throw-if-not-resolved="false"></xref> if present.
+Resolves the external column name for a schema property. Honors
+any <code>[SerializedLabel(string)]</code>-shaped attribute attached to
+the member by structural lookup (attribute type name matches
+<code>SerializedLabelAttribute</code> and exposes a <code>Label</code>
+string property). Duck-typed deliberately so this utility stays
+framework-agnostic — it works with Flowthru's
+<code>[SerializedLabel]</code> when present but does not depend on
+<code>Flowthru.Core</code>.
 
 ```csharp
 protected static string ResolveColumnName(MemberInfo member)
