@@ -1,4 +1,5 @@
 using Flowthru.Core.SourceGenerators.Algebra;
+using Flowthru.Flow;
 using Flowthru.Validation.Runtime;
 
 namespace Flowthru.Core.SourceGenerators.Tests;
@@ -139,6 +140,49 @@ public class Ft0001ClosedSumExhaustivenessTests
   }
 
   // ── Real Core closed sum ───────────────────────────────────────────────
+
+  // ── FlowSliceStrategy.Not (Phase 2) regression ─────────────────────────
+
+  [Test]
+  public async Task FlowSliceStrategyMissingNotCase_FiresFt0001()
+  {
+    // After Phase 2 introduces FlowSliceStrategy.Not, any switch over
+    // FlowSliceStrategy that omits the Not arm must trip FT0001. This is
+    // the analyzer-regression test the RFC explicitly calls out.
+    var source = """
+      using Flowthru.Flow;
+
+      namespace Sample;
+
+      public static class Consumer
+      {
+        public static string Describe(FlowSliceStrategy s) => s switch
+        {
+          FlowSliceStrategy.From => "from",
+          FlowSliceStrategy.To => "to",
+          FlowSliceStrategy.Only => "only",
+          FlowSliceStrategy.Flows => "flows",
+          FlowSliceStrategy.All => "all",
+          FlowSliceStrategy.None => "none",
+          FlowSliceStrategy.And => "and",
+          FlowSliceStrategy.Or => "or",
+          // FlowSliceStrategy.Not deliberately omitted — FT0001 should fire.
+        };
+      }
+      """;
+
+    var diags = await AnalyzerTestHarness.RunAsync(
+      new ClosedSumExhaustivenessAnalyzer(),
+      source,
+      typeof(FlowSliceStrategy).Assembly
+    );
+    var ft0001 = diags.Where("FT0001").ToList();
+    Assert.That(ft0001, Is.Not.Empty,
+      "FT0001 must fire when a switch over FlowSliceStrategy omits the Not case. "
+      + "Got: " + string.Join(", ", diags.Select(d => d.Id + ": " + d.GetMessage())));
+    Assert.That(ft0001.Any(d => d.GetMessage().Contains("Not")), Is.True,
+      "The FT0001 diagnostic message should call out the missing 'Not' case specifically.");
+  }
 
   [Test]
   public async Task RuntimeErrorMissingExtensionVariant_FiresFt0001()

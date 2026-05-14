@@ -970,6 +970,170 @@ public class SlicingTests
   }
 
   // ─────────────────────────────────────────────────────────────────────────
+  // FlowSliceStrategy.Not — set complement (Phase 2)
+  // ─────────────────────────────────────────────────────────────────────────
+
+  [Test]
+  public void Strategy_Not_OfOnly_ReturnsComplement()
+  {
+    // 3-step linear flow: A → B → C. Not(Only(B)) ≡ {A, C}.
+    var src = ItemFactory.Singleton.Memory<int>("not-only-src");
+    var midAB = ItemFactory.Singleton.Memory<int>("not-only-midAB");
+    var midBC = ItemFactory.Singleton.Memory<int>("not-only-midBC");
+    var sink = ItemFactory.Singleton.Memory<int>("not-only-sink");
+    var flow = FlowBuilder.CreateFlow("not-only", b =>
+    {
+      b.AddStep<int, int>("A", x => x, src, midAB);
+      b.AddStep<int, int>("B", x => x, midAB, midBC);
+      b.AddStep<int, int>("C", x => x, midBC, sink);
+    });
+
+    var sliced = new FlowSliceStrategy.Not(FlowSliceStrategy.OnlySteps("B"))
+      .Apply(flow.Steps, BuildProducerMap(flow));
+
+    Assert.That(sliced.Select(s => s.Label), Is.EqualTo(new[] { "A", "C" }),
+      "Not(Only(B)) over a 3-step flow should yield the other two steps in topo order.");
+  }
+
+  [Test]
+  public void Strategy_Not_OfNot_IsIdentity()
+  {
+    // Double-complement law: Not(Not(X)) ≡ X (as a set of steps).
+    var src = ItemFactory.Singleton.Memory<int>("not-not-src");
+    var mid = ItemFactory.Singleton.Memory<int>("not-not-mid");
+    var sink = ItemFactory.Singleton.Memory<int>("not-not-sink");
+    var flow = FlowBuilder.CreateFlow("not-not", b =>
+    {
+      b.AddStep<int, int>("A", x => x, src, mid);
+      b.AddStep<int, int>("B", x => x, mid, sink);
+    });
+    var producerMap = BuildProducerMap(flow);
+
+    var inner = FlowSliceStrategy.OnlySteps("A");
+    var direct = inner.Apply(flow.Steps, producerMap).Select(s => s.Label).ToList();
+    var roundTripped = new FlowSliceStrategy.Not(new FlowSliceStrategy.Not(inner))
+      .Apply(flow.Steps, producerMap)
+      .Select(s => s.Label)
+      .ToList();
+
+    Assert.That(roundTripped, Is.EqualTo(direct),
+      "Not(Not(X)) must yield the same step set (and topo order) as X.");
+  }
+
+  [Test]
+  public void Strategy_Difference_All_X_IsNot_X()
+  {
+    // Difference(All, X) ≡ Not(X). Convenience-constructor identity.
+    var src = ItemFactory.Singleton.Memory<int>("diff-src");
+    var mid = ItemFactory.Singleton.Memory<int>("diff-mid");
+    var sink = ItemFactory.Singleton.Memory<int>("diff-sink");
+    var flow = FlowBuilder.CreateFlow("diff", b =>
+    {
+      b.AddStep<int, int>("A", x => x, src, mid);
+      b.AddStep<int, int>("B", x => x, mid, sink);
+    });
+    var producerMap = BuildProducerMap(flow);
+
+    var x = FlowSliceStrategy.OnlySteps("B");
+
+    var differenceResult = FlowSliceStrategy
+      .Difference(new FlowSliceStrategy.All(), x)
+      .Apply(flow.Steps, producerMap)
+      .Select(s => s.Label)
+      .ToList();
+    var notResult = new FlowSliceStrategy.Not(x)
+      .Apply(flow.Steps, producerMap)
+      .Select(s => s.Label)
+      .ToList();
+
+    Assert.That(differenceResult, Is.EqualTo(notResult),
+      "Difference(All, X) must equal Not(X) as a step set in topo order.");
+  }
+
+  [Test]
+  public void Strategy_Excluding_IsConvenientAliasOfNot()
+  {
+    // Excluding(...) is the static convenience constructor for Not.
+    var src = ItemFactory.Singleton.Memory<int>("excl-src");
+    var sink = ItemFactory.Singleton.Memory<int>("excl-sink");
+    var flow = FlowBuilder.CreateFlow("excl", b =>
+      b.AddStep<int, int>("A", x => x, src, sink)
+    );
+
+    var strat = FlowSliceStrategy.Excluding(FlowSliceStrategy.OnlySteps("A"));
+    Assert.That(strat, Is.InstanceOf<FlowSliceStrategy.Not>());
+    var not = (FlowSliceStrategy.Not)strat;
+    Assert.That(not.Inner, Is.InstanceOf<FlowSliceStrategy.Only>());
+  }
+
+  [Test]
+  public void Strategy_And_To_Not_Flows_ExcludesFlowAttributedSteps()
+  {
+    // And(To(sink), Not(Flows("Ingest"))) — slice upstream to 'sink' but
+    // drop every step whose FlowLabel is "Ingest".
+    var srcA = ItemFactory.Singleton.Memory<int>("af-srcA");
+    var midA = ItemFactory.Singleton.Memory<int>("af-midA");
+    var sink = ItemFactory.Singleton.Memory<int>("af-sink");
+
+    // Two flows: "Ingest" produces midA from srcA; "Score" consumes midA → sink.
+    var ingest = FlowBuilder.CreateFlow("Ingest", b =>
+      b.AddStep<int, int>("ingest-step", x => x, srcA, midA)
+    );
+    var score = FlowBuilder.CreateFlow("Score", b =>
+      b.AddStep<int, int>("score-step", x => x, midA, sink)
+    );
+    var mergedSteps = ingest.Steps.Concat(score.Steps).ToList();
+    var producerMap = mergedSteps
+      .SelectMany(s => s.Outputs.Select(o => (o.Label, Step: s)))
+      .ToDictionary(t => t.Label, t => t.Step);
+
+    var strategy = new FlowSliceStrategy.And(
+      FlowSliceStrategy.ToLabels("af-sink"),
+      new FlowSliceStrategy.Not(FlowSliceStrategy.InFlows("Ingest"))
+    );
+    var sliced = strategy.Apply(mergedSteps, producerMap);
+
+    Assert.That(sliced.Select(s => s.Label), Is.EqualTo(new[] { "score-step" }),
+      "And(To(sink), Not(Flows(Ingest))) should keep score-step and drop ingest-step.");
+  }
+
+  [Test]
+  public void Strategy_Not_All_IsNone()
+  {
+    // Edge: Not(All) ≡ None.
+    var src = ItemFactory.Singleton.Memory<int>("notall-src");
+    var sink = ItemFactory.Singleton.Memory<int>("notall-sink");
+    var flow = FlowBuilder.CreateFlow("notall", b =>
+      b.AddStep<int, int>("A", x => x, src, sink)
+    );
+
+    var sliced = new FlowSliceStrategy.Not(new FlowSliceStrategy.All())
+      .Apply(flow.Steps, BuildProducerMap(flow));
+
+    Assert.That(sliced, Is.Empty, "Not(All) must be empty.");
+  }
+
+  [Test]
+  public void Strategy_Not_None_IsAll()
+  {
+    // Edge: Not(None) ≡ All.
+    var src = ItemFactory.Singleton.Memory<int>("notnone-src");
+    var mid = ItemFactory.Singleton.Memory<int>("notnone-mid");
+    var sink = ItemFactory.Singleton.Memory<int>("notnone-sink");
+    var flow = FlowBuilder.CreateFlow("notnone", b =>
+    {
+      b.AddStep<int, int>("A", x => x, src, mid);
+      b.AddStep<int, int>("B", x => x, mid, sink);
+    });
+
+    var sliced = new FlowSliceStrategy.Not(new FlowSliceStrategy.None())
+      .Apply(flow.Steps, BuildProducerMap(flow));
+
+    Assert.That(sliced.Select(s => s.Label), Is.EqualTo(new[] { "A", "B" }),
+      "Not(None) must be every step in topo order.");
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
   // Helpers
   // ─────────────────────────────────────────────────────────────────────────
 
