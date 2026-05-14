@@ -64,7 +64,9 @@ public sealed class EnumerableItemFactory
   )
     where TRow : notnull, IStructuredSerializable
   {
-    var medium = (resolver ?? StorageMediumResolver.Filesystem).Resolve(filePath);
+    var effective =
+      resolver ?? StorageMediumResolver.Current ?? StorageMediumResolver.Filesystem;
+    var medium = effective.Resolve(filePath);
     return new Item<IEnumerable<TRow>>(
       label,
       new ComposedStorageAdapter<IEnumerable<TRow>, TRow>(
@@ -92,11 +94,34 @@ public sealed class SingletonItemFactory
 
   /// <summary>
   /// JSON file holding a single <typeparamref name="T"/> value (object,
-  /// not an array).
+  /// not an array). When <paramref name="resolver"/> is null, the
+  /// ambient <see cref="StorageMediumResolver.Current"/> is consulted
+  /// (typically pushed by <see cref="CatalogAbstract.CreateItem{T}"/>);
+  /// failing that, the call resolves directly against the local
+  /// filesystem — preserving the historical bare-path fast path.
   /// </summary>
-  public IItem<T> Json<T>(string label, string filePath)
-    where T : notnull, IStructuredSerializable =>
-    new Item<T>(label, new SingletonJsonAdapter<T>(filePath));
+  public IItem<T> Json<T>(
+    string label,
+    string filePath,
+    IStorageMediumResolver? resolver = null
+  )
+    where T : notnull, IStructuredSerializable
+  {
+    var effective = resolver ?? StorageMediumResolver.Current;
+    if (effective is null)
+    {
+      // Preserve the original bare-path fast path when no resolver is
+      // in scope — go straight to the file-backed adapter.
+      return new Item<T>(label, new SingletonJsonAdapter<T>(filePath));
+    }
+    var medium = effective.Resolve(filePath);
+    return new Item<T>(
+      label,
+      medium is FileStorageMedium fileMedium
+        ? new SingletonJsonAdapter<T>(fileMedium.FilePath)
+        : new SingletonJsonAdapter<T>(medium)
+    );
+  }
 
   /// <summary>In-memory singleton holding a single <typeparamref name="T"/> value.</summary>
   public IItem<T> Memory<T>(string label)

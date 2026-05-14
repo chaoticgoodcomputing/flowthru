@@ -60,10 +60,16 @@ public sealed class ExcelBuilder<TRow>
     return this;
   }
 
-  /// <summary>Optional <see cref="IStorageMediumResolver"/> for non-filesystem schemes.</summary>
+  /// <summary>
+  /// Optional <see cref="IStorageMediumResolver"/> for non-filesystem
+  /// schemes. When omitted, the builder consults
+  /// <see cref="StorageMediumResolver.Current"/> (pushed by
+  /// <see cref="CatalogAbstract.CreateItem{T}"/> during materialization)
+  /// and finally falls back to <see cref="StorageMediumResolver.Filesystem"/>.
+  /// </summary>
   public ExcelBuilder<TRow> WithResolver(IStorageMediumResolver resolver)
   {
-    _resolver = resolver;
+    _resolver = resolver ?? throw new ArgumentNullException(nameof(resolver));
     return this;
   }
 
@@ -84,7 +90,9 @@ public sealed class ExcelBuilder<TRow>
     var format = _nullValues is null
       ? new ExcelFormatSerializer<TRow>(_sheetName)
       : new ExcelFormatSerializer<TRow>(_sheetName, _nullValues);
-    var medium = (_resolver ?? StorageMediumResolver.Filesystem).Resolve(filePath);
+    var resolver =
+      _resolver ?? StorageMediumResolver.Current ?? StorageMediumResolver.Filesystem;
+    var medium = resolver.Resolve(filePath);
     return new ComposedStorageAdapter<IEnumerable<TRow>, TRow>(
       medium,
       reader: format,

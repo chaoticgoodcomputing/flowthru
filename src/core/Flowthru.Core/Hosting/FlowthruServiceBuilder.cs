@@ -41,7 +41,25 @@ public sealed class FlowthruServiceBuilder : IFlowthruBuilder
     where TCatalog : class
   {
     if (factory is null) throw new ArgumentNullException(nameof(factory));
-    Services.AddSingleton(factory);
+    // Wrap the user-supplied factory so any catalog that derives from
+    // CatalogAbstract picks up the DI-resolved IStorageMediumResolver
+    // automatically — even if the user's constructor didn't thread one
+    // through. CreateItem<T> consumes this resolver to push the ambient
+    // slot during materialization (Phase 1 of the smart-caching RFC).
+    Services.AddSingleton(sp =>
+    {
+      var catalog = factory(sp);
+      if (catalog is Flowthru.Data.Catalog.CatalogAbstract abstractCatalog
+          && abstractCatalog.Resolver is null)
+      {
+        var resolver = sp.GetService<Flowthru.Data.Storage.IStorageMediumResolver>();
+        if (resolver is not null)
+        {
+          abstractCatalog.AttachResolver(resolver);
+        }
+      }
+      return catalog;
+    });
     _catalogTypes.Add(typeof(TCatalog));
     return this;
   }

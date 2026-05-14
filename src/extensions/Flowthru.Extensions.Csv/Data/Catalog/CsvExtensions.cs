@@ -58,12 +58,14 @@ public sealed class CsvBuilder<TRow>
 
   /// <summary>
   /// Optional <see cref="IStorageMediumResolver"/> for non-filesystem
-  /// schemes. When omitted, falls back to
-  /// <see cref="StorageMediumResolver.Filesystem"/>.
+  /// schemes. When omitted, the builder consults
+  /// <see cref="StorageMediumResolver.Current"/> (pushed by
+  /// <see cref="CatalogAbstract.CreateItem{T}"/> during materialization)
+  /// and finally falls back to <see cref="StorageMediumResolver.Filesystem"/>.
   /// </summary>
   public CsvBuilder<TRow> WithResolver(IStorageMediumResolver resolver)
   {
-    _resolver = resolver;
+    _resolver = resolver ?? throw new ArgumentNullException(nameof(resolver));
     return this;
   }
 
@@ -86,7 +88,9 @@ public sealed class CsvBuilder<TRow>
     var format = _nullValues is null
       ? new CsvFormatSerializer<TRow>()
       : new CsvFormatSerializer<TRow>(_nullValues);
-    var medium = (_resolver ?? StorageMediumResolver.Filesystem).Resolve(filePath);
+    var resolver =
+      _resolver ?? StorageMediumResolver.Current ?? StorageMediumResolver.Filesystem;
+    var medium = resolver.Resolve(filePath);
     return new ComposedStorageAdapter<IEnumerable<TRow>, TRow>(
       medium,
       format,
