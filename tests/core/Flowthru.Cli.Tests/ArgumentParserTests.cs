@@ -169,4 +169,129 @@ public class ArgumentParserTests
   {
     Assert.Throws<ArgumentException>(() => ArgumentParser.Parse(new[] { "--from" }));
   }
+
+  // ── --exclude flag (Phase 2 — slice-algebra Not) ────────────────────────
+
+  [Test]
+  public void ExcludeFlag_Alone_BuildsNotAroundOnly()
+  {
+    // --exclude alone composes with the implicit "rest" = All, so the
+    // resulting strategy tree is And(All, Not(Only(labels))).
+    var args = ArgumentParser.Parse(new[] { "--exclude", "step.A" });
+    Assert.That(args.Slice, Is.InstanceOf<Flowthru.Flow.FlowSliceStrategy.And>(),
+      "--exclude composes against the implicit base via And(rest, Not(...)).");
+    var and = (Flowthru.Flow.FlowSliceStrategy.And)args.Slice!;
+    Assert.That(and.A, Is.InstanceOf<Flowthru.Flow.FlowSliceStrategy.All>(),
+      "With no other slice flags, the LHS of And is FlowSliceStrategy.All.");
+    Assert.That(and.B, Is.InstanceOf<Flowthru.Flow.FlowSliceStrategy.Not>());
+    var not = (Flowthru.Flow.FlowSliceStrategy.Not)and.B;
+    Assert.That(not.Inner, Is.InstanceOf<Flowthru.Flow.FlowSliceStrategy.Only>(),
+      "A bare label inside --exclude becomes an Only matcher inside the Not.");
+    var only = (Flowthru.Flow.FlowSliceStrategy.Only)not.Inner;
+    Assert.That(only.LabelPatterns, Is.EquivalentTo(new[] { "step.A" }));
+  }
+
+  [Test]
+  public void ExcludeFlag_FlowsPrefix_DispatchesToFlowsMatcher()
+  {
+    // `flows:X` inside --exclude resolves to FlowSliceStrategy.Flows
+    // rather than the label-glob Only matcher.
+    var args = ArgumentParser.Parse(new[] { "--exclude", "flows:Ingest" });
+    var and = (Flowthru.Flow.FlowSliceStrategy.And)args.Slice!;
+    var not = (Flowthru.Flow.FlowSliceStrategy.Not)and.B;
+    Assert.That(not.Inner, Is.InstanceOf<Flowthru.Flow.FlowSliceStrategy.Flows>(),
+      "`flows:Ingest` should strip the prefix and dispatch to FlowSliceStrategy.Flows.");
+    var flows = (Flowthru.Flow.FlowSliceStrategy.Flows)not.Inner;
+    Assert.That(flows.FlowLabels, Is.EquivalentTo(new[] { "Ingest" }),
+      "The `flows:` prefix must be stripped before populating Flows.FlowLabels.");
+  }
+
+  [Test]
+  public void ExcludeFlag_WithTo_ComposesAndNotInsideBase()
+  {
+    // `--to X --exclude flows:Y` should parse to And(To(X), Not(Flows(Y))).
+    var args = ArgumentParser.Parse(new[]
+    {
+      "--to", "CardEmbeddings",
+      "--exclude", "flows:Ingest",
+    });
+    Assert.That(args.Slice, Is.InstanceOf<Flowthru.Flow.FlowSliceStrategy.And>());
+    var and = (Flowthru.Flow.FlowSliceStrategy.And)args.Slice!;
+    Assert.That(and.A, Is.InstanceOf<Flowthru.Flow.FlowSliceStrategy.To>(),
+      "--to populates the LHS rather than the implicit All base.");
+    var to = (Flowthru.Flow.FlowSliceStrategy.To)and.A;
+    Assert.That(to.LabelPatterns, Is.EquivalentTo(new[] { "CardEmbeddings" }));
+    Assert.That(and.B, Is.InstanceOf<Flowthru.Flow.FlowSliceStrategy.Not>());
+    var not = (Flowthru.Flow.FlowSliceStrategy.Not)and.B;
+    Assert.That(not.Inner, Is.InstanceOf<Flowthru.Flow.FlowSliceStrategy.Flows>());
+    var flows = (Flowthru.Flow.FlowSliceStrategy.Flows)not.Inner;
+    Assert.That(flows.FlowLabels, Is.EquivalentTo(new[] { "Ingest" }));
+  }
+
+  [Test]
+  public void ExcludeFlag_MultipleInvocations_UnionInsideSingleNot()
+  {
+    // Multiple --exclude flags compose via Or *inside* a single Not.
+    // `--exclude flows:A --exclude flows:B` ≡ Not(Or(Flows(A), Flows(B))).
+    var args = ArgumentParser.Parse(new[]
+    {
+      "--exclude", "flows:Ingest",
+      "--exclude", "flows:Reporting",
+    });
+    var and = (Flowthru.Flow.FlowSliceStrategy.And)args.Slice!;
+    var not = (Flowthru.Flow.FlowSliceStrategy.Not)and.B;
+    Assert.That(not.Inner, Is.InstanceOf<Flowthru.Flow.FlowSliceStrategy.Or>(),
+      "Two --exclude flags should compose via Or inside the single Not.");
+    var or = (Flowthru.Flow.FlowSliceStrategy.Or)not.Inner;
+    Assert.That(or.A, Is.InstanceOf<Flowthru.Flow.FlowSliceStrategy.Flows>());
+    Assert.That(or.B, Is.InstanceOf<Flowthru.Flow.FlowSliceStrategy.Flows>());
+    var labels = new List<string>();
+    labels.AddRange(((Flowthru.Flow.FlowSliceStrategy.Flows)or.A).FlowLabels);
+    labels.AddRange(((Flowthru.Flow.FlowSliceStrategy.Flows)or.B).FlowLabels);
+    Assert.That(labels, Is.EquivalentTo(new[] { "Ingest", "Reporting" }));
+  }
+
+  [Test]
+  public void ExcludeFlag_CommaSeparatedPatterns_UnionInsideSingleNot()
+  {
+    // A single --exclude with comma-separated patterns mixing prefix and
+    // bare labels: each entry becomes its own sub-strategy unioned via Or.
+    var args = ArgumentParser.Parse(new[]
+    {
+      "--exclude", "clean-customers,flows:Reporting,validate-*",
+    });
+    var and = (Flowthru.Flow.FlowSliceStrategy.And)args.Slice!;
+    var not = (Flowthru.Flow.FlowSliceStrategy.Not)and.B;
+    Assert.That(not.Inner, Is.InstanceOf<Flowthru.Flow.FlowSliceStrategy.Or>(),
+      "Three comma-separated patterns should fold into a chain of Or inside the Not.");
+  }
+
+  [Test]
+  public void ExcludeFlag_WithoutValue_Throws()
+  {
+    Assert.Throws<ArgumentException>(() => ArgumentParser.Parse(new[] { "--exclude" }));
+  }
+
+  [Test]
+  public void ExcludeFlag_WithFlowFlag_Throws()
+  {
+    // --flow is mutually exclusive with the slice flags, including
+    // --exclude — the host swaps between the registered-label and
+    // slice-strategy code paths.
+    Assert.Throws<ArgumentException>(() =>
+      ArgumentParser.Parse(new[] { "--flow", "Reporting", "--exclude", "step.A" })
+    );
+  }
+
+  [Test]
+  public void HelpText_DocumentsExcludeAndFlowsPrefix()
+  {
+    // Snapshot-style assertion: the public help-text constant should
+    // mention --exclude and the flows: prefix so end-users discover them
+    // via `flowthru --help`.
+    Assert.That(ArgumentParser.HelpText, Does.Contain("--exclude"),
+      "Help text should document the new --exclude flag.");
+    Assert.That(ArgumentParser.HelpText, Does.Contain("flows:"),
+      "Help text should document the flows: matcher prefix.");
+  }
 }
