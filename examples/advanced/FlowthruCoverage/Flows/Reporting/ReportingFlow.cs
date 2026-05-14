@@ -69,10 +69,19 @@ public static class ReportingFlow
         executor: executor
       );
 
-      pipeline.AddStep<IEnumerable<ProvenanceIcicleNode>, string, byte[]>(
+      pipeline.AddStep<
+        IEnumerable<ProvenanceIcicleNode>,
+        string,
+        BuildUnitCoverageReportStep.Options,
+        byte[]
+      >(
         label: "BuildUnitCoverageReport",
         transform: BuildUnitCoverageReportStep.Create(),
-        inputs: (catalog.ProvenanceIcicleCoverage, catalog.UnitCoverageReportTemplate),
+        inputs: (
+          catalog.ProvenanceIcicleCoverage,
+          catalog.UnitCoverageReportTemplate,
+          catalog.UnitCoverageReportOptions
+        ),
         outputs: catalog.UnitCoverageReport
       );
 

@@ -34,8 +34,17 @@ namespace FlowthruCoverage.Flows.Reporting.Steps;
 [FlowthruStep]
 public static class BuildUnitCoverageReportStep
 {
-  /// <summary>Unit-coverage threshold below which a library is flagged.</summary>
-  public const double UnitThreshold = 0.80;
+  /// <summary>
+  /// Configuration options for the unit-coverage report. Bound from
+  /// <c>Flowthru:Flows:Reporting:UnitCoverageReportOptions</c> via the
+  /// catalog, so changing the threshold in <c>appsettings.json</c>
+  /// invalidates this step's cached output.
+  /// </summary>
+  public record Options
+  {
+    /// <summary>Unit-coverage threshold below which a library is flagged.</summary>
+    public double UnitThreshold { get; init; } = 0.80;
+  }
 
   /// <summary>Token names this step knows how to substitute in the template.</summary>
   public static readonly IReadOnlyList<string> SupportedTokens = new[]
@@ -52,17 +61,18 @@ public static class BuildUnitCoverageReportStep
   };
 
   public static Func<
-    (IEnumerable<ProvenanceIcicleNode>, string),
+    (IEnumerable<ProvenanceIcicleNode>, string, Options),
     byte[]
   > Create()
   {
     return inputs =>
     {
-      var (nodes, template) = inputs;
+      var (nodes, template, options) = inputs;
+      var threshold = options.UnitThreshold;
       var all = nodes.ToList();
       var projects = all
         .Where(n => n.Level == "Project" && n.TotalLines > 0)
-        .OrderByDescending(LinesToThreshold)
+        .OrderByDescending(n => LinesToThreshold(n, threshold))
         .ThenBy(p => p.Id, StringComparer.Ordinal)
         .ToList();
 
@@ -74,14 +84,14 @@ public static class BuildUnitCoverageReportStep
 
       var subs = new Dictionary<string, string>(StringComparer.Ordinal)
       {
-        ["threshold_pct"] = ((int)Math.Round(UnitThreshold * 100))
+        ["threshold_pct"] = ((int)Math.Round(threshold * 100))
           .ToString(CultureInfo.InvariantCulture),
         ["total_libraries"] = projects.Count.ToString(CultureInfo.InvariantCulture),
-        ["failing_count"] = projects.Count(IsFailing).ToString(CultureInfo.InvariantCulture),
+        ["failing_count"] = projects.Count(p => IsFailing(p, threshold)).ToString(CultureInfo.InvariantCulture),
         ["quick_wins_count"] = quickWins.Count.ToString(CultureInfo.InvariantCulture),
         ["cold_spots_count"] = coldSpots.Count.ToString(CultureInfo.InvariantCulture),
-        ["scoreboard_table"] = RenderScoreboardTable(projects),
-        ["drilldown_sections"] = RenderDrilldownSections(all, projects),
+        ["scoreboard_table"] = RenderScoreboardTable(projects, threshold),
+        ["drilldown_sections"] = RenderDrilldownSections(all, projects, threshold),
         ["quick_wins_sections"] = RenderMethodSections(quickWins, projects),
         ["cold_spots_sections"] = RenderMethodSections(coldSpots, projects),
       };
@@ -102,13 +112,13 @@ public static class BuildUnitCoverageReportStep
 
   // ── Metric helpers ─────────────────────────────────────────────────
 
-  private static int LinesToThreshold(ProvenanceIcicleNode n) =>
+  private static int LinesToThreshold(ProvenanceIcicleNode n, double threshold) =>
     n.TotalLines <= 0
       ? 0
-      : (int)Math.Ceiling(Math.Max(0.0, UnitThreshold * n.TotalLines - n.UnitCovered));
+      : (int)Math.Ceiling(Math.Max(0.0, threshold * n.TotalLines - n.UnitCovered));
 
-  private static bool IsFailing(ProvenanceIcicleNode n) =>
-    n.TotalLines > 0 && (double)n.UnitCovered / n.TotalLines < UnitThreshold;
+  private static bool IsFailing(ProvenanceIcicleNode n, double threshold) =>
+    n.TotalLines > 0 && (double)n.UnitCovered / n.TotalLines < threshold;
 
   private static double Pct(int covered, int total) =>
     total > 0 ? 100.0 * covered / total : 0.0;
@@ -121,7 +131,7 @@ public static class BuildUnitCoverageReportStep
 
   // ── Section renderers ──────────────────────────────────────────────
 
-  private static string RenderScoreboardTable(List<ProvenanceIcicleNode> projects)
+  private static string RenderScoreboardTable(List<ProvenanceIcicleNode> projects, double threshold)
   {
     if (projects.Count == 0)
       return "_No src libraries found._";
@@ -132,9 +142,9 @@ public static class BuildUnitCoverageReportStep
 
     foreach (var p in projects)
     {
-      var pass = !IsFailing(p);
+      var pass = !IsFailing(p, threshold);
       var label = pass ? $"✓ {p.Label}" : $"**{p.Label}**";
-      var gap = pass ? "—" : FormatLines(LinesToThreshold(p));
+      var gap = pass ? "—" : FormatLines(LinesToThreshold(p, threshold));
       sb.AppendLine(
         $"| {label} " +
         $"| {FormatLines(p.TotalLines)} " +
@@ -149,10 +159,11 @@ public static class BuildUnitCoverageReportStep
 
   private static string RenderDrilldownSections(
     List<ProvenanceIcicleNode> all,
-    List<ProvenanceIcicleNode> projects
+    List<ProvenanceIcicleNode> projects,
+    double threshold
   )
   {
-    var failing = projects.Where(IsFailing).ToList();
+    var failing = projects.Where(p => IsFailing(p, threshold)).ToList();
     if (failing.Count == 0)
       return "_All libraries pass the unit-coverage threshold. 🎉_";
 
@@ -164,7 +175,7 @@ public static class BuildUnitCoverageReportStep
       sb.AppendLine(
         $"Unit: **{FormatPct(Pct(project.UnitCovered, project.TotalLines))}** " +
         $"({FormatLines(project.UnitCovered)} / {FormatLines(project.TotalLines)} lines). " +
-        $"Needs **{FormatLines(LinesToThreshold(project))}** more lines covered to hit threshold."
+        $"Needs **{FormatLines(LinesToThreshold(project, threshold))}** more lines covered to hit threshold."
       );
       sb.AppendLine();
 
@@ -173,9 +184,9 @@ public static class BuildUnitCoverageReportStep
         .Where(n =>
           (n.Level == "Directory" || n.Level == "File")
           && n.Id.StartsWith(idPrefix, StringComparison.Ordinal)
-          && IsFailing(n)
+          && IsFailing(n, threshold)
         )
-        .OrderByDescending(LinesToThreshold)
+        .OrderByDescending(n => LinesToThreshold(n, threshold))
         .ThenBy(n => n.Id, StringComparer.Ordinal)
         .Take(10)
         .ToList();
@@ -200,7 +211,7 @@ public static class BuildUnitCoverageReportStep
           $"| {st.Level} " +
           $"| {FormatLines(st.TotalLines)} " +
           $"| {FormatPct(Pct(st.UnitCovered, st.TotalLines))} " +
-          $"| {FormatLines(LinesToThreshold(st))} |"
+          $"| {FormatLines(LinesToThreshold(st, threshold))} |"
         );
       }
       sb.AppendLine();
@@ -302,7 +313,7 @@ public static class BuildUnitCoverageReportStep
     };
 
     private string Run(IEnumerable<ProvenanceIcicleNode> nodes, string template = EchoTemplate) =>
-      Encoding.UTF8.GetString(Invoke(BuildUnitCoverageReportStep.Create(), (nodes, template)));
+      Encoding.UTF8.GetString(Invoke(BuildUnitCoverageReportStep.Create(), (nodes, template, new Options())));
 
     [FUnitStepTest(typeof(BuildUnitCoverageReportStep))]
     public void PassingLibrary_ScoreboardHasCheckmark_DrilldownIsEmpty()

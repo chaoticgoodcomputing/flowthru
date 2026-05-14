@@ -63,7 +63,13 @@ public class Program
 
     services.AddFlowthru(flowthru =>
     {
-      flowthru.RegisterCatalog(_ => new Catalog(Path.Combine(basePath, "Data")));
+      // ConfigurationItem<T> bindings on the Catalog need IConfiguration;
+      // UseConfiguration registers it as the singleton the Catalog ctor
+      // consumes (Phase 5/8 of the smart-caching RFC).
+      flowthru.UseConfiguration(configuration);
+      flowthru.RegisterCatalog(sp => new Catalog(
+        Path.Combine(basePath, "Data"),
+        sp.GetRequiredService<IConfiguration>()));
 
       // Persist the cache manifest under the project root so successive
       // runs from any working directory share the same state. The
