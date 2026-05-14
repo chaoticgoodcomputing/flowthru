@@ -74,52 +74,80 @@ public static class CacheManifestStore
   /// <param name="cancellationToken">Cancellation.</param>
   public static async Task UpsertEntriesAsync(
     IItem<CacheManifest> item,
-    IReadOnlyDictionary<string, string> newEntries,
+    IReadOnlyDictionary<string, string> newStepEntries,
+    IReadOnlyDictionary<string, string> newItemEntries,
     DateTimeOffset recordedAt,
     CancellationToken cancellationToken = default
   )
   {
     if (item is null) throw new ArgumentNullException(nameof(item));
-    if (newEntries is null) throw new ArgumentNullException(nameof(newEntries));
-    if (newEntries.Count == 0) return;
+    if (newStepEntries is null) throw new ArgumentNullException(nameof(newStepEntries));
+    if (newItemEntries is null) throw new ArgumentNullException(nameof(newItemEntries));
+    if (newStepEntries.Count == 0 && newItemEntries.Count == 0) return;
 
     var current = await LoadAsync(item, cancellationToken).ConfigureAwait(false);
-    var merged = new Dictionary<string, NodeFingerprint>(current.Entries, StringComparer.Ordinal);
+    var mergedSteps = MergeWithLww(current.Steps, newStepEntries, recordedAt);
+    var mergedItems = MergeWithLww(current.Items, newItemEntries, recordedAt);
 
-    foreach (var (label, value) in newEntries)
-    {
-      var fresh = new NodeFingerprint(value, recordedAt);
-      // Last-write-wins: only replace if our timestamp is greater.
-      if (!merged.TryGetValue(label, out var existing) || fresh.RecordedAt > existing.RecordedAt)
-      {
-        merged[label] = fresh;
-      }
-    }
-
-    var updated = new CacheManifest(CacheManifestSchema.CurrentVersion, merged);
+    var updated = new CacheManifest(
+      CacheManifestSchema.CurrentVersion,
+      mergedSteps,
+      mergedItems
+    );
     // Save failures are non-fatal — the run already succeeded; a missed
     // cache write is at worst a redundant rerun next time.
     _ = await item.Save(updated).Run(cancellationToken).ConfigureAwait(false);
   }
 
   /// <summary>
+  /// Per-entry last-write-wins merge: each incoming pair replaces the
+  /// existing entry iff its timestamp is greater (or no entry exists).
+  /// Disjoint keys from the existing dict are preserved unchanged.
+  /// </summary>
+  private static Dictionary<string, NodeFingerprint> MergeWithLww(
+    IReadOnlyDictionary<string, NodeFingerprint> existing,
+    IReadOnlyDictionary<string, string> incoming,
+    DateTimeOffset recordedAt
+  )
+  {
+    var merged = new Dictionary<string, NodeFingerprint>(existing, StringComparer.Ordinal);
+    foreach (var (label, value) in incoming)
+    {
+      var fresh = new NodeFingerprint(value, recordedAt);
+      if (!merged.TryGetValue(label, out var prior) || fresh.RecordedAt > prior.RecordedAt)
+      {
+        merged[label] = fresh;
+      }
+    }
+    return merged;
+  }
+
+  /// <summary>
   /// Walk <paramref name="flow"/> in topological order, computing the
-  /// post-run composite fingerprint for every eligible step whose
-  /// label appears in <paramref name="succeededStepLabels"/>. Returns
-  /// the label → composite map suitable for
+  /// post-run per-step composite fingerprint and per-item leaf
+  /// fingerprint for every eligible node touched by the run. Returns
+  /// two maps — one for <c>manifest.Steps</c>, one for
+  /// <c>manifest.Items</c> — that the caller passes to
   /// <see cref="UpsertEntriesAsync"/>.
   /// </summary>
   /// <remarks>
   /// <para>
   /// This is the post-run twin of
   /// <see cref="CachePlanBuilder.BuildAsync"/>: same eligibility rules,
-  /// same composite derivation, but no manifest comparison and no
-  /// output-existence check (the step already ran). External inputs
-  /// re-fingerprint here because intermediate items produced by stale
-  /// steps may have changed during the run.
+  /// same composite derivation (Phase 8: input <em>item</em>
+  /// fingerprints, not parent step composites), but no manifest
+  /// comparison and no output-existence check — every item touched by
+  /// the run has its current fingerprint read fresh from disk.
+  /// </para>
+  /// <para>
+  /// Only entries for steps that appear in
+  /// <paramref name="succeededStepLabels"/> are surfaced; failed or
+  /// skipped steps contribute nothing. Items consumed by succeeded
+  /// steps are also captured (and any output of a succeeded step), so
+  /// the manifest fully describes the post-run node state.
   /// </para>
   /// </remarks>
-  public static async Task<IReadOnlyDictionary<string, string>>
+  public static async Task<PostRunFingerprints>
     ComputePostRunFingerprintsAsync(
       BuiltFlow flow,
       IReadOnlySet<string> succeededStepLabels,
@@ -139,8 +167,18 @@ public static class CacheManifestStore
     }
 
     var stepComposites = new Dictionary<string, string>(StringComparer.Ordinal);
+    var itemFingerprints = new Dictionary<string, string>(StringComparer.Ordinal);
     var ineligibleStepLabels = new HashSet<string>(StringComparer.Ordinal);
-    var externalFingerprintCache = new Dictionary<string, string?>(StringComparer.Ordinal);
+    var itemFingerprintCache = new Dictionary<string, string?>(StringComparer.Ordinal);
+
+    async Task<string?> FingerprintOnce(IItem item)
+    {
+      if (itemFingerprintCache.TryGetValue(item.Label, out var cached)) return cached;
+      var fp = await TryReadFingerprintAsync(item, cancellationToken).ConfigureAwait(false);
+      itemFingerprintCache[item.Label] = fp;
+      if (fp is not null) itemFingerprints[item.Label] = fp;
+      return fp;
+    }
 
     foreach (var step in flow.Steps)
     {
@@ -157,35 +195,23 @@ public static class CacheManifestStore
 
       foreach (var input in step.Inputs)
       {
-        if (producerByItemLabel.TryGetValue(input.Label, out var parentLabel))
+        // Cascade rule: if a parent step is ineligible and we don't
+        // already have a fingerprint for the item, treat the step as
+        // ineligible. The item-fingerprint path handles every other
+        // case uniformly.
+        var fp = await FingerprintOnce(input).ConfigureAwait(false);
+        if (fp is null)
         {
-          if (ineligibleStepLabels.Contains(parentLabel))
-          {
-            blocked = true;
-            break;
-          }
-          if (!stepComposites.TryGetValue(parentLabel, out var parentComposite))
-          {
-            blocked = true;
-            break;
-          }
-          inputContributions.Add((input.Label, parentComposite));
+          blocked = true;
+          break;
         }
-        else
+        if (producerByItemLabel.TryGetValue(input.Label, out var parentLabel)
+          && ineligibleStepLabels.Contains(parentLabel))
         {
-          if (!externalFingerprintCache.TryGetValue(input.Label, out var cachedFp))
-          {
-            cachedFp = await TryReadFingerprintAsync(input, cancellationToken)
-              .ConfigureAwait(false);
-            externalFingerprintCache[input.Label] = cachedFp;
-          }
-          if (cachedFp is null)
-          {
-            blocked = true;
-            break;
-          }
-          inputContributions.Add((input.Label, cachedFp));
+          blocked = true;
+          break;
         }
+        inputContributions.Add((input.Label, fp));
       }
 
       if (blocked)
@@ -196,16 +222,32 @@ public static class CacheManifestStore
 
       stepComposites[step.Label] = CachePlanBuilder
         .ComposeStepFingerprint(step.CodeVersion!, inputContributions);
+
+      // Also fingerprint outputs — fresh on disk now that the step ran.
+      foreach (var output in step.Outputs)
+      {
+        await FingerprintOnce(output).ConfigureAwait(false);
+      }
     }
 
-    // Only return entries for steps that actually ran successfully.
-    var result = new Dictionary<string, string>(StringComparer.Ordinal);
+    var stepResult = new Dictionary<string, string>(StringComparer.Ordinal);
     foreach (var (label, composite) in stepComposites)
     {
-      if (succeededStepLabels.Contains(label)) result[label] = composite;
+      if (succeededStepLabels.Contains(label)) stepResult[label] = composite;
     }
-    return result;
+    return new PostRunFingerprints(stepResult, itemFingerprints);
   }
+
+  /// <summary>
+  /// Result shape for
+  /// <see cref="ComputePostRunFingerprintsAsync"/>: per-step composite
+  /// hashes plus per-item leaf fingerprints, both keyed by label and
+  /// ready to pass into <see cref="UpsertEntriesAsync"/>.
+  /// </summary>
+  public sealed record PostRunFingerprints(
+    IReadOnlyDictionary<string, string> Steps,
+    IReadOnlyDictionary<string, string> Items
+  );
 
   private static async Task<string?> TryReadFingerprintAsync(
     IItem input,

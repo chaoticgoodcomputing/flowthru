@@ -513,34 +513,52 @@ public sealed class FlowthruService : IFlowthruService
           StringComparer.Ordinal
         );
 
-        var postRunComposites = await CacheManifestStore
+        var postRunFingerprints = await CacheManifestStore
           .ComputePostRunFingerprintsAsync(effectiveFlow, ranSuccessfully, cancellationToken)
           .ConfigureAwait(false);
 
-        var toUpsert = new Dictionary<string, string>(StringComparer.Ordinal);
+        // Build the combined Steps + Items maps. Phase 8: items get their
+        // own manifest entries alongside steps, so the persisted state
+        // mirrors the per-DAG-node fingerprinting design.
+        var stepUpserts = new Dictionary<string, string>(StringComparer.Ordinal);
+        var itemUpserts = new Dictionary<string, string>(postRunFingerprints.Items, StringComparer.Ordinal);
+
         // Fresh steps (when a plan exists): refresh RecordedAt with the
-        // same composite. Under --no-cache the plan is null and this
-        // branch is skipped.
+        // same composite, plus persist the pre-flight-probed item
+        // fingerprints (external inputs + freshly-confirmed outputs of
+        // cached steps). Under --no-cache the plan is null and only the
+        // post-run-computed entries land.
         if (options.CachePlan is { } finalPlan)
         {
           foreach (var label in finalPlan.FreshStepLabels)
           {
-            if (finalPlan.NewFingerprints.TryGetValue(label, out var composite))
+            if (finalPlan.NewStepFingerprints.TryGetValue(label, out var composite))
             {
-              toUpsert[label] = composite;
+              stepUpserts[label] = composite;
             }
+          }
+          foreach (var (label, fp) in finalPlan.NewItemFingerprints)
+          {
+            // Pre-flight's Items map seeds the upsert; the post-run map
+            // overlays any updates from steps that actually ran.
+            if (!itemUpserts.ContainsKey(label)) itemUpserts[label] = fp;
           }
         }
         // Stale-that-ran: record newly-derived composites.
-        foreach (var (label, composite) in postRunComposites)
+        foreach (var (label, composite) in postRunFingerprints.Steps)
         {
-          toUpsert[label] = composite;
+          stepUpserts[label] = composite;
         }
 
-        if (toUpsert.Count > 0)
+        if (stepUpserts.Count > 0 || itemUpserts.Count > 0)
         {
           await CacheManifestStore
-            .UpsertEntriesAsync(cacheItem, toUpsert, DateTimeOffset.UtcNow, cancellationToken)
+            .UpsertEntriesAsync(
+              cacheItem,
+              stepUpserts,
+              itemUpserts,
+              DateTimeOffset.UtcNow,
+              cancellationToken)
             .ConfigureAwait(false);
         }
       }

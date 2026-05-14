@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using Flowthru.Data.Catalog;
 using Flowthru.Prelude;
 using Flowthru.Step;
@@ -28,6 +29,17 @@ namespace Flowthru.Flow;
 /// way the source-generated typed overloads sequence their fixed-arity
 /// inputs — only the loop is runtime instead of unrolled.
 /// </para>
+/// <para>
+/// <strong>Phase 8 codeVersion.</strong> Each visible overload below
+/// resolves <c>CodeVersion</c> automatically via
+/// <see cref="StepMetadataResolver"/> — Flow developers do not pass it
+/// by hand. A hidden, <see cref="EditorBrowsableAttribute"/>-decorated
+/// twin overload accepts an explicit <c>codeVersion</c> argument for
+/// power-user overrides (the same shape as the generated typed
+/// matrix). Power users discover the hidden overloads by passing
+/// <c>codeVersion:</c> as a named argument; overload resolution
+/// distinguishes them by the presence of that parameter.
+/// </para>
 /// </remarks>
 public sealed partial class FlowBuilder
 {
@@ -47,19 +59,93 @@ public sealed partial class FlowBuilder
   /// transform's <see cref="IEnumerable{T}"/> argument.
   /// </param>
   /// <param name="outputs">Catalog item receiving the reduction's result.</param>
-  /// <param name="codeVersion">
-  /// Optional build-time identity for the transform — typically the
-  /// <c>{ClassName}_Metadata.CodeVersion</c> constant emitted by
-  /// <c>StepMetadataGenerator</c> for the step's authoring class. Null
-  /// when constructed inline; consumers downstream of this step receive
-  /// it as <see cref="IStepNode.CodeVersion"/> for cache-plan purposes.
-  /// </param>
+  public FlowBuilder AddStep<TIn, TOut>(
+    string label,
+    Func<IEnumerable<TIn>, TOut> transform,
+    IReadOnlyList<IItem<TIn>> inputs,
+    IItem<TOut> outputs
+  )
+  {
+    if (label is null) throw new ArgumentNullException(nameof(label));
+    if (transform is null) throw new ArgumentNullException(nameof(transform));
+    if (inputs is null) throw new ArgumentNullException(nameof(inputs));
+    if (outputs is null) throw new ArgumentNullException(nameof(outputs));
+
+    return AddVariadicStep(
+      label,
+      input => FlowIO.Lift(() => transform(input), source: "step:" + label),
+      inputs,
+      outputs,
+      StepMetadataResolver.ResolveFromDelegate(transform)
+    );
+  }
+
+  /// <summary>
+  /// Add an asynchronous reduce step. Same shape as the synchronous
+  /// overload; the transform returns a <see cref="Task{TOut}"/>.
+  /// </summary>
+  public FlowBuilder AddStep<TIn, TOut>(
+    string label,
+    Func<IEnumerable<TIn>, Task<TOut>> transform,
+    IReadOnlyList<IItem<TIn>> inputs,
+    IItem<TOut> outputs
+  )
+  {
+    if (label is null) throw new ArgumentNullException(nameof(label));
+    if (transform is null) throw new ArgumentNullException(nameof(transform));
+    if (inputs is null) throw new ArgumentNullException(nameof(inputs));
+    if (outputs is null) throw new ArgumentNullException(nameof(outputs));
+
+    return AddVariadicStep(
+      label,
+      input => FlowIO.LiftAsync(_ => transform(input), source: "step:" + label),
+      inputs,
+      outputs,
+      StepMetadataResolver.ResolveFromDelegate(transform)
+    );
+  }
+
+  /// <summary>
+  /// Add an asynchronous, cancellable reduce step.
+  /// </summary>
+  public FlowBuilder AddStep<TIn, TOut>(
+    string label,
+    Func<IEnumerable<TIn>, CancellationToken, Task<TOut>> transform,
+    IReadOnlyList<IItem<TIn>> inputs,
+    IItem<TOut> outputs
+  )
+  {
+    if (label is null) throw new ArgumentNullException(nameof(label));
+    if (transform is null) throw new ArgumentNullException(nameof(transform));
+    if (inputs is null) throw new ArgumentNullException(nameof(inputs));
+    if (outputs is null) throw new ArgumentNullException(nameof(outputs));
+
+    return AddVariadicStep(
+      label,
+      input => FlowIO.LiftAsync(ct => transform(input, ct), source: "step:" + label),
+      inputs,
+      outputs,
+      StepMetadataResolver.ResolveFromDelegate(transform)
+    );
+  }
+
+  // ── Advanced: explicit codeVersion overrides (hidden from IntelliSense) ─
+
+  /// <summary>
+  /// Advanced — synchronous reduce step with an explicit <c>codeVersion</c>
+  /// override. Hidden from IntelliSense; surface this only when forcing a
+  /// non-source-derived cache identity (e.g., breaking the cache on a
+  /// refactor the trivia stripper considers cosmetic, or pinning identity
+  /// across builds for a class whose Roslyn-emitted source the source
+  /// generator can't see).
+  /// </summary>
+  [EditorBrowsable(EditorBrowsableState.Never)]
   public FlowBuilder AddStep<TIn, TOut>(
     string label,
     Func<IEnumerable<TIn>, TOut> transform,
     IReadOnlyList<IItem<TIn>> inputs,
     IItem<TOut> outputs,
-    string? codeVersion = null
+    string? codeVersion
   )
   {
     if (label is null) throw new ArgumentNullException(nameof(label));
@@ -76,16 +162,14 @@ public sealed partial class FlowBuilder
     );
   }
 
-  /// <summary>
-  /// Add an asynchronous reduce step. Same shape as the synchronous
-  /// overload; the transform returns a <see cref="Task{TOut}"/>.
-  /// </summary>
+  /// <inheritdoc cref="AddStep{TIn, TOut}(string, Func{IEnumerable{TIn}, TOut}, IReadOnlyList{IItem{TIn}}, IItem{TOut}, string?)"/>
+  [EditorBrowsable(EditorBrowsableState.Never)]
   public FlowBuilder AddStep<TIn, TOut>(
     string label,
     Func<IEnumerable<TIn>, Task<TOut>> transform,
     IReadOnlyList<IItem<TIn>> inputs,
     IItem<TOut> outputs,
-    string? codeVersion = null
+    string? codeVersion
   )
   {
     if (label is null) throw new ArgumentNullException(nameof(label));
@@ -102,15 +186,14 @@ public sealed partial class FlowBuilder
     );
   }
 
-  /// <summary>
-  /// Add an asynchronous, cancellable reduce step.
-  /// </summary>
+  /// <inheritdoc cref="AddStep{TIn, TOut}(string, Func{IEnumerable{TIn}, TOut}, IReadOnlyList{IItem{TIn}}, IItem{TOut}, string?)"/>
+  [EditorBrowsable(EditorBrowsableState.Never)]
   public FlowBuilder AddStep<TIn, TOut>(
     string label,
     Func<IEnumerable<TIn>, CancellationToken, Task<TOut>> transform,
     IReadOnlyList<IItem<TIn>> inputs,
     IItem<TOut> outputs,
-    string? codeVersion = null
+    string? codeVersion
   )
   {
     if (label is null) throw new ArgumentNullException(nameof(label));

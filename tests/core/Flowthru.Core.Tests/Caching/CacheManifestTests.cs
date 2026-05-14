@@ -18,7 +18,8 @@ public class CacheManifestTests
   {
     Assert.That(CacheManifest.Empty.SchemaVersion,
       Is.EqualTo(CacheManifestSchema.CurrentVersion));
-    Assert.That(CacheManifest.Empty.Entries, Is.Empty);
+    Assert.That(CacheManifest.Empty.Steps, Is.Empty);
+    Assert.That(CacheManifest.Empty.Items, Is.Empty);
     Assert.That(CacheManifest.Empty.IsCurrentSchema(), Is.True);
   }
 
@@ -27,6 +28,7 @@ public class CacheManifestTests
   {
     var stale = new CacheManifest(
       CacheManifestSchema.CurrentVersion - 1,
+      new Dictionary<string, NodeFingerprint>(),
       new Dictionary<string, NodeFingerprint>());
     Assert.That(stale.IsCurrentSchema(), Is.False);
   }

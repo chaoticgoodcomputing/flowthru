@@ -17,6 +17,13 @@ namespace Flowthru.Core.Tests.Caching;
 /// <see cref="FakeFingerprintItem{T}"/>s that let each test pin both
 /// the fingerprint value and the <c>Exists()</c> verdict.
 /// </summary>
+/// <remarks>
+/// Phase 8 changes:
+///   * <c>CacheManifest</c> now has separate <c>Steps</c> and <c>Items</c>
+///     maps (schema version 2). Fresh-path tests must seed both.
+///   * Step composites compose input <em>item</em> fingerprints (not
+///     parent step composites), so chain tests pin the new shape.
+/// </remarks>
 [TestFixture]
 public class CachePlanBuilderTests
 {
@@ -31,7 +38,8 @@ public class CachePlanBuilderTests
     Assert.That(plan.FreshStepLabels, Is.Empty);
     Assert.That(plan.StaleStepLabels, Is.Empty);
     Assert.That(plan.UncacheableStepLabels, Is.Empty);
-    Assert.That(plan.NewFingerprints, Is.Empty);
+    Assert.That(plan.NewStepFingerprints, Is.Empty);
+    Assert.That(plan.NewItemFingerprints, Is.Empty);
   }
 
   [Test]
@@ -42,23 +50,23 @@ public class CachePlanBuilderTests
     var step = MakeStep("transform", "code-v1", input, output);
     var flow = BuildFlow(step);
 
-    // Expected composite for the single-input flow.
     var composite = CachePlanBuilder.ComposeStepFingerprint(
       "code-v1", new[] { ("in", "fp-in-1") });
 
-    var manifest = new CacheManifest(
-      CacheManifestSchema.CurrentVersion,
-      new Dictionary<string, NodeFingerprint>(StringComparer.Ordinal)
-      {
-        ["transform"] = new NodeFingerprint(composite, T),
-      });
+    var manifest = Manifest(
+      steps: new[] { ("transform", composite) },
+      items: new[] { ("in", "fp-in-1") });
 
     var plan = await CachePlanBuilder.BuildAsync(flow, manifest);
 
     Assert.That(plan.FreshStepLabels, Is.EquivalentTo(new[] { "transform" }));
     Assert.That(plan.StaleStepLabels, Is.Empty);
     Assert.That(plan.UncacheableStepLabels, Is.Empty);
-    Assert.That(plan.NewFingerprints["transform"], Is.EqualTo(composite));
+    Assert.That(plan.NewStepFingerprints["transform"], Is.EqualTo(composite));
+    Assert.That(plan.NewItemFingerprints["in"], Is.EqualTo("fp-in-1"));
+    Assert.That(plan.NewItemFingerprints["out"], Is.EqualTo("fp-out-1"),
+      "Fresh-path output fingerprints are probed at pre-flight so the post-run upsert "
+      + "records intermediate item identities alongside their producer's composite.");
   }
 
   [Test]
@@ -71,13 +79,15 @@ public class CachePlanBuilderTests
 
     var composite = CachePlanBuilder.ComposeStepFingerprint(
       "code-v1", new[] { ("in", "fp-in") });
-    var manifest = ManifestWith(("transform", composite));
+    var manifest = Manifest(
+      steps: new[] { ("transform", composite) },
+      items: new[] { ("in", "fp-in") });
 
     var plan = await CachePlanBuilder.BuildAsync(flow, manifest);
 
     Assert.That(plan.StaleStepLabels, Is.EquivalentTo(new[] { "transform" }),
-      "Output missing on disk forces stale even when the composite hash matches — "
-      + "we can't reuse data that isn't there.");
+      "Output missing on disk forces stale even when both composite and input "
+      + "fingerprints match the manifest — we can't reuse data that isn't there.");
   }
 
   [Test]
@@ -95,20 +105,45 @@ public class CachePlanBuilderTests
   }
 
   [Test]
-  public async Task SingleStep_NonMatchingManifestEntry_IsStale()
+  public async Task SingleStep_NonMatchingStepComposite_IsStale()
   {
     var input = new FakeFingerprintItem<int>("in", fingerprint: "fp-in", exists: true);
     var output = new FakeFingerprintItem<int>("out", fingerprint: "fp-out", exists: true);
     var step = MakeStep("transform", "code-v1", input, output);
     var flow = BuildFlow(step);
 
-    // Different composite was recorded — could be a different CodeVersion,
-    // a different input fingerprint, or a schema bump that filtered through.
-    var manifest = ManifestWith(("transform", "stale-composite"));
+    // Input matches its manifest entry; only the step composite is wrong.
+    var manifest = Manifest(
+      steps: new[] { ("transform", "stale-composite") },
+      items: new[] { ("in", "fp-in") });
 
     var plan = await CachePlanBuilder.BuildAsync(flow, manifest);
 
     Assert.That(plan.StaleStepLabels, Is.EquivalentTo(new[] { "transform" }));
+  }
+
+  [Test]
+  public async Task SingleStep_NonMatchingInputFingerprint_CascadesStepStale()
+  {
+    var input = new FakeFingerprintItem<int>("in", fingerprint: "fp-in-new", exists: true);
+    var output = new FakeFingerprintItem<int>("out", fingerprint: "fp-out", exists: true);
+    var step = MakeStep("transform", "code-v1", input, output);
+    var flow = BuildFlow(step);
+
+    // Step composite happens to match, but the input's leaf fingerprint
+    // doesn't — Phase 8 cascade rule forces the consumer stale before
+    // the step composite is ever consulted.
+    var composite = CachePlanBuilder.ComposeStepFingerprint(
+      "code-v1", new[] { ("in", "fp-in-new") });
+    var manifest = Manifest(
+      steps: new[] { ("transform", composite) },
+      items: new[] { ("in", "fp-in-old") });
+
+    var plan = await CachePlanBuilder.BuildAsync(flow, manifest);
+
+    Assert.That(plan.StaleStepLabels, Is.EquivalentTo(new[] { "transform" }),
+      "An external input's leaf fingerprint mismatch makes the consuming step stale "
+      + "via the cascade rule, independent of any step composite agreement.");
   }
 
   [Test]
@@ -162,8 +197,6 @@ public class CachePlanBuilderTests
   [Test]
   public async Task Cascade_StaleParentForcesChildStale()
   {
-    // A produces M, B consumes M and produces O.
-    // A is stale (no manifest entry); B inherits stale via M.
     var seedInput = new FakeFingerprintItem<int>("seed", fingerprint: "fp-seed", exists: true);
     var mid = new FakeFingerprintItem<int>("mid", fingerprint: "fp-mid", exists: true);
     var output = new FakeFingerprintItem<int>("out", fingerprint: "fp-out", exists: true);
@@ -186,8 +219,6 @@ public class CachePlanBuilderTests
     var mid = new FakeFingerprintItem<int>("mid", fingerprint: "fp-mid", exists: true);
     var output = new FakeFingerprintItem<int>("out", fingerprint: "fp-out", exists: true);
 
-    // A is uncacheable (null CodeVersion). B should also be uncacheable —
-    // not just stale — because A's outputs have no reliable identity.
     var stepA = MakeStep("A", codeVersion: null, seedInput, mid);
     var stepB = MakeStep("B", "code-B-v1", mid, output);
     var flow = BuildFlow(stepA, stepB);
@@ -200,7 +231,7 @@ public class CachePlanBuilderTests
   }
 
   [Test]
-  public async Task TwoStepChain_BothFresh_DownstreamCompositeIncludesUpstream()
+  public async Task TwoStepChain_BothFresh_DownstreamCompositeFoldsInputItemFingerprint()
   {
     var seedInput = new FakeFingerprintItem<int>("seed", fingerprint: "fp-seed", exists: true);
     var mid = new FakeFingerprintItem<int>("mid", fingerprint: "fp-mid", exists: true);
@@ -210,21 +241,23 @@ public class CachePlanBuilderTests
     var stepB = MakeStep("B", "code-B-v1", mid, output);
     var flow = BuildFlow(stepA, stepB);
 
-    // Compute the expected composites.
+    // Phase 8: composites fold in input <em>item</em> fingerprints,
+    // not parent step composites. The mid item supplies its own
+    // fingerprint to B's composite.
     var compositeA = CachePlanBuilder.ComposeStepFingerprint(
       "code-A-v1", new[] { ("seed", "fp-seed") });
     var compositeB = CachePlanBuilder.ComposeStepFingerprint(
-      "code-B-v1", new[] { ("mid", compositeA) });
+      "code-B-v1", new[] { ("mid", "fp-mid") });
 
-    var manifest = ManifestWith(("A", compositeA), ("B", compositeB));
+    var manifest = Manifest(
+      steps: new[] { ("A", compositeA), ("B", compositeB) },
+      items: new[] { ("seed", "fp-seed"), ("mid", "fp-mid") });
 
     var plan = await CachePlanBuilder.BuildAsync(flow, manifest);
 
     Assert.That(plan.FreshStepLabels, Is.EquivalentTo(new[] { "A", "B" }));
-    Assert.That(plan.NewFingerprints["A"], Is.EqualTo(compositeA));
-    Assert.That(plan.NewFingerprints["B"], Is.EqualTo(compositeB),
-      "B's composite must fold in A's composite (not A's input fingerprint) — that's "
-      + "the rollup that makes intermediate-item identity meaningful.");
+    Assert.That(plan.NewStepFingerprints["A"], Is.EqualTo(compositeA));
+    Assert.That(plan.NewStepFingerprints["B"], Is.EqualTo(compositeB));
   }
 
   [Test]
@@ -235,7 +268,7 @@ public class CachePlanBuilderTests
     var step = MakeStep("transform", "code-v1", input, output);
     var flow = BuildFlow(step);
 
-    // The manifest's saved value matches what we'd compute now…
+    // The manifest's saved values match what we'd compute now…
     var composite = CachePlanBuilder.ComposeStepFingerprint(
       "code-v1", new[] { ("in", "fp-in") });
     var staleSchemaManifest = new CacheManifest(
@@ -243,6 +276,10 @@ public class CachePlanBuilderTests
       new Dictionary<string, NodeFingerprint>(StringComparer.Ordinal)
       {
         ["transform"] = new NodeFingerprint(composite, T),
+      },
+      new Dictionary<string, NodeFingerprint>(StringComparer.Ordinal)
+      {
+        ["in"] = new NodeFingerprint("fp-in", T),
       });
 
     var plan = await CachePlanBuilder.BuildAsync(flow, staleSchemaManifest);
@@ -255,9 +292,6 @@ public class CachePlanBuilderTests
   [Test]
   public async Task IndependentBranches_DoNotCascade()
   {
-    // Two unrelated steps: A reads its own input + produces its own output;
-    // B reads its own input + produces its own output. Staleness on A
-    // must NOT bleed into B.
     var inA = new FakeFingerprintItem<int>("in-a", fingerprint: "fp-a", exists: true);
     var outA = new FakeFingerprintItem<int>("out-a", fingerprint: "fp-out-a", exists: true);
     var inB = new FakeFingerprintItem<int>("in-b", fingerprint: "fp-b", exists: true);
@@ -267,10 +301,12 @@ public class CachePlanBuilderTests
     var stepB = MakeStep("B", "code-B-v1", inB, outB);
     var flow = BuildFlow(stepA, stepB);
 
-    // Manifest has B's correct composite but no A entry — only A should be stale.
+    // Manifest has B's correct composite + B's input recorded; A has nothing.
     var compositeB = CachePlanBuilder.ComposeStepFingerprint(
       "code-B-v1", new[] { ("in-b", "fp-b") });
-    var manifest = ManifestWith(("B", compositeB));
+    var manifest = Manifest(
+      steps: new[] { ("B", compositeB) },
+      items: new[] { ("in-b", "fp-b") });
 
     var plan = await CachePlanBuilder.BuildAsync(flow, manifest);
 
@@ -305,14 +341,22 @@ public class CachePlanBuilderTests
       foreach (var step in steps) b.Add(step);
     });
 
-  private static CacheManifest ManifestWith(params (string Label, string Value)[] entries)
+  private static CacheManifest Manifest(
+    (string Label, string Value)[]? steps = null,
+    (string Label, string Value)[]? items = null
+  )
   {
-    var dict = new Dictionary<string, NodeFingerprint>(StringComparer.Ordinal);
-    foreach (var (label, value) in entries)
+    var stepDict = new Dictionary<string, NodeFingerprint>(StringComparer.Ordinal);
+    foreach (var (label, value) in steps ?? Array.Empty<(string, string)>())
     {
-      dict[label] = new NodeFingerprint(value, T);
+      stepDict[label] = new NodeFingerprint(value, T);
     }
-    return new CacheManifest(CacheManifestSchema.CurrentVersion, dict);
+    var itemDict = new Dictionary<string, NodeFingerprint>(StringComparer.Ordinal);
+    foreach (var (label, value) in items ?? Array.Empty<(string, string)>())
+    {
+      itemDict[label] = new NodeFingerprint(value, T);
+    }
+    return new CacheManifest(CacheManifestSchema.CurrentVersion, stepDict, itemDict);
   }
 
   /// <summary>

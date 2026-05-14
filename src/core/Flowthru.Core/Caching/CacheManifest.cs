@@ -35,12 +35,15 @@ namespace Flowthru.Caching;
 /// </remarks>
 public sealed record CacheManifest(
   int SchemaVersion,
-  IReadOnlyDictionary<string, NodeFingerprint> Entries
+  IReadOnlyDictionary<string, NodeFingerprint> Steps,
+  IReadOnlyDictionary<string, NodeFingerprint> Items
 ) : IStructuredSerializable
 {
   /// <summary>An empty manifest at the current schema version.</summary>
-  public static CacheManifest Empty { get; } =
-    new(CacheManifestSchema.CurrentVersion, new Dictionary<string, NodeFingerprint>(StringComparer.Ordinal));
+  public static CacheManifest Empty { get; } = new(
+    CacheManifestSchema.CurrentVersion,
+    new Dictionary<string, NodeFingerprint>(StringComparer.Ordinal),
+    new Dictionary<string, NodeFingerprint>(StringComparer.Ordinal));
 
   /// <summary>
   /// True iff this manifest's schema matches
@@ -69,5 +72,13 @@ public static class CacheManifestSchema
   /// any structural change to <see cref="CacheManifest"/>,
   /// <see cref="NodeFingerprint"/>, or the composite-hash derivation.
   /// </summary>
-  public const int CurrentVersion = 1;
+  /// <remarks>
+  /// Bump history:
+  /// <list type="bullet">
+  ///   <item><c>1</c> — Phase 6: single <c>Entries</c> dict of per-step composite hashes.</item>
+  ///   <item><c>2</c> — Phase 8: split into <c>Steps</c> and <c>Items</c> so the
+  ///     per-DAG-node fingerprinting design has a complete persisted view.</item>
+  /// </list>
+  /// </remarks>
+  public const int CurrentVersion = 2;
 }

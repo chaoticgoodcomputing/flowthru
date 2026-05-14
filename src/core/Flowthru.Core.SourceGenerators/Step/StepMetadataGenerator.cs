@@ -121,7 +121,8 @@ public sealed class StepMetadataGenerator : IIncrementalGenerator
       Label: label ?? typeSymbol.Name,
       IsIdempotent: isIdempotent,
       HasSideEffects: hasSideEffects,
-      CodeVersion: codeVersion
+      CodeVersion: codeVersion,
+      TypeArity: typeSymbol.IsGenericType ? typeSymbol.Arity : 0
     );
   }
 
@@ -189,6 +190,28 @@ public sealed class StepMetadataGenerator : IIncrementalGenerator
     sb.AppendLine($"    HasSideEffects = {(info.HasSideEffects ? "true" : "false")},");
     sb.AppendLine("  };");
     sb.AppendLine("}");
+    sb.AppendLine();
+
+    // Module-initializer companion (Phase 8). Registers
+    // (typeof(StepClass) -> CodeVersion) into StepMetadataRegistry at
+    // module load time. The framework's FlowBuilder.AddStep resolves a
+    // transform delegate back to its enclosing step class and reads the
+    // registry directly — Flow developers never thread codeVersion by
+    // hand for source-defined steps.
+    // For generic step classes (e.g. PassthroughInputToOutputStep<T>),
+    // register the open generic typedef — the StepMetadataResolver
+    // canonicalizes to the open generic on lookup so every constructed
+    // instantiation resolves to the same recorded CodeVersion.
+    var typeofExpr = info.TypeArity == 0
+      ? info.ClassName
+      : info.ClassName + "<" + new string(',', info.TypeArity - 1) + ">";
+    sb.AppendLine($"/// <summary>Auto-registers <see cref=\"{info.ClassName}\"/> with StepMetadataRegistry at module load.</summary>");
+    sb.AppendLine($"internal static class {info.ClassName}_Registration");
+    sb.AppendLine("{");
+    sb.AppendLine("  [global::System.Runtime.CompilerServices.ModuleInitializer]");
+    sb.AppendLine("  internal static void Register() =>");
+    sb.AppendLine($"    global::Flowthru.Step.StepMetadataRegistry.Register(typeof({typeofExpr}), {info.ClassName}_Metadata.CodeVersion);");
+    sb.AppendLine("}");
 
     var fileName = string.IsNullOrEmpty(info.Namespace)
       ? $"{info.ClassName}_Metadata.g.cs"
@@ -220,5 +243,6 @@ internal sealed record StepInfo(
   string Label,
   bool IsIdempotent,
   bool HasSideEffects,
-  string CodeVersion
+  string CodeVersion,
+  int TypeArity
 );

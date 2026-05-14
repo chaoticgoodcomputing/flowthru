@@ -44,21 +44,27 @@ public class CacheManifestStoreTests
   public async Task LoadAsync_RoundTripsManifest()
   {
     var item = MakeManifestItem("round-trip.json");
+    var t1 = new DateTimeOffset(2026, 5, 14, 12, 0, 0, TimeSpan.Zero);
+    var t2 = new DateTimeOffset(2026, 5, 14, 12, 1, 0, TimeSpan.Zero);
     var original = new CacheManifest(
       CacheManifestSchema.CurrentVersion,
       new Dictionary<string, NodeFingerprint>(StringComparer.Ordinal)
       {
-        ["alpha"] = new NodeFingerprint("hash-alpha", new DateTimeOffset(2026, 5, 14, 12, 0, 0, TimeSpan.Zero)),
-        ["beta"] = new NodeFingerprint("hash-beta", new DateTimeOffset(2026, 5, 14, 12, 1, 0, TimeSpan.Zero)),
+        ["step-alpha"] = new NodeFingerprint("hash-step-alpha", t1),
+      },
+      new Dictionary<string, NodeFingerprint>(StringComparer.Ordinal)
+      {
+        ["item-beta"] = new NodeFingerprint("hash-item-beta", t2),
       });
 
     await item.Save(original).Run();
 
     var loaded = await CacheManifestStore.LoadAsync(item);
 
-    Assert.That(loaded.Entries, Has.Count.EqualTo(2));
-    Assert.That(loaded.Entries["alpha"].Value, Is.EqualTo("hash-alpha"));
-    Assert.That(loaded.Entries["beta"].Value, Is.EqualTo("hash-beta"));
+    Assert.That(loaded.Steps, Has.Count.EqualTo(1));
+    Assert.That(loaded.Steps["step-alpha"].Value, Is.EqualTo("hash-step-alpha"));
+    Assert.That(loaded.Items, Has.Count.EqualTo(1));
+    Assert.That(loaded.Items["item-beta"].Value, Is.EqualTo("hash-item-beta"));
   }
 
   [Test]
@@ -70,7 +76,8 @@ public class CacheManifestStoreTests
       new Dictionary<string, NodeFingerprint>(StringComparer.Ordinal)
       {
         ["alpha"] = new NodeFingerprint("hash-alpha", DateTimeOffset.UtcNow),
-      });
+      },
+      new Dictionary<string, NodeFingerprint>(StringComparer.Ordinal));
     await item.Save(stale).Run();
 
     var loaded = await CacheManifestStore.LoadAsync(item);
@@ -81,22 +88,26 @@ public class CacheManifestStoreTests
   }
 
   [Test]
-  public async Task UpsertEntriesAsync_AddsNewEntries()
+  public async Task UpsertEntriesAsync_AddsNewStepAndItemEntries()
   {
     var item = MakeManifestItem("upsert-new.json");
     var now = DateTimeOffset.UtcNow;
-    var newEntries = new Dictionary<string, string>(StringComparer.Ordinal)
+    var newStepEntries = new Dictionary<string, string>(StringComparer.Ordinal)
     {
-      ["alpha"] = "hash-alpha",
-      ["beta"] = "hash-beta",
+      ["step-alpha"] = "hash-step-alpha",
+    };
+    var newItemEntries = new Dictionary<string, string>(StringComparer.Ordinal)
+    {
+      ["item-beta"] = "hash-item-beta",
     };
 
-    await CacheManifestStore.UpsertEntriesAsync(item, newEntries, now);
+    await CacheManifestStore.UpsertEntriesAsync(item, newStepEntries, newItemEntries, now);
 
     var loaded = await CacheManifestStore.LoadAsync(item);
-    Assert.That(loaded.Entries["alpha"].Value, Is.EqualTo("hash-alpha"));
-    Assert.That(loaded.Entries["alpha"].RecordedAt, Is.EqualTo(now));
-    Assert.That(loaded.Entries["beta"].Value, Is.EqualTo("hash-beta"));
+    Assert.That(loaded.Steps["step-alpha"].Value, Is.EqualTo("hash-step-alpha"));
+    Assert.That(loaded.Steps["step-alpha"].RecordedAt, Is.EqualTo(now));
+    Assert.That(loaded.Items["item-beta"].Value, Is.EqualTo("hash-item-beta"));
+    Assert.That(loaded.Items["item-beta"].RecordedAt, Is.EqualTo(now));
   }
 
   [Test]
@@ -105,21 +116,24 @@ public class CacheManifestStoreTests
     var item = MakeManifestItem("upsert-lww.json");
     var early = new DateTimeOffset(2026, 5, 14, 12, 0, 0, TimeSpan.Zero);
     var late = new DateTimeOffset(2026, 5, 14, 12, 1, 0, TimeSpan.Zero);
+    var empty = new Dictionary<string, string>(StringComparer.Ordinal);
 
     // Step 1 — write the initial value at the late timestamp.
     await CacheManifestStore.UpsertEntriesAsync(
       item,
       new Dictionary<string, string>(StringComparer.Ordinal) { ["alpha"] = "later-value" },
+      empty,
       late);
 
     // Step 2 — try to write an earlier-timestamped update. LWW should reject it.
     await CacheManifestStore.UpsertEntriesAsync(
       item,
       new Dictionary<string, string>(StringComparer.Ordinal) { ["alpha"] = "earlier-value" },
+      empty,
       early);
 
     var loaded = await CacheManifestStore.LoadAsync(item);
-    Assert.That(loaded.Entries["alpha"].Value, Is.EqualTo("later-value"),
+    Assert.That(loaded.Steps["alpha"].Value, Is.EqualTo("later-value"),
       "An earlier-timestamped upsert must not overwrite a later-timestamped entry — "
       + "this is how concurrent runs avoid losing each other's writes.");
   }
@@ -133,6 +147,7 @@ public class CacheManifestStoreTests
     var item = MakeManifestItem("upsert-concurrent.json");
     var tEarly = new DateTimeOffset(2026, 5, 14, 12, 0, 0, TimeSpan.Zero);
     var tLate = new DateTimeOffset(2026, 5, 14, 12, 5, 0, TimeSpan.Zero);
+    var empty = new Dictionary<string, string>(StringComparer.Ordinal);
 
     await CacheManifestStore.UpsertEntriesAsync(
       item,
@@ -141,6 +156,7 @@ public class CacheManifestStoreTests
         ["x"] = "x-from-A",
         ["y"] = "y-from-A",
       },
+      empty,
       tEarly);
 
     await CacheManifestStore.UpsertEntriesAsync(
@@ -150,14 +166,15 @@ public class CacheManifestStoreTests
         ["y"] = "y-from-B",
         ["z"] = "z-from-B",
       },
+      empty,
       tLate);
 
     var loaded = await CacheManifestStore.LoadAsync(item);
-    Assert.That(loaded.Entries["x"].Value, Is.EqualTo("x-from-A"),
+    Assert.That(loaded.Steps["x"].Value, Is.EqualTo("x-from-A"),
       "Process B's save must preserve A's disjoint entry.");
-    Assert.That(loaded.Entries["y"].Value, Is.EqualTo("y-from-B"),
+    Assert.That(loaded.Steps["y"].Value, Is.EqualTo("y-from-B"),
       "Process B's later write to the same key wins.");
-    Assert.That(loaded.Entries["z"].Value, Is.EqualTo("z-from-B"),
+    Assert.That(loaded.Steps["z"].Value, Is.EqualTo("z-from-B"),
       "Process B's new entry must land.");
   }
 
@@ -165,9 +182,11 @@ public class CacheManifestStoreTests
   public async Task UpsertEntriesAsync_EmptyInputIsNoOp()
   {
     var item = MakeManifestItem("upsert-empty.json");
+    var empty = new Dictionary<string, string>(StringComparer.Ordinal);
     await CacheManifestStore.UpsertEntriesAsync(
       item,
-      new Dictionary<string, string>(StringComparer.Ordinal),
+      empty,
+      empty,
       DateTimeOffset.UtcNow);
 
     // No file should have been created since there was nothing to write.

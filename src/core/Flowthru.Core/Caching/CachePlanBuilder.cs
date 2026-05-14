@@ -13,6 +13,15 @@ namespace Flowthru.Caching;
 /// </summary>
 /// <remarks>
 /// <para>
+/// <strong>Uniform DAG-node walk (Phase 8).</strong> Items and steps
+/// are treated as a single node space. Each item has a leaf fingerprint
+/// (sourced from its storage adapter's <c>ISupportsFingerprint</c>); each
+/// step has a composite fingerprint composed of its <c>CodeVersion</c>
+/// and its inputs' fingerprints. Both kinds of fingerprint are persisted
+/// in <c>CacheManifest.{Steps, Items}</c>, and the walk compares the
+/// current value against the recorded value to decide freshness.
+/// </para>
+/// <para>
 /// <strong>Eligibility.</strong> A step is eligible for caching only
 /// when every one of these holds:
 /// </para>
@@ -20,24 +29,15 @@ namespace Flowthru.Caching;
 /// <item>The step's <see cref="IStepNode.CodeVersion"/> is non-null.</item>
 /// <item>The step has no <see cref="IStepNode.ServiceDependencies"/>.</item>
 /// <item>Every input either is produced by another step in this flow
-/// (its composite is then derived recursively) or has a non-null
+/// (its freshness rolls down from the producer) or has a non-null
 /// <see cref="IItem.TryGetFingerprint"/> that succeeds.</item>
 /// </list>
 /// <para>
 /// <strong>Cascade rule.</strong> If any input's producer is marked
-/// stale or uncacheable, the consumer cascades into stale —
+/// stale or uncacheable, the consumer cascades into the same bucket —
 /// downstream of any non-fresh parent cannot be fresh because the
 /// parent's outputs will be regenerated and we don't know their
 /// post-run fingerprints at pre-flight time.
-/// </para>
-/// <para>
-/// <strong>Composite identity.</strong> A fresh step's composite is
-/// <c>SHA256(CodeVersion + "|" + sorted(input-label:fingerprint))</c>.
-/// For external inputs, the fingerprint is the leaf
-/// <see cref="IItem.TryGetFingerprint"/>; for produced inputs, it's
-/// the upstream step's composite. The plan records these composites
-/// in <see cref="CachePlan.NewFingerprints"/> so the post-run upsert
-/// path can refresh manifest entries without recomputing.
 /// </para>
 /// </remarks>
 public static class CachePlanBuilder
@@ -58,17 +58,22 @@ public static class CachePlanBuilder
     if (flow is null) throw new ArgumentNullException(nameof(flow));
     if (manifest is null) throw new ArgumentNullException(nameof(manifest));
 
-    // Schema-version mismatch: treat the manifest as empty so every
-    // cacheable step re-records on this run.
-    var effectiveEntries = manifest.IsCurrentSchema()
-      ? manifest.Entries
+    // Schema-version mismatch: treat every recorded entry as absent so
+    // every cacheable step re-records on this run.
+    var recordedSteps = manifest.IsCurrentSchema()
+      ? manifest.Steps
+      : (IReadOnlyDictionary<string, NodeFingerprint>)
+        new Dictionary<string, NodeFingerprint>(StringComparer.Ordinal);
+    var recordedItems = manifest.IsCurrentSchema()
+      ? manifest.Items
       : (IReadOnlyDictionary<string, NodeFingerprint>)
         new Dictionary<string, NodeFingerprint>(StringComparer.Ordinal);
 
     var fresh = new HashSet<string>(StringComparer.Ordinal);
     var stale = new HashSet<string>(StringComparer.Ordinal);
     var uncacheable = new HashSet<string>(StringComparer.Ordinal);
-    var newFingerprints = new Dictionary<string, string>(StringComparer.Ordinal);
+    var newStepFingerprints = new Dictionary<string, string>(StringComparer.Ordinal);
+    var newItemFingerprints = new Dictionary<string, string>(StringComparer.Ordinal);
 
     // Producer index — same shape DependencyAnalyzer builds, but we
     // store the producing step's label rather than the step itself so
@@ -82,8 +87,18 @@ public static class CachePlanBuilder
       }
     }
 
-    // Fingerprint every external input once and cache the result.
-    var externalFingerprintCache = new Dictionary<string, string?>(StringComparer.Ordinal);
+    // Track each item's current leaf fingerprint and look it up at
+    // most once per pre-flight pass — items consumed by multiple
+    // steps probe disk only once.
+    var itemFingerprints = new Dictionary<string, string?>(StringComparer.Ordinal);
+    async Task<string?> FingerprintOnce(IItem item)
+    {
+      if (itemFingerprints.TryGetValue(item.Label, out var cached)) return cached;
+      var fp = await TryReadFingerprintAsync(item, cancellationToken).ConfigureAwait(false);
+      itemFingerprints[item.Label] = fp;
+      if (fp is not null) newItemFingerprints[item.Label] = fp;
+      return fp;
+    }
 
     foreach (var step in flow.Steps)
     {
@@ -97,7 +112,7 @@ public static class CachePlanBuilder
       }
 
       // Phase 2 — collect fingerprints for every input. If any input is
-      // unfingerprintable or its parent is non-fresh, we cascade.
+      // unfingerprintable, or its parent is non-fresh, we cascade.
       var inputContributions = new List<(string Label, string Value)>(step.Inputs.Count);
       var cascadeStale = false;
       var cascadeUncacheable = false;
@@ -106,7 +121,6 @@ public static class CachePlanBuilder
       {
         if (producerByItemLabel.TryGetValue(input.Label, out var parentLabel))
         {
-          // Internally produced — rely on the parent's verdict.
           if (uncacheable.Contains(parentLabel))
           {
             cascadeUncacheable = true;
@@ -117,30 +131,30 @@ public static class CachePlanBuilder
             cascadeStale = true;
             break;
           }
-          if (!fresh.Contains(parentLabel) || !newFingerprints.TryGetValue(parentLabel, out var parentComposite))
-          {
-            // Shouldn't happen given topological order, but defend.
-            cascadeUncacheable = true;
-            break;
-          }
-          inputContributions.Add((input.Label, parentComposite));
         }
-        else
+
+        var fp = await FingerprintOnce(input).ConfigureAwait(false);
+        if (fp is null)
         {
-          // External root — fingerprint via the item's leaf capability.
-          if (!externalFingerprintCache.TryGetValue(input.Label, out var cachedFp))
+          cascadeUncacheable = true;
+          break;
+        }
+
+        // External (no producer): compare against manifest. A mismatch
+        // makes the consumer stale (cascade carries it downstream).
+        if (!producerByItemLabel.ContainsKey(input.Label))
+        {
+          var matchesRecorded =
+            recordedItems.TryGetValue(input.Label, out var recordedFp)
+            && string.Equals(recordedFp!.Value, fp, StringComparison.Ordinal);
+          if (!matchesRecorded)
           {
-            cachedFp = await TryReadFingerprintAsync(input, cancellationToken)
-              .ConfigureAwait(false);
-            externalFingerprintCache[input.Label] = cachedFp;
-          }
-          if (cachedFp is null)
-          {
-            cascadeUncacheable = true;
+            cascadeStale = true;
             break;
           }
-          inputContributions.Add((input.Label, cachedFp));
         }
+
+        inputContributions.Add((input.Label, fp));
       }
 
       if (cascadeUncacheable)
@@ -159,7 +173,7 @@ public static class CachePlanBuilder
 
       // Phase 4 — fresh iff manifest entry matches AND every output exists.
       var manifestMatches =
-        effectiveEntries.TryGetValue(step.Label, out var recorded)
+        recordedSteps.TryGetValue(step.Label, out var recorded)
         && string.Equals(recorded!.Value, composite, StringComparison.Ordinal);
 
       var outputsExist = true;
@@ -176,18 +190,26 @@ public static class CachePlanBuilder
       if (manifestMatches && outputsExist)
       {
         fresh.Add(step.Label);
-        newFingerprints[step.Label] = composite;
+        newStepFingerprints[step.Label] = composite;
+        // Probe each output fingerprint so the post-run upsert records
+        // an up-to-date Items entry alongside the refreshed Steps entry.
+        // Without this, intermediate items would only get recorded the
+        // very first time their producer runs — the FRESH path would
+        // never refresh them, and any out-of-band touch (formatter,
+        // mtime bump) on a still-cached intermediate would silently
+        // stale every downstream step.
+        foreach (var output in step.Outputs)
+        {
+          await FingerprintOnce(output).ConfigureAwait(false);
+        }
       }
       else
       {
-        // Stale: composite differs from recorded, OR an output is missing.
-        // We don't record a new composite at pre-flight — the post-run
-        // upsert path will compute it from the actually-produced outputs.
         stale.Add(step.Label);
       }
     }
 
-    return new CachePlan(fresh, stale, uncacheable, newFingerprints);
+    return new CachePlan(fresh, stale, uncacheable, newStepFingerprints, newItemFingerprints);
   }
 
   /// <summary>

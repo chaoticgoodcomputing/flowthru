@@ -100,9 +100,15 @@ public sealed class FlowBuilderGenerator : IIncrementalGenerator
     // need distinct transform signatures (Action / Action<TIn> / Func<TOut>)
     // and inline FlowUnit substitution for the missing side, so they're
     // emitted by dedicated helpers rather than the regular matrix loop.
-    EmitSideEffectOverloadVariants(sb);
-    for (var n = MinOutputs; n <= MaxOutputs; n++) EmitSourceOverloadVariants(sb, n);
-    for (var m = MinInputs; m <= MaxInputs; m++) EmitSinkOverloadVariants(sb, m);
+    // Each helper emits BOTH visible (no codeVersion) and hidden (with
+    // codeVersion + [EditorBrowsable(Never)]) overloads, mirroring the
+    // dual-emission pattern for the typed matrix above.
+    EmitSideEffectOverloadVariants(sb, advanced: false);
+    EmitSideEffectOverloadVariants(sb, advanced: true);
+    for (var n = MinOutputs; n <= MaxOutputs; n++) EmitSourceOverloadVariants(sb, n, advanced: false);
+    for (var n = MinOutputs; n <= MaxOutputs; n++) EmitSourceOverloadVariants(sb, n, advanced: true);
+    for (var m = MinInputs; m <= MaxInputs; m++) EmitSinkOverloadVariants(sb, m, advanced: false);
+    for (var m = MinInputs; m <= MaxInputs; m++) EmitSinkOverloadVariants(sb, m, advanced: true);
 
     sb.AppendLine("}");
     return sb.ToString();
@@ -110,12 +116,38 @@ public sealed class FlowBuilderGenerator : IIncrementalGenerator
 
   private static void EmitOverloadCell(StringBuilder sb, int m, int n)
   {
-    EmitSyncOverload(sb, m, n);
-    EmitAsyncOverload(sb, m, n);
-    EmitAsyncCtOverload(sb, m, n);
+    // Each cell emits two signatures per transform shape:
+    //   - Visible (no codeVersion param; resolves via StepMetadataResolver)
+    //   - Hidden (explicit codeVersion param; [EditorBrowsable(Never)])
+    // Overload resolution is unambiguous because the hidden form makes
+    // codeVersion a required-named parameter — a 4-positional call sees
+    // only the visible form, while `codeVersion: "..."` selects the
+    // hidden one.
+    EmitSyncOverload(sb, m, n, advanced: false);
+    EmitSyncOverload(sb, m, n, advanced: true);
+    EmitAsyncOverload(sb, m, n, advanced: false);
+    EmitAsyncOverload(sb, m, n, advanced: true);
+    EmitAsyncCtOverload(sb, m, n, advanced: false);
+    EmitAsyncCtOverload(sb, m, n, advanced: true);
   }
 
-  private static void EmitSyncOverload(StringBuilder sb, int m, int n)
+  /// <summary>
+  /// Per Phase 8: visible overloads omit <c>codeVersion</c> entirely
+  /// and resolve identity via <see cref="StepMetadataResolver"/> at
+  /// the call site. Hidden overloads accept an explicit
+  /// <c>codeVersion</c> and are decorated with
+  /// <see cref="EditorBrowsableAttribute"/> so they don't pollute the
+  /// completion list flow developers see.
+  /// </summary>
+  private const string HiddenAttribute =
+    "[global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]";
+
+  private static string CodeVersionExpr(bool advanced) =>
+    advanced
+      ? "codeVersion"
+      : "global::Flowthru.Step.StepMetadataResolver.ResolveFromDelegate(transform)";
+
+  private static void EmitSyncOverload(StringBuilder sb, int m, int n, bool advanced)
   {
     var (tinTypeParams, toutTypeParams) = TypeParams(m, n);
     var tinType = TupleOrSingle("TIn", m);
@@ -124,20 +156,26 @@ public sealed class FlowBuilderGenerator : IIncrementalGenerator
     var inputsParam = ItemTupleParam("TIn", m, "inputs");
     var outputsParam = ItemTupleParam("TOut", n, "outputs");
 
+    if (advanced) sb.AppendLine($"  {HiddenAttribute}");
     sb.AppendLine($"  public FlowBuilder AddStep<{typeParams}>(");
     sb.AppendLine("    string label,");
     sb.AppendLine($"    global::System.Func<{tinType}, {toutType}> transform,");
     sb.AppendLine($"    {inputsParam},");
-    sb.AppendLine($"    {outputsParam},");
-    sb.AppendLine("    string? codeVersion = null)");
+    sb.Append($"    {outputsParam}");
+    sb.AppendLine(advanced ? "," : ")");
+    if (advanced)
+    {
+      sb.AppendLine("    string? codeVersion)");
+    }
     sb.AppendLine("  {");
     EmitBody(sb, m, n, tinType, toutType,
+      codeVersionExpr: CodeVersionExpr(advanced),
       transformInvocation: $"global::Flowthru.Prelude.FlowIO.Lift<{toutType}>(() => transform(input), \"step:\" + label)");
     sb.AppendLine("  }");
     sb.AppendLine();
   }
 
-  private static void EmitAsyncOverload(StringBuilder sb, int m, int n)
+  private static void EmitAsyncOverload(StringBuilder sb, int m, int n, bool advanced)
   {
     var (tinTypeParams, toutTypeParams) = TypeParams(m, n);
     var tinType = TupleOrSingle("TIn", m);
@@ -146,20 +184,26 @@ public sealed class FlowBuilderGenerator : IIncrementalGenerator
     var inputsParam = ItemTupleParam("TIn", m, "inputs");
     var outputsParam = ItemTupleParam("TOut", n, "outputs");
 
+    if (advanced) sb.AppendLine($"  {HiddenAttribute}");
     sb.AppendLine($"  public FlowBuilder AddStep<{typeParams}>(");
     sb.AppendLine("    string label,");
     sb.AppendLine($"    global::System.Func<{tinType}, global::System.Threading.Tasks.Task<{toutType}>> transform,");
     sb.AppendLine($"    {inputsParam},");
-    sb.AppendLine($"    {outputsParam},");
-    sb.AppendLine("    string? codeVersion = null)");
+    sb.Append($"    {outputsParam}");
+    sb.AppendLine(advanced ? "," : ")");
+    if (advanced)
+    {
+      sb.AppendLine("    string? codeVersion)");
+    }
     sb.AppendLine("  {");
     EmitBody(sb, m, n, tinType, toutType,
+      codeVersionExpr: CodeVersionExpr(advanced),
       transformInvocation: "global::Flowthru.Prelude.FlowIO.LiftAsync(_ => transform(input))");
     sb.AppendLine("  }");
     sb.AppendLine();
   }
 
-  private static void EmitAsyncCtOverload(StringBuilder sb, int m, int n)
+  private static void EmitAsyncCtOverload(StringBuilder sb, int m, int n, bool advanced)
   {
     var (tinTypeParams, toutTypeParams) = TypeParams(m, n);
     var tinType = TupleOrSingle("TIn", m);
@@ -168,14 +212,20 @@ public sealed class FlowBuilderGenerator : IIncrementalGenerator
     var inputsParam = ItemTupleParam("TIn", m, "inputs");
     var outputsParam = ItemTupleParam("TOut", n, "outputs");
 
+    if (advanced) sb.AppendLine($"  {HiddenAttribute}");
     sb.AppendLine($"  public FlowBuilder AddStep<{typeParams}>(");
     sb.AppendLine("    string label,");
     sb.AppendLine($"    global::System.Func<{tinType}, global::System.Threading.CancellationToken, global::System.Threading.Tasks.Task<{toutType}>> transform,");
     sb.AppendLine($"    {inputsParam},");
-    sb.AppendLine($"    {outputsParam},");
-    sb.AppendLine("    string? codeVersion = null)");
+    sb.Append($"    {outputsParam}");
+    sb.AppendLine(advanced ? "," : ")");
+    if (advanced)
+    {
+      sb.AppendLine("    string? codeVersion)");
+    }
     sb.AppendLine("  {");
     EmitBody(sb, m, n, tinType, toutType,
+      codeVersionExpr: CodeVersionExpr(advanced),
       transformInvocation: "global::Flowthru.Prelude.FlowIO.LiftAsync(ct => transform(input, ct))");
     sb.AppendLine("  }");
     sb.AppendLine();
@@ -229,6 +279,7 @@ public sealed class FlowBuilderGenerator : IIncrementalGenerator
     int n,
     string tinType,
     string toutType,
+    string codeVersionExpr,
     string transformInvocation
   )
   {
@@ -299,11 +350,12 @@ public sealed class FlowBuilderGenerator : IIncrementalGenerator
     sb.AppendLine("      loadInputs,");
     // FlowLabel is stamped centrally by FlowBuilder.Add via IStepNode.OnAddedToFlow;
     // emitting `flowLabel: this.Label` here would duplicate that responsibility.
-    // codeVersion is threaded through verbatim — callers that pass the
-    // StepMetadataGenerator-emitted `_Metadata.CodeVersion` constant get a
-    // build-time identity surfaced on IStepNode for the cache-plan phase.
+    // codeVersion either comes from the StepMetadataResolver-driven
+    // auto-discovery (visible overload) or is threaded verbatim from
+    // the caller (hidden overload). Either way the step's identity
+    // reaches IStepNode for the cache-plan phase.
     sb.AppendLine("      saveOutputs,");
-    sb.AppendLine("      codeVersion: codeVersion));");
+    sb.AppendLine($"      codeVersion: {codeVersionExpr}));");
   }
 
   /// <summary>
@@ -361,45 +413,53 @@ public sealed class FlowBuilderGenerator : IIncrementalGenerator
   // parameter accordingly.
   // ────────────────────────────────────────────────────────────────────────
 
-  private static void EmitSideEffectOverloadVariants(StringBuilder sb)
+  private static void EmitSideEffectOverloadVariants(StringBuilder sb, bool advanced)
   {
     // (0, 0) — Action / Func<Task> / Func<CancellationToken, Task>.
+    var signatureCodeVersion = advanced ? ", string? codeVersion" : "";
+    var attr = advanced ? HiddenAttribute + " " : "";
 
     // Sync: Action.
-    sb.AppendLine("  public FlowBuilder AddStep(string label, global::System.Action transform, string? codeVersion = null)");
+    if (advanced) sb.AppendLine($"  {HiddenAttribute}");
+    sb.AppendLine($"  public FlowBuilder AddStep(string label, global::System.Action transform{signatureCodeVersion})");
     sb.AppendLine("  {");
     EmitZeroArityBody(sb,
       "FlowUnit",
       "FlowUnit",
+      codeVersionExpr: CodeVersionExpr(advanced),
       transformInvocation: "global::Flowthru.Prelude.FlowIO.Lift<global::Flowthru.Prelude.FlowUnit>(() => { transform(); return global::Flowthru.Prelude.FlowUnit.Default; }, \"step:\" + label)"
     );
     sb.AppendLine("  }");
     sb.AppendLine();
 
     // Async: Func<Task>.
-    sb.AppendLine("  public FlowBuilder AddStep(string label, global::System.Func<global::System.Threading.Tasks.Task> transform, string? codeVersion = null)");
+    if (advanced) sb.AppendLine($"  {HiddenAttribute}");
+    sb.AppendLine($"  public FlowBuilder AddStep(string label, global::System.Func<global::System.Threading.Tasks.Task> transform{signatureCodeVersion})");
     sb.AppendLine("  {");
     EmitZeroArityBody(sb,
       "FlowUnit",
       "FlowUnit",
+      codeVersionExpr: CodeVersionExpr(advanced),
       transformInvocation: "global::Flowthru.Prelude.FlowIO.LiftAsync<global::Flowthru.Prelude.FlowUnit>(async _ => { await transform().ConfigureAwait(false); return global::Flowthru.Prelude.FlowUnit.Default; }, \"step:\" + label)"
     );
     sb.AppendLine("  }");
     sb.AppendLine();
 
     // Async + CT: Func<CancellationToken, Task>.
-    sb.AppendLine("  public FlowBuilder AddStep(string label, global::System.Func<global::System.Threading.CancellationToken, global::System.Threading.Tasks.Task> transform, string? codeVersion = null)");
+    if (advanced) sb.AppendLine($"  {HiddenAttribute}");
+    sb.AppendLine($"  public FlowBuilder AddStep(string label, global::System.Func<global::System.Threading.CancellationToken, global::System.Threading.Tasks.Task> transform{signatureCodeVersion})");
     sb.AppendLine("  {");
     EmitZeroArityBody(sb,
       "FlowUnit",
       "FlowUnit",
+      codeVersionExpr: CodeVersionExpr(advanced),
       transformInvocation: "global::Flowthru.Prelude.FlowIO.LiftAsync<global::Flowthru.Prelude.FlowUnit>(async ct => { await transform(ct).ConfigureAwait(false); return global::Flowthru.Prelude.FlowUnit.Default; }, \"step:\" + label)"
     );
     sb.AppendLine("  }");
     sb.AppendLine();
   }
 
-  private static void EmitSourceOverloadVariants(StringBuilder sb, int n)
+  private static void EmitSourceOverloadVariants(StringBuilder sb, int n, bool advanced)
   {
     // (0, n>=1) — produces N outputs from no inputs.
     var toutTypeParams = string.Join(", ", Enumerable.Range(1, n).Select(i => $"TOut{i}"));
@@ -407,46 +467,55 @@ public sealed class FlowBuilderGenerator : IIncrementalGenerator
     var outputsParam = ItemTupleParam("TOut", n, "outputs");
 
     // Sync: Func<TOut>.
+    if (advanced) sb.AppendLine($"  {HiddenAttribute}");
     sb.AppendLine($"  public FlowBuilder AddStep<{toutTypeParams}>(");
     sb.AppendLine("    string label,");
     sb.AppendLine($"    global::System.Func<{toutType}> transform,");
-    sb.AppendLine($"    {outputsParam},");
-    sb.AppendLine("    string? codeVersion = null)");
+    sb.Append($"    {outputsParam}");
+    sb.AppendLine(advanced ? "," : ")");
+    if (advanced) sb.AppendLine("    string? codeVersion)");
     sb.AppendLine("  {");
     EmitSourceBody(sb, n, toutType,
+      codeVersionExpr: CodeVersionExpr(advanced),
       transformInvocation: $"global::Flowthru.Prelude.FlowIO.Lift<{toutType}>(() => transform(), \"step:\" + label)"
     );
     sb.AppendLine("  }");
     sb.AppendLine();
 
     // Async: Func<Task<TOut>>.
+    if (advanced) sb.AppendLine($"  {HiddenAttribute}");
     sb.AppendLine($"  public FlowBuilder AddStep<{toutTypeParams}>(");
     sb.AppendLine("    string label,");
     sb.AppendLine($"    global::System.Func<global::System.Threading.Tasks.Task<{toutType}>> transform,");
-    sb.AppendLine($"    {outputsParam},");
-    sb.AppendLine("    string? codeVersion = null)");
+    sb.Append($"    {outputsParam}");
+    sb.AppendLine(advanced ? "," : ")");
+    if (advanced) sb.AppendLine("    string? codeVersion)");
     sb.AppendLine("  {");
     EmitSourceBody(sb, n, toutType,
+      codeVersionExpr: CodeVersionExpr(advanced),
       transformInvocation: $"global::Flowthru.Prelude.FlowIO.LiftAsync<{toutType}>(_ => transform(), \"step:\" + label)"
     );
     sb.AppendLine("  }");
     sb.AppendLine();
 
     // Async + CT: Func<CancellationToken, Task<TOut>>.
+    if (advanced) sb.AppendLine($"  {HiddenAttribute}");
     sb.AppendLine($"  public FlowBuilder AddStep<{toutTypeParams}>(");
     sb.AppendLine("    string label,");
     sb.AppendLine($"    global::System.Func<global::System.Threading.CancellationToken, global::System.Threading.Tasks.Task<{toutType}>> transform,");
-    sb.AppendLine($"    {outputsParam},");
-    sb.AppendLine("    string? codeVersion = null)");
+    sb.Append($"    {outputsParam}");
+    sb.AppendLine(advanced ? "," : ")");
+    if (advanced) sb.AppendLine("    string? codeVersion)");
     sb.AppendLine("  {");
     EmitSourceBody(sb, n, toutType,
+      codeVersionExpr: CodeVersionExpr(advanced),
       transformInvocation: $"global::Flowthru.Prelude.FlowIO.LiftAsync<{toutType}>(ct => transform(ct), \"step:\" + label)"
     );
     sb.AppendLine("  }");
     sb.AppendLine();
   }
 
-  private static void EmitSinkOverloadVariants(StringBuilder sb, int m)
+  private static void EmitSinkOverloadVariants(StringBuilder sb, int m, bool advanced)
   {
     // (m>=1, 0) — consumes M inputs, no outputs.
     var tinTypeParams = string.Join(", ", Enumerable.Range(1, m).Select(i => $"TIn{i}"));
@@ -454,39 +523,48 @@ public sealed class FlowBuilderGenerator : IIncrementalGenerator
     var inputsParam = ItemTupleParam("TIn", m, "inputs");
 
     // Sync: Action<TIn>.
+    if (advanced) sb.AppendLine($"  {HiddenAttribute}");
     sb.AppendLine($"  public FlowBuilder AddStep<{tinTypeParams}>(");
     sb.AppendLine("    string label,");
     sb.AppendLine($"    global::System.Action<{tinType}> transform,");
-    sb.AppendLine($"    {inputsParam},");
-    sb.AppendLine("    string? codeVersion = null)");
+    sb.Append($"    {inputsParam}");
+    sb.AppendLine(advanced ? "," : ")");
+    if (advanced) sb.AppendLine("    string? codeVersion)");
     sb.AppendLine("  {");
     EmitSinkBody(sb, m, tinType,
+      codeVersionExpr: CodeVersionExpr(advanced),
       transformInvocation: "global::Flowthru.Prelude.FlowIO.Lift<global::Flowthru.Prelude.FlowUnit>(() => { transform(input); return global::Flowthru.Prelude.FlowUnit.Default; }, \"step:\" + label)"
     );
     sb.AppendLine("  }");
     sb.AppendLine();
 
     // Async: Func<TIn, Task>.
+    if (advanced) sb.AppendLine($"  {HiddenAttribute}");
     sb.AppendLine($"  public FlowBuilder AddStep<{tinTypeParams}>(");
     sb.AppendLine("    string label,");
     sb.AppendLine($"    global::System.Func<{tinType}, global::System.Threading.Tasks.Task> transform,");
-    sb.AppendLine($"    {inputsParam},");
-    sb.AppendLine("    string? codeVersion = null)");
+    sb.Append($"    {inputsParam}");
+    sb.AppendLine(advanced ? "," : ")");
+    if (advanced) sb.AppendLine("    string? codeVersion)");
     sb.AppendLine("  {");
     EmitSinkBody(sb, m, tinType,
+      codeVersionExpr: CodeVersionExpr(advanced),
       transformInvocation: "global::Flowthru.Prelude.FlowIO.LiftAsync<global::Flowthru.Prelude.FlowUnit>(async _ => { await transform(input).ConfigureAwait(false); return global::Flowthru.Prelude.FlowUnit.Default; }, \"step:\" + label)"
     );
     sb.AppendLine("  }");
     sb.AppendLine();
 
     // Async + CT: Func<TIn, CancellationToken, Task>.
+    if (advanced) sb.AppendLine($"  {HiddenAttribute}");
     sb.AppendLine($"  public FlowBuilder AddStep<{tinTypeParams}>(");
     sb.AppendLine("    string label,");
     sb.AppendLine($"    global::System.Func<{tinType}, global::System.Threading.CancellationToken, global::System.Threading.Tasks.Task> transform,");
-    sb.AppendLine($"    {inputsParam},");
-    sb.AppendLine("    string? codeVersion = null)");
+    sb.Append($"    {inputsParam}");
+    sb.AppendLine(advanced ? "," : ")");
+    if (advanced) sb.AppendLine("    string? codeVersion)");
     sb.AppendLine("  {");
     EmitSinkBody(sb, m, tinType,
+      codeVersionExpr: CodeVersionExpr(advanced),
       transformInvocation: "global::Flowthru.Prelude.FlowIO.LiftAsync<global::Flowthru.Prelude.FlowUnit>(async ct => { await transform(input, ct).ConfigureAwait(false); return global::Flowthru.Prelude.FlowUnit.Default; }, \"step:\" + label)"
     );
     sb.AppendLine("  }");
@@ -501,6 +579,7 @@ public sealed class FlowBuilderGenerator : IIncrementalGenerator
     StringBuilder sb,
     string _tinType,
     string _toutType,
+    string codeVersionExpr,
     string transformInvocation
   )
   {
@@ -516,7 +595,7 @@ public sealed class FlowBuilderGenerator : IIncrementalGenerator
     // FlowLabel is stamped centrally by FlowBuilder.Add via IStepNode.OnAddedToFlow;
     // emitting `flowLabel: this.Label` here would duplicate that responsibility.
     sb.AppendLine("      saveOutputs,");
-    sb.AppendLine("      codeVersion: codeVersion));");
+    sb.AppendLine($"      codeVersion: {codeVersionExpr}));");
   }
 
   /// <summary>
@@ -527,6 +606,7 @@ public sealed class FlowBuilderGenerator : IIncrementalGenerator
     StringBuilder sb,
     int n,
     string toutType,
+    string codeVersionExpr,
     string transformInvocation
   )
   {
@@ -560,7 +640,7 @@ public sealed class FlowBuilderGenerator : IIncrementalGenerator
     // FlowLabel is stamped centrally by FlowBuilder.Add via IStepNode.OnAddedToFlow;
     // emitting `flowLabel: this.Label` here would duplicate that responsibility.
     sb.AppendLine("      saveOutputs,");
-    sb.AppendLine("      codeVersion: codeVersion));");
+    sb.AppendLine($"      codeVersion: {codeVersionExpr}));");
   }
 
   /// <summary>
@@ -571,6 +651,7 @@ public sealed class FlowBuilderGenerator : IIncrementalGenerator
     StringBuilder sb,
     int m,
     string tinType,
+    string codeVersionExpr,
     string transformInvocation
   )
   {
@@ -602,6 +683,6 @@ public sealed class FlowBuilderGenerator : IIncrementalGenerator
     // FlowLabel is stamped centrally by FlowBuilder.Add via IStepNode.OnAddedToFlow;
     // emitting `flowLabel: this.Label` here would duplicate that responsibility.
     sb.AppendLine("      saveOutputs,");
-    sb.AppendLine("      codeVersion: codeVersion));");
+    sb.AppendLine($"      codeVersion: {codeVersionExpr}));");
   }
 }
