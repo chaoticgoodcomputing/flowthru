@@ -12,24 +12,38 @@ namespace Flowthru.Data.Storage;
 /// values that don't fit the row-oriented enumerable shape.
 /// </summary>
 /// <typeparam name="T">The schema type stored as a single value.</typeparam>
+/// <remarks>
+/// <para>
+/// Two backing shapes are supported. The bare-path constructors wire
+/// directly into <see cref="FileStorageMedium"/> and use the
+/// optimised file-stream paths for I/O and inspection. The
+/// <see cref="IStorageMedium"/> constructors compose over any medium —
+/// HTTP, S3, etc. — and route I/O through the medium's stream
+/// primitives, which is the path Phase 1 of the smart-caching RFC
+/// uses to make <c>Item.Of&lt;T&gt;().Json().AtPath("https://…")</c>
+/// work end-to-end.
+/// </para>
+/// </remarks>
 public sealed class SingletonJsonAdapter<T> : IStorageAdapter<T>
   where T : notnull, IStructuredSerializable
 {
-  private readonly string _filePath;
-  private readonly FileStorageMedium _medium;
+  private readonly IStorageMedium _medium;
+  private readonly string? _filePath;
   private readonly JsonSerializerOptions _options;
 
+  /// <summary>
+  /// Construct an adapter directly over a filesystem path. Equivalent
+  /// to wrapping the path in a <see cref="FileStorageMedium"/>; the
+  /// dedicated overload preserves the historical fast-path for callers
+  /// that already know the location is local.
+  /// </summary>
   public SingletonJsonAdapter(string filePath)
-    : this(
-      filePath,
-      new JsonSerializerOptions
-      {
-        WriteIndented = true,
-        PropertyNamingPolicy = null,
-        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
-      }
-    ) { }
+    : this(filePath, DefaultOptions()) { }
 
+  /// <summary>
+  /// Construct an adapter directly over a filesystem path with explicit
+  /// JSON serialization options.
+  /// </summary>
   public SingletonJsonAdapter(string filePath, JsonSerializerOptions options)
   {
     if (string.IsNullOrWhiteSpace(filePath))
@@ -38,77 +52,173 @@ public sealed class SingletonJsonAdapter<T> : IStorageAdapter<T>
     }
     _filePath = filePath;
     _medium = new FileStorageMedium(filePath);
-    _options = options ?? throw new ArgumentNullException(nameof(options));
-    _options.Converters.Add(new SerializedLabelJsonConverterFactory());
+    _options = ConfigureConverters(options);
+  }
+
+  /// <summary>
+  /// Construct an adapter over an arbitrary <see cref="IStorageMedium"/>
+  /// — typically the result of resolving a non-filesystem URI through
+  /// an <see cref="IStorageMediumResolver"/>. The medium's
+  /// <see cref="IStorageMedium.ReadStream"/> /
+  /// <see cref="IStorageMedium.WriteStream"/> primitives are used for
+  /// I/O and inspection.
+  /// </summary>
+  public SingletonJsonAdapter(IStorageMedium medium)
+    : this(medium, DefaultOptions()) { }
+
+  /// <summary>
+  /// Construct an adapter over an arbitrary <see cref="IStorageMedium"/>
+  /// with explicit JSON serialization options.
+  /// </summary>
+  public SingletonJsonAdapter(IStorageMedium medium, JsonSerializerOptions options)
+  {
+    _medium = medium ?? throw new ArgumentNullException(nameof(medium));
+    // Capture file path for fast-path file-only operations only if this
+    // is in fact a FileStorageMedium — otherwise leave null and route
+    // everything through the medium's stream primitives.
+    _filePath = medium is FileStorageMedium fileMedium ? fileMedium.FilePath : null;
+    _options = ConfigureConverters(options);
+  }
+
+  private static JsonSerializerOptions DefaultOptions() =>
+    new()
+    {
+      WriteIndented = true,
+      PropertyNamingPolicy = null,
+      DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+    };
+
+  private static JsonSerializerOptions ConfigureConverters(JsonSerializerOptions options)
+  {
+    if (options is null) throw new ArgumentNullException(nameof(options));
+    options.Converters.Add(new SerializedLabelJsonConverterFactory());
     // [SerializedEnum]-decorated enum properties honor their declared
     // mapping (parallel to JsonFormatSerializer). Without this, enums
     // round-trip as ordinals/member names and the on-disk wire format
     // diverges from every other Flowthru format adapter.
-    _options.Converters.Add(new SerializedEnumJsonConverterFactory());
+    options.Converters.Add(new SerializedEnumJsonConverterFactory());
+    return options;
   }
 
   /// <inheritdoc/>
   public StorageTraits Traits => _medium.Traits;
 
   /// <inheritdoc/>
-  public FlowIO<T> Load() =>
-    FlowIO.LiftAsync(async ct =>
+  public FlowIO<T> Load()
+  {
+    // Fast path: when backed by a filesystem path, open the file
+    // directly for streaming deserialization. Avoids buffering the
+    // entire document in memory and preserves the historical
+    // FileStream-based behaviour byte-for-byte.
+    if (_filePath is not null)
     {
-      await using var stream = new FileStream(
-        _filePath,
-        FileMode.Open,
-        FileAccess.Read,
-        FileShare.Read,
-        bufferSize: 4096,
-        useAsync: true
-      );
-      var value = await JsonSerializer.DeserializeAsync<T>(stream, _options, ct).ConfigureAwait(false);
-      if (value is null)
+      var filePath = _filePath;
+      return FlowIO.LiftAsync(async ct =>
       {
-        throw new InvalidOperationException(
-          $"Deserialized null value from singleton JSON file at '{_filePath}'."
+        await using var stream = new FileStream(
+          filePath,
+          FileMode.Open,
+          FileAccess.Read,
+          FileShare.Read,
+          bufferSize: 4096,
+          useAsync: true
         );
-      }
-      return value;
-    });
+        var value = await JsonSerializer.DeserializeAsync<T>(stream, _options, ct).ConfigureAwait(false);
+        if (value is null)
+        {
+          throw new InvalidOperationException(
+            $"Deserialized null value from singleton JSON file at '{filePath}'."
+          );
+        }
+        return value;
+      });
+    }
+
+    // Generic path: read through the medium's stream primitives.
+    return from stream in _medium.ReadStream()
+      from value in FlowIO.LiftAsync(
+        async ct =>
+        {
+          try
+          {
+            var loaded = await JsonSerializer.DeserializeAsync<T>(stream, _options, ct).ConfigureAwait(false);
+            if (loaded is null)
+            {
+              throw new InvalidOperationException(
+                "Deserialized null value from singleton JSON medium."
+              );
+            }
+            return loaded;
+          }
+          finally
+          {
+            stream.Dispose();
+          }
+        },
+        source: $"SingletonJsonAdapter.Load[{typeof(T).Name}]"
+      )
+      select value;
+  }
 
   /// <inheritdoc/>
-  public FlowIO<FlowUnit> Save(T data) =>
-    FlowIO.LiftAsync(async ct =>
+  public FlowIO<FlowUnit> Save(T data)
+  {
+    // Fast path: when backed by a filesystem path, write to a temp
+    // file and atomically rename — same behaviour the original
+    // file-only adapter exposed.
+    if (_filePath is not null)
     {
-      var directory = Path.GetDirectoryName(_filePath);
-      if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
+      var filePath = _filePath;
+      return FlowIO.LiftAsync(async ct =>
       {
-        Directory.CreateDirectory(directory);
-      }
-      var tempPath = $"{_filePath}.tmp.{Guid.NewGuid():N}";
-      try
-      {
-        await using (
-          var fs = new FileStream(
-            tempPath,
-            FileMode.Create,
-            FileAccess.Write,
-            FileShare.None,
-            bufferSize: 4096,
-            useAsync: true
+        var directory = Path.GetDirectoryName(filePath);
+        if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
+        {
+          Directory.CreateDirectory(directory);
+        }
+        var tempPath = $"{filePath}.tmp.{Guid.NewGuid():N}";
+        try
+        {
+          await using (
+            var fs = new FileStream(
+              tempPath,
+              FileMode.Create,
+              FileAccess.Write,
+              FileShare.None,
+              bufferSize: 4096,
+              useAsync: true
+            )
           )
-        )
-        {
-          await JsonSerializer.SerializeAsync(fs, data, _options, ct).ConfigureAwait(false);
+          {
+            await JsonSerializer.SerializeAsync(fs, data, _options, ct).ConfigureAwait(false);
+          }
+          File.Move(tempPath, filePath, overwrite: true);
+          return FlowUnit.Default;
         }
-        File.Move(tempPath, _filePath, overwrite: true);
-        return FlowUnit.Default;
-      }
-      catch
+        catch
+        {
+          if (File.Exists(tempPath))
+          {
+            try { File.Delete(tempPath); } catch { /* cleanup best-effort */ }
+          }
+          throw;
+        }
+      });
+    }
+
+    // Generic path: serialize into a MemoryStream, then hand it off
+    // to the medium's WriteStream. The medium decides atomicity and
+    // transport semantics.
+    return from buffer in FlowIO.LiftAsync<Stream>(async ct =>
       {
-        if (File.Exists(tempPath))
-        {
-          try { File.Delete(tempPath); } catch { /* cleanup best-effort */ }
-        }
-        throw;
-      }
-    });
+        var stream = new MemoryStream();
+        await JsonSerializer.SerializeAsync(stream, data, _options, ct).ConfigureAwait(false);
+        stream.Position = 0;
+        return stream;
+      })
+      from result in _medium.WriteStream(buffer)
+      select result;
+  }
 
   /// <inheritdoc/>
   public FlowIO<bool> Exists() => _medium.Exists();
@@ -144,7 +254,9 @@ public sealed class SingletonJsonAdapter<T> : IStorageAdapter<T>
     FlowIO.LiftAsync<ValidationResult>(async ct =>
     {
       var label = typeof(T).Name;
-      if (!File.Exists(_filePath))
+
+      // Fast-path File.Exists check when local.
+      if (_filePath is not null && !File.Exists(_filePath))
       {
         return ValidationResult.Failure(
           catalogKey: label,
@@ -152,17 +264,63 @@ public sealed class SingletonJsonAdapter<T> : IStorageAdapter<T>
           message: $"Singleton JSON file not found at '{_filePath}'"
         );
       }
+
+      // For non-file mediums, use the medium's existence probe.
+      if (_filePath is null)
+      {
+        var existsResult = await _medium.Exists().Run(ct).ConfigureAwait(false);
+        if (existsResult is EffResult<bool>.Failure existsFailure)
+        {
+          return ValidationResult.Failure(
+            catalogKey: label,
+            errorType: ValidationErrorType.NotFound,
+            message: $"Failed to probe existence for singleton JSON '{label}'",
+            details: existsFailure.Error.Message
+          );
+        }
+        if (!((EffResult<bool>.Success)existsResult).Value)
+        {
+          return ValidationResult.Failure(
+            catalogKey: label,
+            errorType: ValidationErrorType.NotFound,
+            message: $"Singleton JSON medium reports no data for '{label}'"
+          );
+        }
+      }
+
+      // Read the document. File-backed paths use a FileStream directly
+      // (preserves the original fast-path); other mediums go through
+      // ReadStream().
+      Stream? stream = null;
       JsonDocument? document = null;
       try
       {
-        await using var stream = new FileStream(
-          _filePath,
-          FileMode.Open,
-          FileAccess.Read,
-          FileShare.Read,
-          bufferSize: 4096,
-          useAsync: true
-        );
+        if (_filePath is not null)
+        {
+          stream = new FileStream(
+            _filePath,
+            FileMode.Open,
+            FileAccess.Read,
+            FileShare.Read,
+            bufferSize: 4096,
+            useAsync: true
+          );
+        }
+        else
+        {
+          var streamResult = await _medium.ReadStream().Run(ct).ConfigureAwait(false);
+          if (streamResult is EffResult<Stream>.Failure streamFailure)
+          {
+            return ValidationResult.Failure(
+              catalogKey: label,
+              errorType: ValidationErrorType.NotFound,
+              message: $"Failed to open singleton JSON medium for '{label}'",
+              details: streamFailure.Error.Message
+            );
+          }
+          stream = ((EffResult<Stream>.Success)streamResult).Value;
+        }
+
         document = await JsonDocument.ParseAsync(stream, cancellationToken: ct).ConfigureAwait(false);
       }
       catch (Exception ex)
@@ -173,6 +331,10 @@ public sealed class SingletonJsonAdapter<T> : IStorageAdapter<T>
           message: $"Failed to parse singleton JSON for '{label}'",
           details: ex.Message
         );
+      }
+      finally
+      {
+        stream?.Dispose();
       }
 
       using (document)
@@ -229,7 +391,8 @@ public sealed class SingletonJsonAdapter<T> : IStorageAdapter<T>
     FlowIO.LiftAsync<ValidationResult>(async ct =>
     {
       var label = typeof(T).Name;
-      if (!File.Exists(_filePath))
+
+      if (_filePath is not null && !File.Exists(_filePath))
       {
         return ValidationResult.Failure(
           catalogKey: label,
@@ -237,16 +400,57 @@ public sealed class SingletonJsonAdapter<T> : IStorageAdapter<T>
           message: $"Singleton JSON file not found at '{_filePath}'"
         );
       }
+
+      if (_filePath is null)
+      {
+        var existsResult = await _medium.Exists().Run(ct).ConfigureAwait(false);
+        if (existsResult is EffResult<bool>.Failure existsFailure)
+        {
+          return ValidationResult.Failure(
+            catalogKey: label,
+            errorType: ValidationErrorType.NotFound,
+            message: $"Failed to probe existence for singleton JSON '{label}'",
+            details: existsFailure.Error.Message
+          );
+        }
+        if (!((EffResult<bool>.Success)existsResult).Value)
+        {
+          return ValidationResult.Failure(
+            catalogKey: label,
+            errorType: ValidationErrorType.NotFound,
+            message: $"Singleton JSON medium reports no data for '{label}'"
+          );
+        }
+      }
+
+      Stream? stream = null;
       try
       {
-        await using var stream = new FileStream(
-          _filePath,
-          FileMode.Open,
-          FileAccess.Read,
-          FileShare.Read,
-          bufferSize: 4096,
-          useAsync: true
-        );
+        if (_filePath is not null)
+        {
+          stream = new FileStream(
+            _filePath,
+            FileMode.Open,
+            FileAccess.Read,
+            FileShare.Read,
+            bufferSize: 4096,
+            useAsync: true
+          );
+        }
+        else
+        {
+          var streamResult = await _medium.ReadStream().Run(ct).ConfigureAwait(false);
+          if (streamResult is EffResult<Stream>.Failure streamFailure)
+          {
+            return ValidationResult.Failure(
+              catalogKey: label,
+              errorType: ValidationErrorType.NotFound,
+              message: $"Failed to open singleton JSON medium for '{label}'",
+              details: streamFailure.Error.Message
+            );
+          }
+          stream = ((EffResult<Stream>.Success)streamResult).Value;
+        }
         _ = await JsonSerializer.DeserializeAsync<T>(stream, _options, ct).ConfigureAwait(false);
         return ValidationResult.Success();
       }
@@ -258,6 +462,10 @@ public sealed class SingletonJsonAdapter<T> : IStorageAdapter<T>
           message: $"Failed to deserialize singleton JSON for '{label}'",
           details: ex.Message
         );
+      }
+      finally
+      {
+        stream?.Dispose();
       }
     });
 
