@@ -19,7 +19,8 @@ namespace Flowthru.Data.Storage;
 /// fails fast.
 /// </para>
 /// </remarks>
-public sealed class ComposedStorageAdapter<TContainer, TRow> : IStorageAdapter<TContainer>
+public sealed class ComposedStorageAdapter<TContainer, TRow>
+  : IStorageAdapter<TContainer>, ISupportsFingerprint
   where TRow : notnull
 {
   private readonly IStorageMedium _medium;
@@ -165,6 +166,27 @@ public sealed class ComposedStorageAdapter<TContainer, TRow> : IStorageAdapter<T
 
   /// <inheritdoc/>
   public FlowIO<ValidationResult> InspectTarget() => _medium.InspectTarget();
+
+  /// <inheritdoc/>
+  /// <remarks>
+  /// Delegates to the underlying <see cref="IStorageMedium"/> when it
+  /// implements <see cref="ISupportsFingerprint"/>. When the medium
+  /// does not (e.g. <see cref="MemoryStorageAdapter{T}"/>-style
+  /// composition or extension-supplied mediums without metadata
+  /// validators), the composed adapter surfaces a FlowIO failure so
+  /// the cache plan can record "fingerprint unknown" for the
+  /// dependent step. Pre-flight is not aborted; the step is
+  /// downgraded to a cache miss instead.
+  /// </remarks>
+  public FlowIO<string> Fingerprint() =>
+    _medium is ISupportsFingerprint fingerprintable
+      ? fingerprintable.Fingerprint()
+      : FlowIO.Fail<string>(new RuntimeError.External(
+          $"ComposedStorageAdapter.Fingerprint[{typeof(TRow).Name}]",
+          new InvalidOperationException(
+            $"Underlying storage medium '{_medium.GetType().Name}' does not implement "
+            + "ISupportsFingerprint; this composed adapter cannot produce a leaf fingerprint."
+          )));
 
   // ── Inspection core ────────────────────────────────────────────────────
 

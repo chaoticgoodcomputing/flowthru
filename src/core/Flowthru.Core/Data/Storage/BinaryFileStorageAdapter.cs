@@ -15,13 +15,15 @@ namespace Flowthru.Data.Storage;
 /// and the schema lives in the data itself.
 /// </para>
 /// </remarks>
-public sealed class BinaryFileStorageAdapter : IStorageAdapter<byte[]>
+public sealed class BinaryFileStorageAdapter : IStorageAdapter<byte[]>, ISupportsFingerprint
 {
   private readonly string _filePath;
+  private readonly FileStorageMedium _fingerprintProbe;
 
   public BinaryFileStorageAdapter(string filePath)
   {
     _filePath = filePath ?? throw new ArgumentNullException(nameof(filePath));
+    _fingerprintProbe = new FileStorageMedium(filePath);
   }
 
   /// <inheritdoc/>
@@ -107,4 +109,11 @@ public sealed class BinaryFileStorageAdapter : IStorageAdapter<byte[]>
   public FlowIO<ValidationResult> InspectTarget() =>
     FlowIO.LiftAsync(ct => LocalFileWriteProbe.ProbeAsync(_filePath, ct),
       source: $"BinaryFileStorageAdapter.InspectTarget[{_filePath}]");
+
+  /// <inheritdoc/>
+  /// <remarks>
+  /// File-backed adapter — fingerprint reuses the same mtime+size
+  /// derivation as <see cref="FileStorageMedium.Fingerprint"/>.
+  /// </remarks>
+  public FlowIO<string> Fingerprint() => _fingerprintProbe.Fingerprint();
 }

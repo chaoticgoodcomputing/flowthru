@@ -40,7 +40,7 @@ namespace Flowthru.Data.Storage.Http;
 /// sparing the network entirely.
 /// </para>
 /// </remarks>
-public sealed class CachedHttpStorageMedium : IStorageMedium
+public sealed class CachedHttpStorageMedium : IStorageMedium, ISupportsFingerprint
 {
   private readonly Uri _uri;
   private readonly HttpClient _httpClient;
@@ -170,6 +170,76 @@ public sealed class CachedHttpStorageMedium : IStorageMedium
       $"CachedHttpStorageMedium.WriteStream[{_uri}]",
       new InvalidOperationException(
         $"CachedHttpStorageMedium is read-only; cannot write to '{_uri}'.")));
+
+  /// <inheritdoc/>
+  /// <remarks>
+  /// <para>
+  /// Fingerprint derivation from cached HTTP validators. On a cache
+  /// hit with a non-stale meta entry, the existing ETag or
+  /// Last-Modified value is hashed directly. When no cached meta
+  /// exists (or it is missing validators), a conditional GET is
+  /// issued against the upstream URL to obtain a current validator
+  /// from the server.
+  /// </para>
+  /// <para>
+  /// <strong>Failure mode.</strong> If the upstream server returns
+  /// neither an <c>ETag</c> nor a <c>Last-Modified</c> header, the
+  /// fingerprint surfaces a FlowIO failure — the cache plan records
+  /// "fingerprint unknown" and downgrades the dependent step to a
+  /// cache miss. Documented in the HTTP extension's adapter docs.
+  /// </para>
+  /// </remarks>
+  public FlowIO<string> Fingerprint() =>
+    FlowIO.LiftAsync(
+      async ct =>
+      {
+        EnsureCacheDirectory();
+        var meta = await TryReadMetaAsync().ConfigureAwait(false);
+
+        // Cache-hit fast path: usable validator already in .meta.json.
+        if (meta is not null
+            && (!string.IsNullOrEmpty(meta.ETag) || !string.IsNullOrEmpty(meta.LastModified)))
+        {
+          return HashValidator(meta.ETag ?? string.Empty, meta.LastModified ?? string.Empty);
+        }
+
+        // Cold or invalidator-less meta — issue a conditional GET.
+        using var request = new HttpRequestMessage(HttpMethod.Get, _uri);
+        if (meta is not null)
+        {
+          if (meta.ETag is not null)
+            request.Headers.TryAddWithoutValidation("If-None-Match", meta.ETag);
+          else if (meta.LastModified is not null)
+            request.Headers.TryAddWithoutValidation("If-Modified-Since", meta.LastModified);
+        }
+
+        var response = await _httpClient
+          .SendAsync(request, HttpCompletionOption.ResponseHeadersRead, ct)
+          .ConfigureAwait(false);
+
+        var etag = response.Headers.ETag?.ToString();
+        var lastModified = response.Content.Headers.LastModified?.ToString("R");
+
+        if (string.IsNullOrEmpty(etag) && string.IsNullOrEmpty(lastModified))
+        {
+          throw new InvalidOperationException(
+            $"HTTP server at '{_uri}' returned neither an ETag nor a Last-Modified header. "
+            + "CachedHttpStorageMedium cannot derive a fingerprint without one of these "
+            + "validators; the dependent step will be treated as uncacheable."
+          );
+        }
+
+        return HashValidator(etag ?? string.Empty, lastModified ?? string.Empty);
+      },
+      source: $"CachedHttpStorageMedium.Fingerprint[{_uri}]"
+    );
+
+  private static string HashValidator(string etag, string lastModified)
+  {
+    var payload = $"{etag}|{lastModified}";
+    var bytes = SHA256.HashData(Encoding.UTF8.GetBytes(payload));
+    return Convert.ToHexString(bytes).ToLowerInvariant();
+  }
 
   // ── Cache helpers ──────────────────────────────────────────────────
 

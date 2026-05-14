@@ -1,3 +1,7 @@
+using System.Linq.Expressions;
+using System.Reflection;
+using System.Security.Cryptography;
+using System.Text;
 using Flowthru.Data.Storage.EFCore.Internal;
 using Flowthru.Prelude;
 using Flowthru.Validation.Runtime;
@@ -236,6 +240,92 @@ public sealed class EFCoreStorageAdapter<T>
         if (_ownsContext) await context.DisposeAsync().ConfigureAwait(false);
       }
     }, source: $"EFCoreStorageAdapter.GetCountAsync[{typeof(T).Name}]");
+
+  /// <summary>
+  /// Opt this adapter into cache-plan participation. The framework will
+  /// fingerprint the table by querying
+  /// <c>SELECT COUNT(*), MAX(<paramref name="column"/>) FROM &lt;table&gt;</c>
+  /// during pre-flight; the resulting digest changes whenever a row is
+  /// added/removed or the most-recent value of the chosen column
+  /// changes. The returned adapter implements
+  /// <see cref="ISupportsFingerprint"/>; adapters constructed without
+  /// this configurator remain uncacheable.
+  /// </summary>
+  /// <param name="column">
+  /// A property selector identifying a timestamp column on the entity
+  /// type (typically <c>e =&gt; e.UpdatedAt</c>). The selector must
+  /// be a simple member expression so the framework can reflect the
+  /// property name; nested expressions are rejected.
+  /// </param>
+  public EFCoreFingerprintingStorageAdapter<T> WithFingerprintColumn(
+    Expression<Func<T, DateTime>> column
+  )
+  {
+    if (column is null) throw new ArgumentNullException(nameof(column));
+    return new EFCoreFingerprintingStorageAdapter<T>(this, column);
+  }
+
+  /// <summary>
+  /// Opt-in for nullable timestamp columns. Behaves identically to the
+  /// non-nullable overload — null values are treated as "no row"
+  /// for <c>MAX</c> aggregation purposes by the database engine.
+  /// </summary>
+  public EFCoreFingerprintingStorageAdapter<T> WithFingerprintColumn(
+    Expression<Func<T, DateTime?>> column
+  )
+  {
+    if (column is null) throw new ArgumentNullException(nameof(column));
+    return new EFCoreFingerprintingStorageAdapter<T>(this, column);
+  }
+
+  internal FlowIO<string> ComputeFingerprint(string columnName) =>
+    FlowIO.LiftAsync(async ct =>
+    {
+      var context = GetContext();
+      try
+      {
+        // Two cheap aggregate queries — server-side; never materialises
+        // user data. COUNT distinguishes empty tables from tables where
+        // MAX(column) is null; MAX detects updates.
+        var dbSet = context.Set<T>();
+        var count = await dbSet.CountAsync(ct).ConfigureAwait(false);
+
+        // EF Core's MaxAsync requires a typed selector; build it from
+        // the reflected property to support both DateTime and DateTime?.
+        var entityParameter = Expression.Parameter(typeof(T), "e");
+        var property = typeof(T).GetProperty(
+          columnName,
+          BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase
+        );
+        if (property is null)
+        {
+          throw new InvalidOperationException(
+            $"Fingerprint column '{columnName}' not found on entity '{typeof(T).Name}'."
+          );
+        }
+        var memberAccess = Expression.Property(entityParameter, property);
+
+        // Run server-side MAX(...) on the chosen column; convert to a
+        // nullable DateTime so empty tables (MAX = null) flow through.
+        DateTime? maxValue = null;
+        if (count > 0)
+        {
+          // Cast to DateTime? regardless of column nullability so a
+          // single query path covers both DateTime and DateTime?.
+          var converted = Expression.Convert(memberAccess, typeof(DateTime?));
+          var selector = Expression.Lambda<Func<T, DateTime?>>(converted, entityParameter);
+          maxValue = await dbSet.MaxAsync(selector, ct).ConfigureAwait(false);
+        }
+
+        var payload = $"{count}:{(maxValue?.Ticks.ToString() ?? "null")}";
+        var bytes = SHA256.HashData(Encoding.UTF8.GetBytes(payload));
+        return Convert.ToHexString(bytes).ToLowerInvariant();
+      }
+      finally
+      {
+        if (_ownsContext) await context.DisposeAsync().ConfigureAwait(false);
+      }
+    }, source: $"EFCoreStorageAdapter.Fingerprint[{typeof(T).Name}]");
 
   /// <summary>
   /// Default save: <c>RemoveRange(existing) + AddRange(new)</c>. Reference

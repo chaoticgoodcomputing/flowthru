@@ -21,6 +21,20 @@ public partial record TestSingletonEntity
 }
 
 /// <summary>
+/// Entity with an <c>UpdatedAt</c> timestamp column — used by the
+/// <see cref="EFCoreFingerprintingStorageAdapter{T}"/> tests to
+/// exercise the cache-plan opt-in
+/// (<c>EFCoreStorageAdapter.WithFingerprintColumn(t =&gt; t.UpdatedAt)</c>).
+/// </summary>
+[FlowthruSchema]
+public partial record TimestampedEntity
+{
+  public required int Id { get; init; }
+  public required string Name { get; init; }
+  public required DateTime UpdatedAt { get; init; }
+}
+
+/// <summary>
 /// SQLite-backed test context. Two DbSets — one for the collection
 /// adapter, one for the single-entity adapter.
 /// </summary>
@@ -30,11 +44,13 @@ public sealed class TestDbContext : DbContext
 
   public DbSet<TestEntity> Items => Set<TestEntity>();
   public DbSet<TestSingletonEntity> Singleton => Set<TestSingletonEntity>();
+  public DbSet<TimestampedEntity> TimestampedItems => Set<TimestampedEntity>();
 
   protected override void OnModelCreating(ModelBuilder modelBuilder)
   {
     modelBuilder.Entity<TestEntity>().HasKey(e => e.Id);
     modelBuilder.Entity<TestSingletonEntity>().HasKey(e => e.Id);
+    modelBuilder.Entity<TimestampedEntity>().HasKey(e => e.Id);
   }
 }
 
