@@ -102,4 +102,18 @@ public interface IItem : INode
       new InvalidOperationException(
         "Item's storage adapter does not implement IHasEfficientCount. "
         + "Check IItem.HasEfficientCount before calling GetCountAsync.")));
+
+  /// <summary>
+  /// Returns a leaf fingerprint when this item's storage adapter (or
+  /// any storage medium it wraps) implements
+  /// <see cref="ISupportsFingerprint"/>; otherwise <c>null</c>. The
+  /// framework uses this during pre-flight cache planning — a
+  /// <c>null</c> return means "this item cannot participate in the
+  /// cache plan" and downstream steps consuming the item are treated
+  /// as uncacheable. Adapters return a <see cref="FlowIO{A}"/>
+  /// failure (rather than throwing) when fingerprint metadata is
+  /// transiently unavailable, so pre-flight can record
+  /// "fingerprint unknown" without aborting.
+  /// </summary>
+  FlowIO<string>? TryGetFingerprint() => null;
 }

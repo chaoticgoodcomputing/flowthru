@@ -2,6 +2,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using Flowthru.Data.Schema;
 using Flowthru.Data.Schema.Mapping;
+using Flowthru.Validation.Runtime;
 
 namespace Flowthru.Data.Storage;
 
@@ -24,7 +25,7 @@ namespace Flowthru.Data.Storage;
 /// work end-to-end.
 /// </para>
 /// </remarks>
-public sealed class SingletonJsonAdapter<T> : IStorageAdapter<T>
+public sealed class SingletonJsonAdapter<T> : IStorageAdapter<T>, ISupportsFingerprint
   where T : notnull, IStructuredSerializable
 {
   private readonly IStorageMedium _medium;
@@ -471,4 +472,22 @@ public sealed class SingletonJsonAdapter<T> : IStorageAdapter<T>
 
   /// <inheritdoc/>
   public FlowIO<ValidationResult> InspectTarget() => _medium.InspectTarget();
+
+  /// <inheritdoc/>
+  /// <remarks>
+  /// Delegates to the underlying <see cref="IStorageMedium"/> when
+  /// it implements <see cref="ISupportsFingerprint"/>; otherwise
+  /// surfaces a FlowIO failure that the cache plan interprets as
+  /// "fingerprint unknown" — the consuming step is treated as a
+  /// cache miss rather than aborting pre-flight.
+  /// </remarks>
+  public FlowIO<string> Fingerprint() =>
+    _medium is ISupportsFingerprint fingerprintable
+      ? fingerprintable.Fingerprint()
+      : FlowIO.Fail<string>(new RuntimeError.External(
+          $"SingletonJsonAdapter.Fingerprint[{typeof(T).Name}]",
+          new InvalidOperationException(
+            $"Underlying storage medium '{_medium.GetType().Name}' does not implement "
+            + "ISupportsFingerprint; this singleton JSON adapter cannot produce a leaf fingerprint."
+          )));
 }

@@ -1,3 +1,5 @@
+using System.Security.Cryptography;
+using System.Text;
 using SysIO = System.IO;
 
 namespace Flowthru.Data.Storage;
@@ -28,7 +30,8 @@ namespace Flowthru.Data.Storage;
 /// full file paths.
 /// </para>
 /// </remarks>
-public sealed class DirectoryStorageAdapter<T> : IStorageAdapter<DirectoryOf<T>>, IHasEfficientCount
+public sealed class DirectoryStorageAdapter<T>
+  : IStorageAdapter<DirectoryOf<T>>, IHasEfficientCount, ISupportsFingerprint
 {
   private readonly string _directoryPath;
   private readonly string _filePattern;
@@ -237,4 +240,45 @@ public sealed class DirectoryStorageAdapter<T> : IStorageAdapter<DirectoryOf<T>>
     SysIO.Directory
       .EnumerateFiles(_directoryPath, _filePattern)
       .OrderBy(p => p, StringComparer.Ordinal);
+
+  /// <inheritdoc/>
+  /// <remarks>
+  /// <para>
+  /// Composes per-file fingerprints (mtime+size) under a single
+  /// SHA-256 digest. The fingerprint changes when any file is added,
+  /// removed, renamed, or modified.
+  /// </para>
+  /// <para>
+  /// When the directory is missing, the fingerprint surfaces a
+  /// FlowIO failure so the cache plan records "fingerprint unknown"
+  /// for the dependent step. An empty directory still produces a
+  /// stable fingerprint (the empty-set hash).
+  /// </para>
+  /// </remarks>
+  public FlowIO<string> Fingerprint() =>
+    FlowIO.Lift(
+      () =>
+      {
+        if (!SysIO.Directory.Exists(_directoryPath))
+        {
+          throw new SysIO.DirectoryNotFoundException(
+            $"Cannot fingerprint directory '{_directoryPath}': directory does not exist."
+          );
+        }
+        var builder = new StringBuilder();
+        foreach (var path in EnumerateFiles())
+        {
+          var info = new SysIO.FileInfo(path);
+          builder.Append(SysIO.Path.GetFileName(path));
+          builder.Append(':');
+          builder.Append(info.LastWriteTimeUtc.Ticks);
+          builder.Append(':');
+          builder.Append(info.Length);
+          builder.Append('\n');
+        }
+        var bytes = SHA256.HashData(Encoding.UTF8.GetBytes(builder.ToString()));
+        return Convert.ToHexString(bytes).ToLowerInvariant();
+      },
+      source: $"DirectoryStorageAdapter.Fingerprint[{_directoryPath}]"
+    );
 }
