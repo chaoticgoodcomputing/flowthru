@@ -17,8 +17,9 @@ public static class CreateConfusionMatrixStep
     public int NumBins { get; init; } = 4;
   }
 
-  public static Func<IEnumerable<ModelPredictions>, GenericChart> Create(Options options) => data =>
+  public static Func<(IEnumerable<ModelPredictions>, Options), GenericChart> Create() => input =>
   {
+    var (data, options) = input;
     var predictions = data.ToList();
 
     if (!predictions.Any())

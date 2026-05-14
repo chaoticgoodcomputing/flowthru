@@ -1,19 +1,13 @@
 ### YamlMime:TableOfContent
-- name: Flowthru.FUnit
-  href: Flowthru.FUnit.md
+- name: Flowthru.Step.Testing
+  href: Flowthru.Step.Testing.md
   items:
   - name: Classes
-  - name: EffectTestAttribute
-    href: Flowthru.FUnit.EffectTestAttribute.md
   - name: FUnitContext
-    href: Flowthru.FUnit.FUnitContext.md
+    href: Flowthru.Step.Testing.FUnitContext.md
+  - name: FUnitStepTestAttribute
+    href: Flowthru.Step.Testing.FUnitStepTestAttribute.md
   - name: FUnitStubContainerAttribute
-    href: Flowthru.FUnit.FUnitStubContainerAttribute.md
-  - name: StepTestAttribute
-    href: Flowthru.FUnit.StepTestAttribute.md
-- name: Flowthru.FUnit.Samples
-  href: Flowthru.FUnit.Samples.md
-  items:
-  - name: Classes
+    href: Flowthru.Step.Testing.FUnitStubContainerAttribute.md
   - name: SampleBuilder
-    href: Flowthru.FUnit.Samples.SampleBuilder.md
+    href: Flowthru.Step.Testing.SampleBuilder.md

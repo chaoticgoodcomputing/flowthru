@@ -15,13 +15,8 @@ namespace SpaceflightsEFCore.Flows.Reporting;
 /// </summary>
 public static class ReportingFlow
 {
-  public static BuiltFlow Create(Catalog catalog, FlowConfig config)
+  public static BuiltFlow Create(Catalog catalog)
   {
-    var confusionMatrixOptions = config.ConfusionMatrixOptions;
-    var compareCapacity = ComparePassengerCapacityStep.Create();
-    var generateCapacityChart = GeneratePassengerCapacityChartStep.Create();
-    var createConfusionMatrix = CreateConfusionMatrixStep.Create();
-
     return FlowBuilder.CreateFlow("Reporting", pipeline =>
     {
       pipeline.AddStep<
@@ -29,22 +24,26 @@ public static class ReportingFlow
         IEnumerable<ShuttleCapacityReport>
       >(
         label: "ComparePassengerCapacity",
-        transform: compareCapacity,
+        transform: ComparePassengerCapacityStep.Create(),
         inputs: catalog.PreprocessedShuttles,
         outputs: catalog.ShuttleCapacityReport
       );
 
       pipeline.AddStep<IEnumerable<PreprocessedShuttleSchema>, GenericChart>(
         label: "GeneratePassengerCapacityChart",
-        transform: generateCapacityChart,
+        transform: GeneratePassengerCapacityChartStep.Create(),
         inputs: catalog.PreprocessedShuttles,
         outputs: catalog.ShuttlePassengerCapacityChart
       );
 
-      pipeline.AddStep<IEnumerable<ModelPredictions>, GenericChart>(
+      pipeline.AddStep<
+        IEnumerable<ModelPredictions>,
+        CreateConfusionMatrixStep.Options,
+        GenericChart
+      >(
         label: "GenerateConfusionMatrixChart",
-        transform: predictions => createConfusionMatrix((predictions, confusionMatrixOptions)),
-        inputs: catalog.ModelPredictions,
+        transform: CreateConfusionMatrixStep.Create(),
+        inputs: (catalog.ModelPredictions, catalog.ConfusionMatrixOptions),
         outputs: catalog.ConfusionMatrixChart
       );
     });

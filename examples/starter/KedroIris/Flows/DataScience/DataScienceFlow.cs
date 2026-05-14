@@ -13,25 +13,19 @@ namespace KedroIris.Flows.DataScience;
 /// </summary>
 public static class DataScienceFlow
 {
-  public static BuiltFlow Create(Catalog catalog, FlowConfig config)
+  public static BuiltFlow Create(Catalog catalog)
   {
-    var trainOptions = config.TrainOptions;
-    var trainTransform = TrainModelStep.Create();
-
     return FlowBuilder.CreateFlow("DataScience", pipeline =>
     {
       pipeline.AddStep<
         IEnumerable<FeatureVectorSchema>,
         IEnumerable<TargetLabelSchema>,
+        TrainModelStep.Options,
         ModelWeightsSchema
       >(
         label: "TrainModel",
-        transform: pair =>
-        {
-          var (trainX, trainY) = pair;
-          return trainTransform((trainX, trainY, trainOptions));
-        },
-        inputs: (catalog.TrainX, catalog.TrainY),
+        transform: TrainModelStep.Create(),
+        inputs: (catalog.TrainX, catalog.TrainY, catalog.TrainModelOptions),
         outputs: catalog.IrisModel
       );
 

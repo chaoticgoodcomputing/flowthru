@@ -156,6 +156,49 @@ public class FlowthruCliEndToEndTests
   }
 
   [Test]
+  public async Task ExcludeFlag_DropsExcludedFlowFromMergedRun()
+  {
+    // --exclude flows:beta over a two-flow registration should run
+    // alpha's step but skip beta's step at execution time. We use
+    // AddStep<int, int> so the framework's concrete Step type stamps
+    // FlowLabel automatically via OnAddedToFlow.
+    var consoleOut = new StringWriter();
+    Console.SetOut(consoleOut);
+    Console.SetError(new StringWriter());
+
+    var alphaSrc = ItemFactory.Singleton.Memory<int>("excl-alpha-src");
+    var alphaSink = ItemFactory.Singleton.Memory<int>("excl-alpha-sink");
+    var betaSrc = ItemFactory.Singleton.Memory<int>("excl-beta-src");
+    var betaSink = ItemFactory.Singleton.Memory<int>("excl-beta-sink");
+    await alphaSrc.Save(1).Run();
+    await betaSrc.Save(1).Run();
+
+    var exit = await FlowthruCli.RunStandaloneAsync(
+      new[] { "--exclude", "flows:beta" },
+      services => services.AddFlowthru(b =>
+      {
+        b.RegisterCatalog(_ => new TestCatalog());
+        b.RegisterFlow("alpha", () =>
+          FlowBuilder.CreateFlow("alpha", p =>
+            p.AddStep<int, int>("alpha-step", x => x + 1, alphaSrc, alphaSink)
+          )
+        );
+        b.RegisterFlow("beta", () =>
+          FlowBuilder.CreateFlow("beta", p =>
+            p.AddStep<int, int>("beta-step", x => x + 1, betaSrc, betaSink)
+          )
+        );
+      })
+    );
+    Assert.That(exit, Is.EqualTo(0));
+    var stdout = consoleOut.ToString();
+    Assert.That(stdout, Does.Contain("alpha-step"),
+      "alpha-step should run when only flow 'beta' is excluded.");
+    Assert.That(stdout, Does.Not.Contain("beta-step"),
+      "beta-step should not run — --exclude flows:beta drops it from the slice.");
+  }
+
+  [Test]
   public async Task DryRun_RunsWithoutWritingOutputs()
   {
     Console.SetOut(new StringWriter());

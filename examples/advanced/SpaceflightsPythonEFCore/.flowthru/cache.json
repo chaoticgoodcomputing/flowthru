@@ -1,0 +1,23 @@
+{
+  "SchemaVersion": 2,
+  "Steps": {
+    "PreprocessCompanies": {
+      "Value": "0E976CCEABB3BE94",
+      "RecordedAt": "2026-05-14T19:34:56.9474491+00:00"
+    },
+    "PreprocessShuttles": {
+      "Value": "F1CCE75DF42613E4",
+      "RecordedAt": "2026-05-14T19:34:56.9474491+00:00"
+    }
+  },
+  "Items": {
+    "Companies": {
+      "Value": "45ad4a42e039616381cc4f8dff28539aa38298de0bf28c6dd007142064e60e9f",
+      "RecordedAt": "2026-05-14T19:34:56.9474491+00:00"
+    },
+    "Shuttles": {
+      "Value": "521c25eeef14db6c0db749d63fe6e789529e4c1e3b256e94fc4d007dc5fb74ba",
+      "RecordedAt": "2026-05-14T19:34:56.9474491+00:00"
+    }
+  }
+}

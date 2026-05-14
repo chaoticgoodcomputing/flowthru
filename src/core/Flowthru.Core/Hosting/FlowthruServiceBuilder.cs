@@ -1,5 +1,9 @@
+using Flowthru.Caching;
+using Flowthru.Data.Catalog;
 using Flowthru.Flow;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Flowthru.Hosting;
 
@@ -36,12 +40,86 @@ public sealed class FlowthruServiceBuilder : IFlowthruBuilder
   /// <inheritdoc/>
   public IServiceCollection Services { get; }
 
+  /// <summary>
+  /// Register an <see cref="IConfiguration"/> as a DI singleton, making
+  /// it resolvable by catalog factories that consume it through
+  /// <see cref="Flowthru.Data.Catalog.Configuration.ConfigurationItem{T}"/>.
+  /// </summary>
+  /// <remarks>
+  /// <para>
+  /// Phase 5 of the smart-caching-and-slicing RFC re-introduces the
+  /// pre-0.17 config-as-catalog pattern. Inside a host setup:
+  /// </para>
+  /// <code>
+  /// services.AddFlowthru(b =&gt;
+  /// {
+  ///   b.UseConfiguration(hostContext.Configuration);
+  ///   b.RegisterCatalog(sp =&gt;
+  ///     new MyCatalog(sp.GetRequiredService&lt;IConfiguration&gt;()));
+  ///   b.RegisterFlow&lt;MyCatalog&gt;("main", c =&gt;
+  ///     FlowBuilder.CreateFlow("main", p =&gt; /* steps reading c.FlowConfig */));
+  /// });
+  /// </code>
+  /// <para>
+  /// <b>Reload semantics:</b> The captured <see cref="IConfiguration"/>
+  /// is held for the lifetime of the FlowthruService. v1 does not
+  /// participate in host-level reload events — if your config changes
+  /// between flow runs, the next pre-flight pass observes the new
+  /// values (and produces a distinct fingerprint, invalidating cache).
+  /// Within a single run, config is stable.
+  /// </para>
+  /// <para>
+  /// <b>Last-call-wins:</b> Multiple <see cref="UseConfiguration"/>
+  /// calls replace prior registrations (standard
+  /// <see cref="ServiceCollectionDescriptorExtensions.Replace"/>
+  /// semantics). Hosts that need to layer config sources should
+  /// compose them via <see cref="IConfigurationBuilder"/> before
+  /// calling.
+  /// </para>
+  /// </remarks>
+  /// <param name="configuration">The host-built configuration root.</param>
+  /// <exception cref="ArgumentNullException">
+  /// Thrown when <paramref name="configuration"/> is null.
+  /// </exception>
+  public IFlowthruBuilder UseConfiguration(IConfiguration configuration)
+  {
+    if (configuration is null) throw new ArgumentNullException(nameof(configuration));
+    Services.Replace(ServiceDescriptor.Singleton(configuration));
+    return this;
+  }
+
+  /// <inheritdoc/>
+  public IFlowthruBuilder UseCacheStorage(Func<IServiceProvider, IItem<CacheManifest>> factory)
+  {
+    if (factory is null) throw new ArgumentNullException(nameof(factory));
+    Services.Replace(ServiceDescriptor.Singleton<IItem<CacheManifest>>(factory));
+    return this;
+  }
+
   /// <inheritdoc/>
   public IFlowthruBuilder RegisterCatalog<TCatalog>(Func<IServiceProvider, TCatalog> factory)
     where TCatalog : class
   {
     if (factory is null) throw new ArgumentNullException(nameof(factory));
-    Services.AddSingleton(factory);
+    // Wrap the user-supplied factory so any catalog that derives from
+    // CatalogAbstract picks up the DI-resolved IStorageMediumResolver
+    // automatically — even if the user's constructor didn't thread one
+    // through. CreateItem<T> consumes this resolver to push the ambient
+    // slot during materialization (Phase 1 of the smart-caching RFC).
+    Services.AddSingleton(sp =>
+    {
+      var catalog = factory(sp);
+      if (catalog is Flowthru.Data.Catalog.CatalogAbstract abstractCatalog
+          && abstractCatalog.Resolver is null)
+      {
+        var resolver = sp.GetService<Flowthru.Data.Storage.IStorageMediumResolver>();
+        if (resolver is not null)
+        {
+          abstractCatalog.AttachResolver(resolver);
+        }
+      }
+      return catalog;
+    });
     _catalogTypes.Add(typeof(TCatalog));
     return this;
   }

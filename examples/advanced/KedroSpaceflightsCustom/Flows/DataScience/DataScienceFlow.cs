@@ -11,23 +11,21 @@ namespace KedroSpaceflightsCustom.Flows.DataScience;
 /// </summary>
 public static class DataScienceFlow
 {
-  public static BuiltFlow Create(Catalog catalog, FlowConfig config)
+  public static BuiltFlow Create(Catalog catalog)
   {
-    var modelParams = config.ModelParams;
-    var splitTransform = CreateTestTrainSplitStep.Create();
-
     return FlowBuilder.CreateFlow("DataScience", pipeline =>
     {
       pipeline.AddStep<
         IEnumerable<ModelInputSchema>,
+        CreateTestTrainSplitStep.TestTrainSplitParams,
         IEnumerable<FeatureRow>,
         IEnumerable<FeatureRow>,
         IEnumerable<TargetValue>,
         IEnumerable<TargetValue>
       >(
         label: "CreateTestTrainSplitDatasets",
-        transform: data => splitTransform((data, modelParams)),
-        inputs: catalog.ModelInputTable,
+        transform: CreateTestTrainSplitStep.Create(),
+        inputs: (catalog.ModelInputTable, catalog.ModelParams),
         outputs: (catalog.XTrain, catalog.XTest, catalog.YTrain, catalog.YTest)
       );
 

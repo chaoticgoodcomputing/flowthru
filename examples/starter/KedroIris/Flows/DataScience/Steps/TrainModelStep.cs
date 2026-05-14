@@ -23,15 +23,17 @@ public static class TrainModelStep
   }
 
   /// <summary>
-  /// Trains a multi-class logistic regression model using gradient descent.
-  /// Tuple-input shape so the flow can close over <see cref="Options"/> at
-  /// flow-construction time.
+  /// Canonical Func-returning Create — the transform receives the
+  /// training features, training labels, and the configuration-bound
+  /// <see cref="Options"/> as a tuple input. Phase 5/8: a change to
+  /// <c>Flowthru:Flows:DataScience:TrainModelOptions</c> in
+  /// <c>appsettings.json</c> invalidates this step's cached output.
   /// </summary>
   public static Func<
     (
-      IEnumerable<FeatureVectorSchema> TrainX,
-      IEnumerable<TargetLabelSchema> TrainY,
-      Options Options
+      IEnumerable<FeatureVectorSchema>,
+      IEnumerable<TargetLabelSchema>,
+      Options
     ),
     ModelWeightsSchema
   > Create() => input =>

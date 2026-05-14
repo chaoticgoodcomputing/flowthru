@@ -1,4 +1,5 @@
 using Flowthru.Data.Catalog;
+using Microsoft.Extensions.Configuration;
 using SpaceflightsHybridCatalog.Data._02_Intermediate.Schemas;
 using SpaceflightsHybridCatalog.Data._03_Primary.Schemas;
 using SpaceflightsHybridCatalog.Data._05_ModelInput.Schemas;
@@ -14,8 +15,8 @@ namespace SpaceflightsHybridCatalog.Data;
 /// </summary>
 public sealed class DevelopmentCatalog : Catalog
 {
-  public DevelopmentCatalog(string basePath)
-    : base(basePath) { }
+  public DevelopmentCatalog(string basePath, IConfiguration configuration)
+    : base(basePath, configuration) { }
 
   public override IItem<IEnumerable<PreprocessedCompanySchema>> PreprocessedCompanies =>
     CreateItem(() => Item.Of<IEnumerable<PreprocessedCompanySchema>>("PreprocessedCompanies")

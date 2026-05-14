@@ -1,3 +1,4 @@
+using Flowthru.Caching;
 using Flowthru.Flow;
 
 namespace Flowthru.Diagnostics;
@@ -67,6 +68,15 @@ public sealed record FlowMetadataContext
   /// user invoked the merged DAG without naming a flow.
   /// </summary>
   public string? RequestedFlowLabel { get; init; }
+
+  /// <summary>
+  /// The pre-flight-computed cache plan for this run, or null when
+  /// caching was disabled, no <c>UseCacheStorage</c> registration exists,
+  /// or the host opted out. Metadata providers (Mermaid heat-map,
+  /// run-summary) consume this to render which steps were short-
+  /// circuited as fresh vs. actually executed.
+  /// </summary>
+  public CachePlan? CachePlan { get; init; }
 
   /// <summary>
   /// Build an unsliced context — every step in <paramref name="flow"/>

@@ -1,3 +1,5 @@
+using Flowthru.Caching;
+using Flowthru.Data.Catalog;
 using Flowthru.Data.Storage;
 using Flowthru.Flow;
 using Microsoft.Extensions.DependencyInjection;
@@ -45,6 +47,17 @@ public static class ServiceCollectionExtensions
     // pattern.
     services.TryAddSingleton<IStorageMediumResolver>(sp =>
       new StorageMediumResolver(sp.GetServices<IStorageMediumProvider>())
+    );
+
+    // Default cache manifest storage — TryAdd preserves any prior
+    // UseCacheStorage(...) registration from the configure callback.
+    // Phase 6 of the smart-caching RFC: framework-managed item, not
+    // part of any user-visible DAG.
+    services.TryAddSingleton<IItem<CacheManifest>>(_ =>
+      Item.Of<CacheManifest>("flowthru.cache")
+        .Json()
+        .AtPath(".flowthru/cache.json")
+        .Build()
     );
 
     services.AddSingleton(builder);

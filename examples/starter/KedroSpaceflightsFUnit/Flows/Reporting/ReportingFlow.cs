@@ -13,11 +13,8 @@ namespace KedroSpaceflightsFUnit.Flows.Reporting;
 /// </summary>
 public static class ReportingFlow
 {
-  public static BuiltFlow Create(Catalog catalog, FlowConfig config)
+  public static BuiltFlow Create(Catalog catalog)
   {
-    var confusionOptions = config.ConfusionMatrixOptions;
-    var confusionTransform = CreateConfusionMatrixStep.Create();
-
     return FlowBuilder.CreateFlow("Reporting", pipeline =>
     {
       pipeline.AddStep<IEnumerable<PreprocessedShuttleSchema>, IEnumerable<ShuttleCapacityReport>>(
@@ -34,10 +31,14 @@ public static class ReportingFlow
         outputs: catalog.ShuttlePassengerCapacityChart
       );
 
-      pipeline.AddStep<IEnumerable<ModelPredictions>, GenericChart>(
+      pipeline.AddStep<
+        IEnumerable<ModelPredictions>,
+        CreateConfusionMatrixStep.Options,
+        GenericChart
+      >(
         label: "GenerateConfusionMatrixChart",
-        transform: predictions => confusionTransform((predictions, confusionOptions)),
-        inputs: catalog.ModelPredictions,
+        transform: CreateConfusionMatrixStep.Create(),
+        inputs: (catalog.ModelPredictions, catalog.ConfusionMatrixOptions),
         outputs: catalog.ConfusionMatrixChart
       );
     });

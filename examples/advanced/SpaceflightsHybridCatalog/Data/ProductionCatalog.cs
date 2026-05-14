@@ -1,5 +1,6 @@
 using Flowthru.Data.Catalog;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using SpaceflightsHybridCatalog.Data._02_Intermediate.Schemas;
 using SpaceflightsHybridCatalog.Data._03_Primary.Schemas;
 using SpaceflightsHybridCatalog.Data._05_ModelInput.Schemas;
@@ -23,8 +24,12 @@ public sealed class ProductionCatalog : Catalog
 {
   private readonly IDbContextFactory<SpaceflightsDbContext> _contextFactory;
 
-  public ProductionCatalog(string basePath, IDbContextFactory<SpaceflightsDbContext> contextFactory)
-    : base(basePath)
+  public ProductionCatalog(
+    string basePath,
+    IDbContextFactory<SpaceflightsDbContext> contextFactory,
+    IConfiguration configuration
+  )
+    : base(basePath, configuration)
   {
     _contextFactory = contextFactory;
   }

@@ -10,35 +10,32 @@ namespace SpaceflightsEFCore.Flows.DataScience;
 
 /// <summary>
 /// Data science pipeline: trains and evaluates a price-prediction model.
-/// Closes over <see cref="FlowConfig.ModelOptions"/> at flow-construction
-/// time per §2.6 — config values are catalog-resolved properties, not
-/// catalog items.
+/// Options come from the catalog as configuration-bound items, so a
+/// change to <c>Flowthru:Flows:DataScience:ModelOptions</c> in
+/// <c>appsettings.json</c> invalidates the affected downstream cache
+/// automatically (Phase 5/8 of the smart-caching RFC).
 /// </summary>
 public static class DataScienceFlow
 {
-  public static BuiltFlow Create(Catalog catalog, FlowConfig config)
+  public static BuiltFlow Create(Catalog catalog)
   {
-    var modelOptions = config.ModelOptions;
-    var splitTransform = SplitDataStep.Create();
-    var trainTransform = TrainModelStep.Create();
-    var evaluateTransform = EvaluateModelStep.Create();
-
     return FlowBuilder.CreateFlow("DataScience", pipeline =>
     {
       pipeline.AddStep<
         IEnumerable<ModelInputTableSchema>,
+        SplitDataStep.ModelOptions,
         IEnumerable<TrainingData>,
         IEnumerable<TestData>
       >(
         label: "SplitData",
-        transform: data => splitTransform((data, modelOptions)),
-        inputs: catalog.ModelInputTable,
+        transform: SplitDataStep.Create(),
+        inputs: (catalog.ModelInputTable, catalog.ModelOptions),
         outputs: (catalog.TrainSplit, catalog.TestSplit)
       );
 
       pipeline.AddStep<IEnumerable<TrainingData>, LinearRegressionModel>(
         label: "TrainModel",
-        transform: trainTransform,
+        transform: TrainModelStep.Create(),
         inputs: catalog.TrainSplit,
         outputs: catalog.Regressor
       );
@@ -50,7 +47,7 @@ public static class DataScienceFlow
         IEnumerable<ModelPredictions>
       >(
         label: "EvaluateModel",
-        transform: evaluateTransform,
+        transform: EvaluateModelStep.Create(),
         inputs: (catalog.Regressor, catalog.TestSplit),
         outputs: (catalog.ModelMetrics, catalog.ModelPredictions)
       );

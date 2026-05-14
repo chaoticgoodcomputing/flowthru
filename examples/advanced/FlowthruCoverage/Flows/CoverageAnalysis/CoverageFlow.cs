@@ -13,6 +13,12 @@ public static class CoverageAnalysisFlow
 {
   public static BuiltFlow Create(Catalog catalog)
   {
+    // Every step here is a [FlowthruStep]-attributed pure transform
+    // over CSV-backed inputs/outputs, so the framework caches them
+    // automatically: CodeVersion is auto-resolved by the FlowBuilder
+    // from the transform delegate's enclosing class (Phase 8), leaf
+    // fingerprints come from FileStorageMedium (Phase 3). A second
+    // invocation with unchanged Cobertura input reports is a no-op.
     return FlowBuilder.CreateFlow("Coverage", pipeline =>
     {
       pipeline.AddStep<DirectoryOf<CoberturaReport>, IEnumerable<LineCoverageRow>>(

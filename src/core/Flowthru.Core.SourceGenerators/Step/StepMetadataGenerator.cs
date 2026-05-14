@@ -1,7 +1,9 @@
 using System.Collections.Immutable;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
 
@@ -22,11 +24,38 @@ namespace Flowthru.Core.SourceGenerators.Step;
 /// stays universal; <c>StepTraits</c> is step-specific and lives on
 /// the companion.
 /// </para>
+/// <para>
+/// <strong>CodeVersion.</strong> The companion also exposes a build-time
+/// <c>CodeVersion</c> constant — a stable identity for the step's
+/// transform logic. It is computed as a SHA-256 prefix over the step
+/// class's syntactically normalized source text (trivia stripped via
+/// Roslyn's <c>NormalizeWhitespace</c>) so whitespace-only and
+/// comment-only edits do not invalidate the identity. <c>[FlowthruStep(CodeVersion = "v2")]</c> replaces the
+/// computed digest verbatim — the escape hatch for users that need
+/// stable cross-machine identities the trivia stripper can't guarantee.
+/// </para>
+/// <para>
+/// <strong>v1 scope.</strong> The hash covers the step class's own
+/// source text only. Cross-assembly type-symbol changes — e.g., a
+/// schema record renamed in another project — are not reflected.
+/// Downstream cache-plan logic must therefore also incorporate input
+/// item digests when deciding cache hits; the per-step
+/// <c>CodeVersion</c> is one dimension of that identity, not the whole.
+/// </para>
 /// </remarks>
 [Generator]
 public sealed class StepMetadataGenerator : IIncrementalGenerator
 {
   private const string AttributeFullName = "Flowthru.Step.FlowthruStepAttribute";
+
+  /// <summary>
+  /// Length in hex characters of the SHA-256 prefix emitted as the
+  /// computed <c>CodeVersion</c>. 16 hex chars = 64 bits of entropy —
+  /// collision probability for the working-set of a single repo
+  /// (thousands of steps at most) is vanishingly small while keeping
+  /// the constant short enough to be human-glanceable.
+  /// </summary>
+  private const int CodeVersionHexLength = 16;
 
   /// <inheritdoc/>
   public void Initialize(IncrementalGeneratorInitializationContext context)
@@ -46,6 +75,7 @@ public sealed class StepMetadataGenerator : IIncrementalGenerator
   private static StepInfo? ExtractStepInfo(GeneratorAttributeSyntaxContext ctx)
   {
     if (ctx.TargetSymbol is not INamedTypeSymbol typeSymbol) return null;
+    if (ctx.TargetNode is not ClassDeclarationSyntax classDecl) return null;
 
     var attribute = typeSymbol
       .GetAttributes()
@@ -55,6 +85,7 @@ public sealed class StepMetadataGenerator : IIncrementalGenerator
     string? label = null;
     var isIdempotent = false;
     var hasSideEffects = false;
+    string? codeVersionOverride = null;
     foreach (var named in attribute.NamedArguments)
     {
       switch (named.Key)
@@ -68,6 +99,9 @@ public sealed class StepMetadataGenerator : IIncrementalGenerator
         case "HasSideEffects":
           hasSideEffects = named.Value.Value is true;
           break;
+        case "CodeVersion":
+          codeVersionOverride = named.Value.Value as string;
+          break;
       }
     }
 
@@ -75,13 +109,59 @@ public sealed class StepMetadataGenerator : IIncrementalGenerator
       ? ""
       : typeSymbol.ContainingNamespace.ToDisplayString();
 
+    // Compute the source-text digest when no explicit override is
+    // supplied. The normalization walks the syntax tree and rewrites
+    // every node with trivia stripped, so whitespace and comments do
+    // not contribute to the hash.
+    var codeVersion = codeVersionOverride ?? ComputeCodeVersion(classDecl);
+
     return new StepInfo(
       Namespace: ns,
       ClassName: typeSymbol.Name,
       Label: label ?? typeSymbol.Name,
       IsIdempotent: isIdempotent,
-      HasSideEffects: hasSideEffects
+      HasSideEffects: hasSideEffects,
+      CodeVersion: codeVersion,
+      TypeArity: typeSymbol.IsGenericType ? typeSymbol.Arity : 0
     );
+  }
+
+  /// <summary>
+  /// Compute a stable, trivia-insensitive SHA-256 prefix over the
+  /// step class's source text. Two passes:
+  /// <list type="number">
+  ///   <item><c>NormalizeWhitespace</c> rewrites the tree with canonical
+  ///   single-space whitespace trivia;</item>
+  ///   <item>The rewriter strips every comment and remaining whitespace
+  ///   trivia node, leaving only token text.</item>
+  /// </list>
+  /// The resulting string is encoded as UTF-8 and hashed; the first
+  /// <see cref="CodeVersionHexLength"/> hex chars become the
+  /// <c>CodeVersion</c>.
+  /// </summary>
+  private static string ComputeCodeVersion(ClassDeclarationSyntax classDecl)
+  {
+    // Normalize whitespace first — collapses every formatting variant
+    // (tabs, multi-blank-lines, alignment spaces) into a single canonical
+    // shape. Comments survive normalization, so the trivia stripper
+    // handles them next.
+    var normalized = classDecl.NormalizeWhitespace(indentation: " ", eol: "\n");
+    var stripped = TriviaStripper.Instance.Visit(normalized) ?? normalized;
+    var canonicalText = stripped.ToFullString();
+
+    using var sha = SHA256.Create();
+    var bytes = Encoding.UTF8.GetBytes(canonicalText);
+    var hash = sha.ComputeHash(bytes);
+    var sb = new StringBuilder(CodeVersionHexLength);
+    for (var i = 0; sb.Length < CodeVersionHexLength && i < hash.Length; i++)
+    {
+      sb.Append(hash[i].ToString("x2"));
+    }
+    if (sb.Length > CodeVersionHexLength)
+    {
+      sb.Length = CodeVersionHexLength;
+    }
+    return sb.ToString();
   }
 
   private static void Emit(SourceProductionContext ctx, StepInfo info)
@@ -102,12 +182,35 @@ public sealed class StepMetadataGenerator : IIncrementalGenerator
     sb.AppendLine("{");
     sb.AppendLine($"  public const string ClassName = \"{Escape(info.ClassName)}\";");
     sb.AppendLine($"  public const string Label = \"{Escape(info.Label)}\";");
+    sb.AppendLine($"  public const string CodeVersion = \"{Escape(info.CodeVersion)}\";");
     sb.AppendLine();
     sb.AppendLine("  public static readonly global::Flowthru.Step.StepTraits Traits = new()");
     sb.AppendLine("  {");
     sb.AppendLine($"    IsIdempotent = {(info.IsIdempotent ? "true" : "false")},");
     sb.AppendLine($"    HasSideEffects = {(info.HasSideEffects ? "true" : "false")},");
     sb.AppendLine("  };");
+    sb.AppendLine("}");
+    sb.AppendLine();
+
+    // Module-initializer companion (Phase 8). Registers
+    // (typeof(StepClass) -> CodeVersion) into StepMetadataRegistry at
+    // module load time. The framework's FlowBuilder.AddStep resolves a
+    // transform delegate back to its enclosing step class and reads the
+    // registry directly — Flow developers never thread codeVersion by
+    // hand for source-defined steps.
+    // For generic step classes (e.g. PassthroughInputToOutputStep<T>),
+    // register the open generic typedef — the StepMetadataResolver
+    // canonicalizes to the open generic on lookup so every constructed
+    // instantiation resolves to the same recorded CodeVersion.
+    var typeofExpr = info.TypeArity == 0
+      ? info.ClassName
+      : info.ClassName + "<" + new string(',', info.TypeArity - 1) + ">";
+    sb.AppendLine($"/// <summary>Auto-registers <see cref=\"{info.ClassName}\"/> with StepMetadataRegistry at module load.</summary>");
+    sb.AppendLine($"internal static class {info.ClassName}_Registration");
+    sb.AppendLine("{");
+    sb.AppendLine("  [global::System.Runtime.CompilerServices.ModuleInitializer]");
+    sb.AppendLine("  internal static void Register() =>");
+    sb.AppendLine($"    global::Flowthru.Step.StepMetadataRegistry.Register(typeof({typeofExpr}), {info.ClassName}_Metadata.CodeVersion);");
     sb.AppendLine("}");
 
     var fileName = string.IsNullOrEmpty(info.Namespace)
@@ -118,6 +221,20 @@ public sealed class StepMetadataGenerator : IIncrementalGenerator
 
   private static string Escape(string value) =>
     value.Replace("\\", "\\\\").Replace("\"", "\\\"");
+
+  /// <summary>
+  /// <see cref="CSharpSyntaxRewriter"/> that drops every trivia node —
+  /// comments, whitespace, end-of-line markers. The
+  /// <see cref="ClassDeclarationSyntax"/> normalized upstream still
+  /// carries token-level trivia spacing; this rewriter removes it so
+  /// the hash sees only token text.
+  /// </summary>
+  private sealed class TriviaStripper : CSharpSyntaxRewriter
+  {
+    internal static readonly TriviaStripper Instance = new();
+
+    public override SyntaxTrivia VisitTrivia(SyntaxTrivia trivia) => default;
+  }
 }
 
 internal sealed record StepInfo(
@@ -125,5 +242,7 @@ internal sealed record StepInfo(
   string ClassName,
   string Label,
   bool IsIdempotent,
-  bool HasSideEffects
+  bool HasSideEffects,
+  string CodeVersion,
+  int TypeArity
 );

@@ -25,13 +25,15 @@ namespace Flowthru.Data.Storage;
 /// </list>
 /// </para>
 /// </remarks>
-public sealed class TextFileStorageAdapter : IStorageAdapter<string>
+public sealed class TextFileStorageAdapter : IStorageAdapter<string>, ISupportsFingerprint
 {
   private readonly string _filePath;
+  private readonly FileStorageMedium _fingerprintProbe;
 
   public TextFileStorageAdapter(string filePath)
   {
     _filePath = filePath ?? throw new ArgumentNullException(nameof(filePath));
+    _fingerprintProbe = new FileStorageMedium(filePath);
   }
 
   /// <inheritdoc/>
@@ -118,4 +120,11 @@ public sealed class TextFileStorageAdapter : IStorageAdapter<string>
   public FlowIO<ValidationResult> InspectTarget() =>
     FlowIO.LiftAsync(ct => LocalFileWriteProbe.ProbeAsync(_filePath, ct),
       source: $"TextFileStorageAdapter.InspectTarget[{_filePath}]");
+
+  /// <inheritdoc/>
+  /// <remarks>
+  /// File-backed adapter — fingerprint reuses the same mtime+size
+  /// derivation as <see cref="FileStorageMedium.Fingerprint"/>.
+  /// </remarks>
+  public FlowIO<string> Fingerprint() => _fingerprintProbe.Fingerprint();
 }

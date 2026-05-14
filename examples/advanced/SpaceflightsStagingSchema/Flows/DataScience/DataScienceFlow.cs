@@ -16,7 +16,7 @@ namespace SpaceflightsStagingSchema.Flows.DataScience;
 /// </summary>
 public static class DataScienceFlow
 {
-  public static BuiltFlow Create(ProductionCatalog production, FlowConfig config)
+  public static BuiltFlow Create(ProductionCatalog production)
   {
     return FlowBuilder.CreateFlow("DataScience", pipeline =>
     {
@@ -34,12 +34,13 @@ public static class DataScienceFlow
 
       pipeline.AddStep<
         IEnumerable<ModelInputTableSchema>,
+        Steps.SplitDataStep.ModelOptions,
         IEnumerable<TrainingData>,
         IEnumerable<TestData>
       >(
         label: "SplitData",
-        transform: Steps.SplitDataStep.Create(config.ModelOptions),
-        inputs: production.ModelInputTable,
+        transform: Steps.SplitDataStep.Create(),
+        inputs: (production.ModelInputTable, production.ModelOptions),
         outputs: (production.TrainSplit, production.TestSplit)
       );
 

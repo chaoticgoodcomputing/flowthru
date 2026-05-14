@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using Flowthru.Data.Catalog;
 using Flowthru.Prelude;
 using Flowthru.Step;
@@ -27,6 +28,17 @@ namespace Flowthru.Flow;
 /// input's <c>Load()</c> in order via repeated <c>Bind</c>, exactly the
 /// way the source-generated typed overloads sequence their fixed-arity
 /// inputs — only the loop is runtime instead of unrolled.
+/// </para>
+/// <para>
+/// <strong>Phase 8 codeVersion.</strong> Each visible overload below
+/// resolves <c>CodeVersion</c> automatically via
+/// <see cref="StepMetadataResolver"/> — Flow developers do not pass it
+/// by hand. A hidden, <see cref="EditorBrowsableAttribute"/>-decorated
+/// twin overload accepts an explicit <c>codeVersion</c> argument for
+/// power-user overrides (the same shape as the generated typed
+/// matrix). Power users discover the hidden overloads by passing
+/// <c>codeVersion:</c> as a named argument; overload resolution
+/// distinguishes them by the presence of that parameter.
 /// </para>
 /// </remarks>
 public sealed partial class FlowBuilder
@@ -63,7 +75,8 @@ public sealed partial class FlowBuilder
       label,
       input => FlowIO.Lift(() => transform(input), source: "step:" + label),
       inputs,
-      outputs
+      outputs,
+      StepMetadataResolver.ResolveFromDelegate(transform)
     );
   }
 
@@ -87,7 +100,8 @@ public sealed partial class FlowBuilder
       label,
       input => FlowIO.LiftAsync(_ => transform(input), source: "step:" + label),
       inputs,
-      outputs
+      outputs,
+      StepMetadataResolver.ResolveFromDelegate(transform)
     );
   }
 
@@ -110,7 +124,89 @@ public sealed partial class FlowBuilder
       label,
       input => FlowIO.LiftAsync(ct => transform(input, ct), source: "step:" + label),
       inputs,
-      outputs
+      outputs,
+      StepMetadataResolver.ResolveFromDelegate(transform)
+    );
+  }
+
+  // ── Advanced: explicit codeVersion overrides (hidden from IntelliSense) ─
+
+  /// <summary>
+  /// Advanced — synchronous reduce step with an explicit <c>codeVersion</c>
+  /// override. Hidden from IntelliSense; surface this only when forcing a
+  /// non-source-derived cache identity (e.g., breaking the cache on a
+  /// refactor the trivia stripper considers cosmetic, or pinning identity
+  /// across builds for a class whose Roslyn-emitted source the source
+  /// generator can't see).
+  /// </summary>
+  [EditorBrowsable(EditorBrowsableState.Never)]
+  public FlowBuilder AddStep<TIn, TOut>(
+    string label,
+    Func<IEnumerable<TIn>, TOut> transform,
+    IReadOnlyList<IItem<TIn>> inputs,
+    IItem<TOut> outputs,
+    string? codeVersion
+  )
+  {
+    if (label is null) throw new ArgumentNullException(nameof(label));
+    if (transform is null) throw new ArgumentNullException(nameof(transform));
+    if (inputs is null) throw new ArgumentNullException(nameof(inputs));
+    if (outputs is null) throw new ArgumentNullException(nameof(outputs));
+
+    return AddVariadicStep(
+      label,
+      input => FlowIO.Lift(() => transform(input), source: "step:" + label),
+      inputs,
+      outputs,
+      codeVersion
+    );
+  }
+
+  /// <inheritdoc cref="AddStep{TIn, TOut}(string, Func{IEnumerable{TIn}, TOut}, IReadOnlyList{IItem{TIn}}, IItem{TOut}, string?)"/>
+  [EditorBrowsable(EditorBrowsableState.Never)]
+  public FlowBuilder AddStep<TIn, TOut>(
+    string label,
+    Func<IEnumerable<TIn>, Task<TOut>> transform,
+    IReadOnlyList<IItem<TIn>> inputs,
+    IItem<TOut> outputs,
+    string? codeVersion
+  )
+  {
+    if (label is null) throw new ArgumentNullException(nameof(label));
+    if (transform is null) throw new ArgumentNullException(nameof(transform));
+    if (inputs is null) throw new ArgumentNullException(nameof(inputs));
+    if (outputs is null) throw new ArgumentNullException(nameof(outputs));
+
+    return AddVariadicStep(
+      label,
+      input => FlowIO.LiftAsync(_ => transform(input), source: "step:" + label),
+      inputs,
+      outputs,
+      codeVersion
+    );
+  }
+
+  /// <inheritdoc cref="AddStep{TIn, TOut}(string, Func{IEnumerable{TIn}, TOut}, IReadOnlyList{IItem{TIn}}, IItem{TOut}, string?)"/>
+  [EditorBrowsable(EditorBrowsableState.Never)]
+  public FlowBuilder AddStep<TIn, TOut>(
+    string label,
+    Func<IEnumerable<TIn>, CancellationToken, Task<TOut>> transform,
+    IReadOnlyList<IItem<TIn>> inputs,
+    IItem<TOut> outputs,
+    string? codeVersion
+  )
+  {
+    if (label is null) throw new ArgumentNullException(nameof(label));
+    if (transform is null) throw new ArgumentNullException(nameof(transform));
+    if (inputs is null) throw new ArgumentNullException(nameof(inputs));
+    if (outputs is null) throw new ArgumentNullException(nameof(outputs));
+
+    return AddVariadicStep(
+      label,
+      input => FlowIO.LiftAsync(ct => transform(input, ct), source: "step:" + label),
+      inputs,
+      outputs,
+      codeVersion
     );
   }
 
@@ -120,7 +216,8 @@ public sealed partial class FlowBuilder
     string label,
     Func<IEnumerable<TIn>, FlowIO<TOut>> transformIO,
     IReadOnlyList<IItem<TIn>> inputs,
-    IItem<TOut> outputs
+    IItem<TOut> outputs,
+    string? codeVersion = null
   )
   {
     // Snapshot the input list so closures don't see later mutations.
@@ -162,7 +259,8 @@ public sealed partial class FlowBuilder
       outputs: new IItem[] { outputs },
       loadInputs: loadInputs,
       saveOutputs: saveOutputs,
-      flowLabel: this.Label
+      flowLabel: this.Label,
+      codeVersion: codeVersion
     ));
   }
 }

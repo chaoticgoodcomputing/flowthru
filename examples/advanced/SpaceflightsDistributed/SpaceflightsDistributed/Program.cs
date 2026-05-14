@@ -46,11 +46,21 @@ public class Program
 
     services.AddFlowthru(flowthru =>
     {
+      // UseConfiguration registers the IConfiguration so each subproject's
+      // Catalog ConfigurationItem<T> bindings can resolve their sections.
+      // Option records are exposed on the catalogs as ordinary inputs —
+      // flow factories no longer take separate FlowConfig parameters
+      // (Phase 5/8 of the smart-caching RFC).
+      flowthru.UseConfiguration(configuration);
       flowthru.RegisterCatalog(_ => new DataProcessingCatalog(dataPath));
-      flowthru.RegisterCatalog(_ => new DataScienceCatalog(dataPath));
-      flowthru.RegisterCatalog(_ => new ReportingCatalog(dataPath));
-      flowthru.RegisterCatalog(sp => new DataScienceFlowConfig(sp.GetRequiredService<IConfiguration>()));
-      flowthru.RegisterCatalog(sp => new ReportingFlowConfig(sp.GetRequiredService<IConfiguration>()));
+      flowthru.RegisterCatalog(sp => new DataScienceCatalog(
+        dataPath,
+        sp.GetRequiredService<IConfiguration>()
+      ));
+      flowthru.RegisterCatalog(sp => new ReportingCatalog(
+        dataPath,
+        sp.GetRequiredService<IConfiguration>()
+      ));
 
       flowthru.ConfigureMetadata(meta =>
       {
@@ -64,12 +74,12 @@ public class Program
         .WithDescription("Preprocesses companies and shuttles data into a model input table");
 
       flowthru
-        .RegisterFlow<DataProcessingCatalog, DataScienceCatalog, DataScienceFlowConfig>(
+        .RegisterFlow<DataProcessingCatalog, DataScienceCatalog>(
           "DataScience", DataScienceFlow.Create)
         .WithDescription("Trains linear regression model for shuttle price prediction");
 
       flowthru
-        .RegisterFlow<DataProcessingCatalog, DataScienceCatalog, ReportingCatalog, ReportingFlowConfig>(
+        .RegisterFlow<DataProcessingCatalog, DataScienceCatalog, ReportingCatalog>(
           "Reporting", ReportingFlow.Create)
         .WithDescription("Generates passenger capacity reports and confusion matrix visualizations");
     });

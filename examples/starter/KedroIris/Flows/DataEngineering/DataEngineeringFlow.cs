@@ -12,15 +12,13 @@ namespace KedroIris.Flows.DataEngineering;
 /// </summary>
 public static class DataEngineeringFlow
 {
-  public static BuiltFlow Create(Catalog catalog, FlowConfig config)
+  public static BuiltFlow Create(Catalog catalog)
   {
-    var splitOptions = config.SplitOptions;
-    var splitTransform = SplitAndEncodeStep.Create();
-
     return FlowBuilder.CreateFlow("DataEngineering", pipeline =>
     {
       pipeline.AddStep<
         IEnumerable<IrisRawSchema>,
+        SplitAndEncodeStep.Options,
         IEnumerable<IrisFeatureSchema>,
         IEnumerable<FeatureVectorSchema>,
         IEnumerable<TargetLabelSchema>,
@@ -28,8 +26,8 @@ public static class DataEngineeringFlow
         IEnumerable<TargetLabelSchema>
       >(
         label: "SplitAndEncode",
-        transform: rawData => splitTransform((rawData, splitOptions)),
-        inputs: catalog.IrisRaw,
+        transform: SplitAndEncodeStep.Create(),
+        inputs: (catalog.IrisRaw, catalog.SplitOptions),
         outputs: (catalog.IrisFeatures, catalog.TrainX, catalog.TrainY, catalog.TestX, catalog.TestY)
       );
     });

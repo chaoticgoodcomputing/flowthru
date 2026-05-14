@@ -13,11 +13,8 @@ namespace KedroSpaceflightsCustom.Flows.DataEvaluation;
 /// </summary>
 public static class DataEvaluationFlow
 {
-  public static BuiltFlow Create(Catalog catalog, FlowConfig config)
+  public static BuiltFlow Create(Catalog catalog)
   {
-    var crossValidationParams = config.CrossValidationParams;
-    var crossValidateTransform = CrossValidateModelStep.Create();
-
     return FlowBuilder.CreateFlow("DataEvaluation", pipeline =>
     {
       pipeline.AddStep<
@@ -33,10 +30,14 @@ public static class DataEvaluationFlow
         outputs: (catalog.ModelMetrics, catalog.ModelPredictions)
       );
 
-      pipeline.AddStep<IEnumerable<ModelInputSchema>, CrossValidationResults>(
+      pipeline.AddStep<
+        IEnumerable<ModelInputSchema>,
+        CrossValidateModelStep.Params,
+        CrossValidationResults
+      >(
         label: "PerformCrossValidatedOLSRegressionTest",
-        transform: data => crossValidateTransform((data, crossValidationParams)),
-        inputs: catalog.ModelInputTable,
+        transform: CrossValidateModelStep.Create(),
+        inputs: (catalog.ModelInputTable, catalog.CrossValidationParams),
         outputs: catalog.CrossValidationResults
       );
     });

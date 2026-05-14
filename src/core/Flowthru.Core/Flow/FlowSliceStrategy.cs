@@ -90,6 +90,23 @@ public abstract record FlowSliceStrategy
   /// <summary>Set union — a step is included iff either child includes it.</summary>
   public sealed record Or(FlowSliceStrategy A, FlowSliceStrategy B) : FlowSliceStrategy;
 
+  /// <summary>
+  /// Set complement — a step is included iff
+  /// <see cref="Inner"/> does NOT include it. Composes with
+  /// <see cref="And"/> / <see cref="Or"/> to express set difference:
+  /// <c>And(To(X), Not(Flows(Y)))</c> reads as "slice upstream to X
+  /// excluding everything in flow Y".
+  /// </summary>
+  /// <remarks>
+  /// Edge cases:
+  /// <list type="bullet">
+  ///   <item><c>Not(All)</c> resolves to the empty slice — equivalent to <see cref="None"/>.</item>
+  ///   <item><c>Not(None)</c> resolves to every step — equivalent to <see cref="All"/>.</item>
+  ///   <item><c>Not(Not(X))</c> resolves to the same step set as <c>X</c> (double-complement law).</item>
+  /// </list>
+  /// </remarks>
+  public sealed record Not(FlowSliceStrategy Inner) : FlowSliceStrategy;
+
   // ── Convenience constructors (params-array shortcuts) ────────────────
 
   /// <summary>Build a <see cref="From"/> from a params-style label list.</summary>
@@ -114,6 +131,23 @@ public abstract record FlowSliceStrategy
   /// <summary>Build a <see cref="Flows"/> from a params-style flow-label list.</summary>
   public static FlowSliceStrategy InFlows(params string[] flowLabels) =>
     new Flows(flowLabels.ToHashSet(StringComparer.Ordinal));
+
+  /// <summary>
+  /// Convenience constructor for <see cref="Not"/>. Reads more
+  /// naturally at the call site than <c>new Not(...)</c>.
+  /// </summary>
+  public static FlowSliceStrategy Excluding(FlowSliceStrategy inner) => new Not(inner);
+
+  /// <summary>
+  /// Convenience constructor for set difference. Equivalent to
+  /// <c>new And(left, new Not(right))</c> — "every step
+  /// <paramref name="left"/> includes that <paramref name="right"/>
+  /// does not."
+  /// </summary>
+  public static FlowSliceStrategy Difference(
+    FlowSliceStrategy left,
+    FlowSliceStrategy right
+  ) => new And(left, new Not(right));
 
   // ── Resolution ───────────────────────────────────────────────────────
 
@@ -200,6 +234,19 @@ public abstract record FlowSliceStrategy
         var right = o.B.ApplyToSet(ctx);
         left.UnionWith(right);
         return left;
+      }
+
+      case Not n:
+      {
+        // Set complement: every step the inner strategy does NOT include.
+        // Resolves Not(All) → empty, Not(None) → every step, Not(Not(X)) ≡ X.
+        var innerKeep = n.Inner.ApplyToSet(ctx);
+        var complement = new HashSet<IStepNode>(
+          ctx.OrderedSteps,
+          ReferenceEqualityComparer.Instance
+        );
+        complement.ExceptWith(innerKeep);
+        return complement;
       }
 
       default:

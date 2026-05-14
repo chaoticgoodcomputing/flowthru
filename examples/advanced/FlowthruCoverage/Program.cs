@@ -1,4 +1,6 @@
+using Flowthru.Caching;
 using Flowthru.Cli;
+using Flowthru.Data.Catalog;
 using Flowthru.Diagnostics;
 using Flowthru.Diagnostics.Json;
 using Flowthru.Diagnostics.Mermaid;
@@ -61,7 +63,25 @@ public class Program
 
     services.AddFlowthru(flowthru =>
     {
-      flowthru.RegisterCatalog(_ => new Catalog(Path.Combine(basePath, "Data")));
+      // ConfigurationItem<T> bindings on the Catalog need IConfiguration;
+      // UseConfiguration registers it as the singleton the Catalog ctor
+      // consumes (Phase 5/8 of the smart-caching RFC).
+      flowthru.UseConfiguration(configuration);
+      flowthru.RegisterCatalog(sp => new Catalog(
+        Path.Combine(basePath, "Data"),
+        sp.GetRequiredService<IConfiguration>()));
+
+      // Persist the cache manifest under the project root so successive
+      // runs from any working directory share the same state. The
+      // file is gitignored alongside Data/ and Metadata/. C# steps
+      // attributed with [FlowthruStep] over CSV-backed catalog items
+      // automatically participate; Python steps and inline-Func steps
+      // remain uncacheable (see ReportingFlow comments for why).
+      flowthru.UseCacheStorage(_ =>
+        Item.Of<CacheManifest>("flowthru.cache")
+          .Json()
+          .AtPath(Path.Combine(basePath, ".flowthru", "cache.json"))
+          .Build());
 
       flowthru.ConfigureMetadata(meta =>
       {

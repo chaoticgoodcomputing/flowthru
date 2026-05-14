@@ -21,10 +21,19 @@ namespace Flowthru.Data.Storage;
 /// with no extra providers — used by format extensions when their
 /// caller passes <c>null</c> for the resolver argument.
 /// </para>
+/// <para>
+/// <strong>Ambient resolver slot.</strong> <see cref="Current"/> exposes
+/// the resolver currently in scope on this async-flow, set by
+/// <see cref="PushAmbient(IStorageMediumResolver)"/> at catalog
+/// materialization time. Catalog item builders consult this slot when
+/// no explicit <c>.WithResolver(...)</c> is supplied, so end-users do
+/// not need to thread a resolver through every catalog property.
+/// </para>
 /// </remarks>
 public sealed class StorageMediumResolver : IStorageMediumResolver
 {
   private static readonly FileStorageMediumProvider _fileProvider = new();
+  private static readonly System.Threading.AsyncLocal<IStorageMediumResolver?> _ambient = new();
 
   private readonly IReadOnlyList<IStorageMediumProvider> _providers;
 
@@ -42,6 +51,38 @@ public sealed class StorageMediumResolver : IStorageMediumResolver
   /// </summary>
   public static IStorageMediumResolver Filesystem { get; } =
     new StorageMediumResolver(Array.Empty<IStorageMediumProvider>());
+
+  /// <summary>
+  /// The <see cref="IStorageMediumResolver"/> currently in scope on the
+  /// active async-flow, or <c>null</c> if no ambient resolver has been
+  /// pushed. Catalog item builders read this value when no explicit
+  /// resolver is supplied to <c>.WithResolver(...)</c>.
+  /// </summary>
+  /// <remarks>
+  /// The slot is backed by <see cref="System.Threading.AsyncLocal{T}"/>,
+  /// so nested <see cref="PushAmbient(IStorageMediumResolver)"/> scopes
+  /// observe their immediate parent on dispose.
+  /// </remarks>
+  public static IStorageMediumResolver? Current => _ambient.Value;
+
+  /// <summary>
+  /// Push <paramref name="resolver"/> onto the ambient slot for the
+  /// active async-flow. Returns an <see cref="IDisposable"/> that
+  /// restores the previous value on dispose. Catalog implementations
+  /// wrap their factory invocations with this so format builders inside
+  /// the closure observe the resolver without ceremony.
+  /// </summary>
+  /// <param name="resolver">
+  /// The resolver to install. Passing <c>null</c> is supported and
+  /// effectively clears the slot for the scope (useful when a nested
+  /// catalog wants to "opt out" of an outer scope's resolver).
+  /// </param>
+  public static IDisposable PushAmbient(IStorageMediumResolver? resolver)
+  {
+    var previous = _ambient.Value;
+    _ambient.Value = resolver;
+    return new AmbientScope(previous);
+  }
 
   /// <inheritdoc/>
   public IStorageMedium Resolve(string pathOrUri)
@@ -76,5 +117,23 @@ public sealed class StorageMediumResolver : IStorageMediumResolver
     return uri is { IsFile: true }
       ? _fileProvider.Create(uri)
       : new FileStorageMedium(pathOrUri);
+  }
+
+  private sealed class AmbientScope : IDisposable
+  {
+    private readonly IStorageMediumResolver? _previous;
+    private bool _disposed;
+
+    public AmbientScope(IStorageMediumResolver? previous)
+    {
+      _previous = previous;
+    }
+
+    public void Dispose()
+    {
+      if (_disposed) return;
+      _disposed = true;
+      _ambient.Value = _previous;
+    }
   }
 }

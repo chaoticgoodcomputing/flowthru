@@ -72,9 +72,11 @@ public class Program
 
     services.AddFlowthru(flowthru =>
     {
+      flowthru.UseConfiguration(configuration);
       flowthru.RegisterCatalog(sp => new Catalog(
         basePath: Path.Combine(basePath, "Data"),
-        contextFactory: sp.GetRequiredService<IDbContextFactory<SpaceflightsDbContext>>()
+        contextFactory: sp.GetRequiredService<IDbContextFactory<SpaceflightsDbContext>>(),
+        configuration: sp.GetRequiredService<IConfiguration>()
       ));
 
       flowthru.ConfigureMetadata(meta =>

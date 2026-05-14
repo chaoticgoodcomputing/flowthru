@@ -13,7 +13,7 @@ namespace SpaceflightsEFCore.Flows.DataProcessing;
 /// </summary>
 public static class DataProcessingFlow
 {
-  public static BuiltFlow Create(Catalog catalog, FlowConfig config)
+  public static BuiltFlow Create(Catalog catalog)
   {
     var preprocessCompanies = PreprocessCompaniesStep.Create();
     var preprocessShuttles = PreprocessShuttlesStep.Create();

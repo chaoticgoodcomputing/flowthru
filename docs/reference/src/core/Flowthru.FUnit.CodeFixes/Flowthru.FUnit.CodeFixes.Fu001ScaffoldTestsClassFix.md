@@ -4,7 +4,11 @@ Namespace: [Flowthru.FUnit.CodeFixes](Flowthru.FUnit.CodeFixes.md)
 Assembly: Flowthru.FUnit.CodeFixes.dll  
 
 Code fix for FU001: scaffolds a stub <code>Tests : FUnitContext</code> class inside a
-<code>#if FUNIT_ENABLED</code> / <code>#endif</code> block at the end of the step class body.
+<code>#if FUNIT_ENABLED</code> / <code>#endif</code> block at the end of the step class body,
+and inserts a <code>using Flowthru.Step.Testing;</code> directive if missing. The
+scaffold contains a placeholder <code>[FUnitStepTest]</code>-decorated method so
+applying the fix actually clears the FU001 diagnostic — the analyzer requires at
+least one <code>[FUnitStepTest]</code> method, not just an empty <code>Tests</code> class.
 
 ```csharp
 [ExportCodeFixProvider("C#", new string[] { }, Name = "Fu001ScaffoldTestsClassFix")]

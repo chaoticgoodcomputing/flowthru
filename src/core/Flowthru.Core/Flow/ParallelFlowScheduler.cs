@@ -111,7 +111,28 @@ public sealed class ParallelFlowScheduler : IFlowScheduler
       )
       {
         var idx = readyQueue.Dequeue();
-        inFlight[ExecuteOneAsync(orderedSteps[idx], idx, options, cancellationToken)] = 0;
+        var step = orderedSteps[idx];
+
+        // Cache short-circuit: when pre-flight produced a plan that
+        // marks this step fresh, the scheduler skips dispatch and
+        // emits a synthetic Succeeded with Reason="cached" and zero
+        // duration. Treated by the dispatch bookkeeping as if it had
+        // run — dependents' pending-dep counts decrement off the
+        // synthetic result the same way a real success would.
+        if (options.CachePlan is { } plan && plan.IsFresh(step.Label))
+        {
+          resultsByIndex[idx] = new StepResult.Succeeded(step.Label, TimeSpan.Zero)
+          {
+            Reason = "cached",
+          };
+          foreach (var dependent in dependents[idx])
+          {
+            if (--pendingDeps[dependent] == 0) readyQueue.Enqueue(dependent);
+          }
+          continue;
+        }
+
+        inFlight[ExecuteOneAsync(step, idx, options, cancellationToken)] = 0;
       }
 
       if (inFlight.Count == 0) break;

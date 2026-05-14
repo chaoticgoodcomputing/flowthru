@@ -40,11 +40,15 @@ public static class CreateConfusionMatrixStep
   }
 
   /// <summary>
-  /// Canonical Func-returning Create — closes over <paramref name="options"/>
-  /// so the per-step transform stays a typed data-only mapping.
+  /// Canonical Func-returning Create — the transform receives the
+  /// model predictions and the configuration-bound <see cref="Options"/>
+  /// as a tuple input. Phase 5/8: a change to
+  /// <c>Flowthru:Flows:Reporting:ConfusionMatrixOptions</c> in
+  /// <c>appsettings.json</c> invalidates this step's cached output.
   /// </summary>
-  public static Func<IEnumerable<ModelPredictions>, GenericChart> Create(Options options) => data =>
+  public static Func<(IEnumerable<ModelPredictions>, Options), GenericChart> Create() => input =>
   {
+    var (data, options) = input;
     var predictions = data.ToList();
 
     if (!predictions.Any())

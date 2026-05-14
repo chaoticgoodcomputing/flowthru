@@ -5,55 +5,90 @@
   - name: Classes
   - name: PythonSchemaExportTask
     href: Flowthru.Extensions.Python.Build.PythonSchemaExportTask.md
-- name: Flowthru.Extensions.Python.Execution
-  href: Flowthru.Extensions.Python.Execution.md
-  items:
-  - name: Classes
-  - name: PythonNetExecutor
-    href: Flowthru.Extensions.Python.Execution.PythonNetExecutor.md
-  - name: SubprocessPythonExecutor
-    href: Flowthru.Extensions.Python.Execution.SubprocessPythonExecutor.md
-  - name: Interfaces
-  - name: IPythonExecutor
-    href: Flowthru.Extensions.Python.Execution.IPythonExecutor.md
-- name: Flowthru.Extensions.Python.Marshalling
-  href: Flowthru.Extensions.Python.Marshalling.md
-  items:
-  - name: Classes
-  - name: ArrowMarshaller
-    href: Flowthru.Extensions.Python.Marshalling.ArrowMarshaller.md
-  - name: ArrowSchemaMapper
-    href: Flowthru.Extensions.Python.Marshalling.ArrowSchemaMapper.md
-  - name: ScalarMarshaller
-    href: Flowthru.Extensions.Python.Marshalling.ScalarMarshaller.md
-- name: Flowthru.Extensions.Python.Runtime
-  href: Flowthru.Extensions.Python.Runtime.md
-  items:
-  - name: Classes
-  - name: PythonRuntime
-    href: Flowthru.Extensions.Python.Runtime.PythonRuntime.md
-  - name: PythonRuntimeOptions
-    href: Flowthru.Extensions.Python.Runtime.PythonRuntimeOptions.md
-  - name: Enums
-  - name: PythonExecutionMode
-    href: Flowthru.Extensions.Python.Runtime.PythonExecutionMode.md
-- name: Flowthru.Extensions.Python.Services
-  href: Flowthru.Extensions.Python.Services.md
-  items:
-  - name: Classes
-  - name: FlowthruServiceBuilderExtensions
-    href: Flowthru.Extensions.Python.Services.FlowthruServiceBuilderExtensions.md
-- name: Flowthru.Extensions.Python.Steps
-  href: Flowthru.Extensions.Python.Steps.md
+- name: Flowthru.Flow
+  href: Flowthru.Flow.md
   items:
   - name: Classes
   - name: PythonStepFactory
-    href: Flowthru.Extensions.Python.Steps.PythonStepFactory.md
-  - name: PythonStepWrapper<TInput, TOutput>
-    href: Flowthru.Extensions.Python.Steps.PythonStepWrapper-2.md
-- name: Flowthru.Extensions.Python.Validation
-  href: Flowthru.Extensions.Python.Validation.md
+    href: Flowthru.Flow.PythonStepFactory.md
+- name: Flowthru.Hosting
+  href: Flowthru.Hosting.md
   items:
   - name: Classes
-  - name: PythonStepValidator
-    href: Flowthru.Extensions.Python.Validation.PythonStepValidator.md
+  - name: PythonFlowthruBuilderExtensions
+    href: Flowthru.Hosting.PythonFlowthruBuilderExtensions.md
+- name: Flowthru.Step.Python
+  href: Flowthru.Step.Python.md
+  items:
+  - name: Classes
+  - name: ArrowDecimalAttribute
+    href: Flowthru.Step.Python.ArrowDecimalAttribute.md
+  - name: PythonCodeVersion
+    href: Flowthru.Step.Python.PythonCodeVersion.md
+  - name: PythonRuntimeOptions
+    href: Flowthru.Step.Python.PythonRuntimeOptions.md
+  - name: PythonServiceBuilder
+    href: Flowthru.Step.Python.PythonServiceBuilder.md
+  - name: PythonServiceRegistration
+    href: Flowthru.Step.Python.PythonServiceRegistration.md
+  - name: PythonStep<TIn, TOut>
+    href: Flowthru.Step.Python.PythonStep-2.md
+  - name: PythonStepMetadata
+    href: Flowthru.Step.Python.PythonStepMetadata.md
+  - name: Interfaces
+  - name: IPythonExecutor
+    href: Flowthru.Step.Python.IPythonExecutor.md
+  - name: IPythonServiceInspectorRegistry
+    href: Flowthru.Step.Python.IPythonServiceInspectorRegistry.md
+- name: Flowthru.Step.Python.Internal
+  href: Flowthru.Step.Python.Internal.md
+  items:
+  - name: Classes
+  - name: ArrowMarshaller
+    href: Flowthru.Step.Python.Internal.ArrowMarshaller.md
+  - name: ArrowSchemaMapper
+    href: Flowthru.Step.Python.Internal.ArrowSchemaMapper.md
+  - name: SubprocessPythonExecutor
+    href: Flowthru.Step.Python.Internal.SubprocessPythonExecutor.md
+  - name: Interfaces
+  - name: IPythonConfigurationFlattener
+    href: Flowthru.Step.Python.Internal.IPythonConfigurationFlattener.md
+- name: Flowthru.Validation.PreFlight.Python
+  href: Flowthru.Validation.PreFlight.Python.md
+  items:
+  - name: Classes
+  - name: PythonPreFlightError
+    href: Flowthru.Validation.PreFlight.Python.PythonPreFlightError.md
+  - name: PythonPreFlightError.ArityMismatch
+    href: Flowthru.Validation.PreFlight.Python.PythonPreFlightError.ArityMismatch.md
+  - name: PythonPreFlightError.SchemaCountMismatch
+    href: Flowthru.Validation.PreFlight.Python.PythonPreFlightError.SchemaCountMismatch.md
+  - name: PythonPreFlightError.SchemaNameMismatch
+    href: Flowthru.Validation.PreFlight.Python.PythonPreFlightError.SchemaNameMismatch.md
+  - name: PythonPreFlightError.ServiceInspectionFailed
+    href: Flowthru.Validation.PreFlight.Python.PythonPreFlightError.ServiceInspectionFailed.md
+  - name: PythonStepValidationHook
+    href: Flowthru.Validation.PreFlight.Python.PythonStepValidationHook.md
+  - name: Enums
+  - name: PythonSchemaSide
+    href: Flowthru.Validation.PreFlight.Python.PythonSchemaSide.md
+- name: Flowthru.Validation.Runtime.Python
+  href: Flowthru.Validation.Runtime.Python.md
+  items:
+  - name: Classes
+  - name: PythonRuntimeError
+    href: Flowthru.Validation.Runtime.Python.PythonRuntimeError.md
+  - name: PythonRuntimeError.DecoratorAbsent
+    href: Flowthru.Validation.Runtime.Python.PythonRuntimeError.DecoratorAbsent.md
+  - name: PythonRuntimeError.FunctionMissing
+    href: Flowthru.Validation.Runtime.Python.PythonRuntimeError.FunctionMissing.md
+  - name: PythonRuntimeError.MarshallingFailed
+    href: Flowthru.Validation.Runtime.Python.PythonRuntimeError.MarshallingFailed.md
+  - name: PythonRuntimeError.ModuleNotFound
+    href: Flowthru.Validation.Runtime.Python.PythonRuntimeError.ModuleNotFound.md
+  - name: PythonRuntimeError.WorkerCrashed
+    href: Flowthru.Validation.Runtime.Python.PythonRuntimeError.WorkerCrashed.md
+  - name: PythonRuntimeError.WorkerError
+    href: Flowthru.Validation.Runtime.Python.PythonRuntimeError.WorkerError.md
+  - name: PythonServiceRef
+    href: Flowthru.Validation.Runtime.Python.PythonServiceRef.md

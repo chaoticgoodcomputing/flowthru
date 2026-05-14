@@ -102,11 +102,17 @@ public class Program
 
     services.AddFlowthru(flowthru =>
     {
+      // UseConfiguration registers the IConfiguration so the Catalog's
+      // ConfigurationItem<T> bindings can resolve their sections. Option
+      // records are exposed on the catalog as ordinary inputs — flow
+      // factories no longer take a second FlowConfig parameter
+      // (Phase 5/8 of the smart-caching RFC).
+      flowthru.UseConfiguration(configuration);
       flowthru.RegisterCatalog(sp => new Catalog(
         basePath: System.IO.Path.Combine(basePath, "Data"),
-        client: sp.GetRequiredService<ISpaceflightsClient>()
+        client: sp.GetRequiredService<ISpaceflightsClient>(),
+        configuration: sp.GetRequiredService<IConfiguration>()
       ));
-      flowthru.RegisterCatalog(sp => new FlowConfig(sp.GetRequiredService<IConfiguration>()));
 
       // Pre-flight inspector for the StrawberryShake client. The probe here is a
       // lightweight no-op success since the in-process GQL server is fully under
@@ -135,11 +141,11 @@ public class Program
         .WithDescription("Preprocesses companies and shuttles data");
 
       flowthru
-        .RegisterFlow<Catalog, FlowConfig>("DataScience", DataScienceFlow.Create)
+        .RegisterFlow<Catalog>("DataScience", DataScienceFlow.Create)
         .WithDescription("Trains linear regression model for price prediction");
 
       flowthru
-        .RegisterFlow<Catalog, FlowConfig>("Reporting", ReportingFlow.Create)
+        .RegisterFlow<Catalog>("Reporting", ReportingFlow.Create)
         .WithDescription("Generates passenger capacity reports and visualizations");
     });
 

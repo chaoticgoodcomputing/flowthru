@@ -14,7 +14,7 @@ namespace SpaceflightsStagingSchema.Flows.Reporting;
 /// </summary>
 public static class ReportingFlow
 {
-  public static BuiltFlow Create(ProductionCatalog production, FlowConfig config)
+  public static BuiltFlow Create(ProductionCatalog production)
   {
     return FlowBuilder.CreateFlow("Reporting", pipeline =>
     {
@@ -32,10 +32,14 @@ public static class ReportingFlow
         outputs: production.ShuttlePassengerCapacityChart
       );
 
-      pipeline.AddStep<IEnumerable<ModelPredictions>, GenericChart>(
+      pipeline.AddStep<
+        IEnumerable<ModelPredictions>,
+        CreateConfusionMatrixStep.Options,
+        GenericChart
+      >(
         label: "GenerateConfusionMatrixChart",
-        transform: CreateConfusionMatrixStep.Create(config.ConfusionMatrixOptions),
-        inputs: production.ModelPredictions,
+        transform: CreateConfusionMatrixStep.Create(),
+        inputs: (production.ModelPredictions, production.ConfusionMatrixOptions),
         outputs: production.ConfusionMatrixChart
       );
     });

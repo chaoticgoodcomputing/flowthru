@@ -13,14 +13,9 @@ Code fix for FT1002: removes the conflicting manually-applied marker interface(s
 from a <code>[FlowthruSchema]</code> type's base list.
 The generator will re-apply the correct interfaces automatically.
 
- [Ft2002RemoveUnusedCatalogFix](Flowthru.Core.CodeFixes.Ft2002RemoveUnusedCatalogFix.md)
+ [Ft1101AddFlowthruStepAttributeFix](Flowthru.Core.CodeFixes.Ft1101AddFlowthruStepAttributeFix.md)
 
-Code fix for FT2002: removes the <code>RegisterCatalog</code> call that is registered
-but never referenced by any flow.
-
- [Ft4001AddFlowthruStepAttributeFix](Flowthru.Core.CodeFixes.Ft4001AddFlowthruStepAttributeFix.md)
-
-Code fix for FT4001: adds <code>[FlowthruStep]</code> to the step factory class referenced
+Code fix for FT1101: adds <code>[FlowthruStep]</code> to the step factory class referenced
 from a <code>FlowBuilder.AddStep(transform: …)</code> call. The fix may modify a different
 document than the diagnostic site, since the step class is typically authored in its
 own file.

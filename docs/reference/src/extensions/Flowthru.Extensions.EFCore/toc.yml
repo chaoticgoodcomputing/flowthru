@@ -1,33 +1,41 @@
 ### YamlMime:TableOfContent
-- name: Flowthru.Core.Data.Storage
-  href: Flowthru.Core.Data.Storage.md
+- name: Flowthru.Data.Catalog
+  href: Flowthru.Data.Catalog.md
   items:
   - name: Classes
-  - name: DbQueryStorageAdapter<T>
-    href: Flowthru.Core.Data.Storage.DbQueryStorageAdapter-1.md
-  - name: EFCoreSingleStorageAdapter<T>
-    href: Flowthru.Core.Data.Storage.EFCoreSingleStorageAdapter-1.md
-  - name: EFCoreStorageAdapter<T>
-    href: Flowthru.Core.Data.Storage.EFCoreStorageAdapter-1.md
-- name: Flowthru.Extensions.EFCore.Data
-  href: Flowthru.Extensions.EFCore.Data.md
+  - name: EFCoreEntityBuilder<T, TContext>
+    href: Flowthru.Data.Catalog.EFCoreEntityBuilder-2.md
+  - name: EFCoreExtensions
+    href: Flowthru.Data.Catalog.EFCoreExtensions.md
+  - name: EFCoreItemFactoryExtensions
+    href: Flowthru.Data.Catalog.EFCoreItemFactoryExtensions.md
+  - name: EFCoreQueryBuilder<TRow, TContext>
+    href: Flowthru.Data.Catalog.EFCoreQueryBuilder-2.md
+  - name: EFCoreTableBuilder<TRow, TContext>
+    href: Flowthru.Data.Catalog.EFCoreTableBuilder-2.md
+- name: Flowthru.Data.Storage.EFCore
+  href: Flowthru.Data.Storage.EFCore.md
   items:
   - name: Classes
   - name: DbQuery<T>
-    href: Flowthru.Extensions.EFCore.Data.DbQuery-1.md
+    href: Flowthru.Data.Storage.EFCore.DbQuery-1.md
   - name: DbScope
-    href: Flowthru.Extensions.EFCore.Data.DbScope.md
-  - name: EFCoreItemFactory
-    href: Flowthru.Extensions.EFCore.Data.EFCoreItemFactory.md
-  - name: EFCoreItemFactory.Enumerable
-    href: Flowthru.Extensions.EFCore.Data.EFCoreItemFactory.Enumerable.md
-  - name: EFCoreItemFactory.Query
-    href: Flowthru.Extensions.EFCore.Data.EFCoreItemFactory.Query.md
-  - name: EFCoreItemFactory.Single
-    href: Flowthru.Extensions.EFCore.Data.EFCoreItemFactory.Single.md
-- name: Flowthru.Extensions.EFCore.Tests
-  href: Flowthru.Extensions.EFCore.Tests.md
+    href: Flowthru.Data.Storage.EFCore.DbScope.md
+  - name: EFCoreLifecycleExtensions
+    href: Flowthru.Data.Storage.EFCore.EFCoreLifecycleExtensions.md
+  - name: EFCoreQueryStorageAdapter<T>
+    href: Flowthru.Data.Storage.EFCore.EFCoreQueryStorageAdapter-1.md
+  - name: EFCoreSingleStorageAdapter<T>
+    href: Flowthru.Data.Storage.EFCore.EFCoreSingleStorageAdapter-1.md
+  - name: EFCoreStorageAdapter<T>
+    href: Flowthru.Data.Storage.EFCore.EFCoreStorageAdapter-1.md
+  - name: EphemeralDatabaseOptions
+    href: Flowthru.Data.Storage.EFCore.EphemeralDatabaseOptions.md
+  - name: EphemeralSchemaOptions
+    href: Flowthru.Data.Storage.EFCore.EphemeralSchemaOptions.md
+- name: Flowthru.Hosting
+  href: Flowthru.Hosting.md
   items:
   - name: Classes
-  - name: CompilationTest
-    href: Flowthru.Extensions.EFCore.Tests.CompilationTest.md
+  - name: EFCoreFlowthruBuilderExtensions
+    href: Flowthru.Hosting.EFCoreFlowthruBuilderExtensions.md

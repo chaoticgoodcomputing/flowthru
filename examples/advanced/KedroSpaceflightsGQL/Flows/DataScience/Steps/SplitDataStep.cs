@@ -32,15 +32,20 @@ public static class SplitDataStep
   }
 
   /// <summary>
-  /// Canonical Func-returning Create — closes over <paramref name="options"/>
-  /// at flow-construction time so the per-step transform stays a typed
-  /// data-only mapping.
+  /// Canonical Func-returning Create — the transform receives the
+  /// model input rows and the configuration-bound <see cref="ModelOptions"/>
+  /// as a tuple input. Options come from the catalog like any other
+  /// fingerprintable input (Phase 5/8 of the smart-caching RFC); a
+  /// change to <c>Flowthru:Flows:DataScience:ModelOptions</c> in
+  /// <c>appsettings.json</c> invalidates this step's cached output
+  /// automatically.
   /// </summary>
   public static Func<
-    IEnumerable<ModelInputTableSchema>,
+    (IEnumerable<ModelInputTableSchema>, ModelOptions),
     (IEnumerable<TrainingData>, IEnumerable<TestData>)
-  > Create(ModelOptions options) => rawData =>
+  > Create() => input =>
   {
+    var (rawData, options) = input;
     var data = rawData.ToList();
 
     // Use random state for reproducibility

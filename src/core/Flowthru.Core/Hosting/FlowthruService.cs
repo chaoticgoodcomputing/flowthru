@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using Flowthru.Caching;
 using Flowthru.Data.Catalog;
 using Flowthru.Data.Storage;
 using Flowthru.Diagnostics;
@@ -443,6 +444,29 @@ public sealed class FlowthruService : IFlowthruService
           .ToList();
         return new FlowResult(preFlightFailures);
       }
+
+      // Pre-flight passed — build the cache plan from the
+      // framework-managed manifest. Plan is consumed by the scheduler
+      // (short-circuits fresh steps) and exposed on the metadata
+      // context (rendered by Mermaid/JSON providers). Skipped under
+      // DryRun (a dry run shouldn't pretend to know what's cached) or
+      // BypassCacheReads (--no-cache: skip the read but still write
+      // updates post-run so the next run benefits).
+      if (options.DryRun != DryRunOption.On && !options.BypassCacheReads)
+      {
+        var cacheItem = _services.GetService<IItem<CacheManifest>>();
+        if (cacheItem is not null)
+        {
+          var manifest = await CacheManifestStore
+            .LoadAsync(cacheItem, cancellationToken)
+            .ConfigureAwait(false);
+          var cachePlan = await CachePlanBuilder
+            .BuildAsync(effectiveFlow, manifest, cancellationToken)
+            .ConfigureAwait(false);
+          options = options with { CachePlan = cachePlan };
+          metadataContext = metadataContext with { CachePlan = cachePlan };
+        }
+      }
     }
 
     // Pre-run metadata.
@@ -465,6 +489,80 @@ public sealed class FlowthruService : IFlowthruService
     var flowResult = await scheduler
       .ExecuteAsync(effectiveFlow, options, cancellationToken)
       .ConfigureAwait(false);
+
+    // Cache manifest upsert — for every successfully-run step (real
+    // or cached short-circuit), record its composite fingerprint with
+    // the current timestamp. Fresh steps re-stamp their existing
+    // entries; stale-that-ran steps record newly-computed composites
+    // derived from their post-run input fingerprints. Failed and
+    // skipped steps contribute nothing.
+    //
+    // This path is independent of options.CachePlan — under --no-cache
+    // the plan is null but the upsert still runs, so a "force re-run"
+    // populates the manifest for next time.
+    if (options.DryRun != DryRunOption.On)
+    {
+      var cacheItem = _services.GetService<IItem<CacheManifest>>();
+      if (cacheItem is not null)
+      {
+        var ranSuccessfully = new HashSet<string>(
+          flowResult.StepResults
+            .OfType<StepResult.Succeeded>()
+            .Where(s => s.Reason != "cached")
+            .Select(s => s.StepLabel),
+          StringComparer.Ordinal
+        );
+
+        var postRunFingerprints = await CacheManifestStore
+          .ComputePostRunFingerprintsAsync(effectiveFlow, ranSuccessfully, cancellationToken)
+          .ConfigureAwait(false);
+
+        // Build the combined Steps + Items maps. Phase 8: items get their
+        // own manifest entries alongside steps, so the persisted state
+        // mirrors the per-DAG-node fingerprinting design.
+        var stepUpserts = new Dictionary<string, string>(StringComparer.Ordinal);
+        var itemUpserts = new Dictionary<string, string>(postRunFingerprints.Items, StringComparer.Ordinal);
+
+        // Fresh steps (when a plan exists): refresh RecordedAt with the
+        // same composite, plus persist the pre-flight-probed item
+        // fingerprints (external inputs + freshly-confirmed outputs of
+        // cached steps). Under --no-cache the plan is null and only the
+        // post-run-computed entries land.
+        if (options.CachePlan is { } finalPlan)
+        {
+          foreach (var label in finalPlan.FreshStepLabels)
+          {
+            if (finalPlan.NewStepFingerprints.TryGetValue(label, out var composite))
+            {
+              stepUpserts[label] = composite;
+            }
+          }
+          foreach (var (label, fp) in finalPlan.NewItemFingerprints)
+          {
+            // Pre-flight's Items map seeds the upsert; the post-run map
+            // overlays any updates from steps that actually ran.
+            if (!itemUpserts.ContainsKey(label)) itemUpserts[label] = fp;
+          }
+        }
+        // Stale-that-ran: record newly-derived composites.
+        foreach (var (label, composite) in postRunFingerprints.Steps)
+        {
+          stepUpserts[label] = composite;
+        }
+
+        if (stepUpserts.Count > 0 || itemUpserts.Count > 0)
+        {
+          await CacheManifestStore
+            .UpsertEntriesAsync(
+              cacheItem,
+              stepUpserts,
+              itemUpserts,
+              DateTimeOffset.UtcNow,
+              cancellationToken)
+            .ConfigureAwait(false);
+        }
+      }
+    }
 
     // Post-run metadata — same static context plus the run result.
     var runMetadataContext = new FlowRunMetadataContext

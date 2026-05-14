@@ -42,8 +42,15 @@ public class Program
 
     services.AddFlowthru(flowthru =>
     {
-      flowthru.RegisterCatalog(_ => new Catalog(Path.Combine(basePath, "Data")));
-      flowthru.RegisterCatalog(sp => new FlowConfig(sp.GetRequiredService<IConfiguration>()));
+      // UseConfiguration registers the IConfiguration so the Catalog's
+      // ConfigurationItem<T> bindings can resolve their sections. Option
+      // records are exposed on the catalog as ordinary inputs — flow
+      // factories no longer take a second FlowConfig parameter
+      // (Phase 5/8 of the smart-caching RFC).
+      flowthru.UseConfiguration(configuration);
+      flowthru.RegisterCatalog(sp => new Catalog(
+        Path.Combine(basePath, "Data"),
+        sp.GetRequiredService<IConfiguration>()));
 
       flowthru.ConfigureMetadata(meta =>
       {
@@ -57,11 +64,11 @@ public class Program
         .WithDescription("Preprocesses companies and shuttles data");
 
       flowthru
-        .RegisterFlow<Catalog, FlowConfig>("DataScience", DataScienceFlow.Create)
+        .RegisterFlow<Catalog>("DataScience", DataScienceFlow.Create)
         .WithDescription("Trains linear regression model for price prediction");
 
       flowthru
-        .RegisterFlow<Catalog, FlowConfig>("Reporting", ReportingFlow.Create)
+        .RegisterFlow<Catalog>("Reporting", ReportingFlow.Create)
         .WithDescription("Generates passenger capacity reports and visualizations");
     });
 

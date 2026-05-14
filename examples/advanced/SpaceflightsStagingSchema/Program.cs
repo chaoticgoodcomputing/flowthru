@@ -80,15 +80,24 @@ public class Program
 
     services.AddFlowthru(flowthru =>
     {
-      flowthru.RegisterCatalog(_ => new RawCatalog(dataPath));
+      // UseConfiguration registers the IConfiguration so the Catalog's
+      // ConfigurationItem<T> bindings can resolve their sections. Option
+      // records are exposed on the catalog as ordinary inputs — flow
+      // factories no longer take a separate FlowConfig parameter
+      // (Phase 5/8 of the smart-caching RFC).
+      flowthru.UseConfiguration(configuration);
+      flowthru.RegisterCatalog(sp => new RawCatalog(
+        dataPath,
+        sp.GetRequiredService<IConfiguration>()
+      ));
       flowthru.RegisterCatalog(sp => new StagingCatalog(
         contextFactory: sp.GetRequiredService<IDbContextFactory<StagingDbContext>>()
       ));
       flowthru.RegisterCatalog(sp => new ProductionCatalog(
         contextFactory: sp.GetRequiredService<IDbContextFactory<ProductionDbContext>>(),
-        basePath: dataPath
+        basePath: dataPath,
+        configuration: sp.GetRequiredService<IConfiguration>()
       ));
-      flowthru.RegisterCatalog(sp => new FlowConfig(sp.GetRequiredService<IConfiguration>()));
 
       flowthru.VerifyEFCoreConnection<ProductionDbContext>();
 
@@ -100,7 +109,7 @@ public class Program
       });
 
       flowthru
-        .RegisterFlow<RawCatalog, StagingCatalog, FlowConfig>("DataProcessing", DataProcessingFlow.Create)
+        .RegisterFlow<RawCatalog, StagingCatalog>("DataProcessing", DataProcessingFlow.Create)
         .WithDescription("Reads raw inputs and writes preprocessed/joined data to the ephemeral staging schema.");
 
       flowthru
@@ -108,11 +117,11 @@ public class Program
         .WithDescription("Promotes staging tables into the production schema via fused INSERT-FROM-SELECT.");
 
       flowthru
-        .RegisterFlow<ProductionCatalog, FlowConfig>("DataScience", DataScienceFlow.Create)
+        .RegisterFlow<ProductionCatalog>("DataScience", DataScienceFlow.Create)
         .WithDescription("Trains and evaluates a regression model from production data.");
 
       flowthru
-        .RegisterFlow<ProductionCatalog, FlowConfig>("Reporting", ReportingFlow.Create)
+        .RegisterFlow<ProductionCatalog>("Reporting", ReportingFlow.Create)
         .WithDescription("Generates capacity reports and a confusion matrix from production data.");
     });
 

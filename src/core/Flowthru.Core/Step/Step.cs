@@ -37,7 +37,8 @@ public sealed class Step<TIn, TOut> : IStepNode<TIn, TOut>
     Func<TOut, FlowIO<FlowUnit>> saveOutputs,
     NodeTraits? traits = null,
     IReadOnlyList<ServiceRef>? serviceDependencies = null,
-    string? flowLabel = null
+    string? flowLabel = null,
+    string? codeVersion = null
   )
   {
     Label = label ?? throw new ArgumentNullException(nameof(label));
@@ -49,6 +50,7 @@ public sealed class Step<TIn, TOut> : IStepNode<TIn, TOut>
     Traits = traits ?? new NodeTraits();
     ServiceDependencies = serviceDependencies ?? Array.Empty<ServiceRef>();
     FlowLabel = flowLabel ?? string.Empty;
+    CodeVersion = codeVersion;
   }
 
   /// <inheritdoc/>
@@ -78,6 +80,9 @@ public sealed class Step<TIn, TOut> : IStepNode<TIn, TOut>
 
   /// <inheritdoc/>
   public IReadOnlyList<ServiceRef> ServiceDependencies { get; }
+
+  /// <inheritdoc/>
+  public string? CodeVersion { get; }
 
   /// <inheritdoc/>
   public FlowIO<ValidationResult> Validate() =>

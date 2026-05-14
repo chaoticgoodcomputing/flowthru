@@ -15,18 +15,19 @@ namespace SpaceflightsHybridCatalog.Flows.DataScience;
 /// </summary>
 public static class DataScienceFlow
 {
-  public static BuiltFlow Create(Catalog catalog, FlowConfig config)
+  public static BuiltFlow Create(Catalog catalog)
   {
     return FlowBuilder.CreateFlow("DataScience", pipeline =>
     {
       pipeline.AddStep<
         IEnumerable<ModelInputTableSchema>,
+        SplitDataStep.ModelOptions,
         IEnumerable<TrainingData>,
         IEnumerable<TestData>
       >(
         label: "SplitData",
-        transform: SplitDataStep.Create(config.ModelOptions),
-        inputs: catalog.ModelInputTable,
+        transform: SplitDataStep.Create(),
+        inputs: (catalog.ModelInputTable, catalog.ModelOptions),
         outputs: (catalog.TrainSplit, catalog.TestSplit)
       );
 

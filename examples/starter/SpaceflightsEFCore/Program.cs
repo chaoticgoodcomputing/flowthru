@@ -68,19 +68,25 @@ public class Program
 
     services.AddFlowthru(b =>
     {
+      // UseConfiguration registers the IConfiguration so the Catalog's
+      // ConfigurationItem<T> bindings can resolve their sections. Option
+      // records are exposed on the catalog as ordinary inputs — flow
+      // factories no longer take a second FlowConfig parameter
+      // (Phase 5/8 of the smart-caching RFC).
+      b.UseConfiguration(configuration);
       b.RegisterCatalog(sp => new Catalog(
         basePath: Path.Combine(basePath, "Data"),
-        contextFactory: sp.GetRequiredService<IDbContextFactory<SpaceflightsDbContext>>()
+        contextFactory: sp.GetRequiredService<IDbContextFactory<SpaceflightsDbContext>>(),
+        configuration: sp.GetRequiredService<IConfiguration>()
       ));
-      b.RegisterCatalog(sp => new FlowConfig(sp.GetRequiredService<IConfiguration>()));
 
-      b.RegisterFlow<Catalog, FlowConfig>("DataProcessing", DataProcessingFlow.Create)
+      b.RegisterFlow<Catalog>("DataProcessing", DataProcessingFlow.Create)
         .WithDescription("Preprocesses companies and shuttles data");
 
-      b.RegisterFlow<Catalog, FlowConfig>("DataScience", DataScienceFlow.Create)
+      b.RegisterFlow<Catalog>("DataScience", DataScienceFlow.Create)
         .WithDescription("Trains linear regression model for price prediction");
 
-      b.RegisterFlow<Catalog, FlowConfig>("Reporting", ReportingFlow.Create)
+      b.RegisterFlow<Catalog>("Reporting", ReportingFlow.Create)
         .WithDescription("Generates passenger capacity reports and visualizations");
 
       // Pre-flight registration hooks — catch host misconfiguration at

@@ -63,4 +63,8 @@ public sealed class Item<T> : IItem<T>
           new InvalidOperationException(
             $"Storage adapter for item '{Label}' (type {_storage.GetType().Name}) "
             + "does not implement IHasEfficientCount.")));
+
+  /// <inheritdoc/>
+  public FlowIO<string>? TryGetFingerprint() =>
+    _storage is ISupportsFingerprint fingerprintable ? fingerprintable.Fingerprint() : null;
 }

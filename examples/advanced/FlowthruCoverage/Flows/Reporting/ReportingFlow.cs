@@ -16,6 +16,11 @@ public static class ReportingFlow
   {
     return FlowBuilder.CreateFlow("Reporting", pipeline =>
     {
+      // C# [FlowthruStep] classes auto-resolve their CodeVersion via
+      // FlowBuilder (Phase 8). Python steps below remain uncacheable
+      // because they declare a ServiceDep on IPythonExecutor; inline-
+      // Func steps further down are uncacheable because there's no
+      // [FlowthruStep] companion to source a CodeVersion from.
       pipeline.AddStep<
         IEnumerable<PackageCoverageRow>,
         IEnumerable<ProjectManifestEntry>,
@@ -64,10 +69,19 @@ public static class ReportingFlow
         executor: executor
       );
 
-      pipeline.AddStep<IEnumerable<ProvenanceIcicleNode>, string, byte[]>(
+      pipeline.AddStep<
+        IEnumerable<ProvenanceIcicleNode>,
+        string,
+        BuildUnitCoverageReportStep.Options,
+        byte[]
+      >(
         label: "BuildUnitCoverageReport",
         transform: BuildUnitCoverageReportStep.Create(),
-        inputs: (catalog.ProvenanceIcicleCoverage, catalog.UnitCoverageReportTemplate),
+        inputs: (
+          catalog.ProvenanceIcicleCoverage,
+          catalog.UnitCoverageReportTemplate,
+          catalog.UnitCoverageReportOptions
+        ),
         outputs: catalog.UnitCoverageReport
       );
 

@@ -45,6 +45,7 @@ public sealed class JsonSingletonBuilder<T>
 {
   private readonly string _label;
   private string? _path;
+  private IStorageMediumResolver? _resolver;
 
   internal JsonSingletonBuilder(string label)
   {
@@ -57,7 +58,15 @@ public sealed class JsonSingletonBuilder<T>
   /// <inheritdoc/>
   public string DefaultFilePattern => "*.json";
 
-  /// <summary>Set the filesystem path for this JSON file.</summary>
+  /// <summary>
+  /// Set the path or URI for this JSON file. Bare paths and
+  /// <c>file://</c> URIs always resolve to local filesystem; other
+  /// schemes (e.g. <c>https://</c>) require a corresponding
+  /// <see cref="IStorageMediumResolver"/> — either passed explicitly
+  /// via <see cref="WithResolver(IStorageMediumResolver)"/>, or made
+  /// available on the ambient <see cref="StorageMediumResolver.Current"/>
+  /// slot by <see cref="CatalogAbstract.CreateItem{T}"/>.
+  /// </summary>
   public JsonSingletonBuilder<T> AtPath(string path)
   {
     if (string.IsNullOrWhiteSpace(path))
@@ -66,9 +75,28 @@ public sealed class JsonSingletonBuilder<T>
     return this;
   }
 
+  /// <summary>
+  /// Provide an optional <see cref="IStorageMediumResolver"/> for
+  /// non-filesystem schemes (HTTP, etc.). When omitted, the builder
+  /// consults <see cref="StorageMediumResolver.Current"/> and finally
+  /// falls back to <see cref="StorageMediumResolver.Filesystem"/>.
+  /// </summary>
+  public JsonSingletonBuilder<T> WithResolver(IStorageMediumResolver resolver)
+  {
+    _resolver = resolver ?? throw new ArgumentNullException(nameof(resolver));
+    return this;
+  }
+
   /// <inheritdoc/>
-  public IStorageAdapter<T> CreateAdapterForFile(string filePath) =>
-    new SingletonJsonAdapter<T>(filePath);
+  public IStorageAdapter<T> CreateAdapterForFile(string filePath)
+  {
+    var resolver =
+      _resolver ?? StorageMediumResolver.Current ?? StorageMediumResolver.Filesystem;
+    var medium = resolver.Resolve(filePath);
+    return medium is FileStorageMedium fileMedium
+      ? new SingletonJsonAdapter<T>(fileMedium.FilePath)
+      : new SingletonJsonAdapter<T>(medium);
+  }
 
   /// <summary>Materialise the <see cref="IItem{T}"/>.</summary>
   public IItem<T> Build()
@@ -105,8 +133,10 @@ public sealed class JsonArrayBuilder<TRow>
   /// Set the path or URI for this JSON file. Bare paths and
   /// <c>file://</c> URIs always resolve to local filesystem; other
   /// schemes (e.g. <c>https://</c>) require a corresponding
-  /// <see cref="IStorageMediumResolver"/> via
-  /// <see cref="WithResolver(IStorageMediumResolver)"/>.
+  /// <see cref="IStorageMediumResolver"/> — either passed explicitly
+  /// via <see cref="WithResolver(IStorageMediumResolver)"/>, or made
+  /// available on the ambient <see cref="StorageMediumResolver.Current"/>
+  /// slot by <see cref="CatalogAbstract.CreateItem{T}"/>.
   /// </summary>
   public JsonArrayBuilder<TRow> AtPath(string path)
   {
@@ -118,19 +148,22 @@ public sealed class JsonArrayBuilder<TRow>
 
   /// <summary>
   /// Provide an optional <see cref="IStorageMediumResolver"/> for
-  /// non-filesystem schemes (HTTP, etc.). When omitted, falls back
-  /// to <see cref="StorageMediumResolver.Filesystem"/>.
+  /// non-filesystem schemes (HTTP, etc.). When omitted, the builder
+  /// consults <see cref="StorageMediumResolver.Current"/> and finally
+  /// falls back to <see cref="StorageMediumResolver.Filesystem"/>.
   /// </summary>
   public JsonArrayBuilder<TRow> WithResolver(IStorageMediumResolver resolver)
   {
-    _resolver = resolver;
+    _resolver = resolver ?? throw new ArgumentNullException(nameof(resolver));
     return this;
   }
 
   /// <inheritdoc/>
   public IStorageAdapter<IEnumerable<TRow>> CreateAdapterForFile(string filePath)
   {
-    var medium = (_resolver ?? StorageMediumResolver.Filesystem).Resolve(filePath);
+    var resolver =
+      _resolver ?? StorageMediumResolver.Current ?? StorageMediumResolver.Filesystem;
+    var medium = resolver.Resolve(filePath);
     return new ComposedStorageAdapter<IEnumerable<TRow>, TRow>(
       medium,
       new JsonFormatSerializer<TRow>(),

@@ -52,7 +52,7 @@ public sealed class ItemAnchor<T> where T : notnull
 /// Item.Of&lt;List&lt;X&gt;&gt;("xs").Json().AtPath(p).Build();
 /// </code>
 /// </example>
-public static class Item
+public static partial class Item
 {
   /// <summary>
   /// Begin a catalog-item declaration with a label. The type

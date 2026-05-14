@@ -10,34 +10,29 @@ namespace KedroIrisFUnit.Flows.DataScience;
 
 /// <summary>
 /// Creates the data science pipeline that trains and evaluates a
-/// classification model. Per §2.6, the flow factory closes over the
-/// <see cref="FlowConfig"/> value (a DI-resolved "params catalog"); the
-/// per-step <c>transform</c> lambda burns the options in via closure
-/// capture, so the flow's data dependencies stay typed end-to-end and
-/// the AddStep arity matches the data shape (no synthetic
-/// in-memory option items polluting the DAG).
+/// classification model. Per Phase 5/8 of the smart-caching RFC,
+/// option records are exposed on the catalog as ordinary inputs and
+/// wire into the per-step AddStep tuples like any other catalog
+/// dependency — the AddStep arity therefore includes the
+/// configuration-bound options alongside the data inputs and a
+/// change to <c>appsettings.json</c> invalidates the affected
+/// downstream cache automatically.
 /// </summary>
 public static class DataScienceFlow
 {
-  public static BuiltFlow Create(Catalog catalog, FlowConfig config)
+  public static BuiltFlow Create(Catalog catalog)
   {
-    var trainOptions = config.TrainOptions;
-    var trainTransform = TrainModelStep.Create();
-
     return FlowBuilder.CreateFlow("DataScience", pipeline =>
     {
       pipeline.AddStep<
         IEnumerable<FeatureVectorSchema>,
         IEnumerable<TargetLabelSchema>,
+        TrainModelStep.Options,
         ModelWeightsSchema
       >(
         label: "TrainModel",
-        transform: pair =>
-        {
-          var (trainX, trainY) = pair;
-          return trainTransform((trainX, trainY, trainOptions));
-        },
-        inputs: (catalog.TrainX, catalog.TrainY),
+        transform: TrainModelStep.Create(),
+        inputs: (catalog.TrainX, catalog.TrainY, catalog.TrainModelOptions),
         outputs: catalog.IrisModel
       );
 

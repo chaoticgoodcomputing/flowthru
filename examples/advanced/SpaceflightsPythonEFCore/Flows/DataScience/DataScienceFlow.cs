@@ -17,7 +17,7 @@ public static class DataScienceFlow
         label: "SplitData",
         module: "Flows.DataScience.Steps.split_data",
         function: "split_data",
-        input: catalog.ModelInputTable,
+        input: (catalog.ModelInputTable, catalog.SplitDataOptions),
         output: (catalog.XTrain, catalog.XTest, catalog.YTrain, catalog.YTest),
         executor: executor
       );

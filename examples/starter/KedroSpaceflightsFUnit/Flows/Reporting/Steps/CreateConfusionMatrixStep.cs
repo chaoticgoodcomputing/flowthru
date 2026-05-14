@@ -41,9 +41,12 @@ public static class CreateConfusionMatrixStep
   }
 
   /// <summary>
-  /// Tuple-input shape so the flow can close over <see cref="Options"/> at
-  /// flow-construction time while FUnit tests still drive the step directly
-  /// with a tuple.
+  /// Canonical Func-returning Create — the transform receives the
+  /// model predictions and the configuration-bound <see cref="Options"/>
+  /// as a tuple input. Phase 5/8: a change to
+  /// <c>Flowthru:Flows:Reporting:ConfusionMatrixOptions</c> in
+  /// <c>appsettings.json</c> invalidates this step's cached output.
+  /// FUnit tests drive the step directly with the same tuple shape.
   /// </summary>
   public static Func<
     (IEnumerable<ModelPredictions> Data, Options Options),

@@ -1,6 +1,6 @@
 # Flowthru Format Extension Capability Matrix
 
-This document is **auto-generated** from each format extension's `IFormatBase<TRow>.RowFeatures` declaration and which capability segments it implements (`IFormatRowReader<TRow>`, `IFormatRowWriter<TRow>`, `IFormatStreamReader<TRow>`). Do not edit by hand — the `_test:capability-matrix-freshness` meta-test fails on drift.
+This document is **auto-generated** from each format extension's marker-interface declarations (`ISupportsIScalar`, `ISupportsNested`) and which capability segments it implements (`IFormatRowReader<TRow>`, `IFormatRowWriter<TRow>`, `IFormatStreamReader<TRow>`). Do not edit by hand — the `_test:capability-matrix-freshness` meta-test fails on drift.
 
 Regenerate locally via `nx run tests:_test:capability-matrix-freshness`, `nx run docs:build`, or directly via `dotnet run scripts/_test/capability-matrix.cs`.
 
@@ -21,8 +21,8 @@ These features are intrinsic to the planner's classification cascade and don't v
 
 Each format declares which row-shape features it round-trips on top of the universal baseline. Cell semantics:
 
-- **`✓`** — format claims support; the matching kit conformance fixture round-trips successfully.
-- **`✗`** — format claims false; could be implemented but isn't. Tracked as a follow-up; kit fixtures requiring the feature skip vacuously.
+- **`✓`** — format implements the marker interface; the matching kit conformance fixture round-trips successfully.
+- **`✗`** — format does not implement the marker; could be implemented but isn't. Tracked as a follow-up; kit fixtures requiring the feature skip vacuously.
 - **`—`** — structurally not applicable; the format's generic constraint (`where TRow : IFlatSchema`) prevents the schema shape from compiling. The matching fixture cannot be wired against this format.
 
 | Format | Schema shape | IScalar wrappers | Nested rows |
@@ -42,12 +42,12 @@ Format extensions are expected to consume Core's `PropertyMappingPlanner` for pe
 |---|---|---|
 | **CSV** | ✓ consumes planner | — |
 | **Excel** | ✓ consumes planner | — |
-| **Parquet** | ✗ manual mapping | Parquet's runtime DTO synthesis via System.Reflection.Emit is structurally different from the reflection walks PropertyMappingPlanner subsumes for CSV/Excel/JSON. Migrating Parquet to consume the planner is a deliberate follow-up effort outside Phase B's scope — it requires reworking how the typed DTO is built per-row from PropertyBinding metadata. The capability matrix surfaces this opt-out under 'manual mapping' so reviewers and end users see the gap explicitly. |
+| **Parquet** | ✓ consumes planner | — |
 | **JSON** | ✓ consumes planner | — |
 
 ## Storage Traits
 
-Medium-level capabilities of each format. See `Flowthru.Core.Data.Capabilities.StorageTraits` for the full surface.
+Medium-level capabilities of each format. See `Flowthru.Data.Storage.StorageTraits` for the full surface.
 
 **Read / Write / Stream columns** carry two signals. Phase D (capability-segmented interfaces) split the format surface into `IFormatRowReader<TRow>`, `IFormatRowWriter<TRow>`, and `IFormatStreamReader<TRow>` (a sub-interface of the row reader, marking bounded-memory decoding). A format that does not implement a segment is *structurally* incapable of that operation — the absence is enforced by the type system, not a runtime trait flag. A format that implements the segment but reports `Traits.CanWrite = false` (etc.) is *runtime*-disabled.
 

@@ -36,10 +36,11 @@ public class Program
   }
 
   /// <summary>
-  /// Shared service-configuration logic. Per Phase 4: catalogs are
-  /// DI-resolvable values; flows declare which ones they need by
-  /// parameter list and the framework resolves each from DI before
-  /// invoking the factory.
+  /// Shared service-configuration logic. Per Phase 5/8: option
+  /// records are exposed on the catalog via
+  /// <c>ConfigurationItem&lt;T&gt;</c> and wire into steps as
+  /// ordinary inputs — flow factories no longer take a second
+  /// <c>FlowConfig</c> parameter.
   /// </summary>
   public static void ConfigureServices(IServiceCollection services, string basePath)
   {
@@ -52,13 +53,17 @@ public class Program
 
     services.AddFlowthru(b =>
     {
-      b.RegisterCatalog(_ => new Catalog(Path.Combine(basePath, "Data")));
-      b.RegisterCatalog(sp => new FlowConfig(sp.GetRequiredService<IConfiguration>()));
+      // UseConfiguration registers the IConfiguration so the Catalog's
+      // ConfigurationItem<T> bindings can resolve their sections.
+      b.UseConfiguration(configuration);
+      b.RegisterCatalog(sp => new Catalog(
+        Path.Combine(basePath, "Data"),
+        sp.GetRequiredService<IConfiguration>()));
 
-      b.RegisterFlow<Catalog, FlowConfig>("DataEngineering", DataEngineeringFlow.Create)
+      b.RegisterFlow<Catalog>("DataEngineering", DataEngineeringFlow.Create)
         .WithDescription("Splits iris data into training and test sets with one-hot encoding");
 
-      b.RegisterFlow<Catalog, FlowConfig>("DataScience", DataScienceFlow.Create)
+      b.RegisterFlow<Catalog>("DataScience", DataScienceFlow.Create)
         .WithDescription("Trains multi-class logistic regression model for iris classification");
     });
 

@@ -1,21 +1,19 @@
 ### YamlMime:TableOfContent
-- name: Flowthru.Core.Data
-  href: Flowthru.Core.Data.md
+- name: Flowthru.Data.Catalog
+  href: Flowthru.Data.Catalog.md
   items:
   - name: Classes
-  - name: CsvItemExtensions
-    href: Flowthru.Core.Data.CsvItemExtensions.md
-- name: Flowthru.Core.Data.Storage.Format
-  href: Flowthru.Core.Data.Storage.Format.md
+  - name: CsvBuilder<TRow>
+    href: Flowthru.Data.Catalog.CsvBuilder-1.md
+  - name: CsvExtensions
+    href: Flowthru.Data.Catalog.CsvExtensions.md
+  - name: CsvItemFactoryExtensions
+    href: Flowthru.Data.Catalog.CsvItemFactoryExtensions.md
+- name: Flowthru.Data.Storage.Csv
+  href: Flowthru.Data.Storage.Csv.md
   items:
   - name: Classes
   - name: CsvFormatSerializer<TRow>
-    href: Flowthru.Core.Data.Storage.Format.CsvFormatSerializer-1.md
+    href: Flowthru.Data.Storage.Csv.CsvFormatSerializer-1.md
   - name: CsvFormatSerializerDefaults
-    href: Flowthru.Core.Data.Storage.Format.CsvFormatSerializerDefaults.md
-- name: Flowthru.Core.Data.Storage.Strategies
-  href: Flowthru.Core.Data.Storage.Strategies.md
-  items:
-  - name: Classes
-  - name: CsvStorageEntryFactory
-    href: Flowthru.Core.Data.Storage.Strategies.CsvStorageEntryFactory.md
+    href: Flowthru.Data.Storage.Csv.CsvFormatSerializerDefaults.md

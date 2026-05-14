@@ -84,6 +84,13 @@ public class Program
 
     services.AddFlowthru(flowthru =>
     {
+      // UseConfiguration registers the IConfiguration so the Catalog's
+      // ConfigurationItem<T> bindings can resolve their sections. Option
+      // records are exposed on the catalog as ordinary inputs — flow
+      // factories no longer take a second FlowConfig parameter
+      // (Phase 5/8 of the smart-caching RFC).
+      flowthru.UseConfiguration(configuration);
+
       // ── The DI swap ─────────────────────────────────────────────────────
       // RegisterCatalog<Catalog>(...) tells the framework "resolve type
       // `Catalog` from DI before invoking a flow factory." The factory we
@@ -92,11 +99,12 @@ public class Program
       flowthru.RegisterCatalog<Catalog>(sp => isProduction
         ? new ProductionCatalog(
             basePath: dataPath,
-            contextFactory: sp.GetRequiredService<IDbContextFactory<SpaceflightsDbContext>>())
-        : new DevelopmentCatalog(basePath: dataPath)
+            contextFactory: sp.GetRequiredService<IDbContextFactory<SpaceflightsDbContext>>(),
+            configuration: sp.GetRequiredService<IConfiguration>())
+        : new DevelopmentCatalog(
+            basePath: dataPath,
+            configuration: sp.GetRequiredService<IConfiguration>())
       );
-
-      flowthru.RegisterCatalog(sp => new FlowConfig(sp.GetRequiredService<IConfiguration>()));
 
       // Production-only pre-flight: verify the SQLite connection and EF
       // model shape before any flow runs. In Development the hook is
@@ -112,11 +120,11 @@ public class Program
         .WithDescription("Preprocesses raw company / shuttle data and joins it with reviews.");
 
       flowthru
-        .RegisterFlow<Catalog, FlowConfig>("DataScience", DataScienceFlow.Create)
+        .RegisterFlow<Catalog>("DataScience", DataScienceFlow.Create)
         .WithDescription("Trains and evaluates a linear regression price model.");
 
       flowthru
-        .RegisterFlow<Catalog, FlowConfig>("Reporting", ReportingFlow.Create)
+        .RegisterFlow<Catalog>("Reporting", ReportingFlow.Create)
         .WithDescription("Generates the passenger-capacity report and confusion-matrix chart.");
 
       flowthru.ConfigureMetadata(meta =>

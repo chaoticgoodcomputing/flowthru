@@ -21,7 +21,7 @@ namespace Flowthru.Data.Storage;
 /// declaration site, not mid-flow.
 /// </para>
 /// </remarks>
-public sealed class ConstrainedStorageAdapter<T> : IStorageAdapter<T>
+public sealed class ConstrainedStorageAdapter<T> : IStorageAdapter<T>, ISupportsFingerprint
 {
   private readonly IStorageAdapter<T> _inner;
   private readonly string _itemLabel;
@@ -71,6 +71,23 @@ public sealed class ConstrainedStorageAdapter<T> : IStorageAdapter<T>
     Traits.CanWrite
       ? _inner.InspectTarget()
       : FlowIO.Pure(ValidationResult.Success());
+
+  /// <inheritdoc/>
+  /// <remarks>
+  /// Delegates to the inner adapter when it implements
+  /// <see cref="ISupportsFingerprint"/>; otherwise surfaces a FlowIO
+  /// failure so the cache plan records "fingerprint unknown" and
+  /// downgrades the dependent step to a cache miss.
+  /// </remarks>
+  public FlowIO<string> Fingerprint() =>
+    _inner is ISupportsFingerprint fingerprintable
+      ? fingerprintable.Fingerprint()
+      : FlowIO.Fail<string>(new RuntimeError.External(
+          $"ConstrainedStorageAdapter.Fingerprint[{_itemLabel}]",
+          new InvalidOperationException(
+            $"Inner adapter '{_inner.GetType().Name}' does not implement "
+            + "ISupportsFingerprint; constrained item cannot produce a leaf fingerprint."
+          )));
 
   // ── One-way-ratchet enforcement ──────────────────────────────────────
 

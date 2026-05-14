@@ -1,18 +1,18 @@
 ### YamlMime:TableOfContent
-- name: Flowthru.Meta
-  href: Flowthru.Meta.md
+- name: Flowthru.Diagnostics
+  href: Flowthru.Diagnostics.md
   items:
   - name: Classes
-  - name: MermaidMetadataExtensions
-    href: Flowthru.Meta.MermaidMetadataExtensions.md
-  - name: MermaidMetadataProviderBuilder
-    href: Flowthru.Meta.MermaidMetadataProviderBuilder.md
-- name: Flowthru.Meta.Providers
-  href: Flowthru.Meta.Providers.md
+  - name: MermaidMetadataBuilderExtensions
+    href: Flowthru.Diagnostics.MermaidMetadataBuilderExtensions.md
+- name: Flowthru.Diagnostics.Mermaid
+  href: Flowthru.Diagnostics.Mermaid.md
   items:
   - name: Classes
   - name: MermaidMetadataProvider
-    href: Flowthru.Meta.Providers.MermaidMetadataProvider.md
+    href: Flowthru.Diagnostics.Mermaid.MermaidMetadataProvider.md
+  - name: MermaidMetadataProviderBuilder
+    href: Flowthru.Diagnostics.Mermaid.MermaidMetadataProviderBuilder.md
   - name: Enums
-  - name: MermaidMetadataProvider.MermaidFlowchartDirection
-    href: Flowthru.Meta.Providers.MermaidMetadataProvider.MermaidFlowchartDirection.md
+  - name: MermaidFlowchartDirection
+    href: Flowthru.Diagnostics.Mermaid.MermaidFlowchartDirection.md

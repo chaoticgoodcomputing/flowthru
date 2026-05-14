@@ -26,6 +26,7 @@ public sealed class XmlBuilder<T>
 {
   private readonly string _label;
   private string? _path;
+  private IStorageMediumResolver? _resolver;
 
   internal XmlBuilder(string label)
   {
@@ -38,7 +39,11 @@ public sealed class XmlBuilder<T>
   /// <inheritdoc/>
   public string DefaultFilePattern => "*.xml";
 
-  /// <summary>Set the filesystem path for this XML file.</summary>
+  /// <summary>
+  /// Set the filesystem path for this XML file. The XML extension is
+  /// document-mode and currently only supports filesystem-backed
+  /// resources — non-file schemes throw at <see cref="Build"/> time.
+  /// </summary>
   public XmlBuilder<T> AtPath(string path)
   {
     if (string.IsNullOrWhiteSpace(path))
@@ -47,9 +52,40 @@ public sealed class XmlBuilder<T>
     return this;
   }
 
+  /// <summary>
+  /// Provide an optional <see cref="IStorageMediumResolver"/>. The XML
+  /// extension currently only supports filesystem-backed media; this
+  /// hook exists for parity with the other format builders and may
+  /// resolve through a resolver-registered file provider in the
+  /// future. When omitted, the builder consults
+  /// <see cref="StorageMediumResolver.Current"/> and finally falls
+  /// back to <see cref="StorageMediumResolver.Filesystem"/>.
+  /// </summary>
+  public XmlBuilder<T> WithResolver(IStorageMediumResolver resolver)
+  {
+    _resolver = resolver ?? throw new ArgumentNullException(nameof(resolver));
+    return this;
+  }
+
   /// <inheritdoc/>
-  public IStorageAdapter<T> CreateAdapterForFile(string filePath) =>
-    new SingletonXmlAdapter<T>(filePath);
+  public IStorageAdapter<T> CreateAdapterForFile(string filePath)
+  {
+    var resolver =
+      _resolver ?? StorageMediumResolver.Current ?? StorageMediumResolver.Filesystem;
+    // The XML adapter is document-only and only knows how to read/write
+    // files today. Resolve the path so non-file schemes surface their
+    // standard diagnostic; reject anything else explicitly here.
+    var medium = resolver.Resolve(filePath);
+    if (medium is not FileStorageMedium fileMedium)
+    {
+      throw new InvalidOperationException(
+        $"Xml item '{_label}' resolves to a non-filesystem medium "
+        + $"({medium.GetType().Name}). The XML extension is document-mode "
+        + "and only supports filesystem-backed resources today."
+      );
+    }
+    return new SingletonXmlAdapter<T>(fileMedium.FilePath);
+  }
 
   /// <summary>Materialise the <see cref="IItem{T}"/>.</summary>
   public IItem<T> Build()
