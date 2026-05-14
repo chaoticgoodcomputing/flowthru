@@ -33,9 +33,14 @@ public static class SplitDataStep
   }
 
   /// <summary>
-  /// Splits input data into training and test sets. Tuple-input shape so
-  /// the flow can close over <see cref="ModelOptions"/> at flow-construction
-  /// time while FUnit tests still drive the step directly with a tuple.
+  /// Canonical Func-returning Create — the transform receives the
+  /// model input rows and the configuration-bound <see cref="ModelOptions"/>
+  /// as a tuple input. Options come from the catalog like any other
+  /// fingerprintable input (Phase 5/8 of the smart-caching RFC); a
+  /// change to <c>Flowthru:Flows:DataScience:ModelOptions</c> in
+  /// <c>appsettings.json</c> invalidates this step's cached output
+  /// automatically. FUnit tests drive the step directly with the same
+  /// tuple shape.
   /// </summary>
   public static Func<
     (IEnumerable<ModelInputTableSchema> Data, ModelOptions Options),
