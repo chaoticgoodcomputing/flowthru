@@ -98,13 +98,16 @@ public class FlowBuilderGeneratorTests
   {
     // The matrix is (1..5) × (1..5) × 3 transform shapes = 75 main
     // cells, plus 3 (0,0) side-effect variants, 5 × 3 = 15 source
-    // variants, and 5 × 3 = 15 sink variants — 108 overloads total.
-    // Every overload's signature starts with `public FlowBuilder AddStep`,
-    // so counting that prefix is a sturdy structural invariant.
+    // variants, and 5 × 3 = 15 sink variants — 108 logical overloads.
+    // Phase 8 doubles emission: every cell ships a visible form (no
+    // codeVersion; identity resolved via StepMetadataResolver) AND a
+    // hidden form ([EditorBrowsable(Never)], explicit codeVersion
+    // parameter) so power users keep the escape hatch.
+    // 108 × 2 = 216 generated overload signatures total.
     var emitted = Emit();
     var count = CountOccurrences(emitted, "public FlowBuilder AddStep");
-    Assert.That(count, Is.EqualTo(108),
-      "Expected (5x5x3) + 3 + (5x3) + (5x3) = 108 AddStep overloads.");
+    Assert.That(count, Is.EqualTo(216),
+      "Expected (5x5x3 + 3 + 5x3 + 5x3) × 2 = 216 AddStep overloads (visible + hidden).");
   }
 
   [Test]
@@ -197,21 +200,21 @@ public class FlowBuilderGeneratorTests
   {
     var emitted = Emit();
 
-    // (0, 0) sync: plain Action. The optional codeVersion is appended
-    // for cache-plan threading (Phase 4); the existence of the Action
-    // overload is what these assertions pin.
-    Assert.That(emitted, Does.Contain("AddStep(string label, global::System.Action transform, string? codeVersion = null)"),
-      "(0,0) side-effect overload should accept an Action transform.");
-
-    // (0, 0) async: Func<Task>.
+    // (0, 0) sync visible: plain Action — no codeVersion (resolved
+    // implicitly via StepMetadataResolver per Phase 8).
     Assert.That(emitted,
-      Does.Contain("AddStep(string label, global::System.Func<global::System.Threading.Tasks.Task> transform, string? codeVersion = null)"),
-      "(0,0) async overload should accept a Func<Task> transform.");
+      Does.Contain("AddStep(string label, global::System.Action transform)"),
+      "(0,0) side-effect visible overload should accept an Action transform.");
 
-    // (0, 0) async + CT: Func<CancellationToken, Task>.
+    // (0, 0) async visible: Func<Task>.
     Assert.That(emitted,
-      Does.Contain("AddStep(string label, global::System.Func<global::System.Threading.CancellationToken, global::System.Threading.Tasks.Task> transform, string? codeVersion = null)"),
-      "(0,0) async-with-CT overload should accept Func<CancellationToken, Task>.");
+      Does.Contain("AddStep(string label, global::System.Func<global::System.Threading.Tasks.Task> transform)"),
+      "(0,0) async visible overload should accept a Func<Task> transform.");
+
+    // (0, 0) async + CT visible: Func<CancellationToken, Task>.
+    Assert.That(emitted,
+      Does.Contain("AddStep(string label, global::System.Func<global::System.Threading.CancellationToken, global::System.Threading.Tasks.Task> transform)"),
+      "(0,0) async-with-CT visible overload should accept Func<CancellationToken, Task>.");
   }
 
   [Test]
@@ -254,25 +257,32 @@ public class FlowBuilderGeneratorTests
       emitted,
       "if (transform is null) throw new global::System.ArgumentNullException(nameof(transform));"
     );
-    Assert.That(guardCount, Is.EqualTo(108),
-      "Every emitted overload should guard a null transform.");
+    // Visible + hidden = 216 overloads, each guards a null transform.
+    Assert.That(guardCount, Is.EqualTo(216),
+      "Every emitted overload (visible + hidden) should guard a null transform.");
   }
 
   // ── CodeVersion threading (Phase 4) ───────────────────────────────────
 
   [Test]
-  public void EveryOverload_AcceptsOptionalCodeVersionParameter()
+  public void EveryHiddenOverload_AcceptsCodeVersionParameter()
   {
     var emitted = Emit();
-    // Every emitted AddStep overload should expose an optional
-    // codeVersion parameter so callers can thread the
-    // StepMetadataGenerator-emitted `_Metadata.CodeVersion` constant
-    // through to the constructed step. We count occurrences of the
-    // parameter spelling to confirm threading reaches every cell —
-    // mismatching with the AddStep count would signal a missed cell.
-    var paramCount = CountOccurrences(emitted, "string? codeVersion = null");
-    Assert.That(paramCount, Is.EqualTo(108),
-      "Every AddStep overload (108 total) should accept the optional codeVersion parameter.");
+    // Phase 8 split emission: visible overloads have no codeVersion
+    // (the resolver finds it via StepMetadataResolver), while hidden
+    // overloads — marked [EditorBrowsable(Never)] for power-user
+    // access — accept an explicit `string? codeVersion`. The hidden
+    // form makes the param required-named (no `= null` default) so
+    // overload resolution between visible and hidden stays
+    // unambiguous: a 4-positional call picks the visible form; a
+    // call with `codeVersion: "..."` picks the hidden one.
+    // Counting `string? codeVersion)` (no leading indent) catches both
+    // multi-line emit shapes (typed matrix) and inline ones (zero-arity
+    // side-effect cells) without false positives — visible overloads
+    // omit the parameter entirely.
+    var hiddenCount = CountOccurrences(emitted, "string? codeVersion)");
+    Assert.That(hiddenCount, Is.EqualTo(108),
+      "Every hidden AddStep overload (108 of 216 total) should accept the explicit codeVersion parameter.");
   }
 
   [Test]

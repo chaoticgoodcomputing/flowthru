@@ -64,7 +64,10 @@ public class Program
 
     services.AddFlowthru(flowthru =>
     {
-      flowthru.RegisterCatalog(_ => new Catalog(Path.Combine(basePath, "Data")));
+      flowthru.UseConfiguration(configuration);
+      flowthru.RegisterCatalog(sp => new Catalog(
+        Path.Combine(basePath, "Data"),
+        sp.GetRequiredService<IConfiguration>()));
 
       flowthru.ConfigureMetadata(meta =>
       {

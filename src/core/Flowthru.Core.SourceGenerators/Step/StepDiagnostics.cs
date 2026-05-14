@@ -57,4 +57,55 @@ public static class StepDiagnostics
         + "compile error, not a wasted pipeline run. To opt out of this check, narrow the item's "
         + "static type to IItem<T> before passing it."
     );
+
+  /// <summary>
+  /// FT1301: a step extension declares <c>[StepExtensionCapabilities]</c>
+  /// but its <c>Inputs</c> or <c>Outputs</c> bitmask omits the
+  /// minimum floor of <c>Singleton | Enumerable</c>. The default
+  /// severity is <see cref="DiagnosticSeverity.Error"/>; the analyzer
+  /// downgrades to <see cref="DiagnosticSeverity.Warning"/> at report
+  /// time when the attribute's <c>Status</c> field is
+  /// <c>ExtensionStatus.InDevelopment</c>.
+  /// </summary>
+  public static readonly DiagnosticDescriptor ExtensionMissesMinimumContainerSupport =
+    new(
+      id: "FT1301",
+      title: "Step extension misses minimum container support",
+      messageFormat: "Step extension '{0}' declares {1} support of {2} but the production minimum "
+        + "is Singleton | Enumerable. Add the missing kinds (and the corresponding marshaller marker "
+        + "interfaces) or set Status = ExtensionStatus.InDevelopment to downgrade this diagnostic to "
+        + "a warning while iterating.",
+      category: Category,
+      defaultSeverity: DiagnosticSeverity.Error,
+      isEnabledByDefault: true,
+      description: "Per Phase 9 of the smart-caching/extensibility RFCs, step extensions that ship "
+        + "to NuGet must cover Singleton and Enumerable container shapes at minimum so that catalog "
+        + "items of either shape (including ConfigurationItem<T> scalars) can flow into the extension. "
+        + "Authors iterating on a new extension can set Status = InDevelopment to downgrade the "
+        + "diagnostic to a warning until the extension's algebra is complete."
+    );
+
+  /// <summary>
+  /// FT1303: the container kinds declared on
+  /// <c>[StepExtensionCapabilities]</c> don't line up with the
+  /// marshaller marker interfaces the extension class implements.
+  /// Capability disclosure and implementation evidence are
+  /// co-authoritative — declaring <c>Queryable</c> without
+  /// <c>IQueryableMarshaller</c>, or vice versa, is a contract drift
+  /// the analyzer catches at build time.
+  /// </summary>
+  public static readonly DiagnosticDescriptor ExtensionCapabilityImplementationMismatch =
+    new(
+      id: "FT1303",
+      title: "Step extension capability/marshaller mismatch",
+      messageFormat: "Step extension '{0}': {1}",
+      category: Category,
+      defaultSeverity: DiagnosticSeverity.Error,
+      isEnabledByDefault: true,
+      description: "The [StepExtensionCapabilities] attribute and the IContainerMarshaller / "
+        + "IQueryableMarshaller / IAsyncStreamMarshaller marker interfaces are two halves of the same "
+        + "contract — capability disclosure and implementation evidence. They must agree. "
+        + "An attribute declaring a kind without the matching marker interface (or a marker interface "
+        + "implemented without the matching kind declared) is silent drift that breaks at runtime."
+    );
 }

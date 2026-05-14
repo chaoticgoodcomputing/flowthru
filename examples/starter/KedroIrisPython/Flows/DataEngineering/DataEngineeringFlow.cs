@@ -17,7 +17,7 @@ public static class DataEngineeringFlow
         label: "SplitData",
         module: "Flows.DataEngineering.Steps.split_data",
         function: "split_data",
-        input: catalog.IrisRaw,
+        input: (catalog.IrisRaw, catalog.SplitDataOptions),
         output: (catalog.TrainX, catalog.TrainY, catalog.TestX, catalog.TestY),
         executor: executor
       );
