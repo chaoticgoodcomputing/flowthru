@@ -56,6 +56,18 @@
     href: Flowthru.Data.Catalog.IItem-1.md
   - name: INode
     href: Flowthru.Data.Catalog.INode.md
+  - name: IReadOnlyItem<T>
+    href: Flowthru.Data.Catalog.IReadOnlyItem-1.md
+- name: Flowthru.Data.Configuration
+  href: Flowthru.Data.Configuration.md
+  items:
+  - name: Classes
+  - name: ConfigurationItem<T>
+    href: Flowthru.Data.Configuration.ConfigurationItem-1.md
+  - name: ConfigurationItemBuilder<T>
+    href: Flowthru.Data.Configuration.ConfigurationItemBuilder-1.md
+  - name: ConfigurationItemBuilderExtensions
+    href: Flowthru.Data.Configuration.ConfigurationItemBuilderExtensions.md
 - name: Flowthru.Data.Schema
   href: Flowthru.Data.Schema.md
   items:
@@ -260,6 +272,8 @@
     href: Flowthru.Flow.FlowSliceStrategy.From.md
   - name: FlowSliceStrategy.None
     href: Flowthru.Flow.FlowSliceStrategy.None.md
+  - name: FlowSliceStrategy.Not
+    href: Flowthru.Flow.FlowSliceStrategy.Not.md
   - name: FlowSliceStrategy.Only
     href: Flowthru.Flow.FlowSliceStrategy.Only.md
   - name: FlowSliceStrategy.Or

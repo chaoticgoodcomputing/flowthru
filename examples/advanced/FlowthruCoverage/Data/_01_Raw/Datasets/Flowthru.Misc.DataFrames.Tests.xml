@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<coverage line-rate="0.9763" branch-rate="0.8157" version="1.9" timestamp="1778694809" lines-covered="289" lines-valid="296" branches-covered="93" branches-valid="114">
+<coverage line-rate="0.9763" branch-rate="0.8157" version="1.9" timestamp="1778731865" lines-covered="289" lines-valid="296" branches-covered="93" branches-valid="114">
   <sources>
     <source></source>
   </sources>
   <packages>
     <package name="Flowthru.Misc.DataFrames" line-rate="0.9763" branch-rate="0.8157" complexity="153">
       <classes>
-        <class name="Flowthru.Misc.DataFrames.FrameExpressionVisitor" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/41e80eba561ff09a5ce0d3904a8c0abf8f4a4292/src/misc/Flowthru.Misc.DataFrames/FrameExpressionVisitor.cs" line-rate="0.9027" branch-rate="0.7434999999999999" complexity="79">
+        <class name="Flowthru.Misc.DataFrames.FrameExpressionVisitor" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/40f7047546e5ce57b6cc1a7c5a3fa559b5d026f5/src/misc/Flowthru.Misc.DataFrames/FrameExpressionVisitor.cs" line-rate="0.9027" branch-rate="0.7434999999999999" complexity="79">
           <methods>
             <method name="CompileExpression" signature="(System.Linq.Expressions.Expression)" line-rate="1" branch-rate="1" complexity="4">
               <lines>
@@ -326,7 +326,7 @@
             <line number="232" hits="4" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Misc.DataFrames.FrameWindowSpec`1" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/41e80eba561ff09a5ce0d3904a8c0abf8f4a4292/src/misc/Flowthru.Misc.DataFrames/FrameWindowSpec.cs" line-rate="1" branch-rate="0.8332999999999999" complexity="9">
+        <class name="Flowthru.Misc.DataFrames.FrameWindowSpec`1" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/40f7047546e5ce57b6cc1a7c5a3fa559b5d026f5/src/misc/Flowthru.Misc.DataFrames/FrameWindowSpec.cs" line-rate="1" branch-rate="0.8332999999999999" complexity="9">
           <methods>
             <method name="PartitionBy" signature="(System.Linq.Expressions.Expression`1&lt;System.Func`2&lt;TSource,TKey&gt;&gt;)" line-rate="1" branch-rate="1" complexity="1">
               <lines>
@@ -440,7 +440,7 @@
             <line number="54" hits="1" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Misc.DataFrames.GroupedFrame`2" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/41e80eba561ff09a5ce0d3904a8c0abf8f4a4292/src/misc/Flowthru.Misc.DataFrames/GroupedFrame.cs" line-rate="1" branch-rate="1" complexity="1">
+        <class name="Flowthru.Misc.DataFrames.GroupedFrame`2" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/40f7047546e5ce57b6cc1a7c5a3fa559b5d026f5/src/misc/Flowthru.Misc.DataFrames/GroupedFrame.cs" line-rate="1" branch-rate="1" complexity="1">
           <methods>
             <method name=".ctor" signature="(Flowthru.Misc.DataFrames.IFrameQueryProvider,System.Linq.Expressions.Expression)" line-rate="1" branch-rate="1" complexity="1">
               <lines>
@@ -458,7 +458,7 @@
             <line number="26" hits="5" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Misc.DataFrames.GroupedFrameExtensions" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/41e80eba561ff09a5ce0d3904a8c0abf8f4a4292/src/misc/Flowthru.Misc.DataFrames/GroupedFrame.cs" line-rate="1" branch-rate="1" complexity="2">
+        <class name="Flowthru.Misc.DataFrames.GroupedFrameExtensions" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/40f7047546e5ce57b6cc1a7c5a3fa559b5d026f5/src/misc/Flowthru.Misc.DataFrames/GroupedFrame.cs" line-rate="1" branch-rate="1" complexity="2">
           <methods>
             <method name="Aggregate" signature="(Flowthru.Misc.DataFrames.GroupedFrame`2&lt;TKey,TSource&gt;,System.Linq.Expressions.Expression`1&lt;System.Func`2&lt;Flowthru.Misc.DataFrames.AggregationContext`2&lt;TKey,TSource&gt;,TResult&gt;&gt;)" line-rate="1" branch-rate="1" complexity="2">
               <lines>
@@ -508,7 +508,7 @@
             <line number="66" hits="2" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Misc.DataFrames.AggregationContext`2" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/41e80eba561ff09a5ce0d3904a8c0abf8f4a4292/src/misc/Flowthru.Misc.DataFrames/GroupedFrame.cs" line-rate="1" branch-rate="1" complexity="11">
+        <class name="Flowthru.Misc.DataFrames.AggregationContext`2" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/40f7047546e5ce57b6cc1a7c5a3fa559b5d026f5/src/misc/Flowthru.Misc.DataFrames/GroupedFrame.cs" line-rate="1" branch-rate="1" complexity="11">
           <methods>
             <method name="get_Key" signature="()" line-rate="1" branch-rate="1" complexity="1">
               <lines>
@@ -580,7 +580,7 @@
             <line number="82" hits="20" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Misc.DataFrames.TypedFrame`1" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/41e80eba561ff09a5ce0d3904a8c0abf8f4a4292/src/misc/Flowthru.Misc.DataFrames/TypedFrame.cs" line-rate="1" branch-rate="1" complexity="10">
+        <class name="Flowthru.Misc.DataFrames.TypedFrame`1" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/40f7047546e5ce57b6cc1a7c5a3fa559b5d026f5/src/misc/Flowthru.Misc.DataFrames/TypedFrame.cs" line-rate="1" branch-rate="1" complexity="10">
           <methods>
             <method name="get_Expression" signature="()" line-rate="1" branch-rate="1" complexity="1">
               <lines>
@@ -658,7 +658,7 @@
             <line number="52" hits="27" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Misc.DataFrames.TypedFrameExtensions" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/41e80eba561ff09a5ce0d3904a8c0abf8f4a4292/src/misc/Flowthru.Misc.DataFrames/TypedFrameExtensions.cs" line-rate="1" branch-rate="1" complexity="25">
+        <class name="Flowthru.Misc.DataFrames.TypedFrameExtensions" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/40f7047546e5ce57b6cc1a7c5a3fa559b5d026f5/src/misc/Flowthru.Misc.DataFrames/TypedFrameExtensions.cs" line-rate="1" branch-rate="1" complexity="25">
           <methods>
             <method name="Where" signature="(Flowthru.Misc.DataFrames.TypedFrame`1&lt;TSource&gt;,System.Linq.Expressions.Expression`1&lt;System.Func`2&lt;TSource,System.Boolean&gt;&gt;)" line-rate="1" branch-rate="1" complexity="2">
               <lines>
@@ -1078,7 +1078,7 @@
             <line number="316" hits="2" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Misc.DataFrames.WindowContext`1" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/41e80eba561ff09a5ce0d3904a8c0abf8f4a4292/src/misc/Flowthru.Misc.DataFrames/WindowContext.cs" line-rate="1" branch-rate="1" complexity="16">
+        <class name="Flowthru.Misc.DataFrames.WindowContext`1" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/40f7047546e5ce57b6cc1a7c5a3fa559b5d026f5/src/misc/Flowthru.Misc.DataFrames/WindowContext.cs" line-rate="1" branch-rate="1" complexity="16">
           <methods>
             <method name="RowNumber" signature="(Flowthru.Misc.DataFrames.FrameWindowSpec`1&lt;TSource&gt;)" line-rate="1" branch-rate="1" complexity="1">
               <lines>
