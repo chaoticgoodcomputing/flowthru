@@ -29,6 +29,16 @@ public abstract record StepResult
   public sealed record Succeeded(string StepLabel, TimeSpan Duration) : StepResult
   {
     public override string StepLabel { get; } = StepLabel;
+
+    /// <summary>
+    /// Optional context for the success. Null when the step's transform
+    /// ran normally; <c>"cached"</c> when the scheduler short-circuited
+    /// because the pre-flight cache plan marked the step's outputs as
+    /// fresh. Diagnostic providers and the CLI use this to distinguish
+    /// "ran fast" from "didn't run because cached" — a cached step
+    /// reports <see cref="Duration"/> as <see cref="TimeSpan.Zero"/>.
+    /// </summary>
+    public string? Reason { get; init; }
   }
 
   /// <summary>

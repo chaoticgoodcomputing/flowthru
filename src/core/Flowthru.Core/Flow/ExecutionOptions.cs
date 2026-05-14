@@ -1,3 +1,5 @@
+using Flowthru.Caching;
+
 namespace Flowthru.Flow;
 
 /// <summary>
@@ -33,6 +35,16 @@ public sealed record ExecutionOptions
   /// schedulers may use it differently or ignore it.
   /// </summary>
   public int Parallelism { get; init; } = 1;
+
+  /// <summary>
+  /// Pre-flight-computed cache plan, threaded into the scheduler so it
+  /// can short-circuit steps the plan marks fresh. Null when caching
+  /// is disabled, when no <c>UseCacheStorage</c> registration exists, or
+  /// when pre-flight was skipped. The scheduler treats a null plan
+  /// identically to <see cref="CachePlan.Empty"/> — run every step.
+  /// Framework-set; user code typically does not assign this directly.
+  /// </summary>
+  public CachePlan? CachePlan { get; init; }
 
   /// <summary>The default — fail-fast, shallow validation, no dry run, sequential.</summary>
   public static ExecutionOptions Default { get; } = new();

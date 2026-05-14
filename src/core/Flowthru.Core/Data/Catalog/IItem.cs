@@ -38,7 +38,7 @@ public interface IItem<T> : IItem
 /// Marker interface for catalog items whose <see cref="IItem{T}.Save"/>
 /// always fails — i.e. items that participate in flows only as inputs.
 /// Canonical implementer is
-/// <see cref="Flowthru.Data.Configuration.ConfigurationItem{T}"/>; any
+/// <see cref="Flowthru.Data.Catalog.Configuration.ConfigurationItem{T}"/>; any
 /// catalog item whose backing source is logically read-only (a remote
 /// service status feed, a frozen reference table, etc.) may opt in by
 /// implementing this interface.

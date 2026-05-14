@@ -1,7 +1,7 @@
 using Flowthru.Data.Catalog;
 using Microsoft.Extensions.Configuration;
 
-namespace Flowthru.Data.Configuration;
+namespace Flowthru.Data.Catalog.Configuration;
 
 /// <summary>
 /// Catalog-builder extensions for config-as-catalog. Mirrors the

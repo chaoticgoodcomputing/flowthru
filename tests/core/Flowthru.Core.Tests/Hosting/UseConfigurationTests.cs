@@ -1,5 +1,5 @@
 using Flowthru.Data.Catalog;
-using Flowthru.Data.Configuration;
+using Flowthru.Data.Catalog.Configuration;
 using Flowthru.Flow;
 using Flowthru.Hosting;
 using Flowthru.Prelude;

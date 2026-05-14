@@ -35,7 +35,7 @@ public static class StepDiagnostics
   /// FT1102: a step's <c>outputs:</c> argument is (or contains) a value
   /// whose type implements <c>IReadOnlyItem&lt;T&gt;</c>. Read-only
   /// items — the canonical example being
-  /// <c>Flowthru.Data.Configuration.ConfigurationItem&lt;T&gt;</c> —
+  /// <c>Flowthru.Data.Catalog.Configuration.ConfigurationItem&lt;T&gt;</c> —
   /// always fail on <c>Save</c>, so wiring them as a step output is a
   /// runtime failure the type system can catch at build time.
   /// </summary>

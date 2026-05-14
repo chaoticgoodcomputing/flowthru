@@ -1,3 +1,5 @@
+using Flowthru.Caching;
+using Flowthru.Data.Catalog;
 using Flowthru.Flow;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -62,6 +64,28 @@ public interface IFlowthruBuilder
   /// host-level reloads do not propagate into running flows.
   /// </summary>
   IFlowthruBuilder UseConfiguration(IConfiguration configuration);
+
+  /// <summary>
+  /// Customize where Flowthru persists its cache manifest. The factory
+  /// runs once when <see cref="IFlowthruService"/> resolves the manifest
+  /// item; pass any <see cref="IItem{T}"/> over
+  /// <see cref="CacheManifest"/> — JSON (the default), SQLite, Postgres,
+  /// or any other backend. The default if this is never called is
+  /// <c>Item.Of&lt;CacheManifest&gt;("flowthru.cache").Json().AtPath(".flowthru/cache.json").Build()</c>.
+  /// </summary>
+  /// <remarks>
+  /// <para>
+  /// Phase 6 of the smart-caching-and-slicing RFC. The cache item is
+  /// framework-managed — Flowthru itself reads it pre-flight to build
+  /// the cache plan and writes it post-run with updated fingerprints.
+  /// It is <b>not</b> part of any user-visible DAG, so the single-
+  /// producer law doesn't apply to it.
+  /// </para>
+  /// <para>
+  /// Multiple calls replace prior registrations (last-call-wins).
+  /// </para>
+  /// </remarks>
+  IFlowthruBuilder UseCacheStorage(Func<IServiceProvider, IItem<CacheManifest>> factory);
 
   /// <summary>Register a zero-catalog flow.</summary>
   IFlowRegistration RegisterFlow(string label, Func<BuiltFlow> factory);

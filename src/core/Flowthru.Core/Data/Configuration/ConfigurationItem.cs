@@ -6,7 +6,7 @@ using Flowthru.Prelude;
 using Flowthru.Validation.Runtime;
 using Microsoft.Extensions.Configuration;
 
-namespace Flowthru.Data.Configuration;
+namespace Flowthru.Data.Catalog.Configuration;
 
 /// <summary>
 /// A catalog item backed by an <see cref="IConfigurationSection"/>.

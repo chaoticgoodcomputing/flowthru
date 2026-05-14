@@ -1,3 +1,5 @@
+using Flowthru.Caching;
+using Flowthru.Data.Catalog;
 using Flowthru.Flow;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -41,7 +43,7 @@ public sealed class FlowthruServiceBuilder : IFlowthruBuilder
   /// <summary>
   /// Register an <see cref="IConfiguration"/> as a DI singleton, making
   /// it resolvable by catalog factories that consume it through
-  /// <see cref="Flowthru.Data.Configuration.ConfigurationItem{T}"/>.
+  /// <see cref="Flowthru.Data.Catalog.Configuration.ConfigurationItem{T}"/>.
   /// </summary>
   /// <remarks>
   /// <para>
@@ -83,6 +85,14 @@ public sealed class FlowthruServiceBuilder : IFlowthruBuilder
   {
     if (configuration is null) throw new ArgumentNullException(nameof(configuration));
     Services.Replace(ServiceDescriptor.Singleton(configuration));
+    return this;
+  }
+
+  /// <inheritdoc/>
+  public IFlowthruBuilder UseCacheStorage(Func<IServiceProvider, IItem<CacheManifest>> factory)
+  {
+    if (factory is null) throw new ArgumentNullException(nameof(factory));
+    Services.Replace(ServiceDescriptor.Singleton<IItem<CacheManifest>>(factory));
     return this;
   }
 

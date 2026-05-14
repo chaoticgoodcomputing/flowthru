@@ -13,7 +13,7 @@ namespace Flowthru.Core.SourceGenerators.Step;
 /// invocation supplies an <c>outputs:</c> argument whose static type
 /// implements <c>IReadOnlyItem&lt;T&gt;</c>. Per the Phase 5 RFC, the
 /// canonical implementer is
-/// <c>Flowthru.Data.Configuration.ConfigurationItem&lt;T&gt;</c> —
+/// <c>Flowthru.Data.Catalog.Configuration.ConfigurationItem&lt;T&gt;</c> —
 /// configuration items must be inputs only.
 /// </summary>
 /// <remarks>
