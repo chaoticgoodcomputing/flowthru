@@ -39,6 +39,13 @@ public static class CreateConfusionMatrixStep
     public int NumBins { get; init; } = 4;
   }
 
+  /// <summary>
+  /// Canonical Func-returning Create — the transform receives the
+  /// model predictions and the configuration-bound <see cref="Options"/>
+  /// as a tuple input. Phase 5/8: a change to
+  /// <c>Flowthru:Flows:Reporting:ConfusionMatrixOptions</c> in
+  /// <c>appsettings.json</c> invalidates this step's cached output.
+  /// </summary>
   public static Func<
     (IEnumerable<ModelPredictions> Data, Options Options),
     GenericChart
