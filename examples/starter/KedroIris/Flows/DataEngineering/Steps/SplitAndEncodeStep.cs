@@ -22,12 +22,16 @@ public static class SplitAndEncodeStep
   }
 
   /// <summary>
-  /// Splits raw iris data into encoded feature sets and training/test splits.
-  /// Tuple-input shape so the flow can close over <see cref="Options"/> at
-  /// flow-construction time.
+  /// Canonical Func-returning Create — the transform receives the
+  /// raw iris rows and the configuration-bound <see cref="Options"/>
+  /// as a tuple input. Options come from the catalog like any other
+  /// fingerprintable input (Phase 5/8 of the smart-caching RFC); a
+  /// change to <c>Flowthru:Flows:DataEngineering:SplitOptions</c> in
+  /// <c>appsettings.json</c> invalidates this step's cached output
+  /// automatically.
   /// </summary>
   public static Func<
-    (IEnumerable<IrisRawSchema> Data, Options Options),
+    (IEnumerable<IrisRawSchema>, Options),
     (
       IEnumerable<IrisFeatureSchema> Features,
       IEnumerable<FeatureVectorSchema> TrainX,
