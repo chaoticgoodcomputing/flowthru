@@ -11,6 +11,7 @@
 | FT1003  | Flowthru.Schema     | Error    | FlowthruColumn property has invalid backing type                   |
 | FT1004  | Flowthru.Schema     | Error    | FlowthruColumn properties have inconsistent backing types          |
 | FT1101  | Flowthru.Step       | Warning  | Step factory class missing [FlowthruStep] attribute                |
+| FT1102  | Flowthru.Step       | Error    | Read-only catalog item used as step output                         |
 | FT2001  | Flowthru.Validation | Error    | Single-producer invariant violated                                 |
 | FT2002  | Flowthru.Validation | Error    | Step type alignment violated                                       |
 | FT3001  | Flowthru.Validation | Error    | Pre-flight: duplicate producer                                     |

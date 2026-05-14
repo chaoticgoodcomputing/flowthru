@@ -1,4 +1,5 @@
 using Flowthru.Flow;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Flowthru.Hosting;
@@ -49,6 +50,18 @@ public interface IFlowthruBuilder
   /// </typeparam>
   IFlowthruBuilder RegisterCatalog<TCatalog>(Func<IServiceProvider, TCatalog> factory)
     where TCatalog : class;
+
+  /// <summary>
+  /// Register an <see cref="IConfiguration"/> as a DI singleton, making
+  /// it resolvable by catalog factories. Reintroduces the pre-0.17
+  /// config-as-catalog pattern: configuration sections may be bound as
+  /// catalog items via
+  /// <c>Item.Of&lt;T&gt;("...").FromConfiguration(c).AtSection("...").Build()</c>,
+  /// and the framework treats them as fingerprintable inputs for
+  /// caching. v1 captures the configuration at host construction;
+  /// host-level reloads do not propagate into running flows.
+  /// </summary>
+  IFlowthruBuilder UseConfiguration(IConfiguration configuration);
 
   /// <summary>Register a zero-catalog flow.</summary>
   IFlowRegistration RegisterFlow(string label, Func<BuiltFlow> factory);

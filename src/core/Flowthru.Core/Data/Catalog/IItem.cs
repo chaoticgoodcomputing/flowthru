@@ -35,6 +35,37 @@ public interface IItem<T> : IItem
 }
 
 /// <summary>
+/// Marker interface for catalog items whose <see cref="IItem{T}.Save"/>
+/// always fails — i.e. items that participate in flows only as inputs.
+/// Canonical implementer is
+/// <see cref="Flowthru.Data.Configuration.ConfigurationItem{T}"/>; any
+/// catalog item whose backing source is logically read-only (a remote
+/// service status feed, a frozen reference table, etc.) may opt in by
+/// implementing this interface.
+/// </summary>
+/// <remarks>
+/// <para>
+/// The marker exists so the framework can reject misuse at the earliest
+/// possible error phase. Source-gen diagnostic <c>FT1102</c> fires at
+/// build time when an item declaring this interface is passed to the
+/// <c>outputs:</c> position of a <c>FlowBuilder.AddStep</c> call,
+/// turning what would otherwise be a runtime failure into a red
+/// squiggle. See <c>docs/scratch/smart-caching-and-slicing/phase-5-config-as-catalog.md</c>.
+/// </para>
+/// <para>
+/// Implementers should also override <see cref="IItem{T}.Save"/> to
+/// return a deterministic failure (typically a
+/// <see cref="RuntimeError.External"/> wrapping an
+/// <see cref="InvalidOperationException"/>) so direct invocation
+/// outside the framework's wiring path still fails fast.
+/// </para>
+/// </remarks>
+/// <typeparam name="T">The data type stored at this item.</typeparam>
+public interface IReadOnlyItem<T> : IItem<T>
+{
+}
+
+/// <summary>
 /// Untyped item facet. The engine names this when reading inputs and
 /// writing outputs in a per-step loop without knowing each item's
 /// element type.
