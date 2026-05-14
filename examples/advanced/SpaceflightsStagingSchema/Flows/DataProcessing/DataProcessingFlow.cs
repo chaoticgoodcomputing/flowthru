@@ -13,28 +13,40 @@ namespace SpaceflightsStagingSchema.Flows.DataProcessing;
 /// </summary>
 public static class DataProcessingFlow
 {
-  public static BuiltFlow Create(RawCatalog raw, StagingCatalog staging, FlowConfig config)
+  public static BuiltFlow Create(RawCatalog raw, StagingCatalog staging)
   {
     return FlowBuilder.CreateFlow("DataProcessing", pipeline =>
     {
-      pipeline.AddStep<IEnumerable<CompanySchema>, IEnumerable<PreprocessedCompanySchema>>(
+      pipeline.AddStep<
+        IEnumerable<CompanySchema>,
+        SeedingOptions,
+        IEnumerable<PreprocessedCompanySchema>
+      >(
         label: "PreprocessCompanies",
-        transform: PreprocessCompaniesStep.Create(config.SeedingOptions),
-        inputs: raw.Companies,
+        transform: PreprocessCompaniesStep.Create(),
+        inputs: (raw.Companies, raw.SeedingOptions),
         outputs: staging.Companies
       );
 
-      pipeline.AddStep<IEnumerable<ShuttleSchema>, IEnumerable<PreprocessedShuttleSchema>>(
+      pipeline.AddStep<
+        IEnumerable<ShuttleSchema>,
+        SeedingOptions,
+        IEnumerable<PreprocessedShuttleSchema>
+      >(
         label: "PreprocessShuttles",
-        transform: PreprocessShuttlesStep.Create(config.SeedingOptions),
-        inputs: raw.Shuttles,
+        transform: PreprocessShuttlesStep.Create(),
+        inputs: (raw.Shuttles, raw.SeedingOptions),
         outputs: staging.Shuttles
       );
 
-      pipeline.AddStep<IEnumerable<ReviewSchema>, IEnumerable<PreprocessedReviewSchema>>(
+      pipeline.AddStep<
+        IEnumerable<ReviewSchema>,
+        SeedingOptions,
+        IEnumerable<PreprocessedReviewSchema>
+      >(
         label: "PreprocessReviews",
-        transform: PreprocessReviewsStep.Create(config.SeedingOptions),
-        inputs: raw.Reviews,
+        transform: PreprocessReviewsStep.Create(),
+        inputs: (raw.Reviews, raw.SeedingOptions),
         outputs: staging.Reviews
       );
     });

@@ -8,10 +8,11 @@ namespace SpaceflightsStagingSchema.Flows.DataProcessing.Steps;
 public static class PreprocessCompaniesStep
 {
   public static Func<
-    IEnumerable<CompanySchema>,
+    (IEnumerable<CompanySchema>, SeedingOptions),
     IEnumerable<PreprocessedCompanySchema>
-  > Create(SeedingOptions options) => raw =>
+  > Create() => input =>
   {
+    var (raw, options) = input;
     var real = raw.Select(Parse).Where(item => item is not null).Cast<PreprocessedCompanySchema>();
     var synthetic = SyntheticDataSeeder.Companies(
       options.SyntheticCompanies,

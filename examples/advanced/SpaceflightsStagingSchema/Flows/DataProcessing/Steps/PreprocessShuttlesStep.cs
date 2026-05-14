@@ -8,10 +8,11 @@ namespace SpaceflightsStagingSchema.Flows.DataProcessing.Steps;
 public static class PreprocessShuttlesStep
 {
   public static Func<
-    IEnumerable<ShuttleSchema>,
+    (IEnumerable<ShuttleSchema>, SeedingOptions),
     IEnumerable<PreprocessedShuttleSchema>
-  > Create(SeedingOptions options) => raw =>
+  > Create() => input =>
   {
+    var (raw, options) = input;
     var real = raw.Select(Parse).Where(item => item is not null).Cast<PreprocessedShuttleSchema>();
     var synthetic = SyntheticDataSeeder.Shuttles(
       options.SyntheticShuttles,

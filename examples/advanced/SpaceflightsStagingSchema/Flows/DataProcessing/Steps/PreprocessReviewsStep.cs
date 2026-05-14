@@ -11,10 +11,11 @@ namespace SpaceflightsStagingSchema.Flows.DataProcessing.Steps;
 public static class PreprocessReviewsStep
 {
   public static Func<
-    IEnumerable<ReviewSchema>,
+    (IEnumerable<ReviewSchema>, SeedingOptions),
     IEnumerable<PreprocessedReviewSchema>
-  > Create(SeedingOptions options) => raw =>
+  > Create() => input =>
   {
+    var (raw, options) = input;
     var real = raw.Select(Parse).Where(item => item is not null).Cast<PreprocessedReviewSchema>();
     var synthetic = SyntheticDataSeeder.Reviews(
       options.SyntheticReviews,

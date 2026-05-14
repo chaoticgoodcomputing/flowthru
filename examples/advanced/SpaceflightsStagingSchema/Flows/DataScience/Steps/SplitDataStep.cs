@@ -15,10 +15,11 @@ public static class SplitDataStep
   }
 
   public static Func<
-    IEnumerable<ModelInputTableSchema>,
+    (IEnumerable<ModelInputTableSchema>, ModelOptions),
     (IEnumerable<TrainingData>, IEnumerable<TestData>)
-  > Create(ModelOptions options) => rawData =>
+  > Create() => input =>
   {
+    var (rawData, options) = input;
     var data = rawData.ToList();
 
     var random = new Random(options.RandomState);
