@@ -57,6 +57,15 @@ public static partial class PythonStepFactory
   /// <c>PythonServiceRefDispatcher</c>. Leave <c>null</c> when the
   /// step has no service dependencies.
   /// </param>
+  /// <param name="codeVersion">
+  /// Optional build-time identity for the step's transform logic.
+  /// Typically computed via
+  /// <see cref="PythonCodeVersion.Derive(string?, string?, string?)"/>
+  /// from the <c>.py</c> source path, interpreter version, and
+  /// dependency manifest. When null the step's
+  /// <see cref="IStepNode.CodeVersion"/> stays null and downstream
+  /// cache-plan consumers treat it as cache-miss.
+  /// </param>
   public static FlowBuilder AddPythonStep<TIn, TOut>(
     this FlowBuilder builder,
     string label,
@@ -65,7 +74,8 @@ public static partial class PythonStepFactory
     IItem<TIn> input,
     IItem<TOut> output,
     IPythonExecutor executor,
-    IReadOnlyList<ServiceRef>? services = null
+    IReadOnlyList<ServiceRef>? services = null,
+    string? codeVersion = null
   )
     where TIn : notnull
     where TOut : notnull
@@ -90,11 +100,12 @@ public static partial class PythonStepFactory
       outputs: new[] { (IItem)output },
       loadInputs: () => input.Load(),
       saveOutputs: out_ => output.Save(out_),
-      serviceDependencies: services
+      serviceDependencies: services,
       // FlowLabel is stamped by FlowBuilder.Add via IStepNode.OnAddedToFlow —
       // we no longer thread `flowLabel: builder.Label` through every factory,
       // since the chokepoint guarantees every framework-shipped step type
       // inherits its defining flow's label automatically.
+      codeVersion: codeVersion
     );
 
     return builder.Add(step);

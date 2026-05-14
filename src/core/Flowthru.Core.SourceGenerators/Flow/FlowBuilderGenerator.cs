@@ -128,7 +128,8 @@ public sealed class FlowBuilderGenerator : IIncrementalGenerator
     sb.AppendLine("    string label,");
     sb.AppendLine($"    global::System.Func<{tinType}, {toutType}> transform,");
     sb.AppendLine($"    {inputsParam},");
-    sb.AppendLine($"    {outputsParam})");
+    sb.AppendLine($"    {outputsParam},");
+    sb.AppendLine("    string? codeVersion = null)");
     sb.AppendLine("  {");
     EmitBody(sb, m, n, tinType, toutType,
       transformInvocation: $"global::Flowthru.Prelude.FlowIO.Lift<{toutType}>(() => transform(input), \"step:\" + label)");
@@ -149,7 +150,8 @@ public sealed class FlowBuilderGenerator : IIncrementalGenerator
     sb.AppendLine("    string label,");
     sb.AppendLine($"    global::System.Func<{tinType}, global::System.Threading.Tasks.Task<{toutType}>> transform,");
     sb.AppendLine($"    {inputsParam},");
-    sb.AppendLine($"    {outputsParam})");
+    sb.AppendLine($"    {outputsParam},");
+    sb.AppendLine("    string? codeVersion = null)");
     sb.AppendLine("  {");
     EmitBody(sb, m, n, tinType, toutType,
       transformInvocation: "global::Flowthru.Prelude.FlowIO.LiftAsync(_ => transform(input))");
@@ -170,7 +172,8 @@ public sealed class FlowBuilderGenerator : IIncrementalGenerator
     sb.AppendLine("    string label,");
     sb.AppendLine($"    global::System.Func<{tinType}, global::System.Threading.CancellationToken, global::System.Threading.Tasks.Task<{toutType}>> transform,");
     sb.AppendLine($"    {inputsParam},");
-    sb.AppendLine($"    {outputsParam})");
+    sb.AppendLine($"    {outputsParam},");
+    sb.AppendLine("    string? codeVersion = null)");
     sb.AppendLine("  {");
     EmitBody(sb, m, n, tinType, toutType,
       transformInvocation: "global::Flowthru.Prelude.FlowIO.LiftAsync(ct => transform(input, ct))");
@@ -296,7 +299,11 @@ public sealed class FlowBuilderGenerator : IIncrementalGenerator
     sb.AppendLine("      loadInputs,");
     // FlowLabel is stamped centrally by FlowBuilder.Add via IStepNode.OnAddedToFlow;
     // emitting `flowLabel: this.Label` here would duplicate that responsibility.
-    sb.AppendLine("      saveOutputs));");
+    // codeVersion is threaded through verbatim — callers that pass the
+    // StepMetadataGenerator-emitted `_Metadata.CodeVersion` constant get a
+    // build-time identity surfaced on IStepNode for the cache-plan phase.
+    sb.AppendLine("      saveOutputs,");
+    sb.AppendLine("      codeVersion: codeVersion));");
   }
 
   /// <summary>
@@ -359,7 +366,7 @@ public sealed class FlowBuilderGenerator : IIncrementalGenerator
     // (0, 0) — Action / Func<Task> / Func<CancellationToken, Task>.
 
     // Sync: Action.
-    sb.AppendLine("  public FlowBuilder AddStep(string label, global::System.Action transform)");
+    sb.AppendLine("  public FlowBuilder AddStep(string label, global::System.Action transform, string? codeVersion = null)");
     sb.AppendLine("  {");
     EmitZeroArityBody(sb,
       "FlowUnit",
@@ -370,7 +377,7 @@ public sealed class FlowBuilderGenerator : IIncrementalGenerator
     sb.AppendLine();
 
     // Async: Func<Task>.
-    sb.AppendLine("  public FlowBuilder AddStep(string label, global::System.Func<global::System.Threading.Tasks.Task> transform)");
+    sb.AppendLine("  public FlowBuilder AddStep(string label, global::System.Func<global::System.Threading.Tasks.Task> transform, string? codeVersion = null)");
     sb.AppendLine("  {");
     EmitZeroArityBody(sb,
       "FlowUnit",
@@ -381,7 +388,7 @@ public sealed class FlowBuilderGenerator : IIncrementalGenerator
     sb.AppendLine();
 
     // Async + CT: Func<CancellationToken, Task>.
-    sb.AppendLine("  public FlowBuilder AddStep(string label, global::System.Func<global::System.Threading.CancellationToken, global::System.Threading.Tasks.Task> transform)");
+    sb.AppendLine("  public FlowBuilder AddStep(string label, global::System.Func<global::System.Threading.CancellationToken, global::System.Threading.Tasks.Task> transform, string? codeVersion = null)");
     sb.AppendLine("  {");
     EmitZeroArityBody(sb,
       "FlowUnit",
@@ -403,7 +410,8 @@ public sealed class FlowBuilderGenerator : IIncrementalGenerator
     sb.AppendLine($"  public FlowBuilder AddStep<{toutTypeParams}>(");
     sb.AppendLine("    string label,");
     sb.AppendLine($"    global::System.Func<{toutType}> transform,");
-    sb.AppendLine($"    {outputsParam})");
+    sb.AppendLine($"    {outputsParam},");
+    sb.AppendLine("    string? codeVersion = null)");
     sb.AppendLine("  {");
     EmitSourceBody(sb, n, toutType,
       transformInvocation: $"global::Flowthru.Prelude.FlowIO.Lift<{toutType}>(() => transform(), \"step:\" + label)"
@@ -415,7 +423,8 @@ public sealed class FlowBuilderGenerator : IIncrementalGenerator
     sb.AppendLine($"  public FlowBuilder AddStep<{toutTypeParams}>(");
     sb.AppendLine("    string label,");
     sb.AppendLine($"    global::System.Func<global::System.Threading.Tasks.Task<{toutType}>> transform,");
-    sb.AppendLine($"    {outputsParam})");
+    sb.AppendLine($"    {outputsParam},");
+    sb.AppendLine("    string? codeVersion = null)");
     sb.AppendLine("  {");
     EmitSourceBody(sb, n, toutType,
       transformInvocation: $"global::Flowthru.Prelude.FlowIO.LiftAsync<{toutType}>(_ => transform(), \"step:\" + label)"
@@ -427,7 +436,8 @@ public sealed class FlowBuilderGenerator : IIncrementalGenerator
     sb.AppendLine($"  public FlowBuilder AddStep<{toutTypeParams}>(");
     sb.AppendLine("    string label,");
     sb.AppendLine($"    global::System.Func<global::System.Threading.CancellationToken, global::System.Threading.Tasks.Task<{toutType}>> transform,");
-    sb.AppendLine($"    {outputsParam})");
+    sb.AppendLine($"    {outputsParam},");
+    sb.AppendLine("    string? codeVersion = null)");
     sb.AppendLine("  {");
     EmitSourceBody(sb, n, toutType,
       transformInvocation: $"global::Flowthru.Prelude.FlowIO.LiftAsync<{toutType}>(ct => transform(ct), \"step:\" + label)"
@@ -447,7 +457,8 @@ public sealed class FlowBuilderGenerator : IIncrementalGenerator
     sb.AppendLine($"  public FlowBuilder AddStep<{tinTypeParams}>(");
     sb.AppendLine("    string label,");
     sb.AppendLine($"    global::System.Action<{tinType}> transform,");
-    sb.AppendLine($"    {inputsParam})");
+    sb.AppendLine($"    {inputsParam},");
+    sb.AppendLine("    string? codeVersion = null)");
     sb.AppendLine("  {");
     EmitSinkBody(sb, m, tinType,
       transformInvocation: "global::Flowthru.Prelude.FlowIO.Lift<global::Flowthru.Prelude.FlowUnit>(() => { transform(input); return global::Flowthru.Prelude.FlowUnit.Default; }, \"step:\" + label)"
@@ -459,7 +470,8 @@ public sealed class FlowBuilderGenerator : IIncrementalGenerator
     sb.AppendLine($"  public FlowBuilder AddStep<{tinTypeParams}>(");
     sb.AppendLine("    string label,");
     sb.AppendLine($"    global::System.Func<{tinType}, global::System.Threading.Tasks.Task> transform,");
-    sb.AppendLine($"    {inputsParam})");
+    sb.AppendLine($"    {inputsParam},");
+    sb.AppendLine("    string? codeVersion = null)");
     sb.AppendLine("  {");
     EmitSinkBody(sb, m, tinType,
       transformInvocation: "global::Flowthru.Prelude.FlowIO.LiftAsync<global::Flowthru.Prelude.FlowUnit>(async _ => { await transform(input).ConfigureAwait(false); return global::Flowthru.Prelude.FlowUnit.Default; }, \"step:\" + label)"
@@ -471,7 +483,8 @@ public sealed class FlowBuilderGenerator : IIncrementalGenerator
     sb.AppendLine($"  public FlowBuilder AddStep<{tinTypeParams}>(");
     sb.AppendLine("    string label,");
     sb.AppendLine($"    global::System.Func<{tinType}, global::System.Threading.CancellationToken, global::System.Threading.Tasks.Task> transform,");
-    sb.AppendLine($"    {inputsParam})");
+    sb.AppendLine($"    {inputsParam},");
+    sb.AppendLine("    string? codeVersion = null)");
     sb.AppendLine("  {");
     EmitSinkBody(sb, m, tinType,
       transformInvocation: "global::Flowthru.Prelude.FlowIO.LiftAsync<global::Flowthru.Prelude.FlowUnit>(async ct => { await transform(input, ct).ConfigureAwait(false); return global::Flowthru.Prelude.FlowUnit.Default; }, \"step:\" + label)"
@@ -502,7 +515,8 @@ public sealed class FlowBuilderGenerator : IIncrementalGenerator
     sb.AppendLine("      loadInputs,");
     // FlowLabel is stamped centrally by FlowBuilder.Add via IStepNode.OnAddedToFlow;
     // emitting `flowLabel: this.Label` here would duplicate that responsibility.
-    sb.AppendLine("      saveOutputs));");
+    sb.AppendLine("      saveOutputs,");
+    sb.AppendLine("      codeVersion: codeVersion));");
   }
 
   /// <summary>
@@ -545,7 +559,8 @@ public sealed class FlowBuilderGenerator : IIncrementalGenerator
     sb.AppendLine("      loadInputs,");
     // FlowLabel is stamped centrally by FlowBuilder.Add via IStepNode.OnAddedToFlow;
     // emitting `flowLabel: this.Label` here would duplicate that responsibility.
-    sb.AppendLine("      saveOutputs));");
+    sb.AppendLine("      saveOutputs,");
+    sb.AppendLine("      codeVersion: codeVersion));");
   }
 
   /// <summary>
@@ -586,6 +601,7 @@ public sealed class FlowBuilderGenerator : IIncrementalGenerator
     sb.AppendLine("      loadInputs,");
     // FlowLabel is stamped centrally by FlowBuilder.Add via IStepNode.OnAddedToFlow;
     // emitting `flowLabel: this.Label` here would duplicate that responsibility.
-    sb.AppendLine("      saveOutputs));");
+    sb.AppendLine("      saveOutputs,");
+    sb.AppendLine("      codeVersion: codeVersion));");
   }
 }

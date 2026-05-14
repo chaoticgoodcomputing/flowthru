@@ -60,6 +60,37 @@ public interface IStepNode : INode
   void OnAddedToFlow(string flowLabel) { /* default: no-op */ }
 
   /// <summary>
+  /// Build-time identity of the step's transform logic. Source-generated
+  /// steps (decorated with <see cref="FlowthruStepAttribute"/>) thread the
+  /// <c>StepMetadataGenerator</c>-computed SHA-256 prefix of the step
+  /// class's normalized source text; the Python extension stamps an
+  /// equivalent identity derived from <c>.py</c> source, interpreter
+  /// version, and dependency manifest. Default-interface implementation
+  /// returns <c>null</c> — the explicit "unknown identity" signal that
+  /// downstream cache-plan consumers treat as cache-miss.
+  /// </summary>
+  /// <remarks>
+  /// <para>
+  /// A non-null <see cref="CodeVersion"/> is a promise that two runs of
+  /// the same step with the same inputs will produce equivalent outputs.
+  /// Hand-rolled <see cref="IStepNode"/> implementations should leave
+  /// this null unless they can offer that guarantee. Returning a stale
+  /// or fabricated value silently invalidates downstream caches — the
+  /// null default is the fail-safe.
+  /// </para>
+  /// <para>
+  /// <strong>Scope (v1).</strong> The source-generator-computed digest
+  /// covers the step class's own source text only. Cross-assembly
+  /// type-symbol changes — e.g., a schema record renamed in another
+  /// project — are not reflected. Downstream cache-plan logic must
+  /// therefore also incorporate input item digests when deciding cache
+  /// hits; <see cref="CodeVersion"/> is one dimension of that identity,
+  /// not the whole.
+  /// </para>
+  /// </remarks>
+  string? CodeVersion => null;
+
+  /// <summary>
   /// Items this step reads at the start of <see cref="Execute"/>.
   /// </summary>
   IReadOnlyList<IItem> Inputs { get; }

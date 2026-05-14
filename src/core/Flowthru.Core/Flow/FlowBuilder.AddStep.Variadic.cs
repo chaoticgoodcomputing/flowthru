@@ -47,11 +47,19 @@ public sealed partial class FlowBuilder
   /// transform's <see cref="IEnumerable{T}"/> argument.
   /// </param>
   /// <param name="outputs">Catalog item receiving the reduction's result.</param>
+  /// <param name="codeVersion">
+  /// Optional build-time identity for the transform — typically the
+  /// <c>{ClassName}_Metadata.CodeVersion</c> constant emitted by
+  /// <c>StepMetadataGenerator</c> for the step's authoring class. Null
+  /// when constructed inline; consumers downstream of this step receive
+  /// it as <see cref="IStepNode.CodeVersion"/> for cache-plan purposes.
+  /// </param>
   public FlowBuilder AddStep<TIn, TOut>(
     string label,
     Func<IEnumerable<TIn>, TOut> transform,
     IReadOnlyList<IItem<TIn>> inputs,
-    IItem<TOut> outputs
+    IItem<TOut> outputs,
+    string? codeVersion = null
   )
   {
     if (label is null) throw new ArgumentNullException(nameof(label));
@@ -63,7 +71,8 @@ public sealed partial class FlowBuilder
       label,
       input => FlowIO.Lift(() => transform(input), source: "step:" + label),
       inputs,
-      outputs
+      outputs,
+      codeVersion
     );
   }
 
@@ -75,7 +84,8 @@ public sealed partial class FlowBuilder
     string label,
     Func<IEnumerable<TIn>, Task<TOut>> transform,
     IReadOnlyList<IItem<TIn>> inputs,
-    IItem<TOut> outputs
+    IItem<TOut> outputs,
+    string? codeVersion = null
   )
   {
     if (label is null) throw new ArgumentNullException(nameof(label));
@@ -87,7 +97,8 @@ public sealed partial class FlowBuilder
       label,
       input => FlowIO.LiftAsync(_ => transform(input), source: "step:" + label),
       inputs,
-      outputs
+      outputs,
+      codeVersion
     );
   }
 
@@ -98,7 +109,8 @@ public sealed partial class FlowBuilder
     string label,
     Func<IEnumerable<TIn>, CancellationToken, Task<TOut>> transform,
     IReadOnlyList<IItem<TIn>> inputs,
-    IItem<TOut> outputs
+    IItem<TOut> outputs,
+    string? codeVersion = null
   )
   {
     if (label is null) throw new ArgumentNullException(nameof(label));
@@ -110,7 +122,8 @@ public sealed partial class FlowBuilder
       label,
       input => FlowIO.LiftAsync(ct => transform(input, ct), source: "step:" + label),
       inputs,
-      outputs
+      outputs,
+      codeVersion
     );
   }
 
@@ -120,7 +133,8 @@ public sealed partial class FlowBuilder
     string label,
     Func<IEnumerable<TIn>, FlowIO<TOut>> transformIO,
     IReadOnlyList<IItem<TIn>> inputs,
-    IItem<TOut> outputs
+    IItem<TOut> outputs,
+    string? codeVersion = null
   )
   {
     // Snapshot the input list so closures don't see later mutations.
@@ -162,7 +176,8 @@ public sealed partial class FlowBuilder
       outputs: new IItem[] { outputs },
       loadInputs: loadInputs,
       saveOutputs: saveOutputs,
-      flowLabel: this.Label
+      flowLabel: this.Label,
+      codeVersion: codeVersion
     ));
   }
 }

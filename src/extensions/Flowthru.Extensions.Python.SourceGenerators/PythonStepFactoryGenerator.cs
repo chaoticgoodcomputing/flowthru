@@ -357,7 +357,8 @@ public class PythonStepFactoryGenerator : IIncrementalGenerator
           global::Flowthru.Step.Python.IPythonExecutor executor,
           {{EmitInputItemParameters(inputTypes)}},
           {{EmitOutputItemParameters(outputTypes)}},
-          System.Collections.Generic.IReadOnlyList<global::Flowthru.Validation.Runtime.ServiceRef>? services = null
+          System.Collections.Generic.IReadOnlyList<global::Flowthru.Validation.Runtime.ServiceRef>? services = null,
+          string? codeVersion = null
         )
         {
           return new global::Flowthru.Step.Python.PythonStep<{{inputTuple}}, {{outputTuple}}>(
@@ -369,7 +370,8 @@ public class PythonStepFactoryGenerator : IIncrementalGenerator
             outputs: new global::Flowthru.Data.Catalog.IItem[] { {{string.Join(", ", Enumerable.Range(1, outputTypes.Count).Select(i => $"output{i}"))}} },
             loadInputs: () => {{LoadInputsExpr(inputTypes.Count)}},
             saveOutputs: {{SaveOutputsExpr(outputTypes.Count)}},
-            serviceDependencies: services
+            serviceDependencies: services,
+            codeVersion: codeVersion
           );
         }
         """

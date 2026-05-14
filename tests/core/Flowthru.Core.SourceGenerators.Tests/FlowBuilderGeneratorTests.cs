@@ -197,18 +197,20 @@ public class FlowBuilderGeneratorTests
   {
     var emitted = Emit();
 
-    // (0, 0) sync: plain Action.
-    Assert.That(emitted, Does.Contain("AddStep(string label, global::System.Action transform)"),
+    // (0, 0) sync: plain Action. The optional codeVersion is appended
+    // for cache-plan threading (Phase 4); the existence of the Action
+    // overload is what these assertions pin.
+    Assert.That(emitted, Does.Contain("AddStep(string label, global::System.Action transform, string? codeVersion = null)"),
       "(0,0) side-effect overload should accept an Action transform.");
 
     // (0, 0) async: Func<Task>.
     Assert.That(emitted,
-      Does.Contain("AddStep(string label, global::System.Func<global::System.Threading.Tasks.Task> transform)"),
+      Does.Contain("AddStep(string label, global::System.Func<global::System.Threading.Tasks.Task> transform, string? codeVersion = null)"),
       "(0,0) async overload should accept a Func<Task> transform.");
 
     // (0, 0) async + CT: Func<CancellationToken, Task>.
     Assert.That(emitted,
-      Does.Contain("AddStep(string label, global::System.Func<global::System.Threading.CancellationToken, global::System.Threading.Tasks.Task> transform)"),
+      Does.Contain("AddStep(string label, global::System.Func<global::System.Threading.CancellationToken, global::System.Threading.Tasks.Task> transform, string? codeVersion = null)"),
       "(0,0) async-with-CT overload should accept Func<CancellationToken, Task>.");
   }
 
@@ -254,6 +256,37 @@ public class FlowBuilderGeneratorTests
     );
     Assert.That(guardCount, Is.EqualTo(108),
       "Every emitted overload should guard a null transform.");
+  }
+
+  // ── CodeVersion threading (Phase 4) ───────────────────────────────────
+
+  [Test]
+  public void EveryOverload_AcceptsOptionalCodeVersionParameter()
+  {
+    var emitted = Emit();
+    // Every emitted AddStep overload should expose an optional
+    // codeVersion parameter so callers can thread the
+    // StepMetadataGenerator-emitted `_Metadata.CodeVersion` constant
+    // through to the constructed step. We count occurrences of the
+    // parameter spelling to confirm threading reaches every cell —
+    // mismatching with the AddStep count would signal a missed cell.
+    var paramCount = CountOccurrences(emitted, "string? codeVersion = null");
+    Assert.That(paramCount, Is.EqualTo(108),
+      "Every AddStep overload (108 total) should accept the optional codeVersion parameter.");
+  }
+
+  [Test]
+  public void EveryOverload_ThreadsCodeVersionToStepConstructor()
+  {
+    var emitted = Emit();
+    // Every emitted body should pass `codeVersion: codeVersion` to
+    // the underlying Step<TIn, TOut> constructor. If a cell forgets
+    // the assignment, downstream consumers see null and treat the
+    // step as cache-miss — exactly the failure mode the threading
+    // exists to prevent.
+    var threadCount = CountOccurrences(emitted, "codeVersion: codeVersion");
+    Assert.That(threadCount, Is.EqualTo(108),
+      "Every emitted body should pass codeVersion: codeVersion to the Step constructor.");
   }
 
   // ── helpers ───────────────────────────────────────────────────────────
