@@ -2,15 +2,19 @@
 #:project ../../src/extensions/Flowthru.Extensions.Csv/Flowthru.Extensions.Csv.csproj
 #:project ../../src/extensions/Flowthru.Extensions.Excel/Flowthru.Extensions.Excel.csproj
 #:project ../../src/extensions/Flowthru.Extensions.Parquet/Flowthru.Extensions.Parquet.csproj
-#:project ../../tests/helpers/Flowthru.Tests.Kits/Flowthru.Tests.Kits.csproj
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Capability matrix generator (file-based C# program — .NET 10+).
 //
 // Constructs each first-party format with a representative schema, reads its
-// RowFeatures + planner-opt-out status + segment-implementation surface, and
-// emits a Markdown matrix to the path passed as argv[0]
+// runtime StorageTraits + planner-opt-out status + segment-implementation
+// surface, and emits a Markdown matrix to the path passed as argv[0]
 // (default: docs/reference/extensions/capability-matrix.md).
+//
+// Row-shape capability claims (IScalar wrappers, nested support) moved from
+// a runtime FormatRowFeatures bag to type-level markers post-FP-rewrite —
+// the script now reads them via ISupportsIScalar / ISupportsNested interface
+// implementation rather than RowFeatures property access.
 //
 // Two consumers:
 //   - tests:_test:capability-matrix-freshness — generates fresh output, then
@@ -22,12 +26,12 @@
 
 using System.Reflection;
 using System.Text;
-using Flowthru.Core.Abstractions;
-using Flowthru.Core.Data.Capabilities;
-using Flowthru.Core.Data.Serialization;
-using Flowthru.Core.Data.Storage;
-using Flowthru.Core.Data.Storage.Format;
-using Flowthru.Tests.Kits.Schemas;
+using Flowthru.Data.Schema;
+using Flowthru.Data.Schema.Mapping;
+using Flowthru.Data.Storage;
+using Flowthru.Data.Storage.Csv;
+using Flowthru.Data.Storage.Excel;
+using Flowthru.Data.Storage.Parquet;
 
 var outputPath = args.Length > 0
   ? args[0]
@@ -35,25 +39,25 @@ var outputPath = args.Length > 0
 
 var entries = new[]
 {
-  InspectFormat<CsvFormatSerializer<TraditionalSchema>>(
+  InspectFormat<CsvFormatSerializer<MatrixProbeRow>>(
     "CSV",
     "Flowthru.Extensions.Csv",
-    () => new CsvFormatSerializer<TraditionalSchema>()
+    () => new CsvFormatSerializer<MatrixProbeRow>()
   ),
-  InspectFormat<ExcelFormatSerializer<TraditionalSchema>>(
+  InspectFormat<ExcelFormatSerializer<MatrixProbeRow>>(
     "Excel",
     "Flowthru.Extensions.Excel",
-    () => new ExcelFormatSerializer<TraditionalSchema>(sheetName: "Sheet1")
+    () => new ExcelFormatSerializer<MatrixProbeRow>(sheetName: "Sheet1")
   ),
-  InspectFormat<ParquetFormatSerializer<TraditionalSchema>>(
+  InspectFormat<ParquetFormatSerializer<MatrixProbeRow>>(
     "Parquet",
     "Flowthru.Extensions.Parquet",
-    () => new ParquetFormatSerializer<TraditionalSchema>()
+    () => new ParquetFormatSerializer<MatrixProbeRow>()
   ),
-  InspectFormat<JsonFormatSerializer<TraditionalSchema>>(
+  InspectFormat<JsonFormatSerializer<MatrixProbeRow>>(
     "JSON",
     "Flowthru.Core (built-in)",
-    () => new JsonFormatSerializer<TraditionalSchema>()
+    () => new JsonFormatSerializer<MatrixProbeRow>()
   ),
 };
 
@@ -68,14 +72,15 @@ return 0;
 static FormatEntry InspectFormat<TSerializer>(
   string displayName,
   string assemblyShortName,
-  Func<IFormatRowReader<TraditionalSchema>> factory
+  Func<IFormatBase<MatrixProbeRow>> factory
 )
 {
-  var serializerType = typeof(TSerializer).IsGenericType
-    ? typeof(TSerializer).GetGenericTypeDefinition()
-    : typeof(TSerializer);
+  var concreteType = typeof(TSerializer);
+  var openType = concreteType.IsGenericType
+    ? concreteType.GetGenericTypeDefinition()
+    : concreteType;
 
-  var optOutAttr = serializerType.GetCustomAttribute<OptOutOfPropertyPlannerAttribute>();
+  var optOutAttr = openType.GetCustomAttribute<OptOutOfPropertyPlannerAttribute>();
   var consumesPlanner = optOutAttr is null;
 
   // Detect structural flat-only constraint via the open generic's parameter constraints.
@@ -83,7 +88,7 @@ static FormatEntry InspectFormat<TSerializer>(
   // accepting nested schemas — its Nested cell in the matrix is "not applicable" rather
   // than a tracked false claim.
   var constrainedToFlat = false;
-  var typeParams = serializerType.GetGenericArguments();
+  var typeParams = openType.GetGenericArguments();
   if (typeParams.Length > 0)
   {
     var constraints = typeParams[0].GetGenericParameterConstraints();
@@ -95,9 +100,16 @@ static FormatEntry InspectFormat<TSerializer>(
   // format reads); writer is optional (Excel via ExcelDataReader is reader-only); the
   // stream-reader sub-interface is a structural claim of bounded-memory decoding
   // (e.g., CSV and Parquet, but not JSON's whole-array buffer).
-  var implementsReader = typeof(IFormatRowReader<TraditionalSchema>).IsAssignableFrom(typeof(TSerializer));
-  var implementsWriter = typeof(IFormatRowWriter<TraditionalSchema>).IsAssignableFrom(typeof(TSerializer));
-  var implementsStreamReader = typeof(IFormatStreamReader<TraditionalSchema>).IsAssignableFrom(typeof(TSerializer));
+  var implementsReader = typeof(IFormatRowReader<MatrixProbeRow>).IsAssignableFrom(concreteType);
+  var implementsWriter = typeof(IFormatRowWriter<MatrixProbeRow>).IsAssignableFrom(concreteType);
+  var implementsStreamReader = typeof(IFormatStreamReader<MatrixProbeRow>).IsAssignableFrom(concreteType);
+
+  // Row-shape capability claims (post-FP-rewrite): the format declares support by
+  // implementing the corresponding marker interface, not by setting a bool on a
+  // runtime features bag. Absence of ISupportsNested combined with a flat-only
+  // constraint is the canonical "structurally not applicable" cell.
+  var supportsIScalar = typeof(ISupportsIScalar).IsAssignableFrom(concreteType);
+  var supportsNested = typeof(ISupportsNested).IsAssignableFrom(concreteType);
 
   var instance = factory();
   return new FormatEntry(
@@ -105,7 +117,8 @@ static FormatEntry InspectFormat<TSerializer>(
     assemblyShortName,
     consumesPlanner,
     optOutAttr?.Reason,
-    instance.RowFeatures,
+    supportsIScalar,
+    supportsNested,
     instance.Traits,
     constrainedToFlat,
     implementsReader,
@@ -122,8 +135,8 @@ static string RenderMarkdown(IReadOnlyList<FormatEntry> entries)
   sb.AppendLine();
   sb.AppendLine(
     "This document is **auto-generated** from each format extension's"
-      + " `IFormatBase<TRow>.RowFeatures` declaration and which capability"
-      + " segments it implements (`IFormatRowReader<TRow>`,"
+      + " marker-interface declarations (`ISupportsIScalar`, `ISupportsNested`)"
+      + " and which capability segments it implements (`IFormatRowReader<TRow>`,"
       + " `IFormatRowWriter<TRow>`, `IFormatStreamReader<TRow>`)."
       + " Do not edit by hand —"
       + " the `_test:capability-matrix-freshness` meta-test fails on drift."
@@ -162,12 +175,13 @@ static string RenderMarkdown(IReadOnlyList<FormatEntry> entries)
   );
   sb.AppendLine();
   sb.AppendLine(
-    "- **`✓`** — format claims support; the matching kit conformance fixture"
-      + " round-trips successfully."
+    "- **`✓`** — format implements the marker interface; the matching kit"
+      + " conformance fixture round-trips successfully."
   );
   sb.AppendLine(
-    "- **`✗`** — format claims false; could be implemented but isn't."
-      + " Tracked as a follow-up; kit fixtures requiring the feature skip vacuously."
+    "- **`✗`** — format does not implement the marker; could be implemented but"
+      + " isn't. Tracked as a follow-up; kit fixtures requiring the feature skip"
+      + " vacuously."
   );
   sb.AppendLine(
     "- **`—`** — structurally not applicable; the format's generic constraint"
@@ -180,9 +194,9 @@ static string RenderMarkdown(IReadOnlyList<FormatEntry> entries)
   foreach (var e in entries)
   {
     var shape = e.ConstrainedToFlat ? "Flat-only" : "Flat or nested";
-    var nestedCell = e.ConstrainedToFlat ? "—" : Cell(e.Features.SupportsNested);
+    var nestedCell = e.ConstrainedToFlat ? "—" : Cell(e.SupportsNested);
     sb.AppendLine(
-      $"| **{e.Name}** ({e.AssemblyShortName}) | {shape} | {Cell(e.Features.SupportsIScalar)} | {nestedCell} |"
+      $"| **{e.Name}** ({e.AssemblyShortName}) | {shape} | {Cell(e.SupportsIScalar)} | {nestedCell} |"
     );
   }
   sb.AppendLine();
@@ -219,7 +233,7 @@ static string RenderMarkdown(IReadOnlyList<FormatEntry> entries)
   sb.AppendLine();
   sb.AppendLine(
     "Medium-level capabilities of each format. See"
-      + " `Flowthru.Core.Data.Capabilities.StorageTraits` for the full surface."
+      + " `Flowthru.Data.Storage.StorageTraits` for the full surface."
   );
   sb.AppendLine();
   sb.AppendLine(
@@ -299,10 +313,34 @@ internal record FormatEntry(
   string AssemblyShortName,
   bool ConsumesPlanner,
   string? OptOutReason,
-  FormatRowFeatures Features,
+  bool SupportsIScalar,
+  bool SupportsNested,
   StorageTraits Traits,
   bool ConstrainedToFlat,
   bool ImplementsReader,
   bool ImplementsWriter,
   bool ImplementsStreamReader
 );
+
+/// <summary>
+/// Inline probe schema for the capability-matrix generator. Flat fields
+/// only so it satisfies the <c>IFlatSchema</c>-constrained formats
+/// (CSV, Excel, Parquet) and <c>IStructuredSerializable</c> for JSON.
+/// </summary>
+/// <remarks>
+/// File-based C# programs don't pull in the <c>[FlowthruSchema]</c>
+/// source generator that would normally emit the four marker
+/// interfaces, so we declare them inline. The script only constructs
+/// the format types and reflects on them — no actual serialization
+/// runs — so the manual marker declarations are sufficient and never
+/// diverge from a real schema's emitted surface.
+/// </remarks>
+public record MatrixProbeRow :
+  IFlatSchema,
+  ITextSerializable,
+  IBinarySerializable,
+  IStructuredSerializable
+{
+  public required int Id { get; init; }
+  public required string Name { get; init; }
+}
