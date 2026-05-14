@@ -1,3 +1,13 @@
+## 0.18.1 (2026-05-14)
+
+### 🩹 Fixes
+
+- added cache hits/misses to metadata ([ee430800](https://github.com/chaoticgoodcomputing/flowthru/commit/ee430800))
+
+### ❤️ Thank You
+
+- Spencer Elkington
+
 ## 0.18.0 (2026-05-14)
 
 ### 🚀 Features
