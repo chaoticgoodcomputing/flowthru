@@ -10,22 +10,20 @@ namespace KedroIrisFUnit.Flows.DataEngineering;
 /// <summary>
 /// Creates the data engineering pipeline that splits the iris
 /// dataset and one-hot-encodes species labels. The single
-/// <c>SplitAndEncodeStep</c> has arity 1×5 (one input — the raw
-/// dataset — produces five outputs: features + train X/Y + test X/Y);
-/// options are closed over via <see cref="FlowConfig"/> at flow
-/// construction time per §2.6.
+/// <c>SplitAndEncodeStep</c> has arity 2×5 — its inputs are the raw
+/// rows plus the configuration-bound <see cref="SplitAndEncodeStep.Options"/>
+/// (sourced from the catalog as a <c>ConfigurationItem&lt;T&gt;</c>) and
+/// it produces five outputs: features + train X/Y + test X/Y.
 /// </summary>
 public static class DataEngineeringFlow
 {
-  public static BuiltFlow Create(Catalog catalog, FlowConfig config)
+  public static BuiltFlow Create(Catalog catalog)
   {
-    var splitOptions = config.SplitOptions;
-    var splitTransform = SplitAndEncodeStep.Create();
-
     return FlowBuilder.CreateFlow("DataEngineering", pipeline =>
     {
       pipeline.AddStep<
         IEnumerable<IrisRawSchema>,
+        SplitAndEncodeStep.Options,
         IEnumerable<IrisFeatureSchema>,
         IEnumerable<FeatureVectorSchema>,
         IEnumerable<TargetLabelSchema>,
@@ -33,8 +31,8 @@ public static class DataEngineeringFlow
         IEnumerable<TargetLabelSchema>
       >(
         label: "SplitAndEncode",
-        transform: rawData => splitTransform((rawData, splitOptions)),
-        inputs: catalog.IrisRaw,
+        transform: SplitAndEncodeStep.Create(),
+        inputs: (catalog.IrisRaw, catalog.SplitOptions),
         outputs: (catalog.IrisFeatures, catalog.TrainX, catalog.TrainY, catalog.TestX, catalog.TestY)
       );
     });

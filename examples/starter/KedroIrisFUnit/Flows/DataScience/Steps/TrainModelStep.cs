@@ -22,12 +22,18 @@ public static class TrainModelStep
     public double LearningRate { get; init; } = 0.01;
   }
 
-  /// <summary>Trains a multi-class logistic regression model.</summary>
+  /// <summary>
+  /// Canonical Func-returning Create — the transform receives the
+  /// training features, training labels, and the configuration-bound
+  /// <see cref="Options"/> as a tuple input. Phase 5/8: a change to
+  /// <c>Flowthru:Flows:DataScience:TrainModelOptions</c> in
+  /// <c>appsettings.json</c> invalidates this step's cached output.
+  /// </summary>
   public static Func<
     (
-      IEnumerable<FeatureVectorSchema> TrainX,
-      IEnumerable<TargetLabelSchema> TrainY,
-      Options Options
+      IEnumerable<FeatureVectorSchema>,
+      IEnumerable<TargetLabelSchema>,
+      Options
     ),
     ModelWeightsSchema
   > Create() =>

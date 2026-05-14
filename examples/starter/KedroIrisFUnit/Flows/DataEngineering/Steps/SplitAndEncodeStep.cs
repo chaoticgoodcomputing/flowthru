@@ -22,13 +22,16 @@ public static class SplitAndEncodeStep
   }
 
   /// <summary>
-  /// Per §2.4, every <c>[FlowthruStep]</c> follows the canonical
-  /// authoring shape: <c>Create() => input => …;</c>. The framework
-  /// calls <c>Create</c> once at flow construction time and captures
-  /// the returned delegate as the step's transform.
+  /// Canonical Func-returning Create — the transform receives the
+  /// raw iris rows and the configuration-bound <see cref="Options"/>
+  /// as a tuple input. Options come from the catalog like any other
+  /// fingerprintable input (Phase 5/8 of the smart-caching RFC); a
+  /// change to <c>Flowthru:Flows:DataEngineering:SplitOptions</c> in
+  /// <c>appsettings.json</c> invalidates this step's cached output
+  /// automatically.
   /// </summary>
   public static Func<
-    (IEnumerable<IrisRawSchema> Data, Options Options),
+    (IEnumerable<IrisRawSchema>, Options),
     (
       IEnumerable<IrisFeatureSchema> Features,
       IEnumerable<FeatureVectorSchema> TrainX,
