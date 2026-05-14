@@ -18,13 +18,9 @@ public static class ReportingFlow
   public static BuiltFlow Create(
     DataProcessingCatalog dp,
     DataScienceCatalog ds,
-    ReportingCatalog r,
-    ReportingFlowConfig config
+    ReportingCatalog r
   )
   {
-    var confusionOptions = config.ConfusionMatrixOptions;
-    var confusionTransform = CreateConfusionMatrixStep.Create();
-
     return FlowBuilder.CreateFlow("Reporting", pipeline =>
     {
       pipeline.AddStep<IEnumerable<PreprocessedShuttleSchema>, IEnumerable<ShuttleCapacityReport>>(
@@ -41,10 +37,14 @@ public static class ReportingFlow
         outputs: r.ShuttlePassengerCapacityChart
       );
 
-      pipeline.AddStep<IEnumerable<ModelPredictions>, GenericChart>(
+      pipeline.AddStep<
+        IEnumerable<ModelPredictions>,
+        CreateConfusionMatrixStep.Options,
+        GenericChart
+      >(
         label: "GenerateConfusionMatrixChart",
-        transform: predictions => confusionTransform((predictions, confusionOptions)),
-        inputs: ds.ModelPredictions,
+        transform: CreateConfusionMatrixStep.Create(),
+        inputs: (ds.ModelPredictions, r.ConfusionMatrixOptions),
         outputs: r.ConfusionMatrixChart
       );
     });

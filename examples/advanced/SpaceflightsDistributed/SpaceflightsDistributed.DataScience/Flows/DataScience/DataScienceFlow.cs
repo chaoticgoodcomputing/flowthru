@@ -16,23 +16,20 @@ public static class DataScienceFlow
 {
   public static BuiltFlow Create(
     DataProcessingCatalog dp,
-    DataScienceCatalog ds,
-    DataScienceFlowConfig config
+    DataScienceCatalog ds
   )
   {
-    var splitOptions = config.ModelOptions;
-    var splitTransform = SplitDataStep.Create();
-
     return FlowBuilder.CreateFlow("DataScience", pipeline =>
     {
       pipeline.AddStep<
         IEnumerable<ModelInputTableSchema>,
+        SplitDataStep.ModelOptions,
         IEnumerable<TrainingData>,
         IEnumerable<TestData>
       >(
         label: "SplitData",
-        transform: rawData => splitTransform((rawData, splitOptions)),
-        inputs: dp.ModelInputTable,
+        transform: SplitDataStep.Create(),
+        inputs: (dp.ModelInputTable, ds.ModelOptions),
         outputs: (ds.TrainSplit, ds.TestSplit)
       );
 
