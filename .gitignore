@@ -291,3 +291,6 @@ Flowthru.sln.DotSettings.user
 
 # src-old from functional programming rewrite
 src-old/
+
+# C# Dev Kit
+**/*.csproj.lscache
