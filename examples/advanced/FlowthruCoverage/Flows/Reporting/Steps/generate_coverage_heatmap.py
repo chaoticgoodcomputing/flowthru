@@ -26,7 +26,7 @@ _SECTION_ORDER = {"Library Tests": 0, "Integration Tests": 1, "Examples": 2}
 _SUBGROUP_ORDER = {"Core": 0, "Extensions": 1, "Misc": 2}
 
 
-@step(inputs=["PivotCoverageRow"], outputs="CoverageHeatmap")
+@step(inputs=["PivotCoverageRow"], outputs="CoverageHeatmap", cacheable=True)
 def generate_coverage_heatmap(pivot_coverage: pd.DataFrame) -> bytes:
     """Static PNG heatmap of test coverage by (TestProject, SrcPackage).
 

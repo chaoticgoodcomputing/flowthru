@@ -1,4 +1,6 @@
+using Flowthru.Caching;
 using Flowthru.Cli;
+using Flowthru.Data.Catalog;
 using Flowthru.Diagnostics;
 using Flowthru.Diagnostics.Json;
 using Flowthru.Diagnostics.Mermaid;
@@ -69,6 +71,17 @@ public class Program
       flowthru.RegisterCatalog(sp => new Catalog(
         Path.Combine(basePath, "Data"),
         sp.GetRequiredService<IConfiguration>()));
+
+      // Persist the cache manifest under the project root so successive
+      // runs from any working directory share the same state. The
+      // split_data Python step opts into caching via @step(cacheable=True)
+      // and the framework auto-derives its CodeVersion from the .py
+      // source + uv.lock + interpreter version.
+      flowthru.UseCacheStorage(_ =>
+        Item.Of<CacheManifest>("flowthru.cache")
+          .Json()
+          .AtPath(Path.Combine(basePath, ".flowthru", "cache.json"))
+          .Build());
 
       flowthru.ConfigureMetadata(meta =>
       {

@@ -91,6 +91,25 @@ public static partial class PythonStepFactory
     if (output is null) throw new ArgumentNullException(nameof(output));
     if (executor is null) throw new ArgumentNullException(nameof(executor));
 
+    // Auto-derive a CodeVersion when the @step(cacheable=True)
+    // decorator opted this step in (the source generator emits a
+    // PythonStepCacheRegistry registration at module load). An
+    // explicit codeVersion argument always wins, so power users who
+    // want a custom identity keep that escape hatch. Mirrors the
+    // matrix-generated overloads in PythonStepGenerator.
+    if (codeVersion is null)
+    {
+      var cacheEntry = PythonStepCacheRegistry.Lookup(module, function);
+      if (cacheEntry is not null)
+      {
+        codeVersion = PythonCodeVersion.Derive(
+          pyPath: cacheEntry.PyFilePath,
+          interpreterVersion: executor.GetInterpreterVersion(),
+          requirementsPath: cacheEntry.ResolveLockfile()
+        );
+      }
+    }
+
     var step = new PythonStep<TIn, TOut>(
       label: label,
       moduleName: module,

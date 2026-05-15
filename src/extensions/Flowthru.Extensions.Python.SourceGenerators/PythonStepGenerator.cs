@@ -113,6 +113,24 @@ public class PythonStepGenerator : IIncrementalGenerator
           if (string.IsNullOrWhiteSpace(function))
             throw new System.ArgumentException("Function name cannot be null or whitespace.", nameof(function));
           if (executor == null) throw new System.ArgumentNullException(nameof(executor));
+
+          // Auto-derive a CodeVersion when the @step(cacheable=True)
+          // decorator opted this step in (the source generator emits a
+          // PythonStepCacheRegistry registration at module load). An
+          // explicit codeVersion argument always wins, so power users
+          // who want a custom identity keep that escape hatch.
+          if (codeVersion is null)
+          {
+            var cacheEntry = global::Flowthru.Step.Python.PythonStepCacheRegistry.Lookup(module, function);
+            if (cacheEntry is not null)
+            {
+              codeVersion = global::Flowthru.Step.Python.PythonCodeVersion.Derive(
+                pyPath: cacheEntry.PyFilePath,
+                interpreterVersion: executor.GetInterpreterVersion(),
+                requirementsPath: cacheEntry.ResolveLockfile()
+              );
+            }
+          }
         """
     );
 

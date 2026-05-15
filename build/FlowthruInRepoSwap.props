@@ -136,21 +136,22 @@
           Condition="Exists('$(RepoRoot)src/core/Flowthru.Core/build/Flowthru.Core.targets')" />
 
   <!--
-    Item-list references aren't allowed in Import conditions, so materialize a
-    delimited string of resolved Flowthru.* identities into a property and
-    substring-match against it. The leading/trailing ';' guard against
-    Flowthru.FUnit accidentally matching a hypothetical Flowthru.FUnitX.
+    Each per-package targets file is responsible for its own no-op
+    safety net (e.g., FUnit's ItemGroup is gated on
+    $(MSBuildProjectName) != 'Flowthru.FUnit'). A previous version of
+    this file gated the imports on $(_FlowthruHasFUnit) /
+    $(_FlowthruHasPython) substring matches against an item-expansion
+    property, but that expansion timing is unreliable across MSBuild
+    evaluation passes — the property evaluated empty even when the
+    matching identity was resolved, causing the targets file not to
+    import. Plain Exists() gates avoid the timing issue and the
+    targets files' own internal guards prevent unintended side effects
+    on consumers that don't actually reference the package.
   -->
-  <PropertyGroup>
-    <_FlowthruResolvedIdentities>;@(_FlowthruResolvedIdentity);</_FlowthruResolvedIdentities>
-    <_FlowthruHasFUnit Condition="$(_FlowthruResolvedIdentities.Contains(';Flowthru.FUnit;'))">true</_FlowthruHasFUnit>
-    <_FlowthruHasPython Condition="$(_FlowthruResolvedIdentities.Contains(';Flowthru.Extensions.Python;'))">true</_FlowthruHasPython>
-  </PropertyGroup>
-
   <Import Project="$(RepoRoot)src/core/Flowthru.FUnit/build/Flowthru.FUnit.targets"
-          Condition="'$(_FlowthruHasFUnit)' == 'true' AND Exists('$(RepoRoot)src/core/Flowthru.FUnit/build/Flowthru.FUnit.targets')" />
+          Condition="Exists('$(RepoRoot)src/core/Flowthru.FUnit/build/Flowthru.FUnit.targets')" />
 
   <Import Project="$(RepoRoot)src/extensions/Flowthru.Extensions.Python/build/Flowthru.Extensions.Python.targets"
-          Condition="'$(_FlowthruHasPython)' == 'true' AND Exists('$(RepoRoot)src/extensions/Flowthru.Extensions.Python/build/Flowthru.Extensions.Python.targets')" />
+          Condition="Exists('$(RepoRoot)src/extensions/Flowthru.Extensions.Python/build/Flowthru.Extensions.Python.targets')" />
 
 </Project>

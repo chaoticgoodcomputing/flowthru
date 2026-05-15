@@ -13,12 +13,22 @@
     (either via ProjectReference → manual Import, or via NuGet PackageReference → automatic import).
     This prevents generators from running on projects that don't use Python.
   -->
+  <!-- The path is normalized via [System.IO.Path]::GetFullPath so MSBuild's
+       ProjectReference dedup matches the Python runtime project's own
+       transitive reference to this source generator (which uses
+       $(RepoRoot)src/extensions/...). Without normalization, the two
+       ProjectReferences carry different Identity strings, MSBuild keeps
+       both, and the non-Analyzer one wins at compile time — Roslyn
+       silently skips analyzer execution. -->
+  <PropertyGroup>
+    <_FlowthruPythonSourceGeneratorsCsproj>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\..\Flowthru.Extensions.Python.SourceGenerators\Flowthru.Extensions.Python.SourceGenerators.csproj'))</_FlowthruPythonSourceGeneratorsCsproj>
+  </PropertyGroup>
   <ItemGroup Condition="'$(MSBuildProjectName)' != 'Flowthru.Extensions.Python'">
     <!-- For local development with ProjectReference (no-op in NuGet consumption: .csproj file won't exist) -->
-    <ProjectReference Include="$(MSBuildThisFileDirectory)..\..\Flowthru.Extensions.Python.SourceGenerators\Flowthru.Extensions.Python.SourceGenerators.csproj"
+    <ProjectReference Include="$(_FlowthruPythonSourceGeneratorsCsproj)"
                       ReferenceOutputAssembly="false"
                       OutputItemType="Analyzer"
-                      Condition="Exists('$(MSBuildThisFileDirectory)..\..\Flowthru.Extensions.Python.SourceGenerators\Flowthru.Extensions.Python.SourceGenerators.csproj')" />
+                      Condition="Exists('$(_FlowthruPythonSourceGeneratorsCsproj)')" />
     <!-- NuGet auto-registers DLLs from analyzers/dotnet/cs/ — no explicit <Analyzer> entry needed -->
   </ItemGroup>
   
@@ -37,11 +47,21 @@
   -->
   <ItemGroup>
     <!-- User .py files (node implementations) -->
-    <Content Include="**\*.py" 
+    <Content Include="**\*.py"
              Exclude="bin\**;obj\**;_generated\**;build\**"
-             CopyToOutputDirectory="PreserveNewest" 
+             CopyToOutputDirectory="PreserveNewest"
              PackageCopyToOutput="true"
              Visible="false" />
+
+    <!--
+      Expose .py files to source generators so PythonStepFactoryGenerator
+      can parse @step(...) decorators (Phase 8.0.9 caching opt-in).
+      Without this, the generator's AdditionalTextsProvider sees no .py
+      files and emits no factory methods or cache registrations.
+    -->
+    <AdditionalFiles Include="**\*.py"
+                     Exclude="bin\**;obj\**;_generated\**;build\**;**\.venv\**"
+                     Visible="false" />
     
     <!-- Phase 5: Generated Python schemas -->
     <Content Include="_generated\**\*.py"

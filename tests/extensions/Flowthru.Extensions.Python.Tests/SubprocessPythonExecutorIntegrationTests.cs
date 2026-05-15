@@ -207,6 +207,27 @@ public class SubprocessPythonExecutorIntegrationTests
   }
 
   [Test]
+  public void GetInterpreterVersion_ReturnsPythonVersionString()
+  {
+    // The probe shells out to `python --version` once and caches the
+    // result. We verify the cache is real (two calls return reference-
+    // equal strings) and the captured string matches what Python
+    // actually emits (CPython prints "Python <major>.<minor>.<patch>"
+    // on stdout in 3.4+).
+    var executor = CreateExecutor();
+
+    var first = executor.GetInterpreterVersion();
+    Assert.That(first, Is.Not.Null.And.Not.Empty,
+      "Probe should succeed against the provisioned venv.");
+    Assert.That(first, Does.StartWith("Python "),
+      $"Expected version string starting with 'Python', got '{first}'.");
+
+    var second = executor.GetInterpreterVersion();
+    Assert.That(second, Is.SameAs(first),
+      "Repeated calls should return the cached string instance (no re-probe).");
+  }
+
+  [Test]
   public async Task Invoke_SecondCall_ReusesRunningWorker()
   {
     var executor = CreateExecutor();

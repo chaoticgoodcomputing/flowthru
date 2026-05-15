@@ -15,6 +15,7 @@ logger = logging.getLogger(__name__)
 @step(
     inputs=["ModelInputTableSchema", "SplitDataOptions"],
     outputs=["XValues", "XValues", "YValues", "YValues"],
+    cacheable=True,
 )
 def split_data(data: pd.DataFrame, options: dict) -> tuple:
     """Splits data into features and targets training and test sets.

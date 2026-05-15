@@ -21,7 +21,7 @@ def _parse_percentage(x: pd.Series) -> pd.Series:
     return x
 
 
-@step(inputs=["CompanyRawSchema"], outputs=["CompanyPreprocessedSchema"])
+@step(inputs=["CompanySchema"], outputs=["PreprocessedCompanySchema"], cacheable=True)
 def preprocess_companies(companies: pd.DataFrame) -> pd.DataFrame:
     """Preprocesses the data for companies.
 

@@ -17,10 +17,12 @@ public static class ReportingFlow
     return FlowBuilder.CreateFlow("Reporting", pipeline =>
     {
       // C# [FlowthruStep] classes auto-resolve their CodeVersion via
-      // FlowBuilder (Phase 8). Python steps below remain uncacheable
-      // because they declare a ServiceDep on IPythonExecutor; inline-
-      // Func steps further down are uncacheable because there's no
-      // [FlowthruStep] companion to source a CodeVersion from.
+      // FlowBuilder (Phase 8). Python steps below opt into caching via
+      // @step(cacheable=True) — the framework folds the .py file hash,
+      // uv.lock, and interpreter version into a runtime-derived
+      // CodeVersion at AddPythonStep time. Inline-Func steps further
+      // down remain uncacheable: there's no [FlowthruStep] companion
+      // to source a CodeVersion from.
       pipeline.AddStep<
         IEnumerable<PackageCoverageRow>,
         IEnumerable<ProjectManifestEntry>,

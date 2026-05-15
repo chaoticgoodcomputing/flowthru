@@ -19,7 +19,7 @@ def _parse_money(x: pd.Series) -> pd.Series:
     return x
 
 
-@step(inputs=["ShuttleRawSchema"], outputs=["ShuttlePreprocessedSchema"])
+@step(inputs=["ShuttleSchema"], outputs=["PreprocessedShuttleSchema"], cacheable=True)
 def preprocess_shuttles(shuttles: pd.DataFrame) -> pd.DataFrame:
     """Preprocesses the data for shuttles.
 

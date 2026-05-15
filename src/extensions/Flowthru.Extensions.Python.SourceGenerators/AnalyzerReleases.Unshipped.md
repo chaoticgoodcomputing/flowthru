@@ -5,7 +5,7 @@
 
 | Rule ID | Category            | Severity | Notes                                                                |
 | ------- | ------------------- | -------- | -------------------------------------------------------------------- |
-| FT2007  | Flowthru.Validation | Error    | Python decorator references unknown schema                           |
+| FT2007  | Flowthru.Validation | Warning  | Python decorator references unknown schema                           |
 | FT2008  | Flowthru.Validation | Error    | Python step schema contains a property type Arrow cannot marshal     |
 | FT2009  | Flowthru.Validation | Error    | Python step type argument contains a property type Arrow cannot marshal |
 | FT3007  | Flowthru.Validation | Error    | Pre-flight (Python): worker missing                                  |

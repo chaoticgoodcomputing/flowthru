@@ -49,6 +49,15 @@ public sealed class SubprocessPythonExecutor : IPythonExecutor, IDisposable
   private volatile bool _started;
   private bool _disposed;
 
+  // Cached interpreter version string, probed lazily on first
+  // GetInterpreterVersion() call. _interpreterVersionProbed is the
+  // memoization guard — separate from _interpreterVersion because the
+  // probe legitimately returns null (e.g., venv missing) and we still
+  // want to avoid re-probing.
+  private string? _interpreterVersion;
+  private bool _interpreterVersionProbed;
+  private readonly object _interpreterVersionLock = new();
+
   /// <summary>
   /// Initializes a new instance of the <see cref="SubprocessPythonExecutor"/> class with the specified options and logger.
   /// The Python worker process is started lazily upon the first call to <see cref="Invoke{TInput, TOutput}"/> or <see cref="ValidateStep"/>.
@@ -323,6 +332,85 @@ public sealed class SubprocessPythonExecutor : IPythonExecutor, IDisposable
 
       StartWorker();
       _started = true;
+    }
+  }
+
+  /// <inheritdoc/>
+  public string? GetInterpreterVersion()
+  {
+    // Double-checked-lock memoization — AddPythonStep calls can race
+    // during flow construction, but the probe must run exactly once.
+    if (_interpreterVersionProbed) return _interpreterVersion;
+    lock (_interpreterVersionLock)
+    {
+      if (_interpreterVersionProbed) return _interpreterVersion;
+      _interpreterVersion = ProbeInterpreterVersion();
+      _interpreterVersionProbed = true;
+      return _interpreterVersion;
+    }
+  }
+
+  /// <summary>
+  /// One-shot <c>python --version</c> probe. Runs in a short-lived
+  /// subprocess so we don't depend on the long-running worker being
+  /// started yet (cache plans build at pre-flight, often before any
+  /// step actually executes). Returns null on any failure path —
+  /// downstream cache logic treats null as "uncacheable".
+  /// </summary>
+  private string? ProbeInterpreterVersion()
+  {
+    string pyExe;
+    try
+    {
+      pyExe = PythonEnvironmentResolver.ResolvePythonExe(_options);
+    }
+    catch
+    {
+      // Venv not configured / venv path missing. Without the
+      // interpreter we can't form a stable identity; treat as
+      // uncacheable.
+      return null;
+    }
+
+    try
+    {
+      var psi = new ProcessStartInfo
+      {
+        FileName = pyExe,
+        UseShellExecute = false,
+        RedirectStandardOutput = true,
+        RedirectStandardError = true,
+        CreateNoWindow = true,
+      };
+      psi.ArgumentList.Add("--version");
+
+      using var proc = Process.Start(psi);
+      if (proc is null) return null;
+
+      // `python --version` is sub-millisecond on a warm cache; a
+      // five-second ceiling is generous for cold disk reads and
+      // virtualised filesystems without ever masking a real hang.
+      if (!proc.WaitForExit(TimeSpan.FromSeconds(5)))
+      {
+        try { proc.Kill(entireProcessTree: true); }
+        catch { /* best-effort */ }
+        return null;
+      }
+      if (proc.ExitCode != 0) return null;
+
+      // Python 2 wrote --version to stderr; Python 3 writes to stdout.
+      // Concatenate both so the probe survives either convention. Both
+      // streams are bounded (the executable prints one short line).
+      var stdout = proc.StandardOutput.ReadToEnd().Trim();
+      var stderr = proc.StandardError.ReadToEnd().Trim();
+      var combined = string.IsNullOrEmpty(stdout) ? stderr : stdout;
+      return string.IsNullOrWhiteSpace(combined) ? null : combined;
+    }
+    catch
+    {
+      // Permissions, missing binary, missing shared libs — any failure
+      // path collapses to null. The cache treats it as cache-miss.
+      return null;
     }
   }
 

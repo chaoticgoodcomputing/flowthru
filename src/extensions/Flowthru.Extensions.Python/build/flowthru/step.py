@@ -7,7 +7,7 @@ functions and C# pipeline registrations.
 """
 
 
-def step(inputs=None, outputs=None, services=None):
+def step(inputs=None, outputs=None, services=None, cacheable=False):
     """
     Declares the input/output schemas and service dependencies for a Python step.
 
@@ -21,6 +21,12 @@ def step(inputs=None, outputs=None, services=None):
       this step depends on (e.g., ``"Services.PyannoteDiarizer"``). The
       Flowthru preflight loop runs each declared service's registered
       sidecar inspector before any step executes.
+    * ``__flowthru_cacheable__`` — boolean indicating that the function is
+      pure with respect to its declared inputs. When ``True``, Flowthru
+      auto-derives a CodeVersion from the .py file content, the project's
+      lockfile, and the interpreter version, and the step participates in
+      the framework's cache plan like a C# step does. Default is ``False``
+      — Python steps are uncacheable unless the author opts in.
 
     Args:
         inputs: Single schema type or list of schema types for inputs.
@@ -34,6 +40,15 @@ def step(inputs=None, outputs=None, services=None):
                   string). The decorator resolves each to a stable
                   ``"module.ClassName"`` path at decoration time using the
                   class's ``__module__`` and ``__qualname__``.
+        cacheable: When True, the function asserts that its output is
+                   deterministic in its inputs (no I/O, no clock reads,
+                   no randomness without a seed). Flowthru folds the .py
+                   file content, the project's lockfile, and the
+                   interpreter version into the step's CodeVersion so the
+                   cache plan can short-circuit unchanged runs. The
+                   author is responsible for the assertion — Flowthru has
+                   no way to inspect the function body to verify it.
+                   Default ``False``.
 
     Returns:
         Decorated function with the metadata attributes above.
@@ -97,6 +112,7 @@ def step(inputs=None, outputs=None, services=None):
             _extract_schema_name(schema) for schema in output_list
         ]
         func.__flowthru_services__ = list(service_paths)
+        func.__flowthru_cacheable__ = bool(cacheable)
 
         return func
 

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -41,12 +42,26 @@ namespace Flowthru.Extensions.Python.SourceGenerators;
 public class PythonStepFactoryGenerator : IIncrementalGenerator
 {
   // Diagnostic identifiers — FT2xxx range (composition / wiring).
+  //
+  // Severity is Warning rather than Error because the
+  // <c>@step(outputs=...)</c> decorator legitimately accepts catalog-
+  // item label strings (e.g. <c>outputs="CoverageHeatmap"</c> where
+  // <c>CoverageHeatmap</c> is an <c>IItem&lt;byte[]&gt;</c> with no
+  // backing [FlowthruSchema] type — Plotly outputs, binary blobs,
+  // <c>DirectoryOf&lt;byte[]&gt;</c>, etc.). Consumers using the
+  // string-based <c>pipeline.AddPythonStep&lt;TIn, TOut&gt;</c> path
+  // never reference the generated factory method for those steps and
+  // so never trip a compile error; consumers using the named factory
+  // (<c>PythonSteps.{X}(...)</c>) hit a downstream compile error
+  // because the factory's signature uses <c>object</c> for unresolved
+  // type parameters — that downstream error is the actionable one,
+  // so FT2007 here serves as advisory rather than build-breaking.
   private static readonly DiagnosticDescriptor SchemaNotFound = new(
     id: "FT2007",
     title: "Python decorator references unknown schema",
-    messageFormat: "Schema '{0}' referenced in @step decorator is not a [FlowthruSchema]-decorated type in the consuming compilation",
+    messageFormat: "Schema '{0}' referenced in @step decorator is not a [FlowthruSchema]-decorated type in the consuming compilation; named-factory consumers (PythonSteps.{X}) will see a downstream compile error.",
     category: "Flowthru.Python",
-    DiagnosticSeverity.Error,
+    DiagnosticSeverity.Warning,
     isEnabledByDefault: true
   );
 
@@ -141,6 +156,15 @@ public class PythonStepFactoryGenerator : IIncrementalGenerator
       }
 
       sb.AppendLine("}");
+
+      // Emit a `[ModuleInitializer]` companion class that populates
+      // PythonStepCacheRegistry for every @step(cacheable=True) discovered
+      // in the project. The matrix-generated AddPythonStep overloads
+      // consult the registry to decide whether to auto-derive a
+      // CodeVersion. Registration is idempotent, so re-running the
+      // initializer (e.g. across multiple test fixtures) is safe.
+      EmitCacheRegistration(sb, steps);
+
       ctx.AddSource("PythonSteps.g.cs", SourceText.From(sb.ToString(), Encoding.UTF8));
     });
 
@@ -193,12 +217,30 @@ public class PythonStepFactoryGenerator : IIncrementalGenerator
 
   private static PythonStepInfo? ParsePythonStep(string filePath, string content)
   {
-    // Match @step(inputs=[...], outputs=[...]) with optional services=[...].
-    // The bracket contents are handed to ParseSchemaList which accepts
-    // both string literals AND bare identifiers.
+    // Match @step(inputs=..., outputs=...) with optional services=[...]
+    // and optional cacheable=True/False.
+    //
+    // Inputs/outputs accept three shapes, mirroring the Python
+    // decorator's runtime tolerance:
+    //   - bracketed list: outputs=["X", "Y"]
+    //   - bare string:    outputs="X"          (sugar for ["X"])
+    //   - None:           outputs=None         (no outputs)
+    //
+    // Whichever capture is non-empty is fed to ParseSchemaList, which
+    // accepts string literals, bare identifiers, and dotted forms.
+    // The bare-string sugar was supported by the Python @step decorator
+    // from day one but was previously absent from the C# regex —
+    // decorators using it (e.g. FlowthruCoverage's
+    // `outputs="CoverageHeatmap"`) silently never matched, so the
+    // generator emitted no factory/registration for those steps.
     var decoratorPattern =
-      @"@step\s*\(\s*inputs\s*=\s*(\[[^\]]*\])\s*,\s*outputs\s*=\s*(\[[^\]]*\]|None)"
-      + @"(?:\s*,\s*services\s*=\s*\[[^\]]*\])?\s*\)";
+      @"@step\s*\(\s*inputs\s*=\s*(?:(\[[^\]]*\])|(""[^""]+"")|None)"
+      + @"\s*,\s*outputs\s*=\s*(?:(\[[^\]]*\])|(""[^""]+"")|None)"
+      + @"(?:\s*,\s*services\s*=\s*\[[^\]]*\])?"
+      + @"(?:\s*,\s*cacheable\s*=\s*(True|False))?"
+      // Trailing comma before the closing paren is valid Python and
+      // common when decorators span multiple lines.
+      + @"\s*,?\s*\)";
     var functionPattern = @"def\s+(\w+)\s*\(";
 
     var decoratorMatch = Regex.Match(content, decoratorPattern);
@@ -208,14 +250,28 @@ public class PythonStepFactoryGenerator : IIncrementalGenerator
     if (!functionMatch.Success) return null;
 
     var functionName = functionMatch.Groups[1].Value;
-    var inputsRaw = decoratorMatch.Groups[1].Value;
-    var outputsRaw = decoratorMatch.Groups[2].Value;
+    // Groups 1 + 2 → inputs (bracketed list or bare string). Group 3 + 4
+    // → outputs (same). Group 5 → cacheable. An empty capture means the
+    // other alternative matched, OR the value was `None` (no captures).
+    var inputsBracketed = decoratorMatch.Groups[1].Value;
+    var inputsBareString = decoratorMatch.Groups[2].Value;
+    var outputsBracketed = decoratorMatch.Groups[3].Value;
+    var outputsBareString = decoratorMatch.Groups[4].Value;
+    var cacheableRaw = decoratorMatch.Groups[5].Value;
 
+    var inputsRaw = !string.IsNullOrEmpty(inputsBracketed) ? inputsBracketed : inputsBareString;
+    var outputsRaw = !string.IsNullOrEmpty(outputsBracketed) ? outputsBracketed : outputsBareString;
+
+    // Both inputs and outputs collapse to an empty schema list when the
+    // captured text is empty — the only way that happens is the
+    // `inputs=None` / `outputs=None` branch of the regex's alternation
+    // (which captures nothing in either bracketed or bare-string group).
     var inputs = ParseSchemaList(inputsRaw);
-    var outputs = outputsRaw == "None" ? new List<string>() : ParseSchemaList(outputsRaw);
+    var outputs = ParseSchemaList(outputsRaw);
+    var cacheable = string.Equals(cacheableRaw, "True", StringComparison.Ordinal);
     var modulePath = DeriveModulePath(filePath);
 
-    return new PythonStepInfo(functionName, modulePath, inputs, outputs);
+    return new PythonStepInfo(functionName, modulePath, inputs, outputs, cacheable, filePath);
   }
 
   /// <summary>
@@ -315,6 +371,100 @@ public class PythonStepFactoryGenerator : IIncrementalGenerator
       }
     }
   }
+
+  // ── Cache registration emission ───────────────────────────────────────
+
+  /// <summary>
+  /// Emit a <c>[ModuleInitializer]</c>-decorated method that registers
+  /// every <c>cacheable=True</c> Python step with the global
+  /// <c>PythonStepCacheRegistry</c>. The matrix-generated
+  /// <c>AddPythonStep</c> overloads consult this registry at step
+  /// construction time to decide whether to auto-derive a CodeVersion.
+  /// Skipped entirely when no step opted in.
+  /// </summary>
+  private static void EmitCacheRegistration(StringBuilder sb, System.Collections.Immutable.ImmutableArray<PythonStepInfo> steps)
+  {
+    var cacheable = steps.Where(s => s.Cacheable).ToList();
+    if (cacheable.Count == 0) return;
+
+    sb.AppendLine();
+    sb.AppendLine(
+      """
+      /// <summary>
+      /// Module initializer that registers every @step(cacheable=True)
+      /// function in this project with the global Python step cache
+      /// registry. Runs once at assembly load — registration is
+      /// idempotent so test harnesses re-loading assemblies are safe.
+      /// </summary>
+      internal static class PythonStepCacheRegistration
+      {
+        [global::System.Runtime.CompilerServices.ModuleInitializer]
+        internal static void Init()
+        {
+      """
+    );
+
+    foreach (var step in cacheable)
+    {
+      var pyPathLiteral = ToCSharpStringLiteral(step.PyFilePath);
+      var candidatePaths = ComposeLockfileCandidates(step.PyFilePath);
+      var candidateLiterals = string.Join(", ", candidatePaths.Select(ToCSharpStringLiteral));
+      sb.AppendLine(
+        $"      global::Flowthru.Step.Python.PythonStepCacheRegistry.Register("
+          + $"\"{step.ModulePath}\", \"{step.FunctionName}\", {pyPathLiteral}"
+          + (candidateLiterals.Length == 0 ? "" : ", " + candidateLiterals)
+          + ");"
+      );
+    }
+
+    sb.AppendLine("    }");
+    sb.AppendLine("  }");
+  }
+
+  /// <summary>
+  /// Compose the list of candidate lockfile paths for a given .py file,
+  /// walking up the directory hierarchy and emitting each plausible
+  /// name at each level in priority order. Source generators are barred
+  /// from filesystem IO (RS1035), so existence checking is deferred to
+  /// runtime — the runtime <c>Entry.ResolveLockfile()</c> picks the
+  /// first candidate that actually exists.
+  /// </summary>
+  /// <remarks>
+  /// Priority order matches what reproducible-build tooling actually
+  /// pins: <c>uv.lock</c> → <c>poetry.lock</c> →
+  /// <c>requirements.txt</c> → <c>Pipfile.lock</c> →
+  /// <c>pyproject.toml</c>. The pyproject fallback is over-broad
+  /// (constraints, not resolutions) but still produces a meaningful
+  /// identity dimension when no lockfile exists.
+  /// </remarks>
+  private static List<string> ComposeLockfileCandidates(string pyFilePath)
+  {
+    var names = new[] { "uv.lock", "poetry.lock", "requirements.txt", "Pipfile.lock", "pyproject.toml" };
+    var paths = new List<string>();
+    var dir = Path.GetDirectoryName(pyFilePath);
+    // Cap traversal at 10 levels — generous for any realistic repo and
+    // guards against malformed input (unrooted paths, junctions) that
+    // could otherwise loop the walk.
+    for (var depth = 0; depth < 10 && !string.IsNullOrEmpty(dir); depth++)
+    {
+      foreach (var name in names)
+      {
+        paths.Add(Path.Combine(dir!, name));
+      }
+      var parent = Path.GetDirectoryName(dir);
+      if (parent == dir || string.IsNullOrEmpty(parent)) break;
+      dir = parent;
+    }
+    return paths;
+  }
+
+  /// <summary>
+  /// Render a string as a valid C# string literal: escape backslashes
+  /// and quotes. Path separators on Windows need this; *nix paths
+  /// generally don't, but the round-trip cost is nothing.
+  /// </summary>
+  private static string ToCSharpStringLiteral(string value) =>
+    "\"" + value.Replace("\\", "\\\\").Replace("\"", "\\\"") + "\"";
 
   // ── Factory emission ──────────────────────────────────────────────────
 
@@ -777,13 +927,35 @@ public class PythonStepFactoryGenerator : IIncrementalGenerator
     public string ModulePath { get; }
     public List<string> Inputs { get; }
     public List<string> Outputs { get; }
+    /// <summary>
+    /// True when the <c>@step(...)</c> decorator declares
+    /// <c>cacheable=True</c>. Drives whether the generator emits a
+    /// <c>PythonStepCacheRegistry.Register</c> entry for this step.
+    /// </summary>
+    public bool Cacheable { get; }
+    /// <summary>
+    /// Absolute path to the <c>.py</c> file containing this step.
+    /// Captured at generation time and baked into the emitted
+    /// registration so the runtime <c>AddPythonStep</c> path can read
+    /// fresh content for the cache fingerprint.
+    /// </summary>
+    public string PyFilePath { get; }
 
-    public PythonStepInfo(string functionName, string modulePath, List<string> inputs, List<string> outputs)
+    public PythonStepInfo(
+      string functionName,
+      string modulePath,
+      List<string> inputs,
+      List<string> outputs,
+      bool cacheable,
+      string pyFilePath
+    )
     {
       FunctionName = functionName;
       ModulePath = modulePath;
       Inputs = inputs;
       Outputs = outputs;
+      Cacheable = cacheable;
+      PyFilePath = pyFilePath;
     }
   }
 }

@@ -1,0 +1,51 @@
+{
+  "SchemaVersion": 2,
+  "Steps": {
+    "PreprocessCompanies": {
+      "Value": "1DFEAB1A574E64FD",
+      "RecordedAt": "2026-05-15T19:29:34.9188653+00:00"
+    },
+    "PreprocessShuttles": {
+      "Value": "FF0C067DEEE1FCF1",
+      "RecordedAt": "2026-05-15T19:29:34.9188653+00:00"
+    },
+    "CreateModelInputTable": {
+      "Value": "76A3292E6052AC39",
+      "RecordedAt": "2026-05-15T19:29:34.9188653+00:00"
+    },
+    "SplitData": {
+      "Value": "A3B7447770E812D1",
+      "RecordedAt": "2026-05-15T19:29:34.9188653+00:00"
+    }
+  },
+  "Items": {
+    "Companies": {
+      "Value": "3e5ca5629c9a5a61cb93fff4d520b593e3e0957cc48292c546979363b05648c9",
+      "RecordedAt": "2026-05-15T19:29:34.9188653+00:00"
+    },
+    "PreprocessedCompanies": {
+      "Value": "381ba3fd209cae5d04469c2eac6f709d91f728933386494481d27ea60793d5ac",
+      "RecordedAt": "2026-05-15T19:29:34.9188653+00:00"
+    },
+    "Shuttles": {
+      "Value": "60da38922a683e4fc94127ed58973d0dbac748358a74ff8948568b4febfa0d00",
+      "RecordedAt": "2026-05-15T19:29:34.9188653+00:00"
+    },
+    "PreprocessedShuttles": {
+      "Value": "a7754a29d76b5be406fef5b0aa68a732ff342efa5a68a692accdb66325b9cb0b",
+      "RecordedAt": "2026-05-15T19:29:34.9188653+00:00"
+    },
+    "Reviews": {
+      "Value": "4db4eb08abafa0b5abdd7cb21fb41adf5752aa5b6152f0b78372997c909cc5c5",
+      "RecordedAt": "2026-05-15T19:29:34.9188653+00:00"
+    },
+    "ModelInputTable": {
+      "Value": "7eed7c24abd742940dbad0185393662de054dba4992910e5035617cd7d6e365f",
+      "RecordedAt": "2026-05-15T19:29:34.9188653+00:00"
+    },
+    "SplitDataOptions": {
+      "Value": "1C960D13DD441264",
+      "RecordedAt": "2026-05-15T19:29:34.9188653+00:00"
+    }
+  }
+}

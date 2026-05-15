@@ -66,4 +66,29 @@ public interface IPythonExecutor
   FlowIO<Validated<PreFlightError, FlowUnit>> InvokeInspector(
     Step.Python.PythonServiceRegistration registration
   );
+
+  /// <summary>
+  /// Probe the configured interpreter for its version string and cache
+  /// the result. Used to fold interpreter identity into the
+  /// <c>CodeVersion</c> of <c>@step(cacheable=True)</c> Python steps so
+  /// changing the interpreter invalidates the cache. Returns null when
+  /// the interpreter cannot be invoked (missing venv, broken Python
+  /// installation, etc.) — downstream cache logic treats null as
+  /// "uncacheable", preserving the fail-safe-cache-miss contract.
+  /// </summary>
+  /// <remarks>
+  /// <para>
+  /// The probe runs <c>python --version</c> in a short-lived subprocess
+  /// (not the long-running worker) and captures the output. The first
+  /// call performs the probe; subsequent calls return the cached
+  /// string. Implementations should make this thread-safe — multiple
+  /// <c>AddPythonStep</c> calls can race during flow registration.
+  /// </para>
+  /// <para>
+  /// The default implementation returns null, matching the fail-safe
+  /// "uncacheable" contract — test doubles and lightweight executors
+  /// can opt out of caching support without explicit code.
+  /// </para>
+  /// </remarks>
+  string? GetInterpreterVersion() => null;
 }

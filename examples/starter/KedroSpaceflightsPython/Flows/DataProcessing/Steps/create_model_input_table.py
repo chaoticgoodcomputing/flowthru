@@ -7,8 +7,9 @@ logger = logging.getLogger(__name__)
 
 
 @step(
-    inputs=["ShuttlePreprocessedSchema", "CompanyPreprocessedSchema", "ReviewSchema"],
+    inputs=["PreprocessedShuttleSchema", "PreprocessedCompanySchema", "ReviewSchema"],
     outputs=["ModelInputTableSchema"],
+    cacheable=True,
 )
 def create_model_input_table(
     shuttles: pd.DataFrame, companies: pd.DataFrame, reviews: pd.DataFrame

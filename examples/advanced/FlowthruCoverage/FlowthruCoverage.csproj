@@ -42,9 +42,11 @@
     <ProjectReference Include="$(RepoRoot)src/core/Flowthru.FUnit.CodeFixes/Flowthru.FUnit.CodeFixes.csproj"
                       ReferenceOutputAssembly="false"
                       OutputItemType="Analyzer" />
-    <ProjectReference Include="$(RepoRoot)src/extensions/Flowthru.Extensions.Python.SourceGenerators/Flowthru.Extensions.Python.SourceGenerators.csproj"
-                      ReferenceOutputAssembly="false"
-                      OutputItemType="Analyzer" />
+    <!-- Flowthru.Extensions.Python.SourceGenerators is auto-registered as
+         Analyzer via the imported Flowthru.Extensions.Python.targets file
+         below. The targets file's import is what propagates the .py
+         AdditionalFiles and the source-gen ProjectReference; without it,
+         @step(cacheable=True) registrations don't get emitted. -->
   </ItemGroup>
 
   <ItemGroup Condition="'$(Configuration)' == 'Debug'">
@@ -61,5 +63,14 @@
     <Content Include=".python-version" CopyToOutputDirectory="PreserveNewest" />
     <None Update="appsettings.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
+
+  <!-- Direct-ProjectReference consumers don't auto-import the Python
+       extension's build/.targets file the way NuGet PackageReference
+       consumers do, so the .py AdditionalFiles + source-gen Analyzer
+       wiring needs an explicit import here. PackageReference + the
+       FlowthruInRepoSwap.props convention handle this for free in the
+       starter projects. -->
+  <Import Project="$(RepoRoot)src/extensions/Flowthru.Extensions.Python/build/Flowthru.Extensions.Python.targets"
+          Condition="'$(RepoRoot)' != '' AND Exists('$(RepoRoot)src/extensions/Flowthru.Extensions.Python/build/Flowthru.Extensions.Python.targets')" />
 
 </Project>

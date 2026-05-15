@@ -343,7 +343,7 @@ def _render_one(
     return pio.to_image(fig, format="svg")
 
 
-@step(inputs=["ProvenanceIcicleNode"], outputs="ProvenanceCoverageIcicles")
+@step(inputs=["ProvenanceIcicleNode"], outputs="ProvenanceCoverageIcicles", cacheable=True)
 def generate_provenance_coverage_icicle(nodes: pd.DataFrame) -> dict[str, bytes]:
     """Render one provenance-encoded icicle SVG per src library.
 
