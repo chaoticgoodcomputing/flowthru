@@ -1,3 +1,13 @@
+## 0.18.2 (2026-05-18)
+
+### 🩹 Fixes
+
+- added python step cacheability ([9de83fed](https://github.com/chaoticgoodcomputing/flowthru/commit/9de83fed))
+
+### ❤️ Thank You
+
+- Spencer Elkington
+
 ## 0.18.1 (2026-05-14)
 
 ### 🩹 Fixes
