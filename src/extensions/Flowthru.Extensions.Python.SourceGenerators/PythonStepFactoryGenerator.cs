@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -59,7 +60,8 @@ public class PythonStepFactoryGenerator : IIncrementalGenerator
   private static readonly DiagnosticDescriptor SchemaNotFound = new(
     id: "FT2007",
     title: "Python decorator references unknown schema",
-    messageFormat: "Schema '{0}' referenced in @step decorator is not a [FlowthruSchema]-decorated type in the consuming compilation; named-factory consumers (PythonSteps.{X}) will see a downstream compile error.",
+    // `{{X}}` escapes a literal `{X}` for string.Format — without the escape the formatter trips on `{X}` (X isn't a valid argument index), the substitution throws, and Roslyn surfaces the raw unformatted template so consumers see a literal `{0}` instead of the schema name. Reported by MagicAtlas in 0.18.2.
+    messageFormat: "Schema '{0}' referenced in @step decorator is not a [FlowthruSchema]-decorated type in the consuming compilation. Named-factory consumers (PythonSteps.{{X}}) will see a downstream compile error.",
     category: "Flowthru.Python",
     DiagnosticSeverity.Warning,
     isEnabledByDefault: true
@@ -103,17 +105,17 @@ public class PythonStepFactoryGenerator : IIncrementalGenerator
   /// <inheritdoc/>
   public void Initialize(IncrementalGeneratorInitializationContext context)
   {
-    // Discover all .py AdditionalFiles in the consuming project.
+    // Discover all .py AdditionalFiles in the consuming project. Each
+    // file can host multiple @step decorators, so the select stage
+    // flattens by returning every step found in the file.
     var pythonSteps = context.AdditionalTextsProvider
       .Where(file => file.Path.EndsWith(".py"))
-      .Select((file, ct) =>
+      .SelectMany((file, ct) =>
       {
         var content = file.GetText(ct)?.ToString();
-        if (string.IsNullOrEmpty(content)) return null;
-        return ParsePythonStep(file.Path, content!);
+        if (string.IsNullOrEmpty(content)) return ImmutableArray<PythonStepInfo>.Empty;
+        return ImmutableArray.CreateRange(ParsePythonSteps(file.Path, content!));
       })
-      .Where(step => step is not null)
-      .Select((step, _) => step!)
       .Collect();
 
     // Combine with the compilation's [FlowthruSchema] type registry.
@@ -215,7 +217,16 @@ public class PythonStepFactoryGenerator : IIncrementalGenerator
 
   // ── Decorator parsing ─────────────────────────────────────────────────
 
-  private static PythonStepInfo? ParsePythonStep(string filePath, string content)
+  /// <summary>
+  /// Parse every <c>@step(...)</c>-decorated function in <paramref name="content"/>.
+  /// A single <c>.py</c> file can host multiple decorators (MagicAtlas's
+  /// embed_oracle_text.py defines an <c>embed_default</c> and an
+  /// <c>embed_finetuned</c> in one module, for example) — the previous
+  /// implementation returned only the first match via <c>Regex.Match</c>
+  /// and silently dropped every subsequent decorator, which left those
+  /// steps uncacheable at runtime with no diagnostic.
+  /// </summary>
+  private static IEnumerable<PythonStepInfo> ParsePythonSteps(string filePath, string content)
   {
     // Match @step(inputs=..., outputs=...) with optional services=[...]
     // and optional cacheable=True/False.
@@ -242,36 +253,89 @@ public class PythonStepFactoryGenerator : IIncrementalGenerator
       // common when decorators span multiple lines.
       + @"\s*,?\s*\)";
     var functionPattern = @"def\s+(\w+)\s*\(";
-
-    var decoratorMatch = Regex.Match(content, decoratorPattern);
-    if (!decoratorMatch.Success) return null;
-
-    var functionMatch = Regex.Match(content.Substring(decoratorMatch.Index), functionPattern);
-    if (!functionMatch.Success) return null;
-
-    var functionName = functionMatch.Groups[1].Value;
-    // Groups 1 + 2 → inputs (bracketed list or bare string). Group 3 + 4
-    // → outputs (same). Group 5 → cacheable. An empty capture means the
-    // other alternative matched, OR the value was `None` (no captures).
-    var inputsBracketed = decoratorMatch.Groups[1].Value;
-    var inputsBareString = decoratorMatch.Groups[2].Value;
-    var outputsBracketed = decoratorMatch.Groups[3].Value;
-    var outputsBareString = decoratorMatch.Groups[4].Value;
-    var cacheableRaw = decoratorMatch.Groups[5].Value;
-
-    var inputsRaw = !string.IsNullOrEmpty(inputsBracketed) ? inputsBracketed : inputsBareString;
-    var outputsRaw = !string.IsNullOrEmpty(outputsBracketed) ? outputsBracketed : outputsBareString;
-
-    // Both inputs and outputs collapse to an empty schema list when the
-    // captured text is empty — the only way that happens is the
-    // `inputs=None` / `outputs=None` branch of the regex's alternation
-    // (which captures nothing in either bracketed or bare-string group).
-    var inputs = ParseSchemaList(inputsRaw);
-    var outputs = ParseSchemaList(outputsRaw);
-    var cacheable = string.Equals(cacheableRaw, "True", StringComparison.Ordinal);
     var modulePath = DeriveModulePath(filePath);
 
-    return new PythonStepInfo(functionName, modulePath, inputs, outputs, cacheable, filePath);
+    foreach (Match decoratorMatch in Regex.Matches(content, decoratorPattern))
+    {
+      // Each decorator's `def` is the FIRST `def` that follows the
+      // decorator's closing paren (not just its start), so we search
+      // from after the match's end. Searching from `decoratorMatch.Index`
+      // would re-attach a downstream decorator's def to an upstream
+      // decorator when both live in the same file.
+      var searchStart = decoratorMatch.Index + decoratorMatch.Length;
+      var functionMatch = Regex.Match(content.Substring(searchStart), functionPattern);
+      if (!functionMatch.Success) continue;
+
+      var functionName = functionMatch.Groups[1].Value;
+      // Groups 1 + 2 → inputs (bracketed list or bare string). Group 3 + 4
+      // → outputs (same). Group 5 → cacheable. An empty capture means the
+      // other alternative matched, OR the value was `None` (no captures).
+      var inputsBracketed = decoratorMatch.Groups[1].Value;
+      var inputsBareString = decoratorMatch.Groups[2].Value;
+      var outputsBracketed = decoratorMatch.Groups[3].Value;
+      var outputsBareString = decoratorMatch.Groups[4].Value;
+      var cacheableRaw = decoratorMatch.Groups[5].Value;
+
+      var inputsRaw = !string.IsNullOrEmpty(inputsBracketed) ? inputsBracketed : inputsBareString;
+      var outputsRaw = !string.IsNullOrEmpty(outputsBracketed) ? outputsBracketed : outputsBareString;
+
+      // Both inputs and outputs collapse to an empty schema list when the
+      // captured text is empty — the only way that happens is the
+      // `inputs=None` / `outputs=None` branch of the regex's alternation
+      // (which captures nothing in either bracketed or bare-string group).
+      var inputs = ParseSchemaList(inputsRaw);
+      var outputs = ParseSchemaList(outputsRaw);
+      var cacheable = string.Equals(cacheableRaw, "True", StringComparison.Ordinal);
+
+      // Per-decorator Location so FT2007 (and any future per-decorator
+      // diagnostic) points the IDE at the exact @step(...) span, not the
+      // project root. Without this, a consumer with N broken decorators
+      // sees N project-level warnings with no file/line to navigate to.
+      var decoratorLocation = ComputeLocation(
+        filePath, content, decoratorMatch.Index, decoratorMatch.Length);
+
+      yield return new PythonStepInfo(
+        functionName, modulePath, inputs, outputs, cacheable, filePath, decoratorLocation);
+    }
+  }
+
+  /// <summary>
+  /// Build a Roslyn <see cref="Location"/> from a byte offset + length
+  /// into a non-C# source file (here, a <c>.py</c> AdditionalFile).
+  /// Walks the content once to count newlines so the
+  /// <see cref="LinePositionSpan"/> is correctly populated for IDE
+  /// navigation. Returns <see cref="Location.None"/> when offsets are
+  /// out of range (defensive — should be impossible if the caller
+  /// passes a regex Match against the same content).
+  /// </summary>
+  private static Location ComputeLocation(string filePath, string content, int start, int length)
+  {
+    if (start < 0 || length <= 0 || start + length > content.Length)
+      return Location.None;
+
+    var startLine = 0;
+    var startColumn = 0;
+    for (var i = 0; i < start; i++)
+    {
+      if (content[i] == '\n') { startLine++; startColumn = 0; }
+      else startColumn++;
+    }
+    var endLine = startLine;
+    var endColumn = startColumn;
+    for (var i = start; i < start + length; i++)
+    {
+      if (content[i] == '\n') { endLine++; endColumn = 0; }
+      else endColumn++;
+    }
+
+    return Location.Create(
+      filePath,
+      new TextSpan(start, length),
+      new LinePositionSpan(
+        new LinePosition(startLine, startColumn),
+        new LinePosition(endLine, endColumn)
+      )
+    );
   }
 
   /// <summary>
@@ -479,14 +543,16 @@ public class PythonStepFactoryGenerator : IIncrementalGenerator
     var anyMissing = false;
     foreach (var schemaName in step.Inputs)
     {
-      var typeRef = ResolveSchemaReference(ctx, schemaName, schemaIndex, ref anyMissing);
+      var typeRef = ResolveSchemaReference(
+        ctx, schemaName, schemaIndex, step.DecoratorLocation, ref anyMissing);
       inputTypes.Add(typeRef);
       ReportUnmarshallableProperties(ctx, schemaName, step.FunctionName, schemaIndex);
     }
     var outputTypes = new List<string>();
     foreach (var schemaName in step.Outputs)
     {
-      var typeRef = ResolveSchemaReference(ctx, schemaName, schemaIndex, ref anyMissing);
+      var typeRef = ResolveSchemaReference(
+        ctx, schemaName, schemaIndex, step.DecoratorLocation, ref anyMissing);
       outputTypes.Add(typeRef);
       ReportUnmarshallableProperties(ctx, schemaName, step.FunctionName, schemaIndex);
     }
@@ -533,6 +599,7 @@ public class PythonStepFactoryGenerator : IIncrementalGenerator
     SourceProductionContext ctx,
     string schemaName,
     Dictionary<string, INamedTypeSymbol> schemaIndex,
+    Location decoratorLocation,
     ref bool anyMissing
   )
   {
@@ -546,7 +613,11 @@ public class PythonStepFactoryGenerator : IIncrementalGenerator
 
     if (!schemaIndex.TryGetValue(schemaName, out var symbol))
     {
-      ctx.ReportDiagnostic(Diagnostic.Create(SchemaNotFound, location: Location.None, schemaName));
+      // FT2007 fires at the @step(...) decorator span (computed during
+      // ParsePythonSteps). MagicAtlas reported 0.18.2 emitting these
+      // project-level — without a Location, the IDE has no anchor and a
+      // consumer with N misses cannot tell which decorator each refers to.
+      ctx.ReportDiagnostic(Diagnostic.Create(SchemaNotFound, decoratorLocation, schemaName));
       anyMissing = true;
       return $"/* unresolved: {schemaName} */ object";
     }
@@ -941,13 +1012,25 @@ public class PythonStepFactoryGenerator : IIncrementalGenerator
     /// </summary>
     public string PyFilePath { get; }
 
+    /// <summary>
+    /// Roslyn <see cref="Location"/> pointing at the <c>@step(...)</c>
+    /// decorator span in the <c>.py</c> file. Used as the location on
+    /// per-decorator diagnostics (FT2007) so the IDE highlights the
+    /// offending decorator rather than reporting at the project level.
+    /// <see cref="Location.None"/> when the parse path didn't have a
+    /// usable offset (e.g., synthetic test input without computed
+    /// LinePositionSpan).
+    /// </summary>
+    public Location DecoratorLocation { get; }
+
     public PythonStepInfo(
       string functionName,
       string modulePath,
       List<string> inputs,
       List<string> outputs,
       bool cacheable,
-      string pyFilePath
+      string pyFilePath,
+      Location? decoratorLocation = null
     )
     {
       FunctionName = functionName;
@@ -956,6 +1039,7 @@ public class PythonStepFactoryGenerator : IIncrementalGenerator
       Outputs = outputs;
       Cacheable = cacheable;
       PyFilePath = pyFilePath;
+      DecoratorLocation = decoratorLocation ?? Location.None;
     }
   }
 }

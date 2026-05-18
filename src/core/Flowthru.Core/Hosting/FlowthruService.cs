@@ -466,6 +466,34 @@ public sealed class FlowthruService : IFlowthruService
             .ConfigureAwait(false);
           options = options with { CachePlan = cachePlan };
           metadataContext = metadataContext with { CachePlan = cachePlan };
+
+          // Surface every uncacheable-step decision via the
+          // FlowthruActivitySource so the CLI's FlowthruActivityLogger
+          // (and any other listener) can render each as an Information-
+          // level log line. The MagicAtlas report flagged that a
+          // single .Memory() input cascaded through 7+ Python steps
+          // with no observable signal — the warm run looked identical
+          // to the cold run, which made the cascade undebuggable.
+          //
+          // Tags must be passed at construction so OnStarted sees them
+          // (SetTag after StartActivity fires too late — the listener
+          // already snapshotted the activity).
+          foreach (var label in cachePlan.UncacheableStepLabels)
+          {
+            if (!cachePlan.UncacheableReasons.TryGetValue(label, out var reason))
+              continue;
+            using var uncacheableActivity = FlowthruActivitySource.Source.StartActivity(
+              FlowthruActivitySource.CacheUncacheableActivityName,
+              System.Diagnostics.ActivityKind.Internal,
+              default(System.Diagnostics.ActivityContext),
+              new[]
+              {
+                new System.Collections.Generic.KeyValuePair<string, object?>(
+                  FlowthruActivitySource.TagStepLabel, label),
+                new System.Collections.Generic.KeyValuePair<string, object?>(
+                  FlowthruActivitySource.TagCacheUncacheableReason, reason.Describe()),
+              });
+          }
         }
       }
     }

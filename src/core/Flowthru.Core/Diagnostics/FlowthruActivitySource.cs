@@ -48,6 +48,23 @@ public static class FlowthruActivitySource
   /// <summary>Activity name for a single step's execution span.</summary>
   public const string StepActivityName = "flowthru.step";
 
+  /// <summary>
+  /// Activity name for one cache-plan uncacheability decision.
+  /// Emitted once per step that landed in
+  /// <see cref="Flowthru.Caching.CachePlan.UncacheableStepLabels"/>
+  /// during pre-flight. The CLI's <c>FlowthruActivityLogger</c> renders
+  /// each instance as an Information-level log line so flow authors can
+  /// audit cache eligibility without spelunking through the
+  /// cache-plan-builder source.
+  /// </summary>
+  public const string CacheUncacheableActivityName = "flowthru.cache.uncacheable";
+
+  /// <summary>
+  /// Tag carrying the human-readable reason a step is uncacheable —
+  /// the output of <c>StepUncacheableReason.Describe()</c>.
+  /// </summary>
+  public const string TagCacheUncacheableReason = "flowthru.cache.uncacheable_reason";
+
   /// <summary>Tag name carrying the flow's label (or "(merged)" for a no-slice run).</summary>
   public const string TagFlowLabel = "flowthru.flow.label";
 

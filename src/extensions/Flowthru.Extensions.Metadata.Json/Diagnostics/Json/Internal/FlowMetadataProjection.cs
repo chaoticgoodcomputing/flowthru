@@ -330,7 +330,11 @@ internal sealed record CacheStatusProjection
 
   /// <summary>Build the pre-flight projection for one step.</summary>
   public static CacheStatusProjection PreRun(string stepLabel, CachePlan? plan) =>
-    new() { Status = ClassifyStatus(stepLabel, plan) };
+    new()
+    {
+      Status = ClassifyStatus(stepLabel, plan),
+      Reason = UncacheableReason(stepLabel, plan),
+    };
 
   /// <summary>Build the post-run projection for one step.</summary>
   public static CacheStatusProjection PostRun(
@@ -342,7 +346,11 @@ internal sealed record CacheStatusProjection
   {
     Status = ClassifyStatus(stepLabel, plan),
     Ran = ran,
-    Reason = reason,
+    // Prefer the scheduler's post-run reason (e.g., "cached") when set;
+    // otherwise fall back to the cache-plan uncacheable reason so the
+    // post-run record carries the same per-step diagnostic the pre-run
+    // record did.
+    Reason = reason ?? UncacheableReason(stepLabel, plan),
   };
 
   private static string ClassifyStatus(string stepLabel, CachePlan? plan)
@@ -352,6 +360,14 @@ internal sealed record CacheStatusProjection
     if (plan.StaleStepLabels.Contains(stepLabel)) return "stale";
     if (plan.UncacheableStepLabels.Contains(stepLabel)) return "uncacheable";
     return "unplanned";
+  }
+
+  private static string? UncacheableReason(string stepLabel, CachePlan? plan)
+  {
+    if (plan is null) return null;
+    return plan.UncacheableReasons.TryGetValue(stepLabel, out var reason)
+      ? reason.Describe()
+      : null;
   }
 }
 

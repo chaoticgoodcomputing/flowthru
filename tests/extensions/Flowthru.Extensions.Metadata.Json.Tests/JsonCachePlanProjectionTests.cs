@@ -54,7 +54,8 @@ public class JsonCachePlanProjectionTests
       StaleStepLabels: new HashSet<string>(new[] { "beta" }, StringComparer.Ordinal),
       UncacheableStepLabels: new HashSet<string>(StringComparer.Ordinal),
       NewStepFingerprints: new Dictionary<string, string>(StringComparer.Ordinal),
-      NewItemFingerprints: new Dictionary<string, string>(StringComparer.Ordinal)
+      NewItemFingerprints: new Dictionary<string, string>(StringComparer.Ordinal),
+      UncacheableReasons: new Dictionary<string, StepUncacheableReason>(StringComparer.Ordinal)
     );
     var ctx = new FlowMetadataContext
     {
@@ -156,7 +157,8 @@ public class JsonCachePlanProjectionTests
       StaleStepLabels: new HashSet<string>(StringComparer.Ordinal),
       UncacheableStepLabels: new HashSet<string>(StringComparer.Ordinal),
       NewStepFingerprints: new Dictionary<string, string>(StringComparer.Ordinal),
-      NewItemFingerprints: new Dictionary<string, string>(StringComparer.Ordinal)
+      NewItemFingerprints: new Dictionary<string, string>(StringComparer.Ordinal),
+      UncacheableReasons: new Dictionary<string, StepUncacheableReason>(StringComparer.Ordinal)
     );
     var ctx = new FlowMetadataContext
     {
@@ -235,6 +237,56 @@ public class JsonCachePlanProjectionTests
     Assert.That(alphaCache.GetProperty("status").GetString(), Is.EqualTo("unplanned"));
     Assert.That(alphaCache.GetProperty("ran").GetBoolean(), Is.True,
       "A failed step did run, even though it failed.");
+  }
+
+  // ── Per-step uncacheable reason (regression: MagicAtlas Bug 3) ──────
+
+  [Test]
+  public async Task EmitDag_UncacheableStep_CarriesReasonInPerStepCache()
+  {
+    // Regression: pre-fix, uncacheable steps had no per-step reason in
+    // the JSON projection, so downstream tooling couldn't surface the
+    // cause without re-deriving it from the DAG. The reason should be
+    // the human-readable string produced by
+    // StepUncacheableReason.Describe().
+    var flow = BuildTwoStepFlow();
+    var plan = new CachePlan(
+      FreshStepLabels: new HashSet<string>(StringComparer.Ordinal),
+      StaleStepLabels: new HashSet<string>(StringComparer.Ordinal),
+      UncacheableStepLabels: new HashSet<string>(new[] { "alpha" }, StringComparer.Ordinal),
+      NewStepFingerprints: new Dictionary<string, string>(StringComparer.Ordinal),
+      NewItemFingerprints: new Dictionary<string, string>(StringComparer.Ordinal),
+      UncacheableReasons: new Dictionary<string, StepUncacheableReason>(StringComparer.Ordinal)
+      {
+        ["alpha"] = new StepUncacheableReason.UnfingerprintableInput("memory_input"),
+      }
+    );
+    var ctx = new FlowMetadataContext
+    {
+      MergedFlow = flow,
+      EffectiveFlow = flow,
+      ActiveStepLabels = flow.Steps.Select(s => s.Label).ToHashSet(StringComparer.Ordinal),
+      RequestedFlowLabel = null,
+      CachePlan = plan,
+    };
+    var provider = new JsonMetadataProviderBuilder()
+      .WithOutputDirectory(_root)
+      .WithFilenameTemplate("dag-{FlowName}")
+      .Build();
+
+    await ((IMetadataProvider)provider).Emit(ctx).Run();
+
+    var content = SysIO.File.ReadAllText(SysIO.Directory.GetFiles(_root, "dag-*.json").Single());
+    using var doc = JsonDocument.Parse(content);
+    var steps = doc.RootElement.GetProperty("steps").EnumerateArray()
+      .ToDictionary(s => s.GetProperty("label").GetString()!, s => s);
+
+    var alphaCache = steps["alpha"].GetProperty("cache");
+    Assert.That(alphaCache.GetProperty("status").GetString(), Is.EqualTo("uncacheable"));
+    Assert.That(alphaCache.TryGetProperty("reason", out var reasonProp), Is.True,
+      "Uncacheable step should carry a per-step reason in JSON.");
+    Assert.That(reasonProp.GetString(), Does.Contain("memory_input"),
+      "Reason text should name the unfingerprintable item so tooling can surface it.");
   }
 
   // ── Helpers ─────────────────────────────────────────────────────────

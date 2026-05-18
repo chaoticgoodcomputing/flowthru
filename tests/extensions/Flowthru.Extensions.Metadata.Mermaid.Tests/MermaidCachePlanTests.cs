@@ -31,7 +31,8 @@ public class MermaidCachePlanTests
       StaleStepLabels: new HashSet<string>(StringComparer.Ordinal),
       UncacheableStepLabels: new HashSet<string>(StringComparer.Ordinal),
       NewStepFingerprints: new Dictionary<string, string>(StringComparer.Ordinal),
-      NewItemFingerprints: new Dictionary<string, string>(StringComparer.Ordinal)
+      NewItemFingerprints: new Dictionary<string, string>(StringComparer.Ordinal),
+      UncacheableReasons: new Dictionary<string, StepUncacheableReason>(StringComparer.Ordinal)
     );
     var ctx = new FlowMetadataContext
     {
@@ -63,7 +64,8 @@ public class MermaidCachePlanTests
       StaleStepLabels: new HashSet<string>(new[] { "cached_step", "will_run" }, StringComparer.Ordinal),
       UncacheableStepLabels: new HashSet<string>(StringComparer.Ordinal),
       NewStepFingerprints: new Dictionary<string, string>(StringComparer.Ordinal),
-      NewItemFingerprints: new Dictionary<string, string>(StringComparer.Ordinal)
+      NewItemFingerprints: new Dictionary<string, string>(StringComparer.Ordinal),
+      UncacheableReasons: new Dictionary<string, StepUncacheableReason>(StringComparer.Ordinal)
     );
     var ctx = new FlowMetadataContext
     {

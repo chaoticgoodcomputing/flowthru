@@ -45,7 +45,8 @@ public sealed record CachePlan(
   IReadOnlySet<string> StaleStepLabels,
   IReadOnlySet<string> UncacheableStepLabels,
   IReadOnlyDictionary<string, string> NewStepFingerprints,
-  IReadOnlyDictionary<string, string> NewItemFingerprints
+  IReadOnlyDictionary<string, string> NewItemFingerprints,
+  IReadOnlyDictionary<string, StepUncacheableReason> UncacheableReasons
 )
 {
   /// <summary>
@@ -59,7 +60,8 @@ public sealed record CachePlan(
       new HashSet<string>(StringComparer.Ordinal),
       new HashSet<string>(StringComparer.Ordinal),
       new Dictionary<string, string>(StringComparer.Ordinal),
-      new Dictionary<string, string>(StringComparer.Ordinal)
+      new Dictionary<string, string>(StringComparer.Ordinal),
+      new Dictionary<string, StepUncacheableReason>(StringComparer.Ordinal)
     );
 
   /// <summary>

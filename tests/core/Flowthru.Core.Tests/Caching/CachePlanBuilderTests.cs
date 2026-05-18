@@ -314,6 +314,84 @@ public class CachePlanBuilderTests
     Assert.That(plan.StaleStepLabels, Is.EquivalentTo(new[] { "A" }));
   }
 
+  // ── Uncacheable reason capture (regression: MagicAtlas Bug 3) ─────────
+
+  [Test]
+  public async Task UncacheableReason_NoCodeVersion_IsCapturedPerStep()
+  {
+    // Regression: pre-Bug-3, a step landing in UncacheableStepLabels carried
+    // no machine-readable reason, so a 7-step cascade was indistinguishable
+    // from a 7-step bag of unrelated misses. The plan now exposes
+    // UncacheableReasons keyed by step label.
+    var input = new FakeFingerprintItem<int>("in", fingerprint: "fp-in", exists: true);
+    var output = new FakeFingerprintItem<int>("out", fingerprint: "fp-out", exists: true);
+    var step = MakeStep("transform", codeVersion: null, input, output);
+    var plan = await CachePlanBuilder.BuildAsync(BuildFlow(step), CacheManifest.Empty);
+
+    Assert.That(plan.UncacheableReasons, Does.ContainKey("transform"));
+    Assert.That(plan.UncacheableReasons["transform"],
+      Is.TypeOf<StepUncacheableReason.NoCodeVersion>());
+  }
+
+  [Test]
+  public async Task UncacheableReason_ServiceDependencies_CarriesCount()
+  {
+    var input = new FakeFingerprintItem<int>("in", fingerprint: "fp-in", exists: true);
+    var output = new FakeFingerprintItem<int>("out", fingerprint: "fp-out", exists: true);
+    var step = MakeStep(
+      label: "transform", codeVersion: "code-v1",
+      input: input, output: output,
+      serviceDependencies: new[] { ServiceRef.Of<object>(), ServiceRef.Of<string>() });
+
+    var plan = await CachePlanBuilder.BuildAsync(BuildFlow(step), CacheManifest.Empty);
+
+    var reason = plan.UncacheableReasons["transform"];
+    Assert.That(reason, Is.TypeOf<StepUncacheableReason.HasServiceDependencies>());
+    Assert.That(((StepUncacheableReason.HasServiceDependencies)reason).Count, Is.EqualTo(2));
+  }
+
+  [Test]
+  public async Task UncacheableReason_UnfingerprintableInput_NamesItemLabel()
+  {
+    // Mirrors MagicAtlas's exact debugging pain: a `.Memory()` adapter
+    // upstream (no fingerprint capability) silently cascaded to every
+    // consumer. The reason must point at the offending item by label so
+    // the developer doesn't have to bisect by removing nodes one at a time.
+    var input = new FakeFingerprintItem<int>("memory_input", fingerprint: null, exists: true);
+    var output = new FakeFingerprintItem<int>("out", fingerprint: "fp-out", exists: true);
+    var step = MakeStep("transform", "code-v1", input, output);
+
+    var plan = await CachePlanBuilder.BuildAsync(BuildFlow(step), CacheManifest.Empty);
+
+    var reason = plan.UncacheableReasons["transform"];
+    Assert.That(reason, Is.TypeOf<StepUncacheableReason.UnfingerprintableInput>());
+    Assert.That(((StepUncacheableReason.UnfingerprintableInput)reason).ItemLabel,
+      Is.EqualTo("memory_input"));
+  }
+
+  [Test]
+  public async Task UncacheableReason_Cascade_NamesParentStepLabel()
+  {
+    // A cascade case names the immediate parent step so developers can
+    // walk the chain backward in one hop instead of bisecting.
+    var seedInput = new FakeFingerprintItem<int>("seed", fingerprint: "fp-seed", exists: true);
+    var mid = new FakeFingerprintItem<int>("mid", fingerprint: "fp-mid", exists: true);
+    var output = new FakeFingerprintItem<int>("out", fingerprint: "fp-out", exists: true);
+    var stepA = MakeStep("A", codeVersion: null, seedInput, mid);
+    var stepB = MakeStep("B", "code-B-v1", mid, output);
+
+    var plan = await CachePlanBuilder.BuildAsync(BuildFlow(stepA, stepB), CacheManifest.Empty);
+
+    Assert.That(plan.UncacheableReasons["A"], Is.TypeOf<StepUncacheableReason.NoCodeVersion>(),
+      "Root cause keeps its specific reason (NoCodeVersion), not Cascade.");
+    var bReason = plan.UncacheableReasons["B"];
+    Assert.That(bReason, Is.TypeOf<StepUncacheableReason.CascadeFromStep>());
+    Assert.That(((StepUncacheableReason.CascadeFromStep)bReason).ParentStepLabel,
+      Is.EqualTo("A"),
+      "Cascaded child should name its immediate uncacheable parent so the trail "
+      + "from a leaf back to the root cause is one hop per step.");
+  }
+
   // ─────────────────────────────────────────────────────────────────────────
   // Helpers
   // ─────────────────────────────────────────────────────────────────────────

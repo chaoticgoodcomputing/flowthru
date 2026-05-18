@@ -134,6 +134,47 @@ public class PythonStepCacheableGeneratorTests
       "Lockfile candidates must include requirements.txt.");
   }
 
+  // ── Multi-decorator + cacheable=True (regression: MagicAtlas Bug 1) ─
+
+  [Test]
+  public void TwoCacheableDecoratorsInOneFile_BothAppearInRegistrationBlock()
+  {
+    // Regression: per the MagicAtlas report, an embed_oracle_text.py with
+    // two @step(cacheable=True)-decorated functions registered only the
+    // first with PythonStepCacheRegistry — the second function's
+    // CodeVersion stayed null at runtime, so the cache plan silently
+    // classified the second step as uncacheable. The fix lives in
+    // ParsePythonSteps (Regex.Match → Regex.Matches); this test pins the
+    // observable symptom on the registry surface the report named.
+    var py = new GeneratorTestHarness.InMemoryAdditionalText(
+      path: "/repo/Flows/Embedding/embed_oracle_text.py",
+      text:
+        "@step(inputs=[Row], outputs=[Row], cacheable=True)\n" +
+        "def embed_default(x):\n    return x\n" +
+        "\n" +
+        "@step(inputs=[Row], outputs=[Row], cacheable=True)\n" +
+        "def embed_finetuned(x):\n    return x\n"
+    );
+
+    var result = GeneratorTestHarness.Run(
+      new PythonStepFactoryGenerator(),
+      source: SchemaSource,
+      additionalFiles: new[] { py }
+    );
+
+    Assert.That(result.GeneratedSources.TryGetValue("PythonSteps.g.cs", out var emitted), Is.True,
+      "PythonSteps.g.cs should be emitted.");
+    Assert.That(emitted, Does.Contain("\"embed_default\""),
+      "First cacheable=True step's function name must appear in the registry block.");
+    Assert.That(emitted, Does.Contain("\"embed_finetuned\""),
+      "Second cacheable=True step's function name must ALSO appear — this is the regression.");
+    // Count Register call sites — both must be emitted (one per decorator).
+    var registerCallCount = System.Text.RegularExpressions.Regex.Matches(
+      emitted!, @"PythonStepCacheRegistry\.Register").Count;
+    Assert.That(registerCallCount, Is.EqualTo(2),
+      "Two @step(cacheable=True) decorators in one file must produce exactly two Register calls.");
+  }
+
   // ── Mixed cacheable / non-cacheable steps in same project ───────────
 
   [Test]

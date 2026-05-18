@@ -72,6 +72,56 @@ public class FlowthruActivityLoggerTests
     );
   }
 
+  // ── Cache-uncacheable bridge (regression: MagicAtlas Bug 3) ───────────
+
+  [Test]
+  public void UncacheableActivity_BridgesToInfoLogLineWithReason()
+  {
+    // Regression: pre-Bug-3, an uncacheable step landed in the CachePlan
+    // with no developer-visible signal — MagicAtlas spent ~2 hours
+    // bisecting a 7-step cascade. The fix emits a
+    // flowthru.cache.uncacheable Activity per uncacheable step from
+    // FlowthruService; the CLI bridge renders each as
+    // "  ⊘ {StepLabel} uncacheable: {Reason}" at Information level.
+    //
+    // Testing the bridge directly (rather than running an end-to-end
+    // flow) keeps this test focused on the rendering contract. The
+    // emission side is covered by CachePlanBuilder tests +
+    // FlowthruService's actual call site.
+    var captured = new CapturingLogger();
+    using var bridge = new FlowthruActivityLogger(captured);
+
+    using (var activity = FlowthruActivitySource.Source.StartActivity(
+      FlowthruActivitySource.CacheUncacheableActivityName,
+      ActivityKind.Internal,
+      default(ActivityContext),
+      new[]
+      {
+        new KeyValuePair<string, object?>(
+          FlowthruActivitySource.TagStepLabel, "embed_finetuned"),
+        new KeyValuePair<string, object?>(
+          FlowthruActivitySource.TagCacheUncacheableReason,
+          "cascaded from uncacheable parent step 'preprocess_cards'"),
+      }))
+    {
+      // Activity is disposed at scope exit — OnStarted has already fired
+      // by the time StartActivity returns when a listener is registered.
+      Assert.That(activity, Is.Not.Null,
+        "FlowthruActivitySource must produce a real Activity when a listener "
+        + "(the bridge) is registered. A null here means the listener filter is wrong.");
+    }
+
+    var match = captured.Entries.SingleOrDefault(e =>
+      e.Level == LogLevel.Information
+      && e.Message.Contains("⊘")
+      && e.Message.Contains("embed_finetuned"));
+    Assert.That(match.Message, Is.Not.Null,
+      "Uncacheable activity must bridge to an Information '⊘ {label} uncacheable: {reason}' "
+      + "log line. Got: " + string.Join(" | ", captured.Entries.Select(e => $"[{e.Level}] {e.Message}")));
+    Assert.That(match.Message, Does.Contain("preprocess_cards"),
+      "Rendered reason text must surface the parent step name from the activity tag.");
+  }
+
   /// <summary>
   /// Minimal <see cref="ILogger"/> that captures emitted entries
   /// for assertion. Avoids pulling in an additional test

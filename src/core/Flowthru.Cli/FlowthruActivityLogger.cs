@@ -93,6 +93,17 @@ public sealed class FlowthruActivityLogger : IDisposable
         var stepLabel = activity.GetTagItem(FlowthruActivitySource.TagStepLabel) as string ?? "?";
         _logger.LogInformation("  → {StepLabel} executing…", stepLabel);
         break;
+      case FlowthruActivitySource.CacheUncacheableActivityName:
+        // Pre-flight cache-plan post-processing emits one of these per
+        // step the plan marked uncacheable. Per-step rendering lets
+        // flow authors audit cache eligibility at Information level
+        // instead of bisecting through cache-plan-builder source.
+        var uncacheableLabel = activity.GetTagItem(FlowthruActivitySource.TagStepLabel) as string ?? "?";
+        var reason = activity.GetTagItem(FlowthruActivitySource.TagCacheUncacheableReason) as string
+          ?? "(unknown)";
+        _logger.LogInformation(
+          "  ⊘ {StepLabel} uncacheable: {Reason}", uncacheableLabel, reason);
+        break;
     }
   }
 

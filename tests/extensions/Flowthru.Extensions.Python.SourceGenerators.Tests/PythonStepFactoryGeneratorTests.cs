@@ -128,6 +128,57 @@ public class PythonStepFactoryGeneratorTests
     // is the contract, not the empty PythonSteps class shell.
   }
 
+  // ── FT2007 per-decorator Location (regression: MagicAtlas Bug 2) ──────
+
+  [Test]
+  public void Ft2007_CarriesPerDecoratorLocation_NotProjectLevel()
+  {
+    // Regression: MagicAtlas reported FT2007s were project-level (no
+    // file/line), so a consumer with N misses couldn't tell which
+    // decorator each one referred to. The fix computes a Roslyn Location
+    // from the @step(...) match offset in the .py file. With two broken
+    // decorators on different lines, we should see two distinct
+    // locations, each carrying the .py file path.
+    var py = new GeneratorTestHarness.InMemoryAdditionalText(
+      path: "Flows/Embed/embed.py",
+      text:
+        "@step(inputs=[FirstMissing], outputs=[FirstAlsoMissing])\n" +
+        "def first(x):\n    return x\n" +
+        "\n" +
+        "@step(inputs=[SecondMissing], outputs=[SecondAlsoMissing])\n" +
+        "def second(x):\n    return x\n"
+    );
+
+    var result = GeneratorTestHarness.Run(
+      new PythonStepFactoryGenerator(),
+      source: "namespace Sample { public class Empty {} }",
+      additionalFiles: new[] { py }
+    );
+
+    var ft2007s = result.Diagnostics.Where("FT2007").ToList();
+    Assert.That(ft2007s.Count, Is.GreaterThanOrEqualTo(2),
+      "Both decorators have unresolved schemas; expect at least two FT2007s.");
+
+    foreach (var diag in ft2007s)
+    {
+      Assert.That(diag.Location, Is.Not.EqualTo(Microsoft.CodeAnalysis.Location.None),
+        "FT2007 must carry a non-None Location so the IDE can navigate to "
+        + "the offending decorator.");
+      var mapped = diag.Location.GetLineSpan();
+      Assert.That(mapped.Path, Is.EqualTo("Flows/Embed/embed.py"),
+        "Location must reference the .py file the decorator lives in.");
+    }
+
+    // The two decorators are on different lines (1 and 4 in the source
+    // above) — Locations must distinguish them.
+    var distinctStartLines = ft2007s
+      .Select(d => d.Location.GetLineSpan().StartLinePosition.Line)
+      .Distinct()
+      .Count();
+    Assert.That(distinctStartLines, Is.GreaterThanOrEqualTo(2),
+      "Diagnostics on separate decorators must have distinct line numbers.");
+  }
+
   // ── Wire-format primitives ────────────────────────────────────────────
 
   [Test]
@@ -460,6 +511,76 @@ public class PythonStepFactoryGeneratorTests
     Assert.That(result.GeneratedSources, Does.ContainKey("PythonSteps.g.cs"),
       "Generator should still emit when the decorator carries a services= slot.");
     Assert.That(result.GeneratedSources["PythonSteps.g.cs"], Does.Contain("Run"));
+  }
+
+  // ── Multi-decorator per file (regression: MagicAtlas Bug 1) ───────────
+
+  [Test]
+  public void MultipleStepDecoratorsInOneFile_EmitFactoryForEach()
+  {
+    // Regression: an earlier version of the generator only picked up the
+    // first @step-decorated function per .py file (Regex.Match vs.
+    // Regex.Matches). Authors with two related transforms in one module
+    // got a silent miss on every decorator after the first — the second
+    // factory never appeared in PythonSteps and the step ran uncacheable
+    // at runtime with no diagnostic.
+    var py = new GeneratorTestHarness.InMemoryAdditionalText(
+      path: "Flows/Twins/twins.py",
+      text:
+        "@step(inputs=[bytes], outputs=[str])\n" +
+        "def first_step(x):\n    return x.decode()\n" +
+        "\n" +
+        "@step(inputs=[str], outputs=[int])\n" +
+        "def second_step(x):\n    return len(x)\n"
+    );
+
+    var result = GeneratorTestHarness.Run(
+      new PythonStepFactoryGenerator(),
+      source: "namespace Sample { public class Empty {} }",
+      additionalFiles: new[] { py }
+    );
+
+    Assert.That(result.GeneratedSources, Does.ContainKey("PythonSteps.g.cs"),
+      "Generator must emit when multiple decorators are present.");
+    var emitted = result.GeneratedSources["PythonSteps.g.cs"];
+    Assert.That(emitted, Does.Contain("FirstStep"),
+      "First @step must be emitted (baseline).");
+    Assert.That(emitted, Does.Contain("SecondStep"),
+      "Second @step in the same .py file must also be emitted — this is the regression.");
+  }
+
+  // ── FT2007 message-format substitution (regression: MagicAtlas Bug 2) ─
+
+  [Test]
+  public void Ft2007Message_SubstitutesSchemaName_And_KeepsLiteralPlaceholder()
+  {
+    // Regression: messageFormat contained an unescaped `{X}` literal
+    // alongside the `{0}` placeholder, so string.Format threw
+    // FormatException and Roslyn fell back to the raw template — the
+    // user saw "Schema '{0}' referenced..." with neither slot
+    // substituted. The fix escapes the literal as `{{X}}` so {0} is
+    // honoured and {X} renders as-is in the rendered message.
+    var py = new GeneratorTestHarness.InMemoryAdditionalText(
+      path: "Flows/Train/train_model.py",
+      text:
+        "@step(inputs=[DefinitelyNotARealSchema], outputs=[str])\n" +
+        "def train_model(x):\n    return x\n"
+    );
+
+    var result = GeneratorTestHarness.Run(
+      new PythonStepFactoryGenerator(),
+      source: "namespace Sample { public class Empty {} }",
+      additionalFiles: new[] { py }
+    );
+
+    var ft2007 = result.Diagnostics.Where("FT2007").Single();
+    var rendered = ft2007.GetMessage();
+    Assert.That(rendered, Does.Contain("'DefinitelyNotARealSchema'"),
+      "FT2007 must substitute {0} with the unresolved schema name.");
+    Assert.That(rendered, Does.Not.Contain("{0}"),
+      "Raw {0} placeholder must not leak into the rendered message.");
+    Assert.That(rendered, Does.Contain("PythonSteps.{X}"),
+      "Literal placeholder PythonSteps.{X} must survive into the rendered message.");
   }
 
   // ── Header sanity ─────────────────────────────────────────────────────

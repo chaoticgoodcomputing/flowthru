@@ -1,6 +1,9 @@
 # Generated metadata
 Metadata/
 
+# Flowthru cache manifest (Phase 6: framework-managed; safe to delete to force rebuild)
+.flowthru/
+
 # Ignore all generated data artifacts
 Data/**
 
@@ -8,9 +11,6 @@ Data/**
 !Data/*/
 !Data/*/Schemas/
 !Data/_01_Raw/Datasets/
-
-# Allow raw input dataset files
-!Data/_01_Raw/Datasets/*
 
 # Allow all schema and catalog .cs files
 !Data/**/*.cs

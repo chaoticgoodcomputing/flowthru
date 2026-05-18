@@ -294,3 +294,6 @@ src-old/
 
 # C# Dev Kit
 **/*.csproj.lscache
+
+# General Flowthru
+**/.flowthru

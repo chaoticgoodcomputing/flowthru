@@ -74,6 +74,11 @@ public static class CachePlanBuilder
     var uncacheable = new HashSet<string>(StringComparer.Ordinal);
     var newStepFingerprints = new Dictionary<string, string>(StringComparer.Ordinal);
     var newItemFingerprints = new Dictionary<string, string>(StringComparer.Ordinal);
+    // Per-step explanation for every label landed in `uncacheable`.
+    // Without this, "step X uncacheable" was invisible to developers —
+    // MagicAtlas spent ~2 hours bisecting a 7-step cascade because the
+    // signal was unobservable. Populated alongside every uncacheable.Add.
+    var uncacheableReasons = new Dictionary<string, StepUncacheableReason>(StringComparer.Ordinal);
 
     // Producer index — same shape DependencyAnalyzer builds, but we
     // store the producing step's label rather than the step itself so
@@ -105,9 +110,17 @@ public static class CachePlanBuilder
       cancellationToken.ThrowIfCancellationRequested();
 
       // Phase 1 — eligibility checks that don't require I/O.
-      if (step.CodeVersion is null || step.ServiceDependencies.Count > 0)
+      if (step.CodeVersion is null)
       {
         uncacheable.Add(step.Label);
+        uncacheableReasons[step.Label] = new StepUncacheableReason.NoCodeVersion();
+        continue;
+      }
+      if (step.ServiceDependencies.Count > 0)
+      {
+        uncacheable.Add(step.Label);
+        uncacheableReasons[step.Label] = new StepUncacheableReason.HasServiceDependencies(
+          step.ServiceDependencies.Count);
         continue;
       }
 
@@ -115,7 +128,7 @@ public static class CachePlanBuilder
       // unfingerprintable, or its parent is non-fresh, we cascade.
       var inputContributions = new List<(string Label, string Value)>(step.Inputs.Count);
       var cascadeStale = false;
-      var cascadeUncacheable = false;
+      StepUncacheableReason? cascadeReason = null;
 
       foreach (var input in step.Inputs)
       {
@@ -123,7 +136,7 @@ public static class CachePlanBuilder
         {
           if (uncacheable.Contains(parentLabel))
           {
-            cascadeUncacheable = true;
+            cascadeReason = new StepUncacheableReason.CascadeFromStep(parentLabel);
             break;
           }
           if (stale.Contains(parentLabel))
@@ -136,7 +149,7 @@ public static class CachePlanBuilder
         var fp = await FingerprintOnce(input).ConfigureAwait(false);
         if (fp is null)
         {
-          cascadeUncacheable = true;
+          cascadeReason = new StepUncacheableReason.UnfingerprintableInput(input.Label);
           break;
         }
 
@@ -157,9 +170,10 @@ public static class CachePlanBuilder
         inputContributions.Add((input.Label, fp));
       }
 
-      if (cascadeUncacheable)
+      if (cascadeReason is not null)
       {
         uncacheable.Add(step.Label);
+        uncacheableReasons[step.Label] = cascadeReason;
         continue;
       }
       if (cascadeStale)
@@ -209,7 +223,7 @@ public static class CachePlanBuilder
       }
     }
 
-    return new CachePlan(fresh, stale, uncacheable, newStepFingerprints, newItemFingerprints);
+    return new CachePlan(fresh, stale, uncacheable, newStepFingerprints, newItemFingerprints, uncacheableReasons);
   }
 
   /// <summary>
