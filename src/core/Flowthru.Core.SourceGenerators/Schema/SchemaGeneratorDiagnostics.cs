@@ -79,7 +79,12 @@ public static class SchemaGeneratorDiagnostics
         + "{{Count, Capacity, Comparer}} instead of a JSON array. Use IReadOnlyList<T> "
         + "(or another non-set collection shape) so the producer step picks the concrete "
         + "container.",
-      category: Category,
+      // FT2xxx range is the validation-category band per
+      // AnalyzerReleases.Unshipped.md (alongside FT2001/FT2002). This
+      // descriptor's enforcement target is "prevent a runtime/cache-layer
+      // serialization failure," so Validation is the correct bucket even
+      // though the diagnostic fires on schema-property declarations.
+      category: "Flowthru.Validation",
       defaultSeverity: DiagnosticSeverity.Warning,
       isEnabledByDefault: true,
       description: "HashSet<T>, SortedSet<T>, ISet<T>, IReadOnlySet<T>, and their immutable "
