@@ -1,3 +1,13 @@
+## 0.18.3 (2026-05-19)
+
+### 🩹 Fixes
+
+- resolve caching issues around Python and warnings for un-roundtrippable typings ([7943eb09](https://github.com/chaoticgoodcomputing/flowthru/commit/7943eb09))
+
+### ❤️ Thank You
+
+- Spencer Elkington
+
 ## 0.18.2 (2026-05-18)
 
 ### 🩹 Fixes
