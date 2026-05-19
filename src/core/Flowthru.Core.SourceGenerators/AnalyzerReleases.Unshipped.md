@@ -16,6 +16,7 @@
 | FT1303  | Flowthru.Step       | Error    | Step extension capability/marshaller mismatch                      |
 | FT2001  | Flowthru.Validation | Error    | Single-producer invariant violated                                 |
 | FT2002  | Flowthru.Validation | Error    | Step type alignment violated                                       |
+| FT2010  | Flowthru.Validation | Warning  | Schema property uses a set type that may not round-trip correctly  |
 | FT3001  | Flowthru.Validation | Error    | Pre-flight: duplicate producer                                     |
 | FT3002  | Flowthru.Validation | Error    | Pre-flight: circular dependency                                    |
 | FT3003  | Flowthru.Validation | Error    | Pre-flight: missing input                                          |
