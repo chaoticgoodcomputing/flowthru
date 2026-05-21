@@ -26,7 +26,7 @@ If you're building an example and aren't sure where it lands, start it in `archi
 
 Every example project in `starter/` and `advanced/` must include:
 
-1. **A README** — Diátaxis-aligned. For starters, tutorial form: assume the reader knows nothing; walk them through what the example does, how to run it, and what concept it demonstrates. For advanced, how-to-guide form: assume the reader has worked through the relevant starter; explain what pattern this composes and what production problem it solves.
+1. **A README** that conforms to [§ README Standards](#readme-standards).
 2. **A Mermaid diagram of the example's Flow(s)**, output via the [`Flowthru.Extensions.Metadata.Mermaid`](/src/extensions/Flowthru.Extensions.Metadata.Mermaid/) extension, registered in `Program.cs`'s metadata configuration. The diagram is auto-managed by `nx run examples:sync-readmes` ([scripts/update-example-readmes.mjs](/scripts/update-example-readmes.mjs)): the target invokes `dotnet run -- --dry-run` per example to refresh `Metadata/dag-merged.md`, then splices the contents between paired markers in the README:
 
    ```markdown
@@ -55,7 +55,88 @@ Every example project in `starter/` and `advanced/` must include:
    Pruning rules: at each project-boundary directory (the example root, plus any nested dir containing a `.csproj`), only `Program.cs` survives among files — it carries a fixed `# entry point` annotation. Inside `Data/`, the dotted-segment catalog plumbing (`Catalog.cs`, `Catalog.<Category>.cs`, `Catalog.<X>.<Y>.cs`) is stripped, and the `_NN_<name>` category subdirs are elided to the first and last only (with `...` between). Inside each `Flows/<FlowName>/` directory, the matching `<FlowName>Flow.cs` registration file is stripped. The tree carries no other inline annotations — Schemas and Steps speak for themselves; if you need prose, write it outside the marker block.
 
    Hand-authored `## File Structure` / `## Project Structure` blocks present at first sync are migrated in place into marker-wrapped auto-managed blocks; any annotations inside the original fence are dropped — see the marker as a contract that the section's content is now generated.
-3. **An acknowledgement in the README** if the example mirrors a Kedro tutorial or other external source, with a link. This preserves intellectual provenance.
+
+## README Standards
+
+Every example README follows a three-section skeleton: `## Getting Started`, `## Concepts`, `## Structure`. Structural conformance is enforced by the README meta-test (see [§ Meta-test scope](#meta-test-scope)); deviations fail the build.
+
+### Title and lead-in
+
+```markdown
+# <ProjectName> <Starter|Advanced>
+
+> [!NOTE]
+> How do I <the question this example answers>?
+
+<1–2 sentences naming what the reader will run/produce.>
+<Scope boundary + audience contract — non-vanilla only.>
+<Acknowledgement, if the Flow structure derives from an external source.>
+```
+
+The `[!NOTE]` callout is the literal question this example answers, written in [Diátaxis](/docs/CONTRIBUTING.md) form. Starters answer *learning* questions ("How do I get started with `<X>` in Flowthru?"); advanced answer *working* questions ("How do I `<specific pattern>`?"). If you can't write the question in one sentence, the example is doing too much.
+
+**Scope boundary.** A hard rule: **everything in `starter/` is a template**, and **nothing in `advanced/` is a template**. Starters get scaffolded via `dotnet new` from `.template.config/template.json` and must remain cloneable. Advanced examples are reference-only — they exist to be read, not copied. Vanilla starters omit the scope-boundary sentence — the tier already conveys it, and template-enumeration guidance lives in central onboarding docs. Extension starters and advanced examples include a scope-boundary sentence; depth-probe advanced examples must include an explicit **"not a template"** warning, since the risk of readers cloning them is highest.
+
+**Audience contract.** Names who this is written for. Vanilla starters omit this — "no Flowthru background assumed" is implicit. Extension starters and advanced examples state assumed reading:
+
+- *Extension starter:* "assumes you've worked through `<vanilla starter>`."
+- *Advanced:* "assumes you've worked through `<starter A>` and `<starter B>`."
+
+**Avoid negative-space sentences.** Don't list what the example *doesn't* exercise ("no DI, no Python, no persistence — see…"). The tier (starter vs. advanced) and the audience contract already convey scope; "what isn't here" is noise.
+
+**Acknowledgement.** If the *structure of the Flow* derives from a Kedro tutorial (or other external source), the final sentence of the lead-in must acknowledge the lineage and link to the source (e.g., [`kedro-org/kedro-starters`](https://github.com/kedro-org/kedro-starters)). The rule is structure-based, not dataset-based: `SpaceflightsPythonEFCore` acknowledges (Flow shape is Kedro-derived); `RetailDataSplitFlow` does not (Flow is original).
+
+### `## Getting Started`
+
+A minimal, copy-pasteable invocation block.
+
+- **Starters:** assume the reader is outside this monorepo (they may have just `dotnet new`'d the template). The run command is `dotnet run`.
+- **Advanced:** assume the reader is inside this monorepo. The run command is `nx run <ProjectName>` (project name from the CSProj — `nx run FlowthruCoverage`, `nx run RetailDataSplitFlow`, etc.).
+- **Prerequisites** (Python 3.10+, `uv sync`, Docker for Testcontainers, etc.) go inline above the run block as one sentence per prereq. Do not introduce a separate `### Prerequisites` subsection.
+- **What success looks like.** One sentence after the run block linking to the canonical output file(s).
+- **Multi-flow or env-var-driven examples** document only first-time-reader invocations; defer the full surface to `--help` or a code link. Exception: when the invocations themselves are the concepts being demonstrated (e.g., `SpaceflightsStagingSchema`'s `--dry-run --acquire-on-dry-run` lifecycle), they may be enumerated explicitly here.
+
+### `## Concepts`
+
+Bulleted list. Each bullet names a pattern in bold and links to the file (or file + line range) that load-bears it. Soft cap of 8 bullets — exceeding 8 is a signal the example is doing too much.
+
+Per-archetype rules:
+
+- **Vanilla starter** (`Iris`, `Spaceflights`, `Minimal`). Each bullet = one Flowthru primitive (Step, Schema, Catalog, Catalog Item, Data category, FlowBuilder), linked to one concrete instance in this example.
+- **Extension starter** (everything else under `starter/`). Each bullet = one piece of the extension's public surface that the example exercises. **Do not re-explain primitives** — the audience contract already said "you've done the vanilla starter." The Concepts section is a *conceptual diff* between this example and base Flowthru.
+- **Interaction advanced** (`SpaceflightsHybridCatalog`, `SpaceflightsPythonEFCore`, `SpaceflightsStagingSchema`). Each bullet = one interaction point between concepts that already work on their own. Focus on what makes the combination non-obvious.
+- **Depth-probe advanced** (`SpaceflightsEnhanced`, `FlowthruCoverage`). Each bullet = a pattern that emerges at scale. The Concepts section must repeat the **"not a template"** reminder from the lead-in — this is the section a casual reader will skim looking for code to copy.
+
+### `## Structure`
+
+Two sub-headers in order: `### Diagram` (mermaid marker pair) and `### Files` (filetree marker pair). Each may have an optional one-sentence prose intro above its marker pair; no required prose. Marker mechanics are defined in [§ Per-Example Requirements](#per-example-requirements).
+
+### Vocabulary
+
+README prose uses canonical Flowthru vocabulary as defined in the [Glossary](#glossary).
+
+**Hard-banned in prose** (meta-tested): `node`, `task`, `operator`, `data layer`, `tier`, `DTO`, `repository`, `data source`.
+
+**Soft-banned:** `pipeline` — allowed only when referring to the general data-engineering concept ("this is a typical ML training pipeline pattern"), banned in Flowthru-specific context ("this pipeline reads from CSV"). Use "Flow" in Flowthru-specific context.
+
+**Exemptions.**
+
+- Code blocks are exempt — embedded Python that uses `@node` keeps `@node` (it's the actual API surface).
+- External-source acknowledgements are exempt — "modeled after the Kedro Spaceflights pipeline" is referring to Kedro's term for its own concept.
+- Mermaid block contents are not prose.
+
+**Embedded code.** Prefer file links over embedded snippets — source cannot lie; an embedded snippet can drift silently. When a snippet is unavoidable, the reviewer verifies it faithfully reflects current source. If the *source* itself uses non-canonical vocabulary, file a separate GitHub issue; do not silently rewrite it in the README.
+
+### Meta-test scope
+
+A README meta-test (target TBD; likely in a new `tests/examples/` project or as a `scripts/` check called by an NX target) asserts, per example:
+
+- Title matches `# <ProjectName> <Starter|Advanced>` with the tier matching the parent directory.
+- `> [!NOTE]` callout present immediately after the title.
+- `## Getting Started`, `## Concepts`, `## Structure` headers present in that order; no other top-level `##` headers.
+- `### Diagram` and `### Files` sub-headers present under `## Structure` in that order, each with its marker pair populated.
+- Starters have a `.template.config/template.json`; advanced does not.
+- Prose outside fenced code and outside marker pairs contains none of the hard-banned vocabulary tokens. Soft-banned `pipeline` produces a flagged-for-review list, not a hard failure.
 
 ## Project Naming
 

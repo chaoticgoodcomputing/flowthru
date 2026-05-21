@@ -1,25 +1,30 @@
-# Iris Starter
+# Spaceflights Starter
 
-A Flowthru starter project modeled off of the [Kedro Spaceflights Starter](https://github.com/kedro-org/kedro-starters/tree/main/spaceflights-pandas). 
+> [!NOTE]
+> How do I assemble a multi-Flow ETL → ML → Reporting project in Flowthru?
+
+Three Flows over a shared Catalog: `DataProcessing` ingests raw CSV/Excel shuttle data, `DataScience` trains a regression model on the joined output, and `Reporting` generates a JSON capacity report and comparison charts. All eight `Data/_NN_<Name>/` categories are exercised. Modeled after [`kedro-org/kedro-starters`](https://github.com/kedro-org/kedro-starters)' Spaceflights tutorial.
 
 ## Getting Started
-
-In order to execute this pipeline, move into this directory and run:
 
 ```bash
 dotnet run
 ```
 
-This will run both the Data Engineering and Data Science pipelines in sequence, generating the final [model outputs and visualizations.](./Data/_08_Reporting/Datasets)
+The capacity report lands at [`Data/_08_Reporting/Datasets/shuttle_capacity_report.json`](./Data/_08_Reporting/Datasets/shuttle_capacity_report.json).
 
-Once you've confirmed your pipeline runs successfully, you can begin:
+## Concepts
 
-1. Adding new data, nodes, and pipelines to your project; and
-2. Using the [Flowthru service](./Program.cs) to run your Flowthru pipelines from other .NET projects.
+- **[Step](./Flows/DataProcessing/Steps/PreprocessCompaniesStep.cs):** a single logical unit of work, declared as a `[FlowthruStep]`-annotated factory. Spaceflights has nine Steps across the three Flows.
+- **[Schema](./Data/_01_Raw/Schemas/CompanySchema.cs):** the typed shape of data, declared once and reused by both the producing Step and the Catalog Item that holds it. The Raw schemas are the simplest in this project.
+- **[Catalog](./Data/Catalog.cs):** the typed registry of Items shared across all three Flows, split into eight `Catalog.<Category>.cs` partials matching the Data categories.
+- **[Catalog Item](./Data/_01_Raw/Catalog.Raw.cs):** a named handle binding a value to its backing. The Raw partial declares file-backed CSV inputs (`Companies`, `Reviews`) and an Excel sheet (`Shuttles`).
+- **[Data category](./Data/):** the `_NN_<Name>/` directories indicating where each Item sits in the Flow lifecycle — [`_01_Raw`](./Data/_01_Raw) through [`_08_Reporting`](./Data/_08_Reporting).
+- **[FlowBuilder](./Flows/DataProcessing/DataProcessingFlow.cs):** assembles Steps into a Flow via `FlowBuilder.CreateFlow(...).AddStep<...>(...)`. The DataProcessing registration is the simplest of the three in this project.
 
-## Project Structure
+## Structure
 
-### Flow Structure
+### Diagram
 
 <!-- flowthru:mermaid:start -->
 ```mermaid
@@ -90,6 +95,8 @@ flowchart TB
 
 ```
 <!-- flowthru:mermaid:end -->
+
+### Files
 
 <!-- flowthru:filetree:start -->
 ```
