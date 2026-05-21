@@ -22,45 +22,36 @@ The four steps all consume the same `IRemoteTimeService`. The metadata
 collapses identical service types to a single node, so the rendered DAG shows
 **one** service node with **four** dashed `-.uses.->` edges:
 
+<!-- flowthru:mermaid:start -->
 ```mermaid
 flowchart TB
 
     %% External Data Inputs
-    Catalog_ReportTemplate[("Catalog.ReportTemplate")]
+    ReportTemplate[("ReportTemplate")]
 
     subgraph ReportTime["ReportTime"]
-        ReportTime_ReportEastern["ReportTime.ReportEastern"]
-        ReportTime_ReportCentral["ReportTime.ReportCentral"]
-        ReportTime_ReportMountain["ReportTime.ReportMountain"]
-        ReportTime_ReportPacific["ReportTime.ReportPacific"]
-        Catalog_EasternTimeReport[("Catalog.EasternTimeReport")]
-        Catalog_CentralTimeReport[("Catalog.CentralTimeReport")]
-        Catalog_MountainTimeReport[("Catalog.MountainTimeReport")]
-        Catalog_PacificTimeReport[("Catalog.PacificTimeReport")]
-
-        ReportTime_ReportEastern --> Catalog_EasternTimeReport
-        ReportTime_ReportCentral --> Catalog_CentralTimeReport
-        ReportTime_ReportMountain --> Catalog_MountainTimeReport
-        ReportTime_ReportPacific --> Catalog_PacificTimeReport
+        ReportEastern["ReportEastern"]
+        EasternTimeReport[("EasternTimeReport")]
+        ReportCentral["ReportCentral"]
+        CentralTimeReport[("CentralTimeReport")]
+        ReportMountain["ReportMountain"]
+        MountainTimeReport[("MountainTimeReport")]
+        ReportPacific["ReportPacific"]
+        PacificTimeReport[("PacificTimeReport")]
     end
 
-    %% External Data to Flow Edges
-    Catalog_ReportTemplate --> ReportTime_ReportEastern
-    Catalog_ReportTemplate --> ReportTime_ReportCentral
-    Catalog_ReportTemplate --> ReportTime_ReportMountain
-    Catalog_ReportTemplate --> ReportTime_ReportPacific
+    %% Edges
+    ReportTemplate --> ReportEastern
+    ReportEastern --> EasternTimeReport
+    ReportTemplate --> ReportCentral
+    ReportCentral --> CentralTimeReport
+    ReportTemplate --> ReportMountain
+    ReportMountain --> MountainTimeReport
+    ReportTemplate --> ReportPacific
+    ReportPacific --> PacificTimeReport
 
-    %% Service Dependencies
-    svc_IRemoteTimeService["IRemoteTimeService"]
-
-    ReportTime_ReportEastern -.uses.-> svc_IRemoteTimeService
-    ReportTime_ReportCentral -.uses.-> svc_IRemoteTimeService
-    ReportTime_ReportMountain -.uses.-> svc_IRemoteTimeService
-    ReportTime_ReportPacific -.uses.-> svc_IRemoteTimeService
-
-    classDef service fill:#FEF7E0,stroke:#A05A00,color:#5E4400
-    class svc_IRemoteTimeService service
 ```
+<!-- flowthru:mermaid:end -->
 
 ## Patterns Demonstrated
 

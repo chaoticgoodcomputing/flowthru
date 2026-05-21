@@ -21,6 +21,8 @@
     href: Flowthru.Data.Storage.EFCore.DbQuery-1.md
   - name: DbScope
     href: Flowthru.Data.Storage.EFCore.DbScope.md
+  - name: EFCoreFingerprintingStorageAdapter<T>
+    href: Flowthru.Data.Storage.EFCore.EFCoreFingerprintingStorageAdapter-1.md
   - name: EFCoreLifecycleExtensions
     href: Flowthru.Data.Storage.EFCore.EFCoreLifecycleExtensions.md
   - name: EFCoreQueryStorageAdapter<T>

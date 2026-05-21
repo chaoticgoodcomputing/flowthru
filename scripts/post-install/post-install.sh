@@ -22,6 +22,7 @@ DEPENDENCIES=(
   java
   spark
   chromium
+  docker
 )
 
 echo ""

@@ -29,52 +29,54 @@ Once you've confirmed your flow runs successfully, you can begin:
 
 ### Flow Structure
 
+<!-- flowthru:mermaid:start -->
 ```mermaid
 flowchart TB
 
     %% External Data Inputs
-    IrisRaw[("Iris Raw")]
+    IrisRaw[("IrisRaw")]
+    SplitOptions[("SplitOptions")]
+    TrainModelOptions[("TrainModelOptions")]
 
     subgraph DataEngineering["DataEngineering"]
-        DataEngineering_SplitAndEncode["Data Engineering.Split And Encode"]
-        IrisFeatures[("Iris Features")]
-        TrainX[("Train X")]
-        TrainY[("Train Y")]
-        TestX[("Test X")]
-        TestY[("Test Y")]
-
-        DataEngineering_SplitAndEncode --> IrisFeatures
-        DataEngineering_SplitAndEncode --> TrainX
-        DataEngineering_SplitAndEncode --> TrainY
-        DataEngineering_SplitAndEncode --> TestX
-        DataEngineering_SplitAndEncode --> TestY
+        SplitAndEncode["SplitAndEncode"]
+        IrisFeatures[("IrisFeatures")]
+        TrainX[("TrainX")]
+        TrainY[("TrainY")]
+        TestX[("TestX")]
+        TestY[("TestY")]
     end
 
     subgraph DataScience["DataScience"]
-        DataScience_TrainModel["Data Science.Train Model"]
-        DataScience_Predict["Data Science.Predict"]
-        DataScience_Evaluate["Data Science.Evaluate"]
-        IrisModel[("Iris Model")]
+        TrainModel["TrainModel"]
+        IrisModel[("IrisModel")]
+        Predict["Predict"]
         Predictions[("Predictions")]
+        Evaluate["Evaluate"]
         Metrics[("Metrics")]
-
-        DataScience_TrainModel --> IrisModel
-        IrisModel --> DataScience_Predict
-        DataScience_Predict --> Predictions
-        Predictions --> DataScience_Evaluate
-        DataScience_Evaluate --> Metrics
     end
 
-    %% External Data to Flow Edges
-    IrisRaw --> DataEngineering_SplitAndEncode
+    %% Edges
+    IrisRaw --> SplitAndEncode
+    SplitOptions --> SplitAndEncode
+    SplitAndEncode --> IrisFeatures
+    SplitAndEncode --> TrainX
+    SplitAndEncode --> TrainY
+    SplitAndEncode --> TestX
+    SplitAndEncode --> TestY
+    TrainX --> TrainModel
+    TrainY --> TrainModel
+    TrainModelOptions --> TrainModel
+    TrainModel --> IrisModel
+    IrisModel --> Predict
+    TestX --> Predict
+    Predict --> Predictions
+    Predictions --> Evaluate
+    TestY --> Evaluate
+    Evaluate --> Metrics
 
-    %% Cross-Flow Data Flow
-    TrainX -.-> DataScience_TrainModel
-    TrainY -.-> DataScience_TrainModel
-    TestX -.-> DataScience_Predict
-    TestY -.-> DataScience_Evaluate
 ```
-
+<!-- flowthru:mermaid:end -->
 
 ### File Structure
 

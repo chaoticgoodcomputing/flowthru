@@ -1,4 +1,32 @@
 ### YamlMime:TableOfContent
+- name: Flowthru.Caching
+  href: Flowthru.Caching.md
+  items:
+  - name: Classes
+  - name: CacheManifest
+    href: Flowthru.Caching.CacheManifest.md
+  - name: CacheManifestSchema
+    href: Flowthru.Caching.CacheManifestSchema.md
+  - name: CacheManifestStore
+    href: Flowthru.Caching.CacheManifestStore.md
+  - name: CacheManifestStore.PostRunFingerprints
+    href: Flowthru.Caching.CacheManifestStore.PostRunFingerprints.md
+  - name: CachePlan
+    href: Flowthru.Caching.CachePlan.md
+  - name: CachePlanBuilder
+    href: Flowthru.Caching.CachePlanBuilder.md
+  - name: NodeFingerprint
+    href: Flowthru.Caching.NodeFingerprint.md
+  - name: StepUncacheableReason
+    href: Flowthru.Caching.StepUncacheableReason.md
+  - name: StepUncacheableReason.CascadeFromStep
+    href: Flowthru.Caching.StepUncacheableReason.CascadeFromStep.md
+  - name: StepUncacheableReason.HasServiceDependencies
+    href: Flowthru.Caching.StepUncacheableReason.HasServiceDependencies.md
+  - name: StepUncacheableReason.NoCodeVersion
+    href: Flowthru.Caching.StepUncacheableReason.NoCodeVersion.md
+  - name: StepUncacheableReason.UnfingerprintableInput
+    href: Flowthru.Caching.StepUncacheableReason.UnfingerprintableInput.md
 - name: Flowthru.Data.Catalog
   href: Flowthru.Data.Catalog.md
   items:
@@ -58,16 +86,16 @@
     href: Flowthru.Data.Catalog.INode.md
   - name: IReadOnlyItem<T>
     href: Flowthru.Data.Catalog.IReadOnlyItem-1.md
-- name: Flowthru.Data.Configuration
-  href: Flowthru.Data.Configuration.md
+- name: Flowthru.Data.Catalog.Configuration
+  href: Flowthru.Data.Catalog.Configuration.md
   items:
   - name: Classes
   - name: ConfigurationItem<T>
-    href: Flowthru.Data.Configuration.ConfigurationItem-1.md
+    href: Flowthru.Data.Catalog.Configuration.ConfigurationItem-1.md
   - name: ConfigurationItemBuilder<T>
-    href: Flowthru.Data.Configuration.ConfigurationItemBuilder-1.md
+    href: Flowthru.Data.Catalog.Configuration.ConfigurationItemBuilder-1.md
   - name: ConfigurationItemBuilderExtensions
-    href: Flowthru.Data.Configuration.ConfigurationItemBuilderExtensions.md
+    href: Flowthru.Data.Catalog.Configuration.ConfigurationItemBuilderExtensions.md
 - name: Flowthru.Data.Schema
   href: Flowthru.Data.Schema.md
   items:
@@ -189,6 +217,8 @@
     href: Flowthru.Data.Storage.IStorageMediumProvider.md
   - name: IStorageMediumResolver
     href: Flowthru.Data.Storage.IStorageMediumResolver.md
+  - name: ISupportsFingerprint
+    href: Flowthru.Data.Storage.ISupportsFingerprint.md
   - name: Enums
   - name: InspectionLevel
     href: Flowthru.Data.Storage.InspectionLevel.md
@@ -359,13 +389,36 @@
     href: Flowthru.Step.FlowthruStepAttribute.md
   - name: Step<TIn, TOut>
     href: Flowthru.Step.Step-2.md
+  - name: StepExtensionCapabilitiesAttribute
+    href: Flowthru.Step.StepExtensionCapabilitiesAttribute.md
+  - name: StepMetadataRegistry
+    href: Flowthru.Step.StepMetadataRegistry.md
+  - name: StepMetadataResolver
+    href: Flowthru.Step.StepMetadataResolver.md
   - name: StepTraits
     href: Flowthru.Step.StepTraits.md
   - name: Interfaces
+  - name: IStepExtension
+    href: Flowthru.Step.IStepExtension.md
   - name: IStepNode
     href: Flowthru.Step.IStepNode.md
   - name: IStepNode<TIn, TOut>
     href: Flowthru.Step.IStepNode-2.md
+  - name: Enums
+  - name: ExtensionStatus
+    href: Flowthru.Step.ExtensionStatus.md
+  - name: StepContainerKind
+    href: Flowthru.Step.StepContainerKind.md
+- name: Flowthru.Step.Marshalling
+  href: Flowthru.Step.Marshalling.md
+  items:
+  - name: Interfaces
+  - name: IAsyncStreamMarshaller<TExtension>
+    href: Flowthru.Step.Marshalling.IAsyncStreamMarshaller-1.md
+  - name: IContainerMarshaller<TExtension>
+    href: Flowthru.Step.Marshalling.IContainerMarshaller-1.md
+  - name: IQueryableMarshaller<TExtension>
+    href: Flowthru.Step.Marshalling.IQueryableMarshaller-1.md
 - name: Flowthru.Validation.PreFlight
   href: Flowthru.Validation.PreFlight.md
   items:

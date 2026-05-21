@@ -1,4 +1,7 @@
 using Flowthru.Cli;
+using Flowthru.Diagnostics;
+using Flowthru.Diagnostics.Json;
+using Flowthru.Diagnostics.Mermaid;
 using Flowthru.Hosting;
 using KedroIris.Data;
 using KedroIris.Flows.DataEngineering;
@@ -47,6 +50,13 @@ public class Program
       flowthru.RegisterCatalog(sp => new Catalog(
         Path.Combine(basePath, "Data"),
         sp.GetRequiredService<IConfiguration>()));
+
+      flowthru.ConfigureMetadata(meta =>
+      {
+        var metadataPath = Path.Combine(basePath, "Metadata");
+        meta.AddJsonMetadata(opt => opt.WithOutputDirectory(metadataPath));
+        meta.AddMermaidMetadata(opt => opt.WithOutputDirectory(metadataPath));
+      });
 
       flowthru
         .RegisterFlow<Catalog>("DataEngineering", DataEngineeringFlow.Create)

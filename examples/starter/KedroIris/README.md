@@ -21,48 +21,51 @@ Once you've confirmed your flow runs successfully, you can begin:
 
 ### Flow Structure
 
+<!-- flowthru:mermaid:start -->
 ```mermaid
 flowchart TB
 
     %% External Data Inputs
-    Catalog_IrisRaw[("Catalog.IrisRaw")]
+    IrisRaw[("IrisRaw")]
+    SplitOptions[("SplitOptions")]
+    TrainModelOptions[("TrainModelOptions")]
 
     subgraph DataEngineering["DataEngineering"]
-        DataEngineering_SplitAndEncode["DataEngineering.SplitAndEncode"]
-        Catalog_IrisFeatures[("Catalog.IrisFeatures")]
-        Catalog_TrainX[("Catalog.TrainX")]
-        Catalog_TrainY[("Catalog.TrainY")]
-        Catalog_TestX[("Catalog.TestX")]
-        Catalog_TestY[("Catalog.TestY")]
-
-        DataEngineering_SplitAndEncode --> Catalog_IrisFeatures
-        DataEngineering_SplitAndEncode --> Catalog_TrainX
-        DataEngineering_SplitAndEncode --> Catalog_TrainY
-        DataEngineering_SplitAndEncode --> Catalog_TestX
-        DataEngineering_SplitAndEncode --> Catalog_TestY
+        SplitAndEncode["SplitAndEncode"]
+        IrisFeatures[("IrisFeatures")]
+        TrainX[("TrainX")]
+        TrainY[("TrainY")]
+        TestX[("TestX")]
+        TestY[("TestY")]
     end
 
     subgraph DataScience["DataScience"]
-        DataScience_TrainModel["DataScience.TrainModel"]
-        DataScience_Predict["DataScience.Predict"]
-        DataScience_Evaluate["DataScience.Evaluate"]
-        Catalog_IrisModel[("Catalog.IrisModel")]
-        Catalog_Predictions[("Catalog.Predictions")]
-        Catalog_Metrics[("Catalog.Metrics")]
-
-        DataScience_TrainModel --> Catalog_IrisModel
-        Catalog_IrisModel --> DataScience_Predict
-        DataScience_Predict --> Catalog_Predictions
-        Catalog_Predictions --> DataScience_Evaluate
-        DataScience_Evaluate --> Catalog_Metrics
+        TrainModel["TrainModel"]
+        IrisModel[("IrisModel")]
+        Predict["Predict"]
+        Predictions[("Predictions")]
+        Evaluate["Evaluate"]
+        Metrics[("Metrics")]
     end
 
-    %% External Data to Flow Edges
-    Catalog_IrisRaw --> DataEngineering_SplitAndEncode
+    %% Edges
+    IrisRaw --> SplitAndEncode
+    SplitOptions --> SplitAndEncode
+    SplitAndEncode --> IrisFeatures
+    SplitAndEncode --> TrainX
+    SplitAndEncode --> TrainY
+    SplitAndEncode --> TestX
+    SplitAndEncode --> TestY
+    TrainX --> TrainModel
+    TrainY --> TrainModel
+    TrainModelOptions --> TrainModel
+    TrainModel --> IrisModel
+    IrisModel --> Predict
+    TestX --> Predict
+    Predict --> Predictions
+    Predictions --> Evaluate
+    TestY --> Evaluate
+    Evaluate --> Metrics
 
-    %% Cross-Flow Data Flow
-    Catalog_TrainX -.-> DataScience_TrainModel
-    Catalog_TrainY -.-> DataScience_TrainModel
-    Catalog_TestX -.-> DataScience_Predict
-    Catalog_TestY -.-> DataScience_Evaluate
 ```
+<!-- flowthru:mermaid:end -->

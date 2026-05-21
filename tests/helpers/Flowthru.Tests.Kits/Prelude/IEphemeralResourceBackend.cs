@@ -3,18 +3,26 @@ using Flowthru.Prelude;
 namespace Flowthru.Tests.Kits.Prelude;
 
 /// <summary>
-/// Backend abstraction for <see cref="EphemeralResourceConformance{TBackend, TScope}"/>.
+/// Backend abstraction for <see cref="EphemeralResourceLaws{TBackend, TScope}"/>.
 /// Extends <see cref="IResourceBackend{TScope}"/> with hooks specific to
 /// resources that <em>create and drop external state</em> — databases,
 /// schemas, temp directories, etc.
 /// </summary>
 /// <remarks>
 /// <para>
-/// These backends should support two construction modes (default and
-/// preserve-on-failure) so the conformance suite can verify the framework's
-/// debugging-retain semantic. They should also be able to seed leftover
-/// state (to verify idempotent acquire) and create independent peer state
-/// (to verify isolation on release).
+/// These backends expose two
+/// <see cref="IResourceBackend{TScope}.CreateResource"/> forms — default
+/// and preserve-on-failure — so the laws can verify the framework's
+/// debugging-retain semantic. They also seed leftover state (to verify
+/// idempotent acquire) and create independent peer state (to verify
+/// isolation on release).
+/// </para>
+/// <para>
+/// Inherits the constructor and re-entrancy contracts from
+/// <see cref="IResourceBackend{TScope}"/>: cheap constructor, expensive
+/// setup gated by capability checks and amortised across the fixture,
+/// per-call disjoint state with a unique
+/// <see cref="IResourceBackend{TScope}.ExternalStateIdentifier"/>.
 /// </para>
 /// </remarks>
 public interface IEphemeralResourceBackend<TScope> : IResourceBackend<TScope>

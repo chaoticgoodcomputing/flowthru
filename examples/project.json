@@ -2,5 +2,18 @@
   "name": "examples",
   "$schema": "../node_modules/nx/schemas/project-schema.json",
   "projectType": "library",
-  "sourceRoot": "examples"
+  "sourceRoot": "examples",
+  "targets": {
+    "sync-readmes": {
+      "//": "Per example under starter/ and advanced/: runs `dotnet run --dry-run` to emit Metadata/dag-merged.md via the Mermaid extension, then splices it into the example's README between the <!-- flowthru:mermaid:start --> / <!-- flowthru:mermaid:end --> markers. Missing READMEs are scaffolded; missing markers are appended at EOF; examples whose dry-run fails (e.g. live-infra dependencies) are skipped with a warning.",
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": [
+          "node scripts/update-example-readmes.mjs"
+        ],
+        "cwd": "{workspaceRoot}",
+        "parallel": false
+      }
+    }
+  }
 }

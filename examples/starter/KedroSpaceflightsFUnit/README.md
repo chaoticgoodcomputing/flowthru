@@ -21,81 +21,75 @@ Once you've confirmed your pipeline runs successfully, you can begin:
 
 ### Flow Structure
 
+<!-- flowthru:mermaid:start -->
 ```mermaid
 flowchart TB
 
     %% External Data Inputs
     Companies[("Companies")]
-    Shuttles[("Shuttles")]
+    ConfusionMatrixOptions[("ConfusionMatrixOptions")]
+    ModelOptions[("ModelOptions")]
     Reviews[("Reviews")]
+    Shuttles[("Shuttles")]
 
     subgraph DataProcessing["DataProcessing"]
-        DataProcessing_PreprocessCompanies["Data Processing.Preprocess Companies"]
-        DataProcessing_PreprocessShuttles["Data Processing.Preprocess Shuttles"]
-        DataProcessing_CreateModelInputTable["Data Processing.Create Model Input Table"]
-        PreprocessedCompanies[("Preprocessed Companies")]
-        PreprocessedShuttles[("Preprocessed Shuttles")]
-        ModelInputTable[("Model Input Table")]
-
-        DataProcessing_PreprocessCompanies --> PreprocessedCompanies
-        DataProcessing_PreprocessShuttles --> PreprocessedShuttles
-        PreprocessedShuttles --> DataProcessing_CreateModelInputTable
-        PreprocessedCompanies --> DataProcessing_CreateModelInputTable
-        DataProcessing_CreateModelInputTable --> ModelInputTable
+        PreprocessCompanies["PreprocessCompanies"]
+        PreprocessedCompanies[("PreprocessedCompanies")]
+        PreprocessShuttles["PreprocessShuttles"]
+        PreprocessedShuttles[("PreprocessedShuttles")]
+        CreateModelInputTable["CreateModelInputTable"]
+        ModelInputTable[("ModelInputTable")]
     end
 
     subgraph DataScience["DataScience"]
-        DataScience_SplitData["Data Science.Split Data"]
-        DataScience_TrainModel["Data Science.Train Model"]
-        DataScience_EvaluateModel["Data Science.Evaluate Model"]
-        XTrain[("X Train")]
-        XTest[("X Test")]
+        SplitData["SplitData"]
+        XTrain[("XTrain")]
+        XTest[("XTest")]
+        TrainModel["TrainModel"]
         Regressor[("Regressor")]
-        ModelMetrics[("Model Metrics")]
-        ModelPredictions[("Model Predictions")]
-
-        DataScience_SplitData --> XTrain
-        DataScience_SplitData --> XTest
-        XTrain --> DataScience_TrainModel
-        DataScience_TrainModel --> Regressor
-        Regressor --> DataScience_EvaluateModel
-        XTest --> DataScience_EvaluateModel
-        DataScience_EvaluateModel --> ModelMetrics
-        DataScience_EvaluateModel --> ModelPredictions
+        EvaluateModel["EvaluateModel"]
+        ModelMetrics[("ModelMetrics")]
+        ModelPredictions[("ModelPredictions")]
     end
 
     subgraph Reporting["Reporting"]
-        Reporting_ComparePassengerCapacity["Reporting.Compare Passenger Capacity"]
-        Reporting_GeneratePassengerCapacityChart["Reporting.Generate Passenger Capacity Chart"]
-        Reporting_ExportPassengerCapacityPng["Reporting.Export Passenger Capacity Png"]
-        Reporting_GenerateConfusionMatrixChart["Reporting.Generate Confusion Matrix Chart"]
-        Reporting_ExportConfusionMatrixPng["Reporting.Export Confusion Matrix Png"]
-        ShuttleCapacityReport[("Shuttle Capacity Report")]
-        ShuttlePassengerCapacityChart[("Shuttle Passenger Capacity Chart")]
-        ShuttlePassengerCapacityPlotPng[("Shuttle Passenger Capacity Plot Png")]
-        ConfusionMatrixChart[("Confusion Matrix Chart")]
-        ConfusionMatrixPlotPng[("Confusion Matrix Plot Png")]
-
-        Reporting_ComparePassengerCapacity --> ShuttleCapacityReport
-        Reporting_GeneratePassengerCapacityChart --> ShuttlePassengerCapacityChart
-        ShuttlePassengerCapacityChart --> Reporting_ExportPassengerCapacityPng
-        Reporting_ExportPassengerCapacityPng --> ShuttlePassengerCapacityPlotPng
-        Reporting_GenerateConfusionMatrixChart --> ConfusionMatrixChart
-        ConfusionMatrixChart --> Reporting_ExportConfusionMatrixPng
-        Reporting_ExportConfusionMatrixPng --> ConfusionMatrixPlotPng
+        ComparePassengerCapacity["ComparePassengerCapacity"]
+        ShuttleCapacityReport[("ShuttleCapacityReport")]
+        GeneratePassengerCapacityChart["GeneratePassengerCapacityChart"]
+        ShuttlePassengerCapacityChart[("ShuttlePassengerCapacityChart")]
+        GenerateConfusionMatrixChart["GenerateConfusionMatrixChart"]
+        ConfusionMatrixChart[("ConfusionMatrixChart")]
     end
 
-    %% External Data to Flow Edges
-    Companies --> DataProcessing_PreprocessCompanies
-    Shuttles --> DataProcessing_PreprocessShuttles
-    Reviews --> DataProcessing_CreateModelInputTable
+    %% Edges
+    Companies --> PreprocessCompanies
+    PreprocessCompanies --> PreprocessedCompanies
+    Shuttles --> PreprocessShuttles
+    PreprocessShuttles --> PreprocessedShuttles
+    PreprocessedShuttles --> CreateModelInputTable
+    PreprocessedCompanies --> CreateModelInputTable
+    Reviews --> CreateModelInputTable
+    CreateModelInputTable --> ModelInputTable
+    PreprocessedShuttles --> ComparePassengerCapacity
+    ComparePassengerCapacity --> ShuttleCapacityReport
+    PreprocessedShuttles --> GeneratePassengerCapacityChart
+    GeneratePassengerCapacityChart --> ShuttlePassengerCapacityChart
+    ModelInputTable --> SplitData
+    ModelOptions --> SplitData
+    SplitData --> XTrain
+    SplitData --> XTest
+    XTrain --> TrainModel
+    TrainModel --> Regressor
+    Regressor --> EvaluateModel
+    XTest --> EvaluateModel
+    EvaluateModel --> ModelMetrics
+    EvaluateModel --> ModelPredictions
+    ModelPredictions --> GenerateConfusionMatrixChart
+    ConfusionMatrixOptions --> GenerateConfusionMatrixChart
+    GenerateConfusionMatrixChart --> ConfusionMatrixChart
 
-    %% Cross-Flow Data Flow
-    PreprocessedShuttles -.-> Reporting_ComparePassengerCapacity
-    PreprocessedShuttles -.-> Reporting_GeneratePassengerCapacityChart
-    ModelInputTable -.-> DataScience_SplitData
-    ModelPredictions -.-> Reporting_GenerateConfusionMatrixChart
 ```
+<!-- flowthru:mermaid:end -->
 
 ### File Structure
 
@@ -114,3 +108,4 @@ KedroSpaceflights/
 │   ├── DataScience/                # Model training and evaluation
 │   └── Reporting/                  # Final reports
 ```
+

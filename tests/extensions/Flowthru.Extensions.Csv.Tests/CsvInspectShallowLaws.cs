@@ -7,7 +7,7 @@ using Flowthru.Tests.Kits.Storage;
 namespace Flowthru.Extensions.Csv.Tests;
 
 /// <summary>
-/// Runs the <see cref="InspectShallowConformance{TContainer}"/> suite
+/// Runs the <see cref="IInspectShallowLaws{TContainer}"/> kit
 /// against a <see cref="ComposedStorageAdapter{TContainer, TRow}"/>
 /// composed of <see cref="CsvFormatSerializer{TRow}"/> + a filesystem
 /// medium + an <see cref="EnumerableContainerAdapter{TRow}"/>. The
@@ -38,8 +38,8 @@ namespace Flowthru.Extensions.Csv.Tests;
 /// and emitting the diff before deferring to CsvHelper's row-iteration.
 /// </para>
 /// </remarks>
-public sealed class CsvInspectShallowConformance
-  : InspectShallowConformance<IEnumerable<InspectShallowKitRow>>
+public sealed class CsvInspectShallowLaws
+  : IInspectShallowLaws<IEnumerable<InspectShallowKitRow>>
 {
   /// <inheritdoc/>
   protected override bool EnforcesPartialMatchOnInspectShallow => false;

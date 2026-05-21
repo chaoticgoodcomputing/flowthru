@@ -64,3 +64,28 @@ View generated greetings in:
 - **Simple node functions** with pure transformations
 - **Multiple outputs** from a single node (1→2)
 - **Flow construction** with `FlowBuilder`
+
+<!-- flowthru:mermaid:start -->
+```mermaid
+flowchart TB
+
+    %% External Data Inputs
+    Names[("Names")]
+
+    subgraph Greetings["Greetings"]
+        CreateHello["CreateHello"]
+        HelloGreetings[("HelloGreetings")]
+        TransformGreetings["TransformGreetings"]
+        Goodbyes[("Goodbyes")]
+        SoLongs[("SoLongs")]
+    end
+
+    %% Edges
+    Names --> CreateHello
+    CreateHello --> HelloGreetings
+    HelloGreetings --> TransformGreetings
+    TransformGreetings --> Goodbyes
+    TransformGreetings --> SoLongs
+
+```
+<!-- flowthru:mermaid:end -->

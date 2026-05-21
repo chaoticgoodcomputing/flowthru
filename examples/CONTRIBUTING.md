@@ -27,7 +27,17 @@ If you're building an example and aren't sure where it lands, start it in `archi
 Every example project in `starter/` and `advanced/` must include:
 
 1. **A README** — Diátaxis-aligned. For starters, tutorial form: assume the reader knows nothing; walk them through what the example does, how to run it, and what concept it demonstrates. For advanced, how-to-guide form: assume the reader has worked through the relevant starter; explain what pattern this composes and what production problem it solves.
-2. **A Mermaid diagram of the example's Flow(s)**, output via the [`Flowthru.Extensions.Metadata.Mermaid`](/src/extensions/Flowthru.Extensions.Metadata.Mermaid/) extension, registered in `Program.cs`'s metadata configuration. *Planned: an `examples/project.json` helper (linked to docs generation) will auto-replace the rendered diagram in each README with the most recent generator output.*
+2. **A Mermaid diagram of the example's Flow(s)**, output via the [`Flowthru.Extensions.Metadata.Mermaid`](/src/extensions/Flowthru.Extensions.Metadata.Mermaid/) extension, registered in `Program.cs`'s metadata configuration. The diagram is auto-managed by `nx run examples:sync-readmes` ([scripts/update-example-readmes.mjs](/scripts/update-example-readmes.mjs)): the target invokes `dotnet run -- --dry-run` per example to refresh `Metadata/dag-merged.md`, then splices the contents between paired markers in the README:
+
+   ```markdown
+   <!-- flowthru:mermaid:start -->
+   ```mermaid
+   …generated content…
+   ```
+   <!-- flowthru:mermaid:end -->
+   ```
+
+   Authors preserve the marker pair; everything between them is owned by the target. READMEs without the marker pair get one appended at EOF; missing READMEs are scaffolded as `# {ProjectName}` plus the marker block. Examples whose `--dry-run` requires live infra (e.g. Testcontainers) are skipped with a warning — re-run the target after the infra is up, or accept that the diagram only refreshes during full runs.
 3. **An acknowledgement in the README** if the example mirrors a Kedro tutorial or other external source, with a link. This preserves intellectual provenance.
 
 ## Project Naming

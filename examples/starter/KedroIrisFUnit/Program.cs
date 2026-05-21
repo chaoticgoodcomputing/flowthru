@@ -1,4 +1,7 @@
 using Flowthru.Cli;
+using Flowthru.Diagnostics;
+using Flowthru.Diagnostics.Json;
+using Flowthru.Diagnostics.Mermaid;
 using Flowthru.Hosting;
 using KedroIrisFUnit.Data;
 using KedroIrisFUnit.Flows.DataEngineering;
@@ -10,12 +13,15 @@ using Microsoft.Extensions.Logging;
 namespace KedroIrisFUnit;
 
 /// <summary>
-/// Main entry point for the Iris classification pipeline. Phase 7's
-/// done-criterion: this program runs end-to-end against
-/// <c>Flowthru.Core</c> + <c>FUnit</c> only — no extension packages —
-/// exercising schemas, catalog with attribute-driven items,
-/// canonical <c>Create() => Func</c> step shapes,
-/// <c>FlowBuilder</c>, and the hosting + CLI surface.
+/// Main entry point for the Iris classification pipeline. Runtime exercises
+/// <c>Flowthru.Core</c> + <c>FUnit</c> only — no runtime extension packages —
+/// covering schemas, catalog with attribute-driven items,
+/// canonical <c>Create() => Func</c> step shapes, <c>FlowBuilder</c>, and the
+/// hosting + CLI surface. The docs-time metadata extensions
+/// (<c>Flowthru.Extensions.Metadata.Json</c>, <c>Flowthru.Extensions.Metadata.Mermaid</c>)
+/// are referenced so the example participates in <c>nx run examples:sync-readmes</c>;
+/// they emit during flow build, not transform execution, and don't affect the
+/// runtime surface under test.
 /// </summary>
 public class Program
 {
@@ -59,6 +65,13 @@ public class Program
       b.RegisterCatalog(sp => new Catalog(
         Path.Combine(basePath, "Data"),
         sp.GetRequiredService<IConfiguration>()));
+
+      b.ConfigureMetadata(meta =>
+      {
+        var metadataPath = Path.Combine(basePath, "Metadata");
+        meta.AddJsonMetadata(opt => opt.WithOutputDirectory(metadataPath));
+        meta.AddMermaidMetadata(opt => opt.WithOutputDirectory(metadataPath));
+      });
 
       b.RegisterFlow<Catalog>("DataEngineering", DataEngineeringFlow.Create)
         .WithDescription("Splits iris data into training and test sets with one-hot encoding");

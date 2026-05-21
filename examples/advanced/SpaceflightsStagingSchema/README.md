@@ -156,3 +156,98 @@ SpaceflightsStagingSchema/
 | Aggregations | C# `GroupBy` | `DbQuery.Project` SQL `GROUP BY` |
 | FK enforcement | Implicit via inner join in C# | Explicit FK constraints in PG, conformance filter at promotion |
 | Audience | Learning EFCore + Flowthru | Production-grade reference |
+
+<!-- flowthru:mermaid:start -->
+```mermaid
+flowchart TB
+
+    %% External Data Inputs
+    Companies[("Companies")]
+    ConfusionMatrixOptions[("ConfusionMatrixOptions")]
+    ModelOptions[("ModelOptions")]
+    Reviews[("Reviews")]
+    SeedingOptions[("SeedingOptions")]
+    Shuttles[("Shuttles")]
+
+    subgraph DataProcessing["DataProcessing"]
+        PreprocessCompanies["PreprocessCompanies"]
+        StagingCompanies[("StagingCompanies")]
+        PreprocessShuttles["PreprocessShuttles"]
+        StagingShuttles[("StagingShuttles")]
+        PreprocessReviews["PreprocessReviews"]
+        StagingReviews[("StagingReviews")]
+    end
+
+    subgraph DataScience["DataScience"]
+        BuildModelInputTable["BuildModelInputTable"]
+        ProductionModelInputTableView[("ProductionModelInputTableView")]
+        SplitData["SplitData"]
+        XTrain[("XTrain")]
+        XTest[("XTest")]
+        TrainModel["TrainModel"]
+        Regressor[("Regressor")]
+        EvaluateModel["EvaluateModel"]
+        ModelMetrics[("ModelMetrics")]
+        ModelPredictions[("ModelPredictions")]
+    end
+
+    subgraph Promotion["Promotion"]
+        PromoteCompanies["PromoteCompanies"]
+        ProductionCompanies[("ProductionCompanies")]
+        PromoteShuttles["PromoteShuttles"]
+        ProductionShuttles[("ProductionShuttles")]
+        PromoteReviews["PromoteReviews"]
+        ProductionReviews[("ProductionReviews")]
+    end
+
+    subgraph Reporting["Reporting"]
+        ComparePassengerCapacity["ComparePassengerCapacity"]
+        ShuttleCapacityReport[("ShuttleCapacityReport")]
+        GeneratePassengerCapacityChart["GeneratePassengerCapacityChart"]
+        ShuttlePassengerCapacityChart[("ShuttlePassengerCapacityChart")]
+        GenerateConfusionMatrixChart["GenerateConfusionMatrixChart"]
+        ConfusionMatrixChart[("ConfusionMatrixChart")]
+    end
+
+    %% Edges
+    Companies --> PreprocessCompanies
+    SeedingOptions --> PreprocessCompanies
+    PreprocessCompanies --> StagingCompanies
+    Shuttles --> PreprocessShuttles
+    SeedingOptions --> PreprocessShuttles
+    PreprocessShuttles --> StagingShuttles
+    Reviews --> PreprocessReviews
+    SeedingOptions --> PreprocessReviews
+    PreprocessReviews --> StagingReviews
+    StagingCompanies --> PromoteCompanies
+    PromoteCompanies --> ProductionCompanies
+    StagingShuttles --> PromoteShuttles
+    ProductionCompanies --> PromoteShuttles
+    PromoteShuttles --> ProductionShuttles
+    StagingReviews --> PromoteReviews
+    ProductionShuttles --> PromoteReviews
+    PromoteReviews --> ProductionReviews
+    ProductionShuttles --> ComparePassengerCapacity
+    ComparePassengerCapacity --> ShuttleCapacityReport
+    ProductionShuttles --> GeneratePassengerCapacityChart
+    GeneratePassengerCapacityChart --> ShuttlePassengerCapacityChart
+    ProductionShuttles --> BuildModelInputTable
+    ProductionCompanies --> BuildModelInputTable
+    ProductionReviews --> BuildModelInputTable
+    BuildModelInputTable --> ProductionModelInputTableView
+    ProductionModelInputTableView --> SplitData
+    ModelOptions --> SplitData
+    SplitData --> XTrain
+    SplitData --> XTest
+    XTrain --> TrainModel
+    TrainModel --> Regressor
+    Regressor --> EvaluateModel
+    XTest --> EvaluateModel
+    EvaluateModel --> ModelMetrics
+    EvaluateModel --> ModelPredictions
+    ModelPredictions --> GenerateConfusionMatrixChart
+    ConfusionMatrixOptions --> GenerateConfusionMatrixChart
+    GenerateConfusionMatrixChart --> ConfusionMatrixChart
+
+```
+<!-- flowthru:mermaid:end -->

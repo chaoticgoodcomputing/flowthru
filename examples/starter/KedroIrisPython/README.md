@@ -106,3 +106,48 @@ Hyperparameters are hardcoded in the Python node implementations:
 - Test data ratio: 0.2 (20% test, 80% train)
 - Training iterations: 10,000
 - Learning rate: 0.01
+
+<!-- flowthru:mermaid:start -->
+```mermaid
+flowchart TB
+
+    %% External Data Inputs
+    IrisRaw[("IrisRaw")]
+    SplitDataOptions[("SplitDataOptions")]
+
+    subgraph DataEngineering["DataEngineering"]
+        SplitData["SplitData"]
+        TrainX[("TrainX")]
+        TrainY[("TrainY")]
+        TestX[("TestX")]
+        TestY[("TestY")]
+    end
+
+    subgraph DataScience["DataScience"]
+        TrainModel["TrainModel"]
+        ModelWeights[("ModelWeights")]
+        Predict["Predict"]
+        Predictions[("Predictions")]
+        ReportAccuracy["ReportAccuracy"]
+        AccuracyReport[("AccuracyReport")]
+    end
+
+    %% Edges
+    IrisRaw --> SplitData
+    SplitDataOptions --> SplitData
+    SplitData --> TrainX
+    SplitData --> TrainY
+    SplitData --> TestX
+    SplitData --> TestY
+    TrainX --> TrainModel
+    TrainY --> TrainModel
+    TrainModel --> ModelWeights
+    ModelWeights --> Predict
+    TestX --> Predict
+    Predict --> Predictions
+    Predictions --> ReportAccuracy
+    TestY --> ReportAccuracy
+    ReportAccuracy --> AccuracyReport
+
+```
+<!-- flowthru:mermaid:end -->

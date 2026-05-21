@@ -5,7 +5,7 @@ using Flowthru.Tests.Kits.Storage;
 namespace Flowthru.Extensions.Parquet.Tests;
 
 /// <summary>
-/// Runs the shared <see cref="SerializedEnumConformance"/> suite against
+/// Runs the shared <see cref="ISerializedEnumLaws"/> kit against
 /// <see cref="ParquetFormatSerializer{TRow}"/>. Parquet is a columnar
 /// binary format; the declared enum string is encoded format-specifically
 /// and not directly inspectable at the byte level.
@@ -17,7 +17,7 @@ namespace Flowthru.Extensions.Parquet.Tests;
 /// integer rather than as the
 /// <see cref="Flowthru.Data.Schema.SerializedEnumAttribute"/>-declared
 /// string (documented at <c>ParquetAdapter.cs:486-489</c> as a scoped
-/// follow-up). Two conformance consequences:
+/// follow-up). Two law-skip consequences:
 /// </para>
 /// <list type="bullet">
 ///   <item><see cref="IsTextFormat"/> = <c>false</c>: skips wire-format
@@ -34,7 +34,7 @@ namespace Flowthru.Extensions.Parquet.Tests;
 /// declared enum values survive serialize → deserialize unchanged.
 /// </para>
 /// </remarks>
-public sealed class ParquetSerializedEnumConformance : SerializedEnumConformance
+public sealed class ParquetSerializedEnumLaws : ISerializedEnumLaws
 {
   /// <inheritdoc/>
   protected override IFormatSerializer<KitRow> CreateSerializer() =>

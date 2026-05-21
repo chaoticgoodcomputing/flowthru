@@ -4,13 +4,13 @@ using Flowthru.Tests.Kits.Storage;
 namespace Flowthru.Core.Tests.Storage;
 
 /// <summary>
-/// Runs the shared <see cref="SerializedEnumConformance"/> suite against
+/// Runs the shared <see cref="ISerializedEnumLaws"/> kit against
 /// <see cref="JsonFormatSerializer{TRow}"/>. Every format adapter that
 /// opts into <see cref="Flowthru.Data.Schema.SerializedEnumAttribute"/>
 /// support inherits an identical fixture in its own test project, so
 /// schema-level enum behavior is guaranteed identical across formats.
 /// </summary>
-public sealed class JsonFormatSerializedEnumConformance : SerializedEnumConformance
+public sealed class JsonFormatSerializedEnumLaws : ISerializedEnumLaws
 {
   /// <inheritdoc/>
   protected override IFormatSerializer<KitRow> CreateSerializer() =>

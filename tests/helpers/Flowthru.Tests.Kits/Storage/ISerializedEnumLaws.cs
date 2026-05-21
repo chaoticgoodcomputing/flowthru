@@ -5,13 +5,18 @@ using Flowthru.Data.Storage;
 namespace Flowthru.Tests.Kits.Storage;
 
 /// <summary>
-/// Conformance suite every format-adapter implementer that opts into
-/// the <see cref="SerializedEnumAttribute"/> contract must pass. Each
+/// Laws every format-adapter implementer that opts into the
+/// <see cref="SerializedEnumAttribute"/> contract must satisfy. Each
 /// inheriting fixture binds a concrete
 /// <see cref="IFormatSerializer{TRow}"/> (or an equivalent format-level
 /// entry point) and inherits round-trip + error-path tests for free.
 /// </summary>
 /// <remarks>
+/// <para>
+/// Replaces the prior <c>SerializedEnumConformance</c> kit. Behaves
+/// identically; renamed per §2.11 to align with the algebra-laws
+/// framing.
+/// </para>
 /// <para>
 /// <strong>The contract this enforces.</strong> Every adapter that
 /// claims <see cref="SerializedEnumAttribute"/> support must:
@@ -44,7 +49,7 @@ namespace Flowthru.Tests.Kits.Storage;
 /// </para>
 /// </remarks>
 [TestFixture]
-public abstract class SerializedEnumConformance
+public abstract class ISerializedEnumLaws
 {
   /// <summary>
   /// Build a fresh <see cref="IFormatSerializer{TRow}"/> instance for
@@ -285,7 +290,7 @@ public abstract class SerializedEnumConformance
     System.Enum.GetValues<KitCheckStatus>();
 }
 
-// ── Conformance fixtures (shared across every format) ───────────────────
+// ── Laws fixtures (shared across every format) ─────────────────────────
 
 /// <summary>
 /// Two-member enum exercising the shortest declared serialization form

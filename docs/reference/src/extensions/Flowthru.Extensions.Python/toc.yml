@@ -33,6 +33,12 @@
     href: Flowthru.Step.Python.PythonServiceRegistration.md
   - name: PythonStep<TIn, TOut>
     href: Flowthru.Step.Python.PythonStep-2.md
+  - name: PythonStepCacheRegistry
+    href: Flowthru.Step.Python.PythonStepCacheRegistry.md
+  - name: PythonStepCacheRegistry.Entry
+    href: Flowthru.Step.Python.PythonStepCacheRegistry.Entry.md
+  - name: PythonStepExtension
+    href: Flowthru.Step.Python.PythonStepExtension.md
   - name: PythonStepMetadata
     href: Flowthru.Step.Python.PythonStepMetadata.md
   - name: Interfaces

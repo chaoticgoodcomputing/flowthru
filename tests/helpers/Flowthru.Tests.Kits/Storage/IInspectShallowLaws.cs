@@ -6,12 +6,16 @@ using Flowthru.Prelude;
 namespace Flowthru.Tests.Kits.Storage;
 
 /// <summary>
-/// Conformance suite every schema-aware
-/// <see cref="IStorageAdapter{T}"/> implementer must pass to honor the
-/// partial-match contract codified on
+/// Laws every schema-aware <see cref="IStorageAdapter{T}"/> implementer
+/// must satisfy to honor the partial-match contract codified on
 /// <c>IStorageAdapter.InspectShallow</c>: <em>data ⊇ schema</em>.
 /// </summary>
 /// <remarks>
+/// <para>
+/// Replaces the prior <c>InspectShallowConformance&lt;TContainer&gt;</c>
+/// kit. Behaves identically; renamed per §2.11 to align with the
+/// algebra-laws framing.
+/// </para>
 /// <para>
 /// <strong>Two-lap design.</strong> JSON is the canonical seed format
 /// because it expresses field presence/absence unambiguously. The kit
@@ -40,7 +44,7 @@ namespace Flowthru.Tests.Kits.Storage;
 /// </para>
 /// </remarks>
 [TestFixture]
-public abstract class InspectShallowConformance<TContainer>
+public abstract class IInspectShallowLaws<TContainer>
 {
   // ── Canonical JSON fixtures (shared across every format) ───────────────
 
@@ -258,10 +262,10 @@ public abstract class InspectShallowConformance<TContainer>
     string.Join(", ", result.Errors.Select(e => $"{e.ErrorType}: {e.Message}"));
 }
 
-// ── Conformance fixture (shared across every adapter) ──────────────────
+// ── Laws fixture (shared across every adapter) ─────────────────────────
 
 /// <summary>
-/// Row schema used by <see cref="InspectShallowConformance"/>. Three
+/// Row schema used by <see cref="IInspectShallowLaws{TContainer}"/>. Three
 /// required fields, two optional. Field names align with the canonical
 /// JSON fixtures' property names verbatim — no <c>[SerializedLabel]</c>
 /// remapping, so the field-presence check works directly against the
