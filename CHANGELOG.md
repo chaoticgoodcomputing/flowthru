@@ -284,7 +284,7 @@
 - performance improvements on parquet IO ([8aa35955](https://github.com/chaoticgoodcomputing/flowthru/commit/8aa35955))
 - resolve flow config issues ([e20a9144](https://github.com/chaoticgoodcomputing/flowthru/commit/e20a9144))
 - temp remove spark compat pending databricks branch integration ([65b1aee3](https://github.com/chaoticgoodcomputing/flowthru/commit/65b1aee3))
-- resolve KedroSpaceflightsCustom config settings ([a654c16e](https://github.com/chaoticgoodcomputing/flowthru/commit/a654c16e))
+- resolve SpaceflightsEnhanced config settings ([a654c16e](https://github.com/chaoticgoodcomputing/flowthru/commit/a654c16e))
 - resolve brittle template test pack dependency ([c0038c9d](https://github.com/chaoticgoodcomputing/flowthru/commit/c0038c9d))
 
 ### ❤️ Thank You
@@ -754,7 +754,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * fix parquet deserialization of enum types ([6df3267](https://github.com/chaoticgoodcomputing/flowthru/commit/6df3267eec7d1fbeec4b8cdd7656711fdf868066))
 * ignore files ([a849f9c](https://github.com/chaoticgoodcomputing/flowthru/commit/a849f9c6efe9b29d3ac95a17b4b348fcc724bf2a))
 * improved handling of nested/flat schema detection for BCL types ([8ae8da1](https://github.com/chaoticgoodcomputing/flowthru/commit/8ae8da18875798196460464d0a57f0bf9be62c0d))
-* include Kedro reference data for KedroSpaceflights.Custom ([67474fa](https://github.com/chaoticgoodcomputing/flowthru/commit/67474fa7b493352d763b2de6e60222ef4af513c2))
+* include Kedro reference data for Spaceflights.Custom ([67474fa](https://github.com/chaoticgoodcomputing/flowthru/commit/67474fa7b493352d763b2de6e60222ef4af513c2))
 * include kedro source data, include notice for license ([9a65834](https://github.com/chaoticgoodcomputing/flowthru/commit/9a658343414b23afe1fc43904af00ae36abaa25a))
 * include uv locks ([84e69e7](https://github.com/chaoticgoodcomputing/flowthru/commit/84e69e7c227ae3844081ca7b0f55a713fb52ad62))
 * internal restructure for inspectability ([c2d59e5](https://github.com/chaoticgoodcomputing/flowthru/commit/c2d59e56d8d9a3d5d2ed11baf6d9f43dc3ec7191))
@@ -1379,7 +1379,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * fix data io directory paths, catalog ([cc4f246](https://github.com/chaoticgoodcomputing/flowthru/commit/cc4f246cb6be495ce5e16dd532ba7f472abe4f86))
 * fix json (de)serial for nested dict ([403a9d1](https://github.com/chaoticgoodcomputing/flowthru/commit/403a9d1ea78af9afa964c8ad377cf5a1cdbd6f03))
 * fix parquet deserialization of enum types ([6df3267](https://github.com/chaoticgoodcomputing/flowthru/commit/6df3267eec7d1fbeec4b8cdd7656711fdf868066))
-* include Kedro reference data for KedroSpaceflights.Custom ([67474fa](https://github.com/chaoticgoodcomputing/flowthru/commit/67474fa7b493352d763b2de6e60222ef4af513c2))
+* include Kedro reference data for Spaceflights.Custom ([67474fa](https://github.com/chaoticgoodcomputing/flowthru/commit/67474fa7b493352d763b2de6e60222ef4af513c2))
 * include kedro source data, include notice for license ([9a65834](https://github.com/chaoticgoodcomputing/flowthru/commit/9a658343414b23afe1fc43904af00ae36abaa25a))
 * mast cost processing ([0324b23](https://github.com/chaoticgoodcomputing/flowthru/commit/0324b230f928f7e9078491f6b19f5b60809c28df))
 * match ml.next namespaces with ml.net ([75d782c](https://github.com/chaoticgoodcomputing/flowthru/commit/75d782c2a3f67ac82d04a0c4875e6fe15da93b8e))

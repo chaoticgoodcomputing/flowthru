@@ -112,7 +112,7 @@ public class MultiCatalogEdgeCaseTests
   public async Task ConfigurationRecord_ResolvesAsCatalog()
   {
     // A non-CatalogAbstract reference type that takes IConfiguration —
-    // mirrors the FlowConfig pattern used in KedroIrisFUnit / SpaceflightsDistributed.
+    // mirrors the FlowConfig pattern used in IrisFUnit / SpaceflightsDistributed.
     var configuration = new ConfigurationBuilder()
       .AddInMemoryCollection(new Dictionary<string, string?>
       {

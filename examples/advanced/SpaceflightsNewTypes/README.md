@@ -1,4 +1,4 @@
-# KedroIris Starter
+# Iris Starter
 
 A Flowthru starter project modeled off of the [Kedro Spaceflights Starter](https://github.com/kedro-org/kedro-starters/tree/main/spaceflights-pandas). 
 

@@ -10,7 +10,7 @@ public partial class Catalog
   // example. The Parquet serializer's CLR-to-DataField mapping does not yet
   // unwrap IScalar NewTypes (a pre-existing gap, tracked separately) — writing
   // a `ShuttleId`-typed column to Parquet silently drops it. The starter
-  // KedroSpaceflights example uses Parquet here because it stores raw `string`s.
+  // Spaceflights example uses Parquet here because it stores raw `string`s.
   // Once the Parquet IScalar gap is closed, these can be reverted to
   // `Item.Of<...>(...).Parquet()` without changing the schemas.
   // ─────────────────────────────────────────────────────────────────────────

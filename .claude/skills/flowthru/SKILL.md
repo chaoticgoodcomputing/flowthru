@@ -7,7 +7,7 @@ description: Use when authoring or modifying Flowthru data pipelines — creatin
 
 You are working inside a Flowthru data pipeline project. Flowthru is a type-safe data engineering framework for .NET. You have baseline knowledge of data pipelines, DAGs, and ETL — this guide tells you how to express those concepts in Flowthru's structure.
 
-Exact syntax for schemas, catalog items, steps, and flows can be gleaned from the existing code in this project. **The canonical reference is `examples/starter/KedroIrisFUnit/`** — when in doubt, model new code on that example's shape.
+Exact syntax for schemas, catalog items, steps, and flows can be gleaned from the existing code in this project. **The canonical reference is `examples/starter/IrisFUnit/`** — when in doubt, model new code on that example's shape.
 
 ## Project Structure
 

@@ -154,8 +154,8 @@ run_one_example() {
   #     to running everything.
   #   - --Tests:<name> matches against the FULL parametric Name, including the
   #     parameter inside parens. The trailing ")" anchors the boundary so e.g.
-  #     --Tests:...(KedroSpaceflights) matches only that exact case, not the
-  #     KedroSpaceflightsCustom / FUnit / GQL / Python siblings. The Windows-
+  #     --Tests:...(Spaceflights) matches only that exact case, not the
+  #     SpaceflightsEnhanced / FUnit / GQL / Python siblings. The Windows-
   #     style /Tests: spelling is mis-parsed as a file path on Linux when run
   #     under a non-interactive shell (e.g. the xargs subshell), so use the
   #     --Tests: form for portability.

@@ -60,7 +60,7 @@
     <PackageVersion Include="StrawberryShake.Server" Version="15.1.14" /> <!-- tracks current stable; revisit before publish -->
     <PackageVersion Include="System.ComponentModel.Annotations" Version="5.0.0" />
 
-    <!-- Web/ASP.NET Core (used by KedroSpaceflightsGQL) -->
+    <!-- Web/ASP.NET Core (used by SpaceflightsGQL) -->
     <PackageVersion Include="Microsoft.AspNetCore.TestHost" Version="10.0.5" /> <!-- tracks current stable; revisit before publish -->
 
     <!-- Plotting (used by spaceflights examples) -->

@@ -9,7 +9,7 @@ the EFCore-backed [`ProductionCatalog`](Data/ProductionCatalog.cs).
 
 ## Why
 
-`KedroSpaceflights` (file-backed) and `SpaceflightsEFCore` (DB-backed) are
+`Spaceflights` (file-backed) and `SpaceflightsEFCore` (DB-backed) are
 two ways of running the same logical pipeline. In practice most teams want
 both — interactive iteration on flat files locally, plus transactional
 SQL persistence for deployed runs — without rewriting flows or steps. This
@@ -44,12 +44,12 @@ host that already keys off the same variable.
 
 Items are split across three catalog files:
 
-| File | Role |
-| --- | --- |
-| [Data/Catalog.cs](Data/Catalog.cs) | Abstract base. Declares every divergent item as `abstract`. |
+| File                                                                                                                                               | Role                                                                                                                          |
+| -------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| [Data/Catalog.cs](Data/Catalog.cs)                                                                                                                 | Abstract base. Declares every divergent item as `abstract`.                                                                   |
 | [Data/\_01\_Raw/Catalog.Raw.cs](Data/_01_Raw/Catalog.Raw.cs), [Data/\_08\_Reporting/Catalog.Reporting.cs](Data/_08_Reporting/Catalog.Reporting.cs) | Concrete shared items on the base — raw CSV/Excel inputs and the JSON report output. These are the same in both environments. |
-| [Data/DevelopmentCatalog.cs](Data/DevelopmentCatalog.cs) | File-backed overrides (Parquet / JSON / Memory). |
-| [Data/ProductionCatalog.cs](Data/ProductionCatalog.cs) | EFCore overrides backed by [SpaceflightsDbContext](Data/SpaceflightsDbContext.cs). |
+| [Data/DevelopmentCatalog.cs](Data/DevelopmentCatalog.cs)                                                                                           | File-backed overrides (Parquet / JSON / Memory).                                                                              |
+| [Data/ProductionCatalog.cs](Data/ProductionCatalog.cs)                                                                                             | EFCore overrides backed by [SpaceflightsDbContext](Data/SpaceflightsDbContext.cs).                                            |
 
 `CheckStatus` uses `[SerializedEnum("t"/"f")]` for file round-tripping; the
 DbContext adds `HasConversion<string>()` so EF stores the enum member name

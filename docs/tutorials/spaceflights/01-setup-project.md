@@ -31,7 +31,7 @@ This creates a new directory `Spaceflights/` with the following structure:
 ```
 Spaceflights/
 ├── Program.cs                 # Application entry point
-├── KedroSpaceflights.csproj   # Project file
+├── Spaceflights.csproj   # Project file
 ├── appsettings.json           # Configuration
 ├── Data/                      # Data catalog and schemas
 │   ├── Catalog.cs

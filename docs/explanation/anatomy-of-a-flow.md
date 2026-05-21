@@ -12,7 +12,7 @@ We'll be using snippets from the Iris starter example. By the end, you'll unders
 A Flowthru project follows a predictable structure:
 
 ```
-KedroIris/
+Iris/
 ├── Program.cs
 ├── Data/
 │   └── ...
@@ -132,7 +132,7 @@ Each layer has a numbered prefix to enforce a clear, linear structure.
 The file structure of the `Data` directory in the Flowthru starters reflects this structure:
 
 ```
-KedroIris/
+Iris/
 └── Data/
     ├── Catalog.cs                    # Core catalog class
     ├── _01_Raw/

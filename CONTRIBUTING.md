@@ -60,7 +60,7 @@ The project uses NX for task orchestration. When possible, use `nx run` targets 
 ```bash
 nx run-many -t build # Confirm solution builds fully
 nx run affected -t test # IMPORTANT: Run all test projects affected by current changes
-nx run KedroSpaceflights # Run a specific Flowthru example Flow
+nx run Spaceflights # Run a specific Flowthru example Flow
 ```
 
 `dotnet` can be used to run subsets of tests, or specific tests:

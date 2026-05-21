@@ -23,11 +23,11 @@ Flowthru's promise — restated from [CONTRIBUTING.md](../../../CONTRIBUTING.md)
 
 Errors are then sorted into three phases — **build-time**, **pre-flight**, and **runtime** — with a strong preference for the earliest phase that can plausibly catch the error. Each phase has different failure semantics, and so each phase calls for a *different* primitive:
 
-| Phase | What can fail | What we want from a primitive |
-| --- | --- | --- |
-| Build-time | Schema mismatch, miswired step, unsupported format pairing | The compiler refuses to emit; no primitive at runtime — diagnostics + types do the work |
-| Pre-flight | Missing files, unreachable databases, schema drift, duplicate producers | **Accumulate every error at once** so the user fixes them in one pass |
-| Runtime | Network drops, OOM, transform exceptions | **Capture errors as values** so they can't be silently dropped or thrown into the void |
+| Phase      | What can fail                                                           | What we want from a primitive                                                           |
+| ---------- | ----------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| Build-time | Schema mismatch, miswired step, unsupported format pairing              | The compiler refuses to emit; no primitive at runtime — diagnostics + types do the work |
+| Pre-flight | Missing files, unreachable databases, schema drift, duplicate producers | **Accumulate every error at once** so the user fixes them in one pass                   |
+| Runtime    | Network drops, OOM, transform exceptions                                | **Capture errors as values** so they can't be silently dropped or thrown into the void  |
 
 The FP layer in [src/core/Flowthru.Core/Prelude/](../../../src/core/Flowthru.Core/Prelude/) is not chosen for its own sake — each primitive is the *minimum* shape that makes one of those guarantees mechanically true. Read the Prelude with that lens and the choices stop looking like style.
 
@@ -219,7 +219,7 @@ The third question — and the one most worth getting right — is **why none of
 
 ### 3.1 What a Flow Developer actually writes
 
-This is a real, complete step from the Iris starter ([SplitAndEncodeStep.cs](../../../examples/starter/KedroIrisFUnit/Flows/DataEngineering/Steps/SplitAndEncodeStep.cs)):
+This is a real, complete step from the Iris starter ([SplitAndEncodeStep.cs](../../../examples/starter/IrisFUnit/Flows/DataEngineering/Steps/SplitAndEncodeStep.cs)):
 
 ```csharp
 [FlowthruStep]
@@ -292,12 +292,12 @@ The smart constructor returns an `IItem<IEnumerable<IrisRawSchema>>` whose `Load
 
 The boundary is enforced by *what each role names*:
 
-| Role | Names | Does not name |
-| --- | --- | --- |
-| Flow Developer | `Func<TIn, TOut>`, schemas, `[FlowthruStep]`, `IItem<T>` (held, not invoked) | `FlowIO`, `EffResult`, `Bind`, `Validated`, `RuntimeError` |
-| Catalog Developer | `IItem<T>`, `ItemFactory.<Cardinality>.<Format>(...)`, `CatalogAbstract`, schema attributes | `FlowIO` (returned but not invoked), `IStorageAdapter`, `RuntimeError` |
+| Role                | Names                                                                                                         | Does not name                                                                                           |
+| ------------------- | ------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| Flow Developer      | `Func<TIn, TOut>`, schemas, `[FlowthruStep]`, `IItem<T>` (held, not invoked)                                  | `FlowIO`, `EffResult`, `Bind`, `Validated`, `RuntimeError`                                              |
+| Catalog Developer   | `IItem<T>`, `ItemFactory.<Cardinality>.<Format>(...)`, `CatalogAbstract`, schema attributes                   | `FlowIO` (returned but not invoked), `IStorageAdapter`, `RuntimeError`                                  |
 | Extension Developer | `IItem<T>`, `IStorageAdapter<T>`, `FlowIO`, `Validated`, `IExtensionPreFlightError`, `IExtensionRuntimeError` | The closed-sum cases of `RuntimeError` / `PreFlightError` (write through `External` / `ExtensionError`) |
-| Core Developer | Everything | — |
+| Core Developer      | Everything                                                                                                    | —                                                                                                       |
 
 When you contribute to Core, ask: *which row of that table is this name supposed to live in?* If you find yourself making a Flow Developer name a `FlowIO`, you've broken the boundary. If you find yourself making an extension author depend on a closed-sum case directly, you've broken a different invariant. The role analysis from CONTRIBUTING.md and the boundary above are the same boundary, viewed from two directions.
 

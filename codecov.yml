@@ -68,21 +68,21 @@ flags:
     carryforward: true
   FlowthruCoverage:
     carryforward: true
-  KedroIris:
+  Iris:
     carryforward: true
-  KedroIrisFUnit:
+  IrisFUnit:
     carryforward: true
-  KedroIrisPython:
+  IrisPython:
     carryforward: true
-  KedroSpaceflights:
+  Spaceflights:
     carryforward: true
-  KedroSpaceflightsCustom:
+  SpaceflightsEnhanced:
     carryforward: true
-  KedroSpaceflightsFUnit:
+  SpaceflightsFUnit:
     carryforward: true
-  KedroSpaceflightsGQL:
+  SpaceflightsGQL:
     carryforward: true
-  KedroSpaceflightsPython:
+  SpaceflightsPython:
     carryforward: true
   Minimal:
     carryforward: true

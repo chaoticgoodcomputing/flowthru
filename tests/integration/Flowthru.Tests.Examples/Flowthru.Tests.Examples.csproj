@@ -38,7 +38,7 @@
 
   <!--
     Unified Python environment for test scenarios. Contains all dependencies from
-    KedroSpaceflightsPython and KedroIrisPython. PythonEngine can only initialize
+    SpaceflightsPython and IrisPython. PythonEngine can only initialize
     once per process, so all Python examples running in the same test host must
     share this .venv.
   -->

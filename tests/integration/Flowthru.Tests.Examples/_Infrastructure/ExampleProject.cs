@@ -6,7 +6,7 @@ namespace Flowthru.Tests.Examples.Infrastructure;
 public sealed class ExampleProject
 {
   /// <summary>
-  /// Display name for the example (e.g., "KedroSpaceflights").
+  /// Display name for the example (e.g., "Spaceflights").
   /// </summary>
   public required string Name { get; init; }
 

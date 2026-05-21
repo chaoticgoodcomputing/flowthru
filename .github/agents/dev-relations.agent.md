@@ -45,7 +45,7 @@ Structure the output file as follows. Omit any section that would have no entrie
 ## What's New
 
 - **Headline Topic:** 1-2 sentence elaboration of the main change and why it matters.
-  - **Supporting Detail:** Sub-bullet for examples, docs, or related changes that demonstrate or extend the headline. Include a relative link to the file or directory (e.g., `[KedroIrisFUnit](examples/starter/KedroIrisFUnit)`).
+  - **Supporting Detail:** Sub-bullet for examples, docs, or related changes that demonstrate or extend the headline. Include a relative link to the file or directory (e.g., `[IrisFUnit](examples/starter/IrisFUnit)`).
   - **Supporting Detail:** Another sub-bullet if needed.
 - **Independent Topic:** 1-2 sentence elaboration of a separate change.
 
@@ -73,8 +73,8 @@ We've added FUnit, a built-in testing framework that lets you write, enforce, an
 
 - **FUnit Testing Framework:** You can now write unit tests inside your step classes using `[StepTest]` and `[EffectTest]` attributes. Tests are automatically discovered and run via `dotnet test`, so verifying step logic no longer requires a separate test project or manual wiring. A `SampleBuilder` API provides fluent construction of test data matching your schemas.
   - **Analyzer Enforcement:** New diagnostics `FU001` and `FU002` warn you when steps are missing tests or have misconfigured compiler exclusions. Accompanying code fixes scaffold the test structure for you, so the path from "untested step" to "tested step" is a quick-fix away.
-  - **Iris FUnit Starter:** We've added a complete Iris classification pipeline with FUnit wired in, demonstrating step-level testing for data engineering and data science flows. See [KedroIrisFUnit](examples/starter/KedroIrisFUnit).
-  - **Spaceflights FUnit Starter:** The larger Spaceflights pipeline with the same treatment — preprocessing, model training, and reporting steps all with inline tests. See [KedroSpaceflightsFUnit](examples/starter/KedroSpaceflightsFUnit).
+  - **Iris FUnit Starter:** We've added a complete Iris classification pipeline with FUnit wired in, demonstrating step-level testing for data engineering and data science flows. See [IrisFUnit](examples/starter/IrisFUnit).
+  - **Spaceflights FUnit Starter:** The larger Spaceflights pipeline with the same treatment — preprocessing, model training, and reporting steps all with inline tests. See [SpaceflightsFUnit](examples/starter/SpaceflightsFUnit).
 - **Glob-Based Flow Slicing:** You can now pass glob patterns (e.g., `DataProcessing.*`) to `FlowSliceStrategy`, so you can select subsets of steps to run without listing each one by name.
 - **Core Code Fixes:** We've added three new IDE quick-fixes: `FT1001` adds a missing `partial` keyword, `FT1002` removes conflicting interfaces, and `FT2002` removes unused catalog items. These surface as lightbulb actions during development.
 

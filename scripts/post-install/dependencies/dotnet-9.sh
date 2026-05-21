@@ -7,7 +7,7 @@
 # .NET versions are not sufficient.
 #
 # Without this runtime, Flowthru.Extensions.GQL example projects
-# (e.g. KedroSpaceflightsGQL) will fail at build time with MSB3073 / exit 150.
+# (e.g. SpaceflightsGQL) will fail at build time with MSB3073 / exit 150.
 
 if command -v dotnet &>/dev/null; then
   if dotnet --list-runtimes 2>/dev/null \
@@ -19,7 +19,7 @@ if command -v dotnet &>/dev/null; then
     ok "Microsoft.NETCore.App $DOTNET9_VERSION  (required for Flowthru.Extensions.GQL codegen)"
   else
     warn ".NET 9 runtime not found. The Flowthru.Extensions.GQL example projects"
-    warn "(e.g. KedroSpaceflightsGQL) will fail to build because StrawberryShake's"
+    warn "(e.g. SpaceflightsGQL) will fail to build because StrawberryShake's"
     warn "codegen tool ships only net8/net9 binaries and needs the .NET 9 shared"
     warn "framework at build time."
     warn "Download: https://dotnet.microsoft.com/download/dotnet/9.0"

@@ -48,7 +48,7 @@ When domain relationships are being discussed, stress-test them with specific sc
 
 ### Cross-reference with code
 
-When the user states how something works, check whether the code agrees. The `examples/starter/KedroSpaceflights`, `examples/advanced/FlowthruCoverage`, and `examples/advanced/SpaceflightsDistributed` projects are the canonical reference implementations; `src/core/Flowthru.Core/` is where the internal abstractions live. If you find a contradiction, surface it: *"Your code in `IStepNode.cs` calls this an 'arrow archetype,' but you just said Steps and Items are both nodes — which framing is canonical?"*
+When the user states how something works, check whether the code agrees. The `examples/starter/Spaceflights`, `examples/advanced/FlowthruCoverage`, and `examples/advanced/SpaceflightsDistributed` projects are the canonical reference implementations; `src/core/Flowthru.Core/` is where the internal abstractions live. If you find a contradiction, surface it: *"Your code in `IStepNode.cs` calls this an 'arrow archetype,' but you just said Steps and Items are both nodes — which framing is canonical?"*
 
 ### Update the relevant CONTRIBUTING.md inline
 
