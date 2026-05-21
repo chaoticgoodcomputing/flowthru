@@ -1,22 +1,30 @@
 ---
 name: flowthru-contributing
-description: Use when working on Flowthru's core library, extensions, or tests — anything under src/ or tests/. Covers the fail-fast architecture, the three error phases (compile-time, pre-flight, runtime), and the decision rule for where validation logic belongs.
+description: Use when working on Flowthru's core library, extensions, or tests — anything under src/ or tests/. Carries agent-only conventions for issues, triage, domain language, external sources, and the test workflow.
 ---
 
 # Flowthru Contributing
 
-Before writing or modifying code, read these:
+This skill is the agent-only entry point for any work on Flowthru. The fail-fast philosophy, the three error phases, and the Flow / Step / Catalog / Schema vocabulary all live in `/CONTRIBUTING.md`, which is loaded into every session automatically — there is no need to restate it here.
 
-- [/CONTRIBUTING.md](/CONTRIBUTING.md) — design philosophy, the three error phases, and decision rules for where validations belong.
-- [/docs/CONTRIBUTING.md](/docs/CONTRIBUTING.md) — documentation tone and the Diátaxis framework. Keep documentation synchronized with code changes.
+All agent infrastructure (this skill, the docs it points at, hooks, settings) lives under `.claude/` or `.github/`. Never `docs/`, never root-level `CLAUDE.md` / `AGENTS.md`.
 
-When adding or modifying Flowthru internals:
+## External sources
 
-- Push errors to compile-time via type constraints and source generators when possible.
-- Add pre-flight validation for environmental concerns (files, connections, external schemas).
-- Reserve runtime error handling for truly unpredictable failures.
-- Ask not just "Will this work?" but "When will it break?"
+Flowthru connects to many other projects. When you need to introspect one directly, check `docs/reference/misc/external/*/repo`. If the `repo` subdirectory is missing, pull it with `nx run xdocs:pull <source>`.
 
-Flowthru also depends on, and connects to, many other projects. Projects that may be helpful to directly introspect can be found in `docs/reference/misc/external/*/repo` subdirectories. If a source's `repo` subdirectory is missing, it can be pulled by running `nx run xdocs:pull <source>`.
+## Tests
 
-When developing, do not manually run tests as part of a final confirmation — this will be handled automatically by the Agent stop hook from `.claude/settings.json`. However, tests can be run selectively via `dotnet test` if extended output is required for debugging sessions.
+The Agent stop hooks (`scripts/agents/hooks/on-stop/`) run affected tests automatically — don't manually run them as a final confirmation. For extended debugging output, run `dotnet test` against a specific target.
+
+## Issues
+
+GitHub issues at [chaoticgoodcomputing/flowthru](https://github.com/chaoticgoodcomputing/flowthru/issues), via the `gh` CLI. Non-trivial in-session reports become filed issues before being acted on beyond the conversation. Conventions: [.claude/docs/issue-tracker.md](/.claude/docs/issue-tracker.md).
+
+## Triage
+
+Five canonical role labels (`needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`), used verbatim. Mapping and `gh label create` commands: [.claude/docs/triage-labels.md](/.claude/docs/triage-labels.md).
+
+## Domain output rules
+
+Behavioral rules for using `/CONTRIBUTING.md`'s vocabulary in your output (issue titles, hypotheses, test names) and for flagging contradictions: [.claude/docs/domain.md](/.claude/docs/domain.md).

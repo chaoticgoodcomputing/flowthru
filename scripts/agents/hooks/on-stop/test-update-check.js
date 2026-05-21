@@ -20,7 +20,7 @@ const { spawnSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 
-const repoRoot = path.resolve(__dirname, '../../..');
+const repoRoot = path.resolve(__dirname, '../../../..');
 
 // ---------------------------------------------------------------------------
 // Collect changed files vs HEAD (staged + unstaged + untracked new files)

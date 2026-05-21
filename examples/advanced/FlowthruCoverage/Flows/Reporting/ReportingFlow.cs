@@ -14,7 +14,7 @@ public static class ReportingFlow
 {
   public static BuiltFlow Create(Catalog catalog, IPythonExecutor executor)
   {
-    return FlowBuilder.CreateFlow("Reporting", pipeline =>
+    return FlowBuilder.CreateFlow("Reporting", flow =>
     {
       // C# [FlowthruStep] classes auto-resolve their CodeVersion via
       // FlowBuilder (Phase 8). Python steps below opt into caching via
@@ -23,7 +23,7 @@ public static class ReportingFlow
       // CodeVersion at AddPythonStep time. Inline-Func steps further
       // down remain uncacheable: there's no [FlowthruStep] companion
       // to source a CodeVersion from.
-      pipeline.AddStep<
+      flow.AddStep<
         IEnumerable<PackageCoverageRow>,
         IEnumerable<ProjectManifestEntry>,
         IEnumerable<PivotCoverageRow>
@@ -34,7 +34,7 @@ public static class ReportingFlow
         outputs: catalog.PivotCoverage
       );
 
-      pipeline.AddPythonStep(
+      flow.AddPythonStep(
         label: "GenerateCoverageHeatmap",
         module: "Flows.Reporting.Steps.generate_coverage_heatmap",
         function: "generate_coverage_heatmap",
@@ -50,7 +50,7 @@ public static class ReportingFlow
       // integration coverage (from example-pipeline runs), and combined
       // coverage at once.
 
-      pipeline.AddStep<
+      flow.AddStep<
         IEnumerable<LineCoverageRow>,
         IEnumerable<ProjectManifestEntry>,
         IEnumerable<SrcInventoryEntry>,
@@ -62,7 +62,7 @@ public static class ReportingFlow
         outputs: catalog.ProvenanceIcicleCoverage
       );
 
-      pipeline.AddPythonStep(
+      flow.AddPythonStep(
         label: "GenerateProvenanceCoverageIcicle",
         module: "Flows.Reporting.Steps.generate_coverage_icicle",
         function: "generate_provenance_coverage_icicle",
@@ -71,7 +71,7 @@ public static class ReportingFlow
         executor: executor
       );
 
-      pipeline.AddStep<
+      flow.AddStep<
         IEnumerable<ProvenanceIcicleNode>,
         string,
         BuildUnitCoverageReportStep.Options,
@@ -87,7 +87,7 @@ public static class ReportingFlow
         outputs: catalog.UnitCoverageReport
       );
 
-      pipeline.AddStep<IEnumerable<PivotCoverageRow>, IEnumerable<PackageCoverageMaxRow>>(
+      flow.AddStep<IEnumerable<PivotCoverageRow>, IEnumerable<PackageCoverageMaxRow>>(
         label: "AggregatePackageCoverage",
         transform: AggregatePackageCoverageStep.Create(),
         inputs: catalog.PivotCoverage,
@@ -97,28 +97,28 @@ public static class ReportingFlow
       Func<IEnumerable<MethodHitSummaryRow>, IEnumerable<MethodHitSummaryRow>> filterUncovered =
         rows => rows.Where(r => r.TotalHits == 0);
 
-      pipeline.AddStep<IEnumerable<MethodHitSummaryRow>, IEnumerable<MethodHitSummaryRow>>(
+      flow.AddStep<IEnumerable<MethodHitSummaryRow>, IEnumerable<MethodHitSummaryRow>>(
         label: "FilterUncoveredMethodHits",
         transform: filterUncovered,
         inputs: catalog.MethodHitSummary,
         outputs: catalog.UncoveredMethodHitsRaw
       );
 
-      pipeline.AddStep<IEnumerable<MethodHitSummaryRow>, IEnumerable<MethodHitSummaryRow>>(
+      flow.AddStep<IEnumerable<MethodHitSummaryRow>, IEnumerable<MethodHitSummaryRow>>(
         label: "FilterUncoveredMethodNames",
         transform: filterUncovered,
         inputs: catalog.MethodNameSummary,
         outputs: catalog.UncoveredMethodNamesRaw
       );
 
-      pipeline.AddStep<IEnumerable<MethodHitSummaryRow>, IEnumerable<MethodHitSummaryRow>>(
+      flow.AddStep<IEnumerable<MethodHitSummaryRow>, IEnumerable<MethodHitSummaryRow>>(
         label: "FilterRemoteSourceFilesHits",
         transform: FilterRemoteSourceFilesStep.Create(),
         inputs: catalog.UncoveredMethodHitsRaw,
         outputs: catalog.UncoveredMethodHits
       );
 
-      pipeline.AddStep<IEnumerable<MethodHitSummaryRow>, IEnumerable<MethodHitSummaryRow>>(
+      flow.AddStep<IEnumerable<MethodHitSummaryRow>, IEnumerable<MethodHitSummaryRow>>(
         label: "FilterRemoteSourceFilesNames",
         transform: FilterRemoteSourceFilesStep.Create(),
         inputs: catalog.UncoveredMethodNamesRaw,

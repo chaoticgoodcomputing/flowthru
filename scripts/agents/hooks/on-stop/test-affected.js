@@ -84,7 +84,7 @@ if (hookInput.stop_hook_active) {
   process.exit(0);
 }
 
-const repoRoot = path.resolve(__dirname, '../../..');
+const repoRoot = path.resolve(__dirname, '../../../..');
 
 // Budget = hook timeout minus a safety buffer so we always return before the
 // host hard-kills the process. Each tool's hook config (Copilot's hooks.json,

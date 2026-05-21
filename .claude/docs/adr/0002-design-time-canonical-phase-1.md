@@ -1,0 +1,3 @@
+# Design-time as the canonical name for Flowthru's gold-standard error phase
+
+We adopted "design-time" as the canonical name for Flowthru's first error phase, with "compile-time" and "build-time" both on the glossary's `_Avoid_` list. Design-time captures the full umbrella of mechanisms Flowthru uses to surface errors before runtime — compiler + Roslyn analyzers + source generators + code fixes + IDE guidance — not just the compile step; compile-time names the mechanism, design-time names the developer-experience value Flowthru actually delivers. Existing code uses "compile-time" extensively and will be migrated incrementally; the glossary settles the canonical direction now.

@@ -1,18 +1,18 @@
 # Contributing to Flowthru
 
-Flowthru is a type-safe, no-bullshit data engineering framework for .NET. Its design philosophy can be summarized in one sentence: **developing a data pipeline should be easy, and a broken pipeline should fail fast.**
+Flowthru is a type-safe, no-bullshit data engineering framework for .NET. Its design philosophy can be summarized in one sentence: **developing an ETL workflow should be easy, and a broken workflow should fail fast.**
 
 First of all — thank you for contributing! I appreciate you taking the time to help make Flowthru better. This document explains the theory behind that philosophy, and helps ensure new features and fixes are aligned with Flowthru's theories and end-user promises.
 
 ## Why Fail-Fast Matters
 
-If you've worked with runtime-only pipeline frameworks, these scenarios will be familiar:
+If you've worked with runtime-only ETL frameworks, these scenarios will be familiar:
 
-**The silent schema break.** An upstream team renames a column in a source table from `customer_id` to `cust_id`. Your pipeline launches, spends two hours processing raw data through three stages, then fails at a join that expected the old name. In the worst case, the compute is wasted, and the error message points at a symptom (`KeyError: 'customer_id'`) rather than the cause (a contract violation between the producer and consumer).
+**The silent schema break.** An upstream team renames a column in a source table from `customer_id` to `cust_id`. Your workflow launches, spends two hours processing raw data through three stages, then fails at a join that expected the old name. In the worst case, the compute is wasted, and the error message points at a symptom (`KeyError: 'customer_id'`) rather than the cause (a contract violation between the producer and consumer).
 
-**The rogue edit.** You're using an interpreted language, and somebody on the team has made a typo in one of the later steps of the pipeline. It happens! You star the pipeline — a pipeline that never *could* have finished — fails at the finish line. Somebody must find, and fix, the typo before the pipeline can finish, delaying the output and wasting the lead-up computation necessary to reach that point in the step again.
+**The rogue edit.** You're using an interpreted language, and somebody on the team has made a typo in one of the later steps of the workflow. It happens! You start the workflow — a workflow that never *could* have finished — and it fails at the finish line. Somebody must find, and fix, the typo before the workflow can finish, delaying the output and wasting the lead-up computation necessary to reach that point in the step again.
 
-**The silent overwrite.** Two pipeline branches independently write to the same output table. Your data isn't part of the DAG — it's just a side effect. There's nothing to check for duplicate producers — whichever branch finishes last wins, and the other branch's output is silently lost. This race condition makes the data unpredictable.
+**The silent overwrite.** Two workflow branches independently write to the same output table. Your data isn't part of the DAG — it's just a side effect. There's nothing to check for duplicate producers — whichever branch finishes last wins, and the other branch's output is silently lost. This race condition makes the data unpredictable.
 
 Each of these failures shares a root cause: **your language and framework can't find errors until it *hits* errors**
 
@@ -20,97 +20,36 @@ Each of these failures shares a root cause: **your language and framework can't 
 
 Flowthru's promises are simple:
 
-1. End-users can easily write data pipelines, and have a development experience focused on what *their* flows will do, not how Flowthru is handling the flow.
-2. If an error can occur in the flow they've created, it will occur as soon in the development process as possible.
-
-As developers of Flowthru, then, these are split into two primary concerns:
-
-1. The **API Surface:** how users experience, and work with, Flowthru; and
-2. The **Error Surface:** how — and **when** — errors in Flowthru flows can occur.
+1. End-users can easily write ETL workflows, and have a development experience focused on what *their* Flows will do, not how Flowthru is handling the Flow.
+2. If an error can occur in the Flow they've created, it will occur as soon in the development process as possible.
 
 Flowthru's architecture is designed to balance these requirements: a straightforward API surface free of unnecessary ceremony or boilerplate, and an error surface that pushes errors as early in the development process as C#, .NET, and Roslyn can offer.
 
-The end-user experience should feel almost identical to similar pipeline frameworks, but with **free** gains in stability and developer experience.
-
 ## The Three Error Phases
 
-Every possible failure in a Flowthru pipeline falls into one of three phases:
+Every possible failure in a Flow falls into one of three phases:
 
-1. Build-time (beautiful, gold standard, chef's kiss)
-2. Pre-flight (tolerable, but aggravating)
-3. Runtime (evil! should be destroyed wherever possible)
-
-### 1. Build / Compile-Time
-
-Compile-time errors always show when the pipeline is built — and, if the user is using a C# language server, as squigglies in the IDE during development. This is always the goal — that an error will be shown at the best time for a developer to fix it: **during development.**
-
-Flowthru achieves this through a combination of mechanisms that share a common pattern: **pipeline structure is expressed in the type system, not in strings or configuration.**
-
-- **Schemas are typed contracts.** Every step declares the schema(s) it consumes and produces via generic type parameters. Every catalog item uses one of these same schemas. If a step tries to input from, or output to, a catalog item with mismatched schemas, the flow won't build.
-- **Each step is a contract that cannot be broken.** A developer must define schemas up-front when they're writing their step. If they're supposed to write a step that inputs schema A, and outputs schema B, the compiler **requires** that the code they write follows through on this contract to go from A to B.
-- **Schemas can only be stored in data formats that can support them.** The `[FlowthruSchema]` source generator analyzes schema structure and emits marker interfaces that gate which serializers a schema can be used with. Attempting to save nested format to a CSV? That shouldn't even build.
-- **Wiring is done with types, not strings** Anytime you need to hook two things together — data to steps, steps to flows, flows to other flows — it should be done using types, **never** strings.
-
-### 2. Pre-Flight Checks
-
-While build-time errors are the gold standard, there are some cases where a problem simply cannot be caught that early. To cope with this, a **pre-flight phase** happens after the pipeline is invoked, but before **any** pipeline logic runs.
-
-- **DAG validation.** Before execution, the flow's dependency graph is analyzed. Duplicate producers (two steps writing to the same item) as well as circular dependencies, are rejected.
-- **External input inspection.** External inputs (files, connections) are inspected before the first step runs. Missing files, mismatched headers, and schema drift in external data are all surfaced up front. Even if an external data file is only used at the end of the flow, it should be confirmed accessible before the flow starts.
-- **Dry-run mode.** All pre-flight checks can be executed with zero side effects, validating that the pipeline *would* succeed without actually running it.
-
-**Design invariant:** A flow that passes pre-flight checks should always complete successfully. If it doesn't, that's a bug in Flowthru — either a missing pre-flight check or a missing compile-time constraint.
-
-### 3. Runtime
-
-Runtime errors include **anything** that could go wrong during actual step execution. These might include:
-
-- network drops
-- out-of-memory conditions
-- general acts of God
-
-Flowthru handles these through an **effect type** called `FlowIO<T>`. If you're familiar with Spark's lazy evaluation model — where transformations build up a plan and only an *action* triggers execution — `FlowIO<T>` applies a similar principle to I/O operations. Loading and saving data returns a `FlowIO<T>` rather than performing the operation immediately. Side effects must be deliberately triggered, not accidentally dropped. This makes I/O boundaries explicit and ensures that errors at those boundaries are captured in structured results rather than thrown as unhandled exceptions.
-
-The key runtime guarantees:
-
-- **All I/O is lazy and explicit.** Side effects cannot be accidentally dropped or silently ignored.
-- **Errors are captured, never swallowed.** Step failures propagate to structured pipeline results. Silent `catch {}` blocks are a bug.
-- **Steps are isolated.** A failing step halts execution and reports which step failed and why — partial silent failures are not possible.
+1. **Design-time**: While projects are being developed (beautiful, gold standard, chef's kiss)
+2. **Pre-flight**: After projects are built and run, but before any logic begins executing (tolerable, but aggravating)
+3. **Runtime** (evil! should be destroyed wherever possible)
 
 ## Flowthru Development Roles
 
-In working on Flowthru at all stages — the core library, extensions, and Flowthru projects themselves — we can break up expectations and responsibilities into four core roles:
+Contributions to Flowthru fall under one of four roles. Each role's full definition, conventions, and vocabulary live in a per-context CONTRIBUTING file:
 
-1. **Flow Developers:** These are the folks who are using Flowthru, and their work is largely captured by the `examples/` projects. They write steps, catalog schemas, and string them together into Flows. They are most analogous to data analysts and scientists: focused on generating outputs with logically sound steps. They handle the "Transformation" portion of ETL.
-2. **Catalog Developers:** These are the folks who set up Catalogs as the interface between a Flowthru project's internal logic and the external world of data storage and processing. They're responsible for ensuring that the Catalog entries used in Flows are correctly set up to read and write data efficiently. They handle the "Extract" and "Load" portions of ETL, and serve Flow Developers by insulating transformation concerns from extract and load concerns.
-3. **Extension Developers:** These are the folks that extend Flowthru's core functionality in ways that feel native to Flowthru, and allow for Flowthru projects to fit teams' stacks depending on their data formats, storage locations, and ecosystem requirements. There are three primary areas that Extension Developers can bridge the gap between Flowthru's core and popular stacks to better serve the needs of Flow and Catalog developers:
-  1. Expanded Catalog options, such as databases via EFCore, or additional data formats like Parquet or Excel.
-  2. Expanded Step options, such as Python and Spark steps
-  3. Expanded type safety, such as type-safe versions of Spark and ML.NET DataFrames
-4. **Core Developers:** These are the folks that curate the core capabilities of Flowthru. The task here is to ensure that Flowthru:
-  1. Has a clean API surface for Flow and Catalog developers to build their projects off of, in a way that allows end-developers to focus on what their project needs to cover and less on the internal plumbing of things like DAG assembly, optimizations, etc.
-  2. Has a fail-fast error surface to allow for Flow and Catalog developers to rapidly iterate and catch issues early, moving as much as possible to build-time and pre-flight errors
-  3. Has a clear public API surface for Extension Developers to build off of, so that extensions to Flowthru feel native to Flowthru's API surface.
+- **Flow Developer** / **Catalog Developer** — writing Flows and Catalogs on top of Flowthru. See [examples/CONTRIBUTING.md](/examples/CONTRIBUTING.md).
+- **Extension Developer** — extending Flowthru with new Catalog formats, Step types, or type-safety patterns. See [src/extensions/CONTRIBUTING.md](/src/extensions/CONTRIBUTING.md).
+- **Core Developer** — curating Flowthru's core library and Roslyn surface. See [src/core/CONTRIBUTING.md](/src/core/CONTRIBUTING.md).
 
-## Decision Rules for Contributors
+Testing-specific conventions for each context live in [tests/core/CONTRIBUTING.md](/tests/core/CONTRIBUTING.md) and [tests/extensions/CONTRIBUTING.md](/tests/extensions/CONTRIBUTING.md).
 
-When adding a new feature or fixing a bug, use these rules to determine where validation belongs:
-
-1. **Can the C# type system express this constraint?** → Add it as a generic constraint, source generator diagnostic, or interface requirement. The compiler is the first line of defense.
-
-2. **Is it an environmental concern (files, connections, external schemas)?** → Add it to the pre-flight validation layer. It must run before any step executes.
-
-3. **Is it truly unpredictable (network failure, machine error, act of God)?** → Handle it in the runtime layer via `FlowIO` effects. Ensure the error is captured in structured results, not swallowed.
-
-The known error points of Flowthru — its **error surface** — should be documented and tested. Flowthru's promise to fail fast **is a feature**. When working on Flowthru, or any extension, it is important to ask yourself not just "Will this work?" but "**When** will it break?"
-
-When adding features or extensions, read [the testing philosophy](/tests/README.md) to understand how best to test.
+The design rules in this document apply to all four roles regardless of which context they're working in.
 
 ## What Flowthru *Won't* Be
 
-Flowthru, at its core, will *not* be a full piece of orchestration software. The core library will not be concerned with when or how users want to run their pipeline — just that it will be correctly configured, and as stable as possible, when they do.
+Flowthru, at its core, will *not* be a full piece of orchestration software. The core library will not be concerned with when or how users want to run their Flows — just that it will be correctly configured, and as stable as possible, when they do.
 
-This doesn't mean *ignoring* these concerns — it just means extending the API surface to allow end-users to run flows flexibly (such as the service-based and CLI access options), as well as ensuring the core engine uses extensible patterns for modification (such as additional formats and methods for data access, and the ability to DI services into steps for additional utility).
+This doesn't mean *ignoring* these concerns — it just means extending the API surface to allow end-users to run Flows flexibly (such as the service-based and CLI access options), as well as ensuring the core engine uses extensible patterns for modification (such as additional formats and methods for data access, and the ability to DI services into Steps for additional utility).
 
 ## Development Workflow
 
@@ -121,7 +60,7 @@ The project uses NX for task orchestration. When possible, use `nx run` targets 
 ```bash
 nx run-many -t build # Confirm solution builds fully
 nx run affected -t test # IMPORTANT: Run all test projects affected by current changes
-nx run KedroSpaceflights # Run a specific Flowthru example pipeline
+nx run KedroSpaceflights # Run a specific Flowthru example Flow
 ```
 
 `dotnet` can be used to run subsets of tests, or specific tests:
@@ -129,9 +68,3 @@ nx run KedroSpaceflights # Run a specific Flowthru example pipeline
 ```bash
 dotnet test --filter "Category=Compilation"
 ```
-
-### Code Style
-
-- Allow CSharpier to handle formatting.
-- Follow existing patterns in the codebase for new features
-- Add XML documentation comments to public APIs. For writing conventions, please read `docs/CONTRIBUTING.md`.

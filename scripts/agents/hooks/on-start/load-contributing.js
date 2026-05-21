@@ -1,22 +1,21 @@
 #!/usr/bin/env node
 
 /**
- * SessionStart hook: injects CONTRIBUTING.md into agent context at the start
- * of each new session so the agent has Flowthru's architecture and conventions
- * loaded before any work begins.
+ * SessionStart hook: feeds /CONTRIBUTING.md into agent context so Flowthru's
+ * fail-fast philosophy and the three error phases are loaded before any work.
  */
 
 const fs = require('fs');
 const path = require('path');
 
-const repoRoot = path.resolve(__dirname, '../../..');
+const repoRoot = path.resolve(__dirname, '../../../..');
 const contributingPath = path.join(repoRoot, 'CONTRIBUTING.md');
 
 let contributing;
 try {
   contributing = fs.readFileSync(contributingPath, 'utf-8');
 } catch (err) {
-  process.stderr.write(`session-start: could not read CONTRIBUTING.md: ${err.message}\n`);
+  process.stderr.write(`on-start/load-contributing: could not read CONTRIBUTING.md: ${err.message}\n`);
   process.exit(0);
 }
 

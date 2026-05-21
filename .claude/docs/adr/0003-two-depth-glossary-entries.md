@@ -1,0 +1,3 @@
+# Two-depth glossary entries — same term, multiple sections at different depths
+
+We allow the same term to appear in more than one role section of `/GLOSSARY.md` (notably **DAG**, which appears in both the Flow Developer and Core Developer sections), with the Flow Dev entry shielding from FP machinery and the Core Dev entry using it precisely. A single combined entry would either lose Flow Devs in FP jargon they don't need, or under-serve Core Devs by softening the FP vocabulary the architecture actually relies on. Flowthru's compile-time safety promise depends on Core Devs reasoning in precise FP terms (closed sums, Kleisli arrows, applicative composition), and softening those terms for cross-audience accessibility creates architectural drift over time.
