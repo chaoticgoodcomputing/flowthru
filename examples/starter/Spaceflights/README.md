@@ -3,7 +3,16 @@
 > [!NOTE]
 > How do I assemble a multi-Flow ETL → ML → Reporting project in Flowthru?
 
-Three Flows over a shared Catalog: `DataProcessing` ingests raw CSV/Excel shuttle data, `DataScience` trains a regression model on the joined output, and `Reporting` generates a JSON capacity report and comparison charts. All eight `Data/_NN_<Name>/` categories are exercised. Modeled after [`kedro-org/kedro-starters`](https://github.com/kedro-org/kedro-starters)' Spaceflights tutorial.
+This project demonstrates assembling a multi-Flow ETL → ML → Reporting project on top of Flowthru's vanilla primitives.
+
+This project:
+
+- Ingests raw CSV and Excel shuttle data via `DataProcessing`.
+- Trains a regression model on the joined output via `DataScience`.
+- Emits a JSON capacity report and chart Items via `Reporting`.
+- Exercises all eight `Data/_NN_<Name>/` categories.
+
+Modeled after [`kedro-org/kedro-starters`](https://github.com/kedro-org/kedro-starters)' Spaceflights tutorial.
 
 ## Getting Started
 

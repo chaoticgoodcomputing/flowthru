@@ -68,12 +68,22 @@ Every example README follows a three-section skeleton: `## Getting Started`, `##
 > [!NOTE]
 > How do I <the question this example answers>?
 
-<1–2 sentences naming what the reader will run/produce.>
+This project demonstrates <one-sentence declarative paraphrase of the answer>.
+
+This project:
+- <one bulleted broad stroke per major piece of pipeline behavior>
+- <...>
+
 <Scope boundary + audience contract — non-vanilla only.>
 <Acknowledgement, if the Flow structure derives from an external source.>
 ```
 
-The `[!NOTE]` callout is the literal question this example answers, written in [Diátaxis](/docs/CONTRIBUTING.md) form. Starters answer *learning* questions ("How do I get started with `<X>` in Flowthru?"); advanced answer *working* questions ("How do I `<specific pattern>`?"). If you can't write the question in one sentence, the example is doing too much.
+The lead-in has four subsections:
+
+1. **The question.** The `[!NOTE]` callout — the literal question this example answers, written in [Diátaxis](/docs/CONTRIBUTING.md) form. Starters answer *learning* questions ("How do I get started with `<X>` in Flowthru?"); advanced answer *working* questions ("How do I `<specific pattern>`?"). If you can't write the question in one sentence, the example is doing too much.
+2. **The short answer.** One declarative sentence beginning `This project demonstrates …` that paraphrases the question into the answer. Useful for skimmers who want a one-line confirmation before deciding whether to keep reading.
+3. **The overview.** A bulleted list beginning `This project:` — one bullet per broad stroke of pipeline behavior (typically one bullet per Flow, plus any structural-shape callout like "exercises all eight Data categories"). Scannable; tells the reader what the example *does* without prose density.
+4. **The acknowledgement** (optional). One sentence at the end of the lead-in if the Flow structure derives from an external source — see **Acknowledgement** below.
 
 **Scope boundary.** A hard rule: **everything in `starter/` is a template**, and **nothing in `advanced/` is a template**. Starters get scaffolded via `dotnet new` from `.template.config/template.json` and must remain cloneable. Advanced examples are reference-only — they exist to be read, not copied. Vanilla starters omit the scope-boundary sentence — the tier already conveys it, and template-enumeration guidance lives in central onboarding docs. Extension starters and advanced examples include a scope-boundary sentence; depth-probe advanced examples must include an explicit **"not a template"** warning, since the risk of readers cloning them is highest.
 

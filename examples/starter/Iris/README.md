@@ -1,25 +1,38 @@
 # Iris Starter
 
-A Flowthru starter project modeled off of the [Kedro Iris Starter](https://github.com/kedro-org/kedro-starters/tree/main/astro-airflow-iris). 
+> [!NOTE]
+> How do I train and evaluate a model end-to-end in Flowthru?
+
+This project demonstrates training and evaluating a multi-class classifier end-to-end in Flowthru.
+
+This project:
+
+- Splits and one-hot-encodes the raw iris dataset via `DataEngineering`.
+- Trains a multi-class classifier, predicts on the test set, and evaluates accuracy via `DataScience`.
+- Emits the final accuracy metrics as a small JSON report.
+
+Modeled after [`kedro-org/kedro-starters`](https://github.com/kedro-org/kedro-starters)' Iris starter.
 
 ## Getting Started
-
-In order to execute this pipeline, move into this directory and run:
 
 ```bash
 dotnet run
 ```
 
-This will run both the Data Engineering and Data Science flows in sequence, generating the final [model metrics output.](./Data/_08_Reporting/Datasets/metrics.json)
+The metrics file lands at [`Data/_08_Reporting/Datasets/metrics.json`](./Data/_08_Reporting/Datasets/metrics.json).
 
-Once you've confirmed your flow runs successfully, you can begin:
+## Concepts
 
-1. Adding new data, steps, and flows to your project; and
-2. Using the [Flowthru service](./Program.cs) to run your Flowthru flows from other .NET projects.
+- **[Step](./Flows/DataEngineering/Steps/SplitAndEncodeStep.cs):** a single logical unit of work, declared as a `[FlowthruStep]`-annotated factory. Iris has four Steps total across the two Flows.
+- **[Schema](./Data/_01_Raw/Schemas/IrisRawSchema.cs):** the typed shape of data, declared once and reused by the producing Step and the Catalog Item that holds it. `IrisRawSchema` declares the five iris features as required properties, with `[SerializedLabel]` mapping to the JSON field names.
+- **[Catalog](./Data/Catalog.cs):** the typed registry of Items shared across both Flows, split into `Catalog.<Category>.cs` partials matching the Data categories.
+- **[Catalog Item](./Data/_01_Raw/Catalog.Raw.cs):** a named handle binding a value to its backing. The Raw partial declares `IrisRaw`, JSON-backed at `iris.json`.
+- **[Data category](./Data/):** the `_NN_<Name>/` directories indicating where each Item sits in the Flow lifecycle — [`_01_Raw`](./Data/_01_Raw) through [`_08_Reporting`](./Data/_08_Reporting).
+- **[FlowBuilder](./Flows/DataEngineering/DataEngineeringFlow.cs):** assembles Steps into a Flow via `FlowBuilder.CreateFlow(...).AddStep<...>(...)`. The single-Step DataEngineering Flow is the simpler of the two registrations in this project.
 
-## Project Structure
+## Structure
 
-### Flow Structure
+### Diagram
 
 <!-- flowthru:mermaid:start -->
 ```mermaid
@@ -69,6 +82,8 @@ flowchart TB
 
 ```
 <!-- flowthru:mermaid:end -->
+
+### Files
 
 <!-- flowthru:filetree:start -->
 ```
