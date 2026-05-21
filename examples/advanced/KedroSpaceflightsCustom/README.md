@@ -134,3 +134,62 @@ flowchart TB
 
 ```
 <!-- flowthru:mermaid:end -->
+
+<!-- flowthru:filetree:start -->
+```
+KedroSpaceflightsCustom/
+├── Program.cs  # entry point
+├── Data/
+│   ├── _01_Raw/
+│   │   ├── Datasets/
+│   │   │   ├── companies.csv
+│   │   │   ├── kedro_model_input_table.csv
+│   │   │   ├── NOTICE.md
+│   │   │   ├── reviews.csv
+│   │   │   └── shuttles.xlsx
+│   │   └── Schemas/
+│   │       ├── CompanyRawSchema.cs
+│   │       ├── KedroModelInputSchema.cs
+│   │       ├── ReviewRawSchema.cs
+│   │       └── ShuttleRawSchema.cs
+│   ├── ...
+│   └── _06_Reporting/
+│       ├── Datasets/
+│       │   ├── confusion_matrix_plot.json
+│       │   ├── cross_validation_plot.json
+│       │   ├── cross_validation_report.md
+│       │   ├── cross_validation_results.json
+│       │   ├── prediction_scatter_plot.json
+│       │   └── shuttle_passenger_capacity_plot.json
+│       └── Schemas/
+│           └── CrossValidationSchemas.cs
+└── Flows/
+    ├── DataDiagnostics/
+    │   └── Steps/
+    │       ├── PassthroughInputToOutputStep.cs
+    │       └── ValidateAgainstKedroStep.cs
+    ├── DataEvaluation/
+    │   └── Steps/
+    │       ├── CrossValidateModelStep.cs
+    │       └── EvaluateModelStep.cs
+    ├── DataProcessing/
+    │   └── Steps/
+    │       ├── CreateModelInputTableStep.cs
+    │       ├── PreprocessCompaniesStep.cs
+    │       ├── PreprocessReviewsStep.cs
+    │       └── PreprocessShuttlesStep.cs
+    ├── DataScience/
+    │   └── Steps/
+    │       ├── CreateTestTrainSplitStep.cs
+    │       └── TrainModelStep.cs
+    └── Reporting/
+        └── Steps/
+            ├── ComparePassengerCapacityStep.cs
+            ├── CreateConfusionMatrixStep.cs
+            ├── GenerateCrossValidationReportStep.cs
+            ├── GeneratePredictionScatterStep.cs
+            ├── PlotlyImageExportStep.cs
+            ├── PlotlyJsonExportStep.cs
+            └── VisualizeCrossValidationStep.cs
+```
+<!-- flowthru:filetree:end -->

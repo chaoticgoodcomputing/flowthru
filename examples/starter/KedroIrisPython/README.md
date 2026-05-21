@@ -15,22 +15,45 @@ This project replicates the Kedro Iris data science pipeline using Flowthru's Py
 
 ## Project Structure
 
+<!-- flowthru:filetree:start -->
 ```
 KedroIrisPython/
-├── pyproject.toml              # Python dependencies (uv)
-├── .python-version             # Pinned Python version
-├── .venv/                      # Virtual environment (auto-detected)
-├── Data/                       # Data catalog and schemas
-│   ├── Catalog.cs
-│   ├── _01_Raw/                # Raw iris.csv
-│   ├── _05_ModelInput/         # Train/test splits
-│   ├── _06_Models/             # Trained model weights
-│   ├── _07_ModelOutput/        # Predictions
-│   └── _08_Reporting/          # Accuracy metrics
+├── Program.cs  # entry point
+├── Data/
+│   ├── _01_Raw/
+│   │   ├── Datasets/
+│   │   │   └── iris.csv
+│   │   └── Schemas/
+│   │       └── IrisRawSchema.cs
+│   ├── ...
+│   └── _08_Reporting/
+│       ├── Datasets/
+│       │   └── accuracy_report.json
+│       └── Schemas/
+│           └── AccuracyReportSchema.cs
 └── Flows/
-    ├── DataEngineering/        # Data splitting nodes (Python)
-    └── DataScience/            # ML training nodes (Python)
+    ├── DataEngineering/
+    │   ├── Schemas/
+    │   │   └── SplitDataOptions.cs
+    │   └── Steps/
+    │       ├── __init__.py
+    │       ├── split_data.py
+    │       └── __pycache__/
+    │           ├── __init__.cpython-310.pyc
+    │           └── split_data.cpython-310.pyc
+    └── DataScience/
+        └── Steps/
+            ├── __init__.py
+            ├── predict.py
+            ├── report_accuracy.py
+            ├── train_model.py
+            └── __pycache__/
+                ├── __init__.cpython-310.pyc
+                ├── predict.cpython-310.pyc
+                ├── report_accuracy.cpython-310.pyc
+                └── train_model.cpython-310.pyc
 ```
+<!-- flowthru:filetree:end -->
 
 ## Setup
 

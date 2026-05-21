@@ -14,20 +14,64 @@ This project replicates the Kedro Spaceflights data science pipeline using Flowt
 
 ## Project Structure
 
+<!-- flowthru:filetree:start -->
 ```
 KedroSpaceflightsPython/
-├── pyproject.toml              # Python dependencies (uv)
-├── .python-version             # Pinned Python version
-├── .venv/                      # Virtual environment (auto-detected)
-├── Data/                       # Data catalog and schemas
-│   ├── Catalog.cs
-│   ├── _01_Raw/                # Raw data CSVs/Excel
-│   └── _08_Reporting/          # Visualization outputs
+├── Program.cs  # entry point
+├── Data/
+│   ├── _01_Raw/
+│   │   ├── Datasets/
+│   │   │   ├── companies.csv
+│   │   │   ├── NOTICE
+│   │   │   ├── reviews.csv
+│   │   │   └── shuttles.xlsx
+│   │   └── Schemas/
+│   │       ├── CompanySchema.cs
+│   │       ├── ReviewSchema.cs
+│   │       └── ShuttleSchema.cs
+│   ├── ...
+│   └── _08_Reporting/
+│       ├── Datasets/
+│       │   ├── shuttle_passenger_capacity_plot_exp.json
+│       │   └── shuttle_passenger_capacity_plot_go.json
+│       └── Images/
+│           └── confusion_matrix.png
 └── Flows/
-    ├── DataProcessing/         # Data preprocessing nodes (Python)
-    ├── DataScience/            # ML training nodes (Python)
-    └── Reporting/              # Visualization nodes (Python)
+    ├── DataProcessing/
+    │   └── Steps/
+    │       ├── __init__.py
+    │       ├── create_model_input_table.py
+    │       ├── preprocess_companies.py
+    │       ├── preprocess_shuttles.py
+    │       └── __pycache__/
+    │           ├── __init__.cpython-310.pyc
+    │           ├── create_model_input_table.cpython-310.pyc
+    │           ├── preprocess_companies.cpython-310.pyc
+    │           └── preprocess_shuttles.cpython-310.pyc
+    ├── DataScience/
+    │   ├── Schemas/
+    │   │   └── SplitDataOptions.cs
+    │   └── Steps/
+    │       ├── evaluate_model.py
+    │       ├── generate_predictions.py
+    │       ├── split_data.py
+    │       ├── train_model.py
+    │       └── __pycache__/
+    │           ├── evaluate_model.cpython-310.pyc
+    │           ├── generate_predictions.cpython-310.pyc
+    │           ├── split_data.cpython-310.pyc
+    │           └── train_model.cpython-310.pyc
+    └── Reporting/
+        └── Steps/
+            ├── __init__.py
+            ├── compare_passenger_capacity.py
+            ├── create_confusion_matrix.py
+            └── __pycache__/
+                ├── __init__.cpython-310.pyc
+                ├── compare_passenger_capacity.cpython-310.pyc
+                └── create_confusion_matrix.cpython-310.pyc
 ```
+<!-- flowthru:filetree:end -->
 
 ## Setup
 

@@ -251,3 +251,57 @@ flowchart TB
 
 ```
 <!-- flowthru:mermaid:end -->
+
+<!-- flowthru:filetree:start -->
+```
+SpaceflightsStagingSchema/
+├── Program.cs  # entry point
+├── Data/
+│   ├── production.db
+│   ├── ProductionCatalog.cs
+│   ├── ProductionDbContext.cs
+│   ├── RawCatalog.cs
+│   ├── StagingCatalog.cs
+│   ├── StagingDbContext.cs
+│   ├── _01_Raw/
+│   │   ├── Datasets/
+│   │   │   ├── companies.csv
+│   │   │   ├── NOTICE
+│   │   │   ├── reviews.csv
+│   │   │   └── shuttles.xlsx
+│   │   └── Schemas/
+│   │       ├── CompanySchema.cs
+│   │       ├── ReviewSchema.cs
+│   │       └── ShuttleSchema.cs
+│   ├── ...
+│   └── _08_Reporting/
+│       ├── Datasets/
+│       │   └── shuttle_capacity_report.json
+│       └── Schemas/
+│           └── ShuttleCapacityReport.cs
+└── Flows/
+    ├── DataProcessing/
+    │   ├── SeedingOptions.cs
+    │   ├── SyntheticDataSeeder.cs
+    │   └── Steps/
+    │       ├── PreprocessCompaniesStep.cs
+    │       ├── PreprocessReviewsStep.cs
+    │       └── PreprocessShuttlesStep.cs
+    ├── DataScience/
+    │   └── Steps/
+    │       ├── BuildModelInputTableStep.cs
+    │       ├── EvaluateModelStep.cs
+    │       ├── SplitDataStep.cs
+    │       └── TrainModelStep.cs
+    ├── Promotion/
+    │   └── Steps/
+    │       ├── PromoteCompaniesStep.cs
+    │       ├── PromoteReviewsStep.cs
+    │       └── PromoteShuttlesStep.cs
+    └── Reporting/
+        └── Steps/
+            ├── ComparePassengerCapacityStep.cs
+            ├── CreateConfusionMatrixStep.cs
+            └── GeneratePassengerCapacityChartStep.cs
+```
+<!-- flowthru:filetree:end -->

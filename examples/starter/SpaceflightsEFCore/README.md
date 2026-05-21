@@ -12,19 +12,48 @@ This example demonstrates using `Flowthru.Extensions.EFCore` to read and write d
 
 ## Project Structure
 
+<!-- flowthru:filetree:start -->
 ```
-examples/efcore-integration/
-├── README.md                 # This file
-├── Program.cs                # Flow execution
+SpaceflightsEFCore/
+├── Program.cs  # entry point
 ├── Data/
-│   │── AppDbContext.cs       # EF Core DbContext
-│   └── CompanySchema.cs      # FlowthruSchema entity
-├── Catalog/
-│   └── DataCatalog.cs        # Catalog entry definitions
-└── Steps/
-    ├── ExtractCompaniesStep.cs
-    └── TransformCompaniesStep.cs
+│   ├── spaceflights.db
+│   ├── SpaceflightsDbContext.cs
+│   ├── _01_Raw/
+│   │   ├── Datasets/
+│   │   │   ├── companies.csv
+│   │   │   ├── NOTICE
+│   │   │   ├── reviews.csv
+│   │   │   └── shuttles.xlsx
+│   │   └── Schemas/
+│   │       ├── CompanySchema.cs
+│   │       ├── ReviewSchema.cs
+│   │       └── ShuttleSchema.cs
+│   ├── ...
+│   └── _08_Reporting/
+│       ├── Datasets/
+│       │   └── shuttle_capacity_report.json
+│       └── Schemas/
+│           └── ShuttleCapacityReport.cs
+└── Flows/
+    ├── DataProcessing/
+    │   └── Steps/
+    │       ├── CreateModelInputTableStep.cs
+    │       ├── PreprocessCompaniesStep.cs
+    │       └── PreprocessShuttlesStep.cs
+    ├── DataScience/
+    │   └── Steps/
+    │       ├── EvaluateModelStep.cs
+    │       ├── SplitDataStep.cs
+    │       └── TrainModelStep.cs
+    └── Reporting/
+        └── Steps/
+            ├── ComparePassengerCapacityStep.cs
+            ├── CreateConfusionMatrixStep.cs
+            ├── GeneratePassengerCapacityChartStep.cs
+            └── PlotlyImageExportStep.cs
 ```
+<!-- flowthru:filetree:end -->
 
 ## Running the Example
 

@@ -14,34 +14,31 @@ This pipeline demonstrates a simple three-stage transformation:
 
 ## Project Structure
 
+<!-- flowthru:filetree:start -->
 ```
 Minimal/
-├── Program.cs                      # Application entry point
-├── appsettings.json                # Configuration
+├── Program.cs  # entry point
 ├── Data/
-│   ├── Catalog.cs                  # Root catalog class
 │   ├── _01_Raw/
-│   │   ├── Catalog.Raw.cs          # Raw data catalog entries
-│   │   ├── Schemas/
-│   │   │   └── NameSchema.cs       # Schema for input names
-│   │   └── Datasets/
-│   │       └── names.csv           # Input data
-│   ├── _02_Intermediate/
-│   │   ├── Catalog.Intermediate.cs
+│   │   ├── Datasets/
+│   │   │   └── names.csv
 │   │   └── Schemas/
-│   │       └── GreetingSchema.cs   # Schema for "Hello" greetings
+│   │       └── NameSchema.cs
+│   ├── ...
 │   └── _03_Primary/
-│       ├── Catalog.Primary.cs
+│       ├── Datasets/
+│       │   ├── goodbyes.csv
+│       │   └── solongs.csv
 │       └── Schemas/
-│           ├── GoodbyeSchema.cs    # Schema for "Goodbye" greetings
-│           └── SoLongSchema.cs     # Schema for "So long" greetings
+│           ├── GoodbyeSchema.cs
+│           └── SoLongSchema.cs
 └── Flows/
     └── Greetings/
-        ├── GreetingsFlow.cs    # Flow definition
         └── Steps/
-            ├── CreateHelloStep.cs  # Step 1: name → "Hello, name!"
-            └── TransformGreetingsStep.cs  # Step 2: 1→2 transformation
+            ├── CreateHelloStep.cs
+            └── TransformGreetingsStep.cs
 ```
+<!-- flowthru:filetree:end -->
 
 ## Running the Flow
 

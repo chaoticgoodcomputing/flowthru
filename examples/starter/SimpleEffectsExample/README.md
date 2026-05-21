@@ -136,3 +136,28 @@ Mailchimp, NetSuite, an internal HTTP API. The recipe is always the same:
 
 No Flowthru-specific extension package is required — your own service drops
 into the pipeline.
+
+<!-- flowthru:filetree:start -->
+```
+SimpleEffectsExample/
+├── Program.cs  # entry point
+├── Data/
+│   ├── _01_Raw/
+│   │   └── Datasets/
+│   │       └── report-template.txt
+│   └── _08_Reporting/
+│       └── Datasets/
+│           ├── central-time.txt
+│           ├── eastern-time.txt
+│           ├── mountain-time.txt
+│           └── pacific-time.txt
+├── Flows/
+│   └── Reporting/
+│       ├── ReportTimeFlow.cs
+│       └── Steps/
+│           └── ReportTimeStep.cs
+└── Services/
+    ├── IRemoteTimeService.cs
+    └── TimeApiClient.cs
+```
+<!-- flowthru:filetree:end -->

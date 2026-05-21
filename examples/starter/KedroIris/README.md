@@ -69,3 +69,31 @@ flowchart TB
 
 ```
 <!-- flowthru:mermaid:end -->
+
+<!-- flowthru:filetree:start -->
+```
+KedroIris/
+├── Program.cs  # entry point
+├── Data/
+│   ├── _01_Raw/
+│   │   ├── Datasets/
+│   │   │   └── iris.json
+│   │   └── Schemas/
+│   │       └── IrisRawSchema.cs
+│   ├── ...
+│   └── _08_Reporting/
+│       ├── Datasets/
+│       │   └── metrics.json
+│       └── Schemas/
+│           └── MetricsSchema.cs
+└── Flows/
+    ├── DataEngineering/
+    │   └── Steps/
+    │       └── SplitAndEncodeStep.cs
+    └── DataScience/
+        └── Steps/
+            ├── EvaluateModelStep.cs
+            ├── PredictStep.cs
+            └── TrainModelStep.cs
+```
+<!-- flowthru:filetree:end -->

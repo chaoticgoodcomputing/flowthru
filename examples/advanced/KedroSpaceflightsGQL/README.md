@@ -109,3 +109,56 @@ flowchart TB
 
 ```
 <!-- flowthru:mermaid:end -->
+
+<!-- flowthru:filetree:start -->
+```
+KedroSpaceflightsGQL/
+├── Program.cs  # entry point
+├── Data/
+│   ├── _01_Raw/
+│   │   ├── Datasets/
+│   │   │   ├── companies.csv
+│   │   │   ├── NOTICE
+│   │   │   ├── reviews.csv
+│   │   │   └── shuttles.xlsx
+│   │   └── Schemas/
+│   │       ├── CompanySchema.cs
+│   │       ├── ReviewSchema.cs
+│   │       └── ShuttleSchema.cs
+│   ├── ...
+│   └── _08_Reporting/
+│       ├── Datasets/
+│       │   └── shuttle_capacity_report.json
+│       └── Schemas/
+│           └── ShuttleCapacityReport.cs
+├── Flows/
+│   ├── DataProcessing/
+│   │   └── Steps/
+│   │       └── CreateModelInputTableStep.cs
+│   ├── DataScience/
+│   │   └── Steps/
+│   │       ├── EvaluateModelStep.cs
+│   │       ├── SplitDataStep.cs
+│   │       └── TrainModelStep.cs
+│   ├── Ingest/
+│   │   └── Steps/
+│   │       ├── PreprocessCompaniesStep.cs
+│   │       ├── PreprocessReviewsStep.cs
+│   │       ├── PreprocessShuttlesStep.cs
+│   │       └── SeedGqlDatabaseStep.cs
+│   └── Reporting/
+│       └── Steps/
+│           ├── ComparePassengerCapacityStep.cs
+│           ├── CreateConfusionMatrixStep.cs
+│           ├── GeneratePassengerCapacityChartStep.cs
+│           └── PlotlyImageExportStep.cs
+└── Infra/
+    ├── GqlClient/
+    │   ├── Operations.graphql
+    │   └── schema.graphql
+    └── GqlServer/
+        ├── SpaceflightsGqlServer.cs
+        ├── SpaceflightsRepository.cs
+        └── Types.cs
+```
+<!-- flowthru:filetree:end -->

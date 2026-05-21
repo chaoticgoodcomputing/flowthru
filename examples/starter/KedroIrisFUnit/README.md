@@ -78,17 +78,31 @@ flowchart TB
 ```
 <!-- flowthru:mermaid:end -->
 
-### File Structure
-
+<!-- flowthru:filetree:start -->
 ```
-KedroIris/
-├── Program.cs                      # Program entry point
-├── Data/                           # 8-layer data organization
-│   ├── _01_Raw/                   # Immutable source data
-│   │   └── Datasets/iris.csv
+KedroIrisFUnit/
+├── Program.cs  # entry point
+├── Data/
+│   ├── _01_Raw/
+│   │   ├── Datasets/
+│   │   │   ├── iris.csv
+│   │   │   └── iris.json
+│   │   └── Schemas/
+│   │       └── IrisRawSchema.cs
 │   ├── ...
-│   └── _08_Reporting/             # Metrics and visualizations
-├── Flows/
-│   ├── DataEngineering/           # Data splitting and encoding
-│   └── DataScience/               # Model training and evaluation
+│   └── _08_Reporting/
+│       ├── Datasets/
+│       │   └── metrics.json
+│       └── Schemas/
+│           └── MetricsSchema.cs
+└── Flows/
+    ├── DataEngineering/
+    │   └── Steps/
+    │       └── SplitAndEncodeStep.cs
+    └── DataScience/
+        └── Steps/
+            ├── EvaluateModelStep.cs
+            ├── PredictStep.cs
+            └── TrainModelStep.cs
 ```
+<!-- flowthru:filetree:end -->

@@ -38,6 +38,23 @@ Every example project in `starter/` and `advanced/` must include:
    ```
 
    Authors preserve the marker pair; everything between them is owned by the target. READMEs without the marker pair get one appended at EOF; missing READMEs are scaffolded as `# {ProjectName}` plus the marker block. Examples whose `--dry-run` requires live infra (e.g. Testcontainers) are skipped with a warning — re-run the target after the infra is up, or accept that the diagram only refreshes during full runs.
+
+   The same target also manages a filetree breadcrumb under `<!-- flowthru:filetree:start -->` / `<!-- flowthru:filetree:end -->` markers. The block contains a plain-fenced ASCII tree of the example directory — its job is to anchor the mermaid diagram onto the filesystem, not to stand alone as documentation:
+
+   ```markdown
+   <!-- flowthru:filetree:start -->
+   ```
+   ExampleName/
+   ├── Program.cs  # entry point
+   ├── Data/
+   …
+   ```
+   <!-- flowthru:filetree:end -->
+   ```
+
+   Pruning rules: at each project-boundary directory (the example root, plus any nested dir containing a `.csproj`), only `Program.cs` survives among files — it carries a fixed `# entry point` annotation. Inside `Data/`, the dotted-segment catalog plumbing (`Catalog.cs`, `Catalog.<Category>.cs`, `Catalog.<X>.<Y>.cs`) is stripped, and the `_NN_<name>` category subdirs are elided to the first and last only (with `...` between). Inside each `Flows/<FlowName>/` directory, the matching `<FlowName>Flow.cs` registration file is stripped. The tree carries no other inline annotations — Schemas and Steps speak for themselves; if you need prose, write it outside the marker block.
+
+   Hand-authored `## File Structure` / `## Project Structure` blocks present at first sync are migrated in place into marker-wrapped auto-managed blocks; any annotations inside the original fence are dropped — see the marker as a contract that the section's content is now generated.
 3. **An acknowledgement in the README** if the example mirrors a Kedro tutorial or other external source, with a link. This preserves intellectual provenance.
 
 ## Project Naming

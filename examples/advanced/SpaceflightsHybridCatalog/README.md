@@ -139,3 +139,46 @@ flowchart TB
 
 ```
 <!-- flowthru:mermaid:end -->
+
+<!-- flowthru:filetree:start -->
+```
+SpaceflightsHybridCatalog/
+├── Program.cs  # entry point
+├── Data/
+│   ├── DevelopmentCatalog.cs
+│   ├── ProductionCatalog.cs
+│   ├── SpaceflightsDbContext.cs
+│   ├── _01_Raw/
+│   │   ├── Datasets/
+│   │   │   ├── companies.csv
+│   │   │   ├── NOTICE
+│   │   │   ├── reviews.csv
+│   │   │   └── shuttles.xlsx
+│   │   └── Schemas/
+│   │       ├── CompanySchema.cs
+│   │       ├── ReviewSchema.cs
+│   │       └── ShuttleSchema.cs
+│   ├── ...
+│   └── _08_Reporting/
+│       ├── Datasets/
+│       │   └── shuttle_capacity_report.json
+│       └── Schemas/
+│           └── ShuttleCapacityReport.cs
+└── Flows/
+    ├── DataProcessing/
+    │   └── Steps/
+    │       ├── CreateModelInputTableStep.cs
+    │       ├── PreprocessCompaniesStep.cs
+    │       └── PreprocessShuttlesStep.cs
+    ├── DataScience/
+    │   └── Steps/
+    │       ├── EvaluateModelStep.cs
+    │       ├── SplitDataStep.cs
+    │       └── TrainModelStep.cs
+    └── Reporting/
+        └── Steps/
+            ├── ComparePassengerCapacityStep.cs
+            ├── CreateConfusionMatrixStep.cs
+            └── GeneratePassengerCapacityChartStep.cs
+```
+<!-- flowthru:filetree:end -->

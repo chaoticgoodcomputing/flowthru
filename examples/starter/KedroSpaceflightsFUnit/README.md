@@ -91,21 +91,43 @@ flowchart TB
 ```
 <!-- flowthru:mermaid:end -->
 
-### File Structure
-
+<!-- flowthru:filetree:start -->
 ```
-KedroSpaceflights/
-├── Program.cs                      # Program entry point
-├── Data/                           # Organized data catalog
-│   ├── _01_Raw/                    # Raw input data
-│   │   ├── Datasets/companies.csv
-│   │   ├── Datasets/reviews.csv
-│   │   └── Datasets/shuttles.xlsx
+KedroSpaceflightsFUnit/
+├── Program.cs  # entry point
+├── Data/
+│   ├── _01_Raw/
+│   │   ├── Datasets/
+│   │   │   ├── companies.csv
+│   │   │   ├── NOTICE
+│   │   │   ├── reviews.csv
+│   │   │   └── shuttles.xlsx
+│   │   └── Schemas/
+│   │       ├── CompanySchema.cs
+│   │       ├── ReviewSchema.cs
+│   │       └── ShuttleSchema.cs
 │   ├── ...
-│   └── _08_Reporting/              # Metrics and visualizations
-├── Flows/
-│   ├── DataEngineering/            # Data splitting and encoding
-│   ├── DataScience/                # Model training and evaluation
-│   └── Reporting/                  # Final reports
+│   └── _08_Reporting/
+│       ├── Datasets/
+│       │   └── shuttle_capacity_report.json
+│       └── Schemas/
+│           └── ShuttleCapacityReport.cs
+└── Flows/
+    ├── DataProcessing/
+    │   └── Steps/
+    │       ├── CreateModelInputTableStep.cs
+    │       ├── PreprocessCompaniesStep.cs
+    │       └── PreprocessShuttlesStep.cs
+    ├── DataScience/
+    │   └── Steps/
+    │       ├── EvaluateModelStep.cs
+    │       ├── SplitDataStep.cs
+    │       └── TrainModelStep.cs
+    └── Reporting/
+        └── Steps/
+            ├── ComparePassengerCapacityStep.cs
+            ├── CreateConfusionMatrixStep.cs
+            ├── GeneratePassengerCapacityChartStep.cs
+            └── PlotlyImageExportStep.cs
 ```
-
+<!-- flowthru:filetree:end -->
