@@ -39,11 +39,11 @@ The build invokes StrawberryShake's code generator over [`schema.graphql`](./Inf
 flowchart TB
 
     %% External Data Inputs
-    ConfusionMatrixOptions[("ConfusionMatrixOptions")]
-    GQLCompanies[("GQLCompanies")]
-    GQLReviews[("GQLReviews")]
-    GQLShuttles[("GQLShuttles")]
-    ModelOptions[("ModelOptions")]
+    ConfusionMatrixOptions{{"ConfusionMatrixOptions"}}
+    GQLCompanies(["GQLCompanies"])
+    GQLReviews(["GQLReviews"])
+    GQLShuttles(["GQLShuttles"])
+    ModelOptions{{"ModelOptions"}}
     SeedCompanies[("SeedCompanies")]
     SeedReviews[("SeedReviews")]
     SeedShuttles[("SeedShuttles")]
@@ -71,14 +71,14 @@ flowchart TB
         PreprocessedShuttles[("PreprocessedShuttles")]
         PreprocessReviews["PreprocessReviews"]
         PreprocessedReviews[("PreprocessedReviews")]
-        SeedGqlDatabase["SeedGqlDatabase"]
+        SeedGqlDatabase["SeedGqlDatabase<br>──<br>ISpaceflightsClient"]
         GqlDatabaseSeeded[("GqlDatabaseSeeded")]
     end
 
     subgraph Reporting["Reporting"]
         ComparePassengerCapacity["ComparePassengerCapacity"]
         ShuttleCapacityReport[("ShuttleCapacityReport")]
-        GeneratePassengerCapacityChart["GeneratePassengerCapacityChart"]
+        GeneratePassengerCapacityChart["GeneratePassengerCapacityChart<br>──<br>ILogger"]
         ShuttlePassengerCapacityChart[("ShuttlePassengerCapacityChart")]
         GenerateConfusionMatrixChart["GenerateConfusionMatrixChart"]
         ConfusionMatrixChart[("ConfusionMatrixChart")]
@@ -163,8 +163,7 @@ SpaceflightsGQL/
 │       └── Steps/
 │           ├── ComparePassengerCapacityStep.cs
 │           ├── CreateConfusionMatrixStep.cs
-│           ├── GeneratePassengerCapacityChartStep.cs
-│           └── PlotlyImageExportStep.cs
+│           └── GeneratePassengerCapacityChartStep.cs
 └── Infra/
     ├── GqlClient/
     │   ├── Operations.graphql

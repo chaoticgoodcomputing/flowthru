@@ -42,8 +42,8 @@ flowchart TB
 
     %% External Data Inputs
     Companies[("Companies")]
-    ConfusionMatrixOptions[("ConfusionMatrixOptions")]
-    ModelOptions[("ModelOptions")]
+    ConfusionMatrixOptions{{"ConfusionMatrixOptions"}}
+    ModelOptions{{"ModelOptions"}}
     Reviews[("Reviews")]
     Shuttles[("Shuttles")]
 
@@ -70,7 +70,7 @@ flowchart TB
     subgraph Reporting["Reporting"]
         ComparePassengerCapacity["ComparePassengerCapacity"]
         ShuttleCapacityReport[("ShuttleCapacityReport")]
-        GeneratePassengerCapacityChart["GeneratePassengerCapacityChart"]
+        GeneratePassengerCapacityChart["GeneratePassengerCapacityChart<br>──<br>ILogger"]
         ShuttlePassengerCapacityChart[("ShuttlePassengerCapacityChart")]
         GenerateConfusionMatrixChart["GenerateConfusionMatrixChart"]
         ConfusionMatrixChart[("ConfusionMatrixChart")]
@@ -144,7 +144,6 @@ SpaceflightsNewTypes/
         └── Steps/
             ├── ComparePassengerCapacityStep.cs
             ├── CreateConfusionMatrixStep.cs
-            ├── GeneratePassengerCapacityChartStep.cs
-            └── PlotlyImageExportStep.cs
+            └── GeneratePassengerCapacityChartStep.cs
 ```
 <!-- flowthru:filetree:end -->

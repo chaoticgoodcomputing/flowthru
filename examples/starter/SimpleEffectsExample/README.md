@@ -47,13 +47,13 @@ flowchart TB
     ReportTemplate[("ReportTemplate")]
 
     subgraph ReportTime["ReportTime"]
-        ReportEastern["ReportEastern"]
+        ReportEastern["ReportEastern<br>──<br>IRemoteTimeService"]
         EasternTimeReport[("EasternTimeReport")]
-        ReportCentral["ReportCentral"]
+        ReportCentral["ReportCentral<br>──<br>IRemoteTimeService"]
         CentralTimeReport[("CentralTimeReport")]
-        ReportMountain["ReportMountain"]
+        ReportMountain["ReportMountain<br>──<br>IRemoteTimeService"]
         MountainTimeReport[("MountainTimeReport")]
-        ReportPacific["ReportPacific"]
+        ReportPacific["ReportPacific<br>──<br>IRemoteTimeService"]
         PacificTimeReport[("PacificTimeReport")]
     end
 

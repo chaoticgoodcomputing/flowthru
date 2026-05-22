@@ -45,8 +45,8 @@ flowchart TB
 
     %% External Data Inputs
     Companies[("Companies")]
-    ConfusionMatrixOptions[("ConfusionMatrixOptions")]
-    ModelOptions[("ModelOptions")]
+    ConfusionMatrixOptions{{"ConfusionMatrixOptions"}}
+    ModelOptions{{"ModelOptions"}}
     Reviews[("Reviews")]
     Shuttles[("Shuttles")]
 
@@ -73,7 +73,7 @@ flowchart TB
     subgraph Reporting["Reporting"]
         ComparePassengerCapacity["ComparePassengerCapacity"]
         ShuttleCapacityReport[("ShuttleCapacityReport")]
-        GeneratePassengerCapacityChart["GeneratePassengerCapacityChart"]
+        GeneratePassengerCapacityChart["GeneratePassengerCapacityChart<br>──<br>ILogger"]
         ShuttlePassengerCapacityChart[("ShuttlePassengerCapacityChart")]
         GenerateConfusionMatrixChart["GenerateConfusionMatrixChart"]
         ConfusionMatrixChart[("ConfusionMatrixChart")]
@@ -118,6 +118,7 @@ SpaceflightsHybridCatalog/
 ├── Data/
 │   ├── DevelopmentCatalog.cs
 │   ├── ProductionCatalog.cs
+│   ├── spaceflights.db
 │   ├── SpaceflightsDbContext.cs
 │   ├── _01_Raw/
 │   │   ├── Datasets/

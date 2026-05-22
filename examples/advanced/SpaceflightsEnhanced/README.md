@@ -47,9 +47,9 @@ The validation is **observational** — no Step throws or returns non-zero on dr
 flowchart TB
 
     %% External Data Inputs
-    CrossValidationParams[("CrossValidationParams")]
+    CrossValidationParams{{"CrossValidationParams"}}
     KedroModelInputTable[("KedroModelInputTable")]
-    ModelParams[("ModelParams")]
+    ModelParams{{"ModelParams"}}
     RawCompanies[("RawCompanies")]
     RawReviews[("RawReviews")]
     RawShuttles[("RawShuttles")]
@@ -69,7 +69,7 @@ flowchart TB
     subgraph DataEvaluation["DataEvaluation"]
         PerformCrossValidatedOLSRegressionTest["PerformCrossValidatedOLSRegressionTest"]
         CrossValidationResults[("CrossValidationResults")]
-        EvaluateOLSModel["EvaluateOLSModel"]
+        EvaluateOLSModel["EvaluateOLSModel<br>──<br>ILogger"]
         ModelMetrics[("ModelMetrics")]
         ModelPredictions[("ModelPredictions")]
     end
@@ -96,23 +96,23 @@ flowchart TB
     end
 
     subgraph Reporting["Reporting"]
-        GenerateConfusionMatrixChart["GenerateConfusionMatrixChart"]
+        GenerateConfusionMatrixChart["GenerateConfusionMatrixChart<br>──<br>ILogger"]
         ConfusionMatrixChart[("ConfusionMatrixChart")]
-        GeneratePassengerCapacityChart["GeneratePassengerCapacityChart"]
+        GeneratePassengerCapacityChart["GeneratePassengerCapacityChart<br>──<br>ILogger"]
         ShuttlePassengerCapacityChart[("ShuttlePassengerCapacityChart")]
-        ExportConfusionMatrixJson["ExportConfusionMatrixJson"]
+        ExportConfusionMatrixJson["ExportConfusionMatrixJson<br>──<br>ILogger"]
         ConfusionMatrixPlot[("ConfusionMatrixPlot")]
-        ExportPassengerCapacityJson["ExportPassengerCapacityJson"]
+        ExportPassengerCapacityJson["ExportPassengerCapacityJson<br>──<br>ILogger"]
         ShuttlePassengerCapacityPlot[("ShuttlePassengerCapacityPlot")]
-        GenerateCrossValidationChart["GenerateCrossValidationChart"]
+        GenerateCrossValidationChart["GenerateCrossValidationChart<br>──<br>ILogger"]
         CrossValidationChart[("CrossValidationChart")]
         GenerateCrossValidationReport["GenerateCrossValidationReport"]
         CrossValidationReport[("CrossValidationReport")]
-        ExportCrossValidationJson["ExportCrossValidationJson"]
+        ExportCrossValidationJson["ExportCrossValidationJson<br>──<br>ILogger"]
         CrossValidationPlot[("CrossValidationPlot")]
-        GeneratePredictionScatterChart["GeneratePredictionScatterChart"]
+        GeneratePredictionScatterChart["GeneratePredictionScatterChart<br>──<br>ILogger"]
         PredictionScatterChart[("PredictionScatterChart")]
-        ExportPredictionScatterJson["ExportPredictionScatterJson"]
+        ExportPredictionScatterJson["ExportPredictionScatterJson<br>──<br>ILogger"]
         PredictionScatterPlot[("PredictionScatterPlot")]
     end
 
@@ -232,7 +232,6 @@ SpaceflightsEnhanced/
             ├── CreateConfusionMatrixStep.cs
             ├── GenerateCrossValidationReportStep.cs
             ├── GeneratePredictionScatterStep.cs
-            ├── PlotlyImageExportStep.cs
             ├── PlotlyJsonExportStep.cs
             └── VisualizeCrossValidationStep.cs
 ```

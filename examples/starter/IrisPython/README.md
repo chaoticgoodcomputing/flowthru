@@ -44,10 +44,10 @@ flowchart TB
 
     %% External Data Inputs
     IrisRaw[("IrisRaw")]
-    SplitDataOptions[("SplitDataOptions")]
+    SplitDataOptions{{"SplitDataOptions"}}
 
     subgraph DataEngineering["DataEngineering"]
-        SplitData["SplitData"]
+        SplitData["SplitData (python)"]
         TrainX[("TrainX")]
         TrainY[("TrainY")]
         TestX[("TestX")]
@@ -55,11 +55,11 @@ flowchart TB
     end
 
     subgraph DataScience["DataScience"]
-        TrainModel["TrainModel"]
+        TrainModel["TrainModel (python)"]
         ModelWeights[("ModelWeights")]
-        Predict["Predict"]
+        Predict["Predict (python)"]
         Predictions[("Predictions")]
-        ReportAccuracy["ReportAccuracy"]
+        ReportAccuracy["ReportAccuracy (python)"]
         AccuracyReport[("AccuracyReport")]
     end
 
@@ -98,7 +98,6 @@ IrisPython/
 │   ├── ...
 │   └── _08_Reporting/
 │       ├── Datasets/
-│       │   └── accuracy_report.json
 │       └── Schemas/
 │           └── AccuracyReportSchema.cs
 └── Flows/

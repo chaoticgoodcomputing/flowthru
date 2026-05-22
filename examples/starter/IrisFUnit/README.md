@@ -42,8 +42,8 @@ flowchart TB
 
     %% External Data Inputs
     IrisRaw[("IrisRaw")]
-    SplitOptions[("SplitOptions")]
-    TrainModelOptions[("TrainModelOptions")]
+    SplitOptions{{"SplitOptions"}}
+    TrainModelOptions{{"TrainModelOptions"}}
 
     subgraph DataEngineering["DataEngineering"]
         SplitAndEncode["SplitAndEncode"]
