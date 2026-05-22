@@ -1,26 +1,43 @@
 # SimpleEffectsExample Starter
 
-A minimal Flowthru example demonstrating the **effect-as-step** pattern. Four
-steps share a single time-service dependency: each step fetches the current UTC
-time, converts it to a US timezone (Eastern, Central, Mountain, Pacific), and
-writes a per-zone report file.
+> [!NOTE]
+> How do I write Steps that take an injected service as a dependency?
+
+This project demonstrates the **effect-as-step** pattern — Steps that consume both Catalog Items and a DI-registered service, with a pre-flight inspector verifying service reachability before any Step runs.
+
+This project:
+
+- Defines one Flow, `ReportTime`, with four Steps — each reports the current time in a different US timezone (Eastern, Central, Mountain, Pacific).
+- Shares a single `IRemoteTimeService` (an HTTP client for `timeapi.io`) across all four Steps via standard `IServiceCollection` DI; the metadata renderer collapses the shared service so the DAG shows one input Item fanning to four Steps, not a service-node-plus-four-edges.
+- Registers `AddFlowServiceInspector<IRemoteTimeService>(...)` to ping the upstream service at startup and fail the run before any Step executes if it's unreachable.
+- Includes inline FUnit tests that use a `FixedTimeService` stub so test runs are deterministic and offline-safe.
+
+Assumes you've worked through [Iris](https://github.com/chaoticgoodcomputing/flowthru/tree/main/examples/starter/Iris) and [IrisFUnit](https://github.com/chaoticgoodcomputing/flowthru/tree/main/examples/starter/IrisFUnit).
 
 ## Getting Started
 
+Requires internet access — the pre-flight `AddFlowServiceInspector` (see Concepts) will abort the run if `timeapi.io` is unreachable.
+
 ```bash
-dotnet run -- --flow ReportTime
+dotnet run      # run the ReportTime Flow
+dotnet test     # run the inline FUnit tests (offline-safe, uses FixedTimeService)
 ```
 
-The flow reads the format string from
-[Data/_01_Raw/Datasets/report-template.txt](Data/_01_Raw/Datasets/report-template.txt),
-fetches the current UTC time from `timeapi.io`, and writes one report per zone
-to `Data/_08_Reporting/Datasets/{eastern,central,mountain,pacific}-time.txt`.
+Four per-timezone report files land under [`Data/_08_Reporting/Datasets/`](./Data/_08_Reporting/Datasets/) — `eastern-time.txt`, `central-time.txt`, `mountain-time.txt`, and `pacific-time.txt`.
 
-## Flow Structure
+## Concepts
 
-The four steps all consume the same `IRemoteTimeService`. The metadata
-collapses identical service types to a single node, so the rendered DAG shows
-**one** service node with **four** dashed `-.uses.->` edges:
+- **[Service interface](./Services/IRemoteTimeService.cs):** a plain C# interface (`Task<DateTimeOffset> GetCurrentUtcAsync(CancellationToken)`) that abstracts the upstream effect. The Step depends on the interface, not the implementation — a real client (`TimeApiClient`) is wired in production, a stub (`FixedTimeService`) in tests.
+- **[HTTP client implementation](./Services/TimeApiClient.cs):** a concrete `IRemoteTimeService` backed by `HttpClient`, calling `timeapi.io` with a 10-second timeout. Registered as a singleton in `Program.cs`.
+- **[Effect-as-step factory](./Flows/Reporting/Steps/ReportTimeStep.cs):** `ReportTimeStep.Create(IRemoteTimeService, TimeZoneInfo, string)` returns the Step's `Func`. Unlike a vanilla Iris-style Step — where every dependency arrives through the typed input tuple — services arrive as factory parameters and live in the Step's closure, so each invocation calls `timeService.GetCurrentUtcAsync()` inside its own scope. The same factory is invoked four times in [`ReportTimeFlow.cs`](./Flows/Reporting/ReportTimeFlow.cs) with different `TimeZoneInfo` arguments.
+- **[DI registration](./Program.cs):** standard `services.AddSingleton<IRemoteTimeService, TimeApiClient>()` in `Program.cs`. Flowthru picks up service-typed Step parameters from the same container — no extra Flowthru-side wiring.
+- **[Pre-flight service inspector](./Program.cs):** `flowthru.AddFlowServiceInspector<IRemoteTimeService>(...)` registers a startup probe. If `timeapi.io` is unreachable, the harness aborts the run before invoking any Step — fail-fast at the effect boundary.
+- **[Metadata service-node collapse](./Program.cs):** the metadata renderer recognizes `IRemoteTimeService` as a shared effect across all four Steps and elides it from the rendered DAG — automatic, no opt-in needed. Only the Catalog inputs and outputs appear in the diagram, keeping the DAG focused on data flow rather than dependency wiring.
+- **[FixedTimeService stub](./Flows/Reporting/Steps/ReportTimeStep.cs):** the nested `Tests : FUnitContext` class inside `ReportTimeStep.cs` uses a fixed-time implementation of `IRemoteTimeService` so test runs don't depend on network access or wall-clock drift.
+
+## Structure
+
+### Diagram
 
 <!-- flowthru:mermaid:start -->
 ```mermaid
@@ -53,89 +70,7 @@ flowchart TB
 ```
 <!-- flowthru:mermaid:end -->
 
-## Patterns Demonstrated
-
-### 1. `[FlowthruStep]`-attributed step factory with service injection
-
-[ReportTimeStep.cs](Flows/Reporting/Steps/ReportTimeStep.cs) declares the step
-as a `[FlowthruStep]`-attributed `static class` whose `Create(...)` factory
-accepts the service dependency and returns the transform delegate:
-
-```csharp
-[FlowthruStep(IsIdempotent = true, HasSideEffects = true)]
-public static class ReportTimeStep
-{
-  public static Func<string, Task<string>> Create(
-    IRemoteTimeService timeService,
-    TimeZoneInfo timeZone,
-    string zoneLabel
-  ) =>
-    async template =>
-    {
-      var local = TimeZoneInfo.ConvertTime(await timeService.GetCurrentUtcAsync(), timeZone);
-      return string.Format(template, $"{local:yyyy-MM-dd HH:mm:ss} {zoneLabel}");
-    };
-}
-```
-
-[ReportTimeFlow.cs](Flows/Reporting/ReportTimeFlow.cs) instantiates the step
-once per US timezone, all sharing the injected service. The
-`[FlowthruStep]` attribute triggers the source-gen
-`ReportTimeStep_Metadata` companion, which records `IRemoteTimeService` as the
-only service dependency (the `TimeZoneInfo` and `string` parameters are
-non-interface types and aren't classified as services). That metadata flows
-through to `FlowStep.ServiceDependencies`, drives preflight inspection, and
-renders the single shared service node in the Mermaid diagram above.
-
-### 2. Pre-flight reachability via `AddFlowthruInspect<TService>`
-
-[Program.cs](Program.cs) registers a sidecar inspector that probes the service
-before any step executes:
-
-```csharp
-services.AddFlowthruInspect<IRemoteTimeService>((svc, ct) =>
-  FlowIO.LiftAsync<ValidationResult>(async cancel =>
-    /* ping the upstream; return ValidationResult.Success/Failure */));
-```
-
-If the upstream is unreachable, the flow fails fast with a clear diagnostic
-**before** any compute runs.
-
-### 3. FUnit unit test with `[FUnitStubContainer]`
-
-The bottom of [ReportTimeStep.cs](Flows/Reporting/Steps/ReportTimeStep.cs) shows
-the recommended unit-testing pattern: a `[FUnitStubContainer]`-attributed
-nested type registers a deterministic fake service, and a `[StepTest]` method
-exercises the transform without hitting the network.
-
-```csharp
-[FUnitStubContainer]
-internal static class TestStubs
-{
-  public static void Configure(IServiceCollection services) =>
-    services.AddSingleton<IRemoteTimeService, FixedTimeService>();
-}
-```
-
-Run the test:
-
-```bash
-dotnet test
-```
-
-## Adapting to Your Own Service
-
-The pattern in this example transfers directly to any external system —
-Mailchimp, NetSuite, an internal HTTP API. The recipe is always the same:
-
-1. Define the service interface and a real implementation in `Services/`.
-2. Write a `[FlowthruStep]` factory that takes the interface as a parameter.
-3. Register the implementation in DI; attach an `AddFlowthruInspect<T>` probe.
-4. Inject the resolved service into the flow's `Create(catalog, service)`
-   factory and pass the transform into `pipeline.AddStep(...)`.
-
-No Flowthru-specific extension package is required — your own service drops
-into the pipeline.
+### Files
 
 <!-- flowthru:filetree:start -->
 ```

@@ -1,136 +1,40 @@
-# Kedro Spaceflights (Python Steps)
+# SpaceflightsPython Starter
 
-A Flowthru example demonstrating Python node integration using the [Kedro Spaceflights](https://github.com/kedro-org/kedro-starters) tutorial as a reference.
+> [!NOTE]
+> How do I write Python Steps that join data, consume options, and produce visualizations?
 
-## Overview
+This project demonstrates Python Steps with multi-input joins, configuration-bound options, and visualization outputs (PNG bytes and Plotly JSON) — extending the single-input pattern from IrisPython to the richer Step shapes Spaceflights demands.
 
-This project replicates the Kedro Spaceflights data science pipeline using Flowthru's Python node extension. It demonstrates:
+This project:
 
-- **Mixed C#/Python pipelines** — Python nodes for data preprocessing and ML training
-- **Multi-I/O patterns** — 3×1 joins, 1×4 splits, 2×1 training operations
-- **Apache Arrow marshalling** — Efficient DataFrame exchange via Arrow IPC
-- **Pre-flight validation** — Schema mismatches caught before execution
-- **Auto-generated Python schemas** — Type-safe imports from `flowthru_schemas`
+- Mirrors vanilla Spaceflights's Flow structure — same three Flows, Steps, Schemas, and Catalog.
+- Implements every Step in Python instead of C# — same `@step` decorator and `uv`-managed environment as IrisPython.
+- Adds a 3-way pandas merge in `create_model_input_table.py`, configuration-bound options in `split_data.py`, a confusion-matrix PNG export in `create_confusion_matrix.py`, and dual Plotly serializations in `compare_passenger_capacity.py`.
+- Lands reports as PNG bytes in `Data/_08_Reporting/Images/` and Plotly JSON in `Data/_08_Reporting/Datasets/`.
 
-## Project Structure
+Assumes you've worked through [Spaceflights](https://github.com/chaoticgoodcomputing/flowthru/tree/main/examples/starter/Spaceflights) and [IrisPython](https://github.com/chaoticgoodcomputing/flowthru/tree/main/examples/starter/IrisPython). Modeled after [`kedro-org/kedro-starters`](https://github.com/kedro-org/kedro-starters)' Spaceflights tutorial.
 
-<!-- flowthru:filetree:start -->
-```
-SpaceflightsPython/
-├── Program.cs  # entry point
-├── Data/
-│   ├── _01_Raw/
-│   │   ├── Datasets/
-│   │   │   ├── companies.csv
-│   │   │   ├── NOTICE
-│   │   │   ├── reviews.csv
-│   │   │   └── shuttles.xlsx
-│   │   └── Schemas/
-│   │       ├── CompanySchema.cs
-│   │       ├── ReviewSchema.cs
-│   │       └── ShuttleSchema.cs
-│   ├── ...
-│   └── _08_Reporting/
-│       ├── Datasets/
-│       │   ├── shuttle_passenger_capacity_plot_exp.json
-│       │   └── shuttle_passenger_capacity_plot_go.json
-│       └── Images/
-│           └── confusion_matrix.png
-└── Flows/
-    ├── DataProcessing/
-    │   └── Steps/
-    │       ├── __init__.py
-    │       ├── create_model_input_table.py
-    │       ├── preprocess_companies.py
-    │       ├── preprocess_shuttles.py
-    │       └── __pycache__/
-    │           ├── __init__.cpython-310.pyc
-    │           ├── create_model_input_table.cpython-310.pyc
-    │           ├── preprocess_companies.cpython-310.pyc
-    │           └── preprocess_shuttles.cpython-310.pyc
-    ├── DataScience/
-    │   ├── Schemas/
-    │   │   └── SplitDataOptions.cs
-    │   └── Steps/
-    │       ├── evaluate_model.py
-    │       ├── generate_predictions.py
-    │       ├── split_data.py
-    │       ├── train_model.py
-    │       └── __pycache__/
-    │           ├── evaluate_model.cpython-310.pyc
-    │           ├── generate_predictions.cpython-310.pyc
-    │           ├── split_data.cpython-310.pyc
-    │           └── train_model.cpython-310.pyc
-    └── Reporting/
-        └── Steps/
-            ├── __init__.py
-            ├── compare_passenger_capacity.py
-            ├── create_confusion_matrix.py
-            └── __pycache__/
-                ├── __init__.cpython-310.pyc
-                ├── compare_passenger_capacity.cpython-310.pyc
-                └── create_confusion_matrix.cpython-310.pyc
-```
-<!-- flowthru:filetree:end -->
+## Getting Started
 
-## Setup
-
-Requires Python 3.10+. Install with `uv`:
+Requires Python 3.10+ and the [`uv`](https://docs.astral.sh/uv/) CLI (install via [`uv`'s installer](https://docs.astral.sh/uv/getting-started/installation/) if you don't already have it). Bootstrap the Python environment, then run:
 
 ```bash
-cd examples/starter/SpaceflightsPython
 uv sync
-```
-
-## Running
-
-```bash
 dotnet run
 ```
 
-Or via NX:
+The confusion matrix PNG lands at [`Data/_08_Reporting/Images/confusion_matrix.png`](./Data/_08_Reporting/Images/confusion_matrix.png); the Plotly figure JSONs land in [`Data/_08_Reporting/Datasets/`](./Data/_08_Reporting/Datasets/).
 
-```bash
-nx run SpaceflightsPython:run
-```
+## Concepts
 
-## Python Steps
+- **[Multi-input Python Step](./Flows/DataProcessing/Steps/create_model_input_table.py):** the `@step(inputs=[...])` decorator accepts a list of Schema names. `create_model_input_table` joins three Catalog Items (`PreprocessedShuttles`, `PreprocessedCompanies`, `Reviews`) via a pandas `.merge()` chain — the multi-input shape extends IrisPython's single-input pattern.
+- **[Options bound from configuration](./Flows/DataScience/Steps/split_data.py):** a Python Step can receive an Options Schema whose values come from `appsettings.json` rather than from an upstream Step. `split_data` consumes [`SplitDataOptions`](./Flows/DataScience/Schemas/SplitDataOptions.cs); Python reads `TestSize`, `RandomState`, and `Features` as PascalCase dict keys, mirroring the C# property names.
+- **[PNG visualization output](./Flows/Reporting/Steps/create_confusion_matrix.py):** Python Steps can return raw `bytes` for image outputs. `create_confusion_matrix` renders a matplotlib heatmap to PNG bytes; Flowthru persists the result through a file-backed Catalog Item.
+- **[Plotly JSON serialization](./Flows/Reporting/Steps/compare_passenger_capacity.py):** the same file declares two sibling `@step` functions to demonstrate both Plotly authoring styles — `plotly.express` and `plotly.graph_objects` — each serializing to JSON via `pio.to_json()` for downstream rendering in JS dashboards or notebooks.
 
-All data preprocessing, ML, and visualization logic is implemented in Python:
+## Structure
 
-- **Data Processing Flow:**
-  - `preprocess_companies` — Clean company data
-  - `preprocess_shuttles` — Clean shuttle data
-  - `create_model_input_table` — Join datasets (3×1 inputs)
-
-- **Data Science Flow:**
-  - `split_data` — Split into train/test sets (1×4 outputs)
-  - `train_model` — Train linear regression (2×1 inputs)
-  - `evaluate_model` — Compute metrics (3×1 inputs)
-
-- **Reporting Flow:**
-  - `compare_passenger_capacity_exp` — Generate Plotly Express bar chart
-  - `compare_passenger_capacity_go` — Generate Plotly Graph Objects bar chart
-  - `create_confusion_matrix` — Generate matplotlib/seaborn confusion matrix heatmap
-
-## Schema Generation
-
-C# schemas in `Data/` are automatically exported to Python:
-
-```bash
-dotnet build  # Generates _generated/flowthru_schemas/
-```
-
-Python nodes import the generated schemas:
-
-```python
-from flowthru import node
-from flowthru_schemas import CompanyRawSchema, CompanyPreprocessedSchema
-
-@node(inputs=[CompanyRawSchema], outputs=[CompanyPreprocessedSchema])
-def preprocess_companies(companies: pd.DataFrame) -> pd.DataFrame:
-    # ...
-```
+### Diagram
 
 <!-- flowthru:mermaid:start -->
 ```mermaid
@@ -209,3 +113,64 @@ flowchart TB
 
 ```
 <!-- flowthru:mermaid:end -->
+
+### Files
+
+<!-- flowthru:filetree:start -->
+```
+SpaceflightsPython/
+├── Program.cs  # entry point
+├── Data/
+│   ├── _01_Raw/
+│   │   ├── Datasets/
+│   │   │   ├── companies.csv
+│   │   │   ├── NOTICE
+│   │   │   ├── reviews.csv
+│   │   │   └── shuttles.xlsx
+│   │   └── Schemas/
+│   │       ├── CompanySchema.cs
+│   │       ├── ReviewSchema.cs
+│   │       └── ShuttleSchema.cs
+│   ├── ...
+│   └── _08_Reporting/
+│       ├── Datasets/
+│       │   ├── shuttle_passenger_capacity_plot_exp.json
+│       │   └── shuttle_passenger_capacity_plot_go.json
+│       └── Images/
+│           └── confusion_matrix.png
+└── Flows/
+    ├── DataProcessing/
+    │   └── Steps/
+    │       ├── __init__.py
+    │       ├── create_model_input_table.py
+    │       ├── preprocess_companies.py
+    │       ├── preprocess_shuttles.py
+    │       └── __pycache__/
+    │           ├── __init__.cpython-310.pyc
+    │           ├── create_model_input_table.cpython-310.pyc
+    │           ├── preprocess_companies.cpython-310.pyc
+    │           └── preprocess_shuttles.cpython-310.pyc
+    ├── DataScience/
+    │   ├── Schemas/
+    │   │   └── SplitDataOptions.cs
+    │   └── Steps/
+    │       ├── evaluate_model.py
+    │       ├── generate_predictions.py
+    │       ├── split_data.py
+    │       ├── train_model.py
+    │       └── __pycache__/
+    │           ├── evaluate_model.cpython-310.pyc
+    │           ├── generate_predictions.cpython-310.pyc
+    │           ├── split_data.cpython-310.pyc
+    │           └── train_model.cpython-310.pyc
+    └── Reporting/
+        └── Steps/
+            ├── __init__.py
+            ├── compare_passenger_capacity.py
+            ├── create_confusion_matrix.py
+            └── __pycache__/
+                ├── __init__.cpython-310.pyc
+                ├── compare_passenger_capacity.cpython-310.pyc
+                └── create_confusion_matrix.cpython-310.pyc
+```
+<!-- flowthru:filetree:end -->

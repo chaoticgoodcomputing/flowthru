@@ -1,149 +1,41 @@
-# EFCore Integration Example
+# SpaceflightsEFCore Starter
 
-This example demonstrates using `Flowthru.Extensions.EFCore` to read and write data from a SQLite database.
+> [!NOTE]
+> How do I back my Catalog Items with a relational database via EFCore?
 
-## What This Demonstrates
+This project demonstrates persisting intermediate Catalog Items to a SQLite database via the `Flowthru.Extensions.EFCore` storage adapter — the same Spaceflights Flows, with file-backed Parquet swapped for EF-managed tables.
 
-- ✅ FlowthruSchemas work unchanged as EF entities
-- ✅ Database catalog entries as pipeline seeds (Layer 0 inputs)
-- ✅ Injected DbContext lifecycle management
-- ✅ Reading and writing entities via EFCore adapter
-- ✅ Partial class pattern for extending `Items` from external package
+This project:
 
-## Project Structure
+- Mirrors vanilla Spaceflights — same three Flows, Steps, and Schemas.
+- Adds a `SpaceflightsDbContext`, registered via `AddDbContextFactory<>()` in DI, with the schema created lazily by `EnsureCreated()` on first run.
+- Replaces file-backed Parquet Items in `_02_Intermediate` and `_03_Primary` with EFCore-backed Items via the `.EFCoreQuery()`, `.EFCoreTable()`, and `.EFCoreEntity()` builders.
+- Uses `.WithQuery()` to push predicates and ordering down to the database before materialization.
+- Keeps the Schemas unchanged — no EF data annotations; entity configuration lives in `OnModelCreating`.
 
-<!-- flowthru:filetree:start -->
-```
-SpaceflightsEFCore/
-├── Program.cs  # entry point
-├── Data/
-│   ├── spaceflights.db
-│   ├── SpaceflightsDbContext.cs
-│   ├── _01_Raw/
-│   │   ├── Datasets/
-│   │   │   ├── companies.csv
-│   │   │   ├── NOTICE
-│   │   │   ├── reviews.csv
-│   │   │   └── shuttles.xlsx
-│   │   └── Schemas/
-│   │       ├── CompanySchema.cs
-│   │       ├── ReviewSchema.cs
-│   │       └── ShuttleSchema.cs
-│   ├── ...
-│   └── _08_Reporting/
-│       ├── Datasets/
-│       │   └── shuttle_capacity_report.json
-│       └── Schemas/
-│           └── ShuttleCapacityReport.cs
-└── Flows/
-    ├── DataProcessing/
-    │   └── Steps/
-    │       ├── CreateModelInputTableStep.cs
-    │       ├── PreprocessCompaniesStep.cs
-    │       └── PreprocessShuttlesStep.cs
-    ├── DataScience/
-    │   └── Steps/
-    │       ├── EvaluateModelStep.cs
-    │       ├── SplitDataStep.cs
-    │       └── TrainModelStep.cs
-    └── Reporting/
-        └── Steps/
-            ├── ComparePassengerCapacityStep.cs
-            ├── CreateConfusionMatrixStep.cs
-            ├── GeneratePassengerCapacityChartStep.cs
-            └── PlotlyImageExportStep.cs
-```
-<!-- flowthru:filetree:end -->
+Assumes you've worked through [Spaceflights](https://github.com/chaoticgoodcomputing/flowthru/tree/main/examples/starter/Spaceflights). Modeled after [`kedro-org/kedro-starters`](https://github.com/kedro-org/kedro-starters)' Spaceflights tutorial.
 
-## Running the Example
+## Getting Started
 
 ```bash
-cd examples/efcore-integration
 dotnet run
 ```
 
-## Key Code Snippets
+First run creates an empty SQLite database at [`Data/spaceflights.db`](./Data/spaceflights.db) and stages the schema; subsequent runs reuse the same file. To start from a clean database, delete `Data/spaceflights.db` before running. The capacity report lands at [`Data/_08_Reporting/Datasets/shuttle_capacity_report.json`](./Data/_08_Reporting/Datasets/shuttle_capacity_report.json).
 
-### 1. FlowthruSchema as EF Entity
+## Concepts
 
-```csharp
-// Data/CompanySchema.cs
-[FlowthruSchema]
-public record CompanySchema(
-    int Id,
-    string Name,
-    string Industry,
-    int EmployeeCount,
-    DateTime Founded
-);
+- **[`DbContext` registration](./Program.cs):** the EF context is registered through `AddDbContextFactory<SpaceflightsDbContext>()` in DI. Step runs receive fresh contexts per operation via the factory pattern, with no shared change-tracker state across Steps.
+- **[`SpaceflightsDbContext`](./Data/SpaceflightsDbContext.cs):** declares `DbSet<T>` properties for each persisted Schema and configures entity mapping in `OnModelCreating` — shadow keys for owned types, JSON column conversions, and the SQLite connection string. `EnsureCreated()` (called once at startup) creates the schema if absent but does **not** migrate it on subsequent runs — schema changes require deleting the `.db` file.
+- **[`.EFCoreQuery<T, TContext>()`](./Data/_02_Intermediate/Catalog.Intermediate.cs):** Catalog Item builder for collections that compose lazily over a `DbSet`. Use when downstream Steps may filter, sort, or join via `.WithQuery()` — the query composes against EF before iterating.
+- **[`.EFCoreTable<T, TContext>()`](./Data/_05_ModelInput/Catalog.ModelInput.cs):** Catalog Item builder for fully-materialized tables. Use when a Step wants the entire table in memory as `IEnumerable<T>`.
+- **[`.EFCoreEntity<T, TContext>()`](./Data/_06_Models/Catalog.Models.cs):** Catalog Item builder for singleton-row entities. Use for Items that are conceptually a single object — here, the trained model, persisted as one row in the `Models` table.
+- **[`.WithQuery(q => ...)`](./Data/_03_Primary/Catalog.Primary.cs):** composes an `IQueryable` modifier (filter, sort, project) onto an EFCore-backed Item before materialization. Lets Catalog Items push their query shape down to the database.
+- **[Schemas without EF attributes](./Data/_02_Intermediate/Schemas/PreprocessedCompanySchema.cs):** the Schema records carry only `[FlowthruSchema]` and serialization attributes — no `[Key]`, `[Required]`, or other EF data annotations. Entity configuration lives entirely in the `DbContext`.
 
-// Automatically implements IFlatSchema, IStructuredSerializable
-// Works with both EFCore and file-based catalogs (CSV, JSON, etc.)
-```
+## Structure
 
-### 2. DbContext Configuration
-
-```csharp
-// Data/AppDbContext.cs
-public class AppDbContext : DbContext
-{
-    public DbSet<CompanySchema> Companies { get; set; }
-    
-    protected override void OnConfiguring(DbContextOptionsBuilder options)
-        => options.UseSqlite("Data Source=companies.db");
-}
-```
-
-### 3. EFCore Catalog Entries
-
-```csharp
-// Catalog/DataCatalog.cs
-public static partial class DataCatalog
-{
-    // Database source (seed)
-    public static IItem<IEnumerable<CompanySchema>> SourceCompanies(DbContext db) =>
-        Items.Enumerable.EFCore<CompanySchema>("source_companies", db, readOnly: true);
-    
-    // Database destination (output)
-    public static IItem<IEnumerable<CompanySchema>> ProcessedCompanies(DbContext db) =>
-        Items.Enumerable.EFCore<CompanySchema>("processed_companies", db);
-}
-```
-
-### 4. Flow Using EFCore
-
-```csharp
-// Program.cs
-using var db = new AppDbContext();
-await db.Database.MigrateAsync();
-
-var pipeline = new FlowBuilder("CompanyETL")
-    .AddStep("extract", catalog => new ExtractCompaniesStep(
-        inputs: catalog.SourceCompanies(db),
-        outputs: catalog.RawCompanies()
-    ))
-    .AddStep("transform", catalog => new TransformCompaniesStep(
-        inputs: catalog.RawCompanies(),
-        outputs: catalog.ProcessedCompanies(db)
-    ))
-    .Build();
-
-await pipeline.ExecuteAsync();
-```
-
-## Notes
-
-- **Migrations:** Run before pipeline execution
-- **Transactions:** Each Save() is an independent transaction
-- **Read-Only:** Source catalog prevents accidental writes to production
-- **Seedable:** Database tables are automatically detected as Layer 0 seeds
-
-## Next Steps
-
-- Try different database providers (SQL Server, PostgreSQL)
-- Implement upsert semantics in a custom node
-- Use factory-based DbContext for scoped patterns
-- Combine EFCore with CSV/Parquet exports
+### Diagram
 
 <!-- flowthru:mermaid:start -->
 ```mermaid
@@ -214,3 +106,48 @@ flowchart TB
 
 ```
 <!-- flowthru:mermaid:end -->
+
+### Files
+
+<!-- flowthru:filetree:start -->
+```
+SpaceflightsEFCore/
+├── Program.cs  # entry point
+├── Data/
+│   ├── spaceflights.db
+│   ├── SpaceflightsDbContext.cs
+│   ├── _01_Raw/
+│   │   ├── Datasets/
+│   │   │   ├── companies.csv
+│   │   │   ├── NOTICE
+│   │   │   ├── reviews.csv
+│   │   │   └── shuttles.xlsx
+│   │   └── Schemas/
+│   │       ├── CompanySchema.cs
+│   │       ├── ReviewSchema.cs
+│   │       └── ShuttleSchema.cs
+│   ├── ...
+│   └── _08_Reporting/
+│       ├── Datasets/
+│       │   └── shuttle_capacity_report.json
+│       └── Schemas/
+│           └── ShuttleCapacityReport.cs
+└── Flows/
+    ├── DataProcessing/
+    │   └── Steps/
+    │       ├── CreateModelInputTableStep.cs
+    │       ├── PreprocessCompaniesStep.cs
+    │       └── PreprocessShuttlesStep.cs
+    ├── DataScience/
+    │   └── Steps/
+    │       ├── EvaluateModelStep.cs
+    │       ├── SplitDataStep.cs
+    │       └── TrainModelStep.cs
+    └── Reporting/
+        └── Steps/
+            ├── ComparePassengerCapacityStep.cs
+            ├── CreateConfusionMatrixStep.cs
+            ├── GeneratePassengerCapacityChartStep.cs
+            └── PlotlyImageExportStep.cs
+```
+<!-- flowthru:filetree:end -->

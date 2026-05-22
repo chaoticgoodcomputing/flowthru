@@ -1,134 +1,42 @@
-# Kedro Iris (Python Steps)
+# IrisPython Starter
 
-A Flowthru example demonstrating Python node integration using the classic [Iris classification problem](https://en.wikipedia.org/wiki/Iris_flower_data_set) from the [Kedro Iris starter](https://github.com/kedro-org/kedro-starters/tree/main/astro-airflow-iris).
+> [!NOTE]
+> How do I write my Flowthru Steps in Python?
 
-## Overview
+This project demonstrates implementing all of an Iris Flow's Steps as Python functions, with C#-declared Catalog Items and Schemas providing the typed interface.
 
-This project replicates the Kedro Iris data science pipeline using Flowthru's Python node extension. It demonstrates:
+This project:
 
-- **Mixed C#/Python pipelines** — Python nodes for data splitting and ML training
-- **Multi-output patterns** — 1×4 split (train_x, train_y, test_x, test_y)
-- **Apache Arrow marshalling** — Efficient DataFrame exchange via Arrow IPC
-- **Pre-flight validation** — Schema mismatches caught before execution
-- **Auto-generated Python schemas** — Type-safe imports from `flowthru_schemas`
-- **Custom ML implementation** — Multi-class logistic regression from scratch (numpy)
+- Mirrors vanilla Iris's Flow structure — same `DataEngineering` and `DataScience` Flows, same Schemas, same Catalog.
+- Implements every Step in Python instead of C# — each is a `@step`-decorated function in a `.py` file.
+- Manages the Python environment via [`uv`](https://docs.astral.sh/uv/) (declared in `pyproject.toml`, locked in `uv.lock`).
+- Marshals DataFrames between C# and Python via Apache Arrow IPC — transparent to user code.
 
-## Project Structure
+Assumes you've worked through [Iris](https://github.com/chaoticgoodcomputing/flowthru/tree/main/examples/starter/Iris), which models [`kedro-org/kedro-starters`](https://github.com/kedro-org/kedro-starters)' Iris starter.
 
-<!-- flowthru:filetree:start -->
-```
-IrisPython/
-├── Program.cs  # entry point
-├── Data/
-│   ├── _01_Raw/
-│   │   ├── Datasets/
-│   │   │   └── iris.csv
-│   │   └── Schemas/
-│   │       └── IrisRawSchema.cs
-│   ├── ...
-│   └── _08_Reporting/
-│       ├── Datasets/
-│       │   └── accuracy_report.json
-│       └── Schemas/
-│           └── AccuracyReportSchema.cs
-└── Flows/
-    ├── DataEngineering/
-    │   ├── Schemas/
-    │   │   └── SplitDataOptions.cs
-    │   └── Steps/
-    │       ├── __init__.py
-    │       ├── split_data.py
-    │       └── __pycache__/
-    │           ├── __init__.cpython-310.pyc
-    │           └── split_data.cpython-310.pyc
-    └── DataScience/
-        └── Steps/
-            ├── __init__.py
-            ├── predict.py
-            ├── report_accuracy.py
-            ├── train_model.py
-            └── __pycache__/
-                ├── __init__.cpython-310.pyc
-                ├── predict.cpython-310.pyc
-                ├── report_accuracy.cpython-310.pyc
-                └── train_model.cpython-310.pyc
-```
-<!-- flowthru:filetree:end -->
+## Getting Started
 
-## Setup
-
-Requires Python 3.10+. Install with `uv`:
+Requires Python 3.10+ and the [`uv`](https://docs.astral.sh/uv/) CLI (install via [`uv`'s installer](https://docs.astral.sh/uv/getting-started/installation/) if you don't already have it). Bootstrap the Python environment, then run:
 
 ```bash
-cd examples/starter/IrisPython
 uv sync
-```
-
-## Running
-
-```bash
 dotnet run
 ```
 
-Or via NX:
+The accuracy report lands at [`Data/_08_Reporting/Datasets/accuracy_report.json`](./Data/_08_Reporting/Datasets/accuracy_report.json).
 
-```bash
-nx run IrisPython:run
-```
+## Concepts
 
-## Python Steps
+- **[`@step` decorator](./Flows/DataEngineering/Steps/split_data.py):** declares a Python function as a Flowthru Step. The decorator's `inputs=[...]` and `outputs=[...]` arguments bind the function to Schema names declared in C#.
+- **[DataFrame I/O](./Flows/DataScience/Steps/train_model.py):** Python Steps consume and produce `pandas.DataFrame`s; the framework marshals them to and from C# Catalog Items via Apache Arrow IPC.
+- **[Schema-name binding](./Flows/DataScience/Steps/predict.py):** the C#-Python contract is by Schema *name*, validated at Step invocation. A name typo or shape mismatch surfaces as a runtime error — Flowthru's design-time safety doesn't reach across the language boundary.
+- **[`UsePython` configuration](./Program.cs):** points the Flowthru harness at the Python virtual environment and module search paths. Flowthru spawns the interpreter on demand via `IPythonExecutor`.
+- **[`pyproject.toml`](./pyproject.toml):** declares the Python dependency set (`pandas`, `pyarrow`, `numpy`) and the minimum Python version. `uv sync` materializes the venv from `uv.lock`.
+- **[Options binding](./Flows/DataEngineering/Schemas/SplitDataOptions.cs):** a C# `SplitDataOptions` Schema declares the Python Step's hyperparameters. The Catalog Item flows in as a typed input alongside the DataFrame.
 
-All data processing and ML logic is implemented in Python:
+## Structure
 
-- **Data Engineering Flow:**
-  - `split_data` — Split iris.csv into train/test sets (1×4 outputs)
-
-- **Data Science Flow:**
-  - `train_model` — Train multi-class logistic regression (numpy)
-  - `predict` — Generate predictions on test set
-  - `report_accuracy` — Compute and save accuracy metrics
-
-## Flows
-
-### Data Engineering
-
-Reads raw iris data and splits it into training and test sets with one-hot encoded target labels:
-- **Input**: Raw iris CSV (150 samples × 5 columns)
-- **Outputs**: train_x, train_y, test_x, test_y (80/20 split)
-
-### Data Science
-
-Trains a multi-class logistic regression model from scratch using numpy:
-- **Input**: Training data (train_x, train_y)
-- **Output**: Model weights (numpy array)
-- **Prediction**: Applies model to test_x
-- **Reporting**: Calculates accuracy and saves metrics JSON
-
-## Schema Generation
-
-C# schemas in `Data/` are automatically exported to Python:
-
-```bash
-dotnet build  # Generates _generated/flowthru_schemas/
-```
-
-Python nodes import the generated schemas:
-
-```python
-from flowthru import node
-
-@node(inputs=["IrisRawSchema"], outputs=["TrainXSchema", "TrainYSchema", "TestXSchema", "TestYSchema"])
-def split_data(data: pd.DataFrame) -> dict:
-    # Returns dict with keys: train_x, train_y, test_x, test_y
-    ...
-```
-
-## Parameters
-
-Hyperparameters are hardcoded in the Python node implementations:
-- Test data ratio: 0.2 (20% test, 80% train)
-- Training iterations: 10,000
-- Learning rate: 0.01
+### Diagram
 
 <!-- flowthru:mermaid:start -->
 ```mermaid
@@ -174,3 +82,45 @@ flowchart TB
 
 ```
 <!-- flowthru:mermaid:end -->
+
+### Files
+
+<!-- flowthru:filetree:start -->
+```
+IrisPython/
+├── Program.cs  # entry point
+├── Data/
+│   ├── _01_Raw/
+│   │   ├── Datasets/
+│   │   │   └── iris.csv
+│   │   └── Schemas/
+│   │       └── IrisRawSchema.cs
+│   ├── ...
+│   └── _08_Reporting/
+│       ├── Datasets/
+│       │   └── accuracy_report.json
+│       └── Schemas/
+│           └── AccuracyReportSchema.cs
+└── Flows/
+    ├── DataEngineering/
+    │   ├── Schemas/
+    │   │   └── SplitDataOptions.cs
+    │   └── Steps/
+    │       ├── __init__.py
+    │       ├── split_data.py
+    │       └── __pycache__/
+    │           ├── __init__.cpython-310.pyc
+    │           └── split_data.cpython-310.pyc
+    └── DataScience/
+        └── Steps/
+            ├── __init__.py
+            ├── predict.py
+            ├── report_accuracy.py
+            ├── train_model.py
+            └── __pycache__/
+                ├── __init__.cpython-310.pyc
+                ├── predict.cpython-310.pyc
+                ├── report_accuracy.cpython-310.pyc
+                └── train_model.cpython-310.pyc
+```
+<!-- flowthru:filetree:end -->

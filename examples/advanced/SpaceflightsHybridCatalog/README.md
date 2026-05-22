@@ -1,74 +1,43 @@
-# SpaceflightsHybridCatalog
+# SpaceflightsHybridCatalog Advanced
 
-A Flowthru pipeline that swaps its data backend at startup based on the
-`ASPNETCORE_ENVIRONMENT` environment variable. Flow factories and step
-transforms never see which backend is in play — the abstract
-[`Catalog`](Data/Catalog.cs) is resolved from DI, and the runtime picks
-either the file-backed [`DevelopmentCatalog`](Data/DevelopmentCatalog.cs) or
-the EFCore-backed [`ProductionCatalog`](Data/ProductionCatalog.cs).
+> [!NOTE]
+> How do I swap data backends at startup without rewriting my Flows?
 
-## Why
+This project demonstrates abstracting the Catalog so a single set of Flows can run against either file-backed (Parquet/JSON) or EFCore-backed (SQLite) storage, with the choice resolved by `ASPNETCORE_ENVIRONMENT` at DI registration time.
 
-`Spaceflights` (file-backed) and `SpaceflightsEFCore` (DB-backed) are
-two ways of running the same logical pipeline. In practice most teams want
-both — interactive iteration on flat files locally, plus transactional
-SQL persistence for deployed runs — without rewriting flows or steps. This
-example shows that the only thing that has to vary is the catalog
-implementation; everything downstream (steps, flow factories, configuration)
-stays identical.
+This project:
 
-## The DI swap
+- Declares an abstract [`Catalog`](./Data/Catalog.cs) base with eight `abstract` Items; [`DevelopmentCatalog`](./Data/DevelopmentCatalog.cs) overrides them as file-backed (Parquet/JSON/Memory), [`ProductionCatalog`](./Data/ProductionCatalog.cs) overrides them as EFCore-backed.
+- Keeps Items that don't differ between environments concrete on the base — raw CSV/Excel inputs in [`_01_Raw/Catalog.Raw.cs`](./Data/_01_Raw/Catalog.Raw.cs) and the JSON capacity report plus in-memory chart Items in [`_08_Reporting/Catalog.Reporting.cs`](./Data/_08_Reporting/Catalog.Reporting.cs).
+- Registers the abstract base via a DI factory that constructs the right concrete subclass based on `ASPNETCORE_ENVIRONMENT`. The choice is baked at startup; the same DI container resolves one Catalog for the run.
+- Keeps all three Flows and their Steps byte-identical to vanilla Spaceflights — they bind only to the abstract `Catalog`, never to either concrete subclass.
 
-The whole switch is one factory in [Program.cs](Program.cs):
+This is a reference example, not a template — `dotnet new` does not scaffold it. Assumes you've worked through [Spaceflights](../../starter/Spaceflights/) and [SpaceflightsEFCore](../../starter/SpaceflightsEFCore/). Modeled after [`kedro-org/kedro-starters`](https://github.com/kedro-org/kedro-starters)' Spaceflights tutorial.
 
-```csharp
-var isProduction = string.Equals(
-  Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT"),
-  "Production",
-  StringComparison.OrdinalIgnoreCase);
-
-flowthru.RegisterCatalog<Catalog>(sp => isProduction
-  ? new ProductionCatalog(
-      basePath: dataPath,
-      contextFactory: sp.GetRequiredService<IDbContextFactory<SpaceflightsDbContext>>())
-  : new DevelopmentCatalog(basePath: dataPath));
-```
-
-The registration is typed on the abstract base, so
-`RegisterFlow<Catalog>(…)` resolves the same singleton regardless of which
-subclass was constructed. The `ASPNETCORE_ENVIRONMENT` convention mirrors
-ASP.NET Core hosting — handy when this service is embedded alongside an API
-host that already keys off the same variable.
-
-## Layout
-
-Items are split across three catalog files:
-
-| File                                                                                                                                               | Role                                                                                                                          |
-| -------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
-| [Data/Catalog.cs](Data/Catalog.cs)                                                                                                                 | Abstract base. Declares every divergent item as `abstract`.                                                                   |
-| [Data/\_01\_Raw/Catalog.Raw.cs](Data/_01_Raw/Catalog.Raw.cs), [Data/\_08\_Reporting/Catalog.Reporting.cs](Data/_08_Reporting/Catalog.Reporting.cs) | Concrete shared items on the base — raw CSV/Excel inputs and the JSON report output. These are the same in both environments. |
-| [Data/DevelopmentCatalog.cs](Data/DevelopmentCatalog.cs)                                                                                           | File-backed overrides (Parquet / JSON / Memory).                                                                              |
-| [Data/ProductionCatalog.cs](Data/ProductionCatalog.cs)                                                                                             | EFCore overrides backed by [SpaceflightsDbContext](Data/SpaceflightsDbContext.cs).                                            |
-
-`CheckStatus` uses `[SerializedEnum("t"/"f")]` for file round-tripping; the
-DbContext adds `HasConversion<string>()` so EF stores the enum member name
-in SQLite. The two on-disk representations are intentionally independent.
-
-## Running
+## Getting Started
 
 ```bash
-# Development (default) — reads/writes Parquet, JSON, Excel under Data/
-dotnet run --project examples/advanced/SpaceflightsHybridCatalog -- run
-
-# Production — persists every intermediate to Data/spaceflights.db
-ASPNETCORE_ENVIRONMENT=Production \
-  dotnet run --project examples/advanced/SpaceflightsHybridCatalog -- run
+nx run SpaceflightsHybridCatalog                                      # Development — file-backed (default)
+ASPNETCORE_ENVIRONMENT=Production nx run SpaceflightsHybridCatalog    # Production — EFCore-backed
 ```
 
-Layered config files (`appsettings.json`, `appsettings.Development.json`,
-`appsettings.Production.json`) follow the same `ASPNETCORE_ENVIRONMENT`
-convention.
+Per ASP.NET Core convention, an unset `ASPNETCORE_ENVIRONMENT` is treated as `Development`, so the first form lands on the file-backed branch.
+
+In Production mode, first run creates an empty SQLite database at [`Data/spaceflights.db`](./Data/spaceflights.db) via `EnsureCreated()`. In either mode, the capacity report lands at [`Data/_08_Reporting/Datasets/shuttle_capacity_report.json`](./Data/_08_Reporting/Datasets/shuttle_capacity_report.json).
+
+## Concepts
+
+- **[Abstract Catalog base](./Data/Catalog.cs):** declares the eight Items that vary between dev and prod as `abstract` properties, plus two `ConfigurationItem<T>` properties for bound options. Flows declare a dependency on `Catalog` (the abstract type) and stay backend-agnostic.
+- **[Shared concrete Items on the base](./Data/_01_Raw/Catalog.Raw.cs):** Items that *don't* differ between environments live as concrete declarations on partial files attached to the abstract base. Raw CSV/Excel inputs and the final JSON capacity report are always file-backed regardless of mode.
+- **[Development overrides](./Data/DevelopmentCatalog.cs):** the file-backed subclass — overrides each abstract Item with `.Parquet()`, `.Json()`, or `.Memory()` builders. The intermediate and modeling layers materialize to disk as Parquet for fast local iteration.
+- **[Production overrides](./Data/ProductionCatalog.cs):** the EFCore-backed subclass — overrides the same Items with `.EFCoreQuery()`, `.EFCoreTable()`, and `.EFCoreEntity()` over the shared [`SpaceflightsDbContext`](./Data/SpaceflightsDbContext.cs).
+- **[DI factory swap](./Program.cs):** one `RegisterCatalog<Catalog>(sp => ...)` call decides which concrete subclass to construct, gated on `ASPNETCORE_ENVIRONMENT`. The abstract type is what gets registered; the concrete type is hidden from downstream code.
+- **[Split serialization for the same Schema field](./Data/_01_Raw/Schemas/ShuttleSchema.cs):** `CheckStatus` is a single enum with two on-disk representations — `[SerializedEnum("t"/"f")]` rounds it through CSV cells, and the [`DbContext`'s `HasConversion<string>()`](./Data/SpaceflightsDbContext.cs) stores it as the enum member name in SQLite. The Schema is the single source of truth for the in-memory type; only the format-side attributes differ between backends, so domain code (Steps, downstream Schemas) stays format-agnostic.
+- **[Environment-keyed appsettings](./appsettings.Development.json):** standard ASP.NET Core `appsettings.<Environment>.json` conventions apply — [development settings](./appsettings.Development.json) lower the log level for iteration, [production settings](./appsettings.Production.json) silence noisy EFCore warnings. The Catalog factory and the host configuration both key off the same `ASPNETCORE_ENVIRONMENT` variable.
+
+## Structure
+
+### Diagram
 
 <!-- flowthru:mermaid:start -->
 ```mermaid
@@ -139,6 +108,8 @@ flowchart TB
 
 ```
 <!-- flowthru:mermaid:end -->
+
+### Files
 
 <!-- flowthru:filetree:start -->
 ```
