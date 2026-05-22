@@ -41,10 +41,14 @@ namespace Flowthru.Data.Storage.Gql;
 /// single-item queries the query itself is the minimal probe.
 /// </para>
 /// </remarks>
-public sealed class GqlSingleStorageAdapter<TResult, T> : IStorageAdapter<T>
+public sealed class GqlSingleStorageAdapter<TResult, T>
+  : IStorageAdapter<T>, IHasStorageKind
   where TResult : class
   where T : class
 {
+  /// <inheritdoc/>
+  public string StorageKind => "gql";
+
   private readonly string _label;
   private readonly Func<CancellationToken, Task<IOperationResult<TResult>>> _queryFunc;
   private readonly Func<TResult, T> _selectData;

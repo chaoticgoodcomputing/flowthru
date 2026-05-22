@@ -1,9 +1,0 @@
-{
-  "metadata": [{
-    "src": [{ "files": ["Flowthru.Extensions.EFCore.csproj"] }],
-    "dest": "../../../docs/reference/src/extensions/Flowthru.Extensions.EFCore",
-    "outputFormat": "markdown",
-    "disableGitFeatures": true,
-    "shouldSkipMarkup": true
-  }]
-}

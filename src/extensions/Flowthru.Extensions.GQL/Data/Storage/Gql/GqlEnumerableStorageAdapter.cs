@@ -44,10 +44,15 @@ namespace Flowthru.Data.Storage.Gql;
 /// <see cref="InspectDeep"/> executes the full pagination loop.
 /// </para>
 /// </remarks>
-public sealed class GqlEnumerableStorageAdapter<TResult, T> : IStorageAdapter<IEnumerable<T>>
+public sealed class GqlEnumerableStorageAdapter<TResult, T>
+  : IStorageAdapter<IEnumerable<T>>, IHasStorageKind
   where TResult : class
   where T : class
 {
+  /// <inheritdoc/>
+  public string StorageKind => "gql";
+
+
   // Non-paginated
   private readonly Func<CancellationToken, Task<IOperationResult<TResult>>>? _queryFunc;
   private readonly Func<TResult, IEnumerable<T>?>? _selectData;

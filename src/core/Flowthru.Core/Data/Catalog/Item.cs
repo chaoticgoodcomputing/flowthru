@@ -67,4 +67,8 @@ public sealed class Item<T> : IItem<T>
   /// <inheritdoc/>
   public FlowIO<string>? TryGetFingerprint() =>
     _storage is ISupportsFingerprint fingerprintable ? fingerprintable.Fingerprint() : null;
+
+  /// <inheritdoc/>
+  public string? StorageKind =>
+    _storage is IHasStorageKind kinded ? kinded.StorageKind : null;
 }

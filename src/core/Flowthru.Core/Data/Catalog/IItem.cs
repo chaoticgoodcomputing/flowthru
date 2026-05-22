@@ -147,4 +147,26 @@ public interface IItem : INode
   /// "fingerprint unknown" without aborting.
   /// </summary>
   FlowIO<string>? TryGetFingerprint() => null;
+
+  /// <summary>
+  /// Canonical lowercase identifier for the storage backend an item is
+  /// bound to (e.g. <c>"gql"</c>, <c>"http"</c>, <c>"database"</c>,
+  /// <c>"memory"</c>, <c>"excel"</c>). <c>null</c> or empty signals the
+  /// default file-backed/unspecified case — metadata providers should
+  /// render the item with their default shape (cylinder, in Mermaid).
+  /// Service-backed kinds (<c>gql</c>, <c>http</c>, <c>database</c>)
+  /// signal that the item's data lives behind a runtime service rather
+  /// than a static file, so providers can surface a distinct shape
+  /// (e.g. stadium) to communicate the difference.
+  /// </summary>
+  /// <remarks>
+  /// <para>
+  /// Storage-adapter authors set this on the concrete <c>Item&lt;T&gt;</c>
+  /// they build. The Mermaid renderer keys on the value via a small
+  /// lookup table; unknown kinds fall back to the default cylinder
+  /// shape. The renderer itself never enumerates kinds — Core declares
+  /// the slot, storage extensions populate it, providers consume it.
+  /// </para>
+  /// </remarks>
+  string? StorageKind => null;
 }

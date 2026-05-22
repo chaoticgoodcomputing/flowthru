@@ -209,6 +209,8 @@
     href: Flowthru.Data.Storage.IFormatStreamReader-1.md
   - name: IHasEfficientCount
     href: Flowthru.Data.Storage.IHasEfficientCount.md
+  - name: IHasStorageKind
+    href: Flowthru.Data.Storage.IHasStorageKind.md
   - name: IStorageAdapter<T>
     href: Flowthru.Data.Storage.IStorageAdapter-1.md
   - name: IStorageMedium
