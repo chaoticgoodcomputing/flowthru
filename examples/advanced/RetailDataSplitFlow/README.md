@@ -73,11 +73,11 @@ flowchart TB
     end
 
     subgraph Graphing["Graphing"]
-        PlotDollarsChart["PlotDollarsChart"]
+        PlotDollarsChart["PlotDollarsChart (python)"]
         DollarsChart[("DollarsChart")]
-        PlotTransactionsChart["PlotTransactionsChart"]
+        PlotTransactionsChart["PlotTransactionsChart (python)"]
         TransactionsChart[("TransactionsChart")]
-        PlotUsersChart["PlotUsersChart"]
+        PlotUsersChart["PlotUsersChart (python)"]
         UsersChart[("UsersChart")]
     end
 

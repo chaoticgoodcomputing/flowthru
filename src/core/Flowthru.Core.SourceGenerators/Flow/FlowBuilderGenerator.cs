@@ -354,8 +354,15 @@ public sealed class FlowBuilderGenerator : IIncrementalGenerator
     // auto-discovery (visible overload) or is threaded verbatim from
     // the caller (hidden overload). Either way the step's identity
     // reaches IStepNode for the cache-plan phase.
+    //
+    // serviceDependencies is always resolver-driven — the source
+    // generator records (per step class) the union of interface-typed
+    // Create() parameters, and the resolver maps the delegate's
+    // declaring-type chain back to that record. Returns empty on miss
+    // (hand-rolled lambdas, foreign-assembly delegates).
     sb.AppendLine("      saveOutputs,");
-    sb.AppendLine($"      codeVersion: {codeVersionExpr}));");
+    sb.AppendLine($"      codeVersion: {codeVersionExpr},");
+    sb.AppendLine("      serviceDependencies: global::Flowthru.Step.StepMetadataResolver.ResolveServicesFromDelegate(transform)));");
   }
 
   /// <summary>
@@ -595,7 +602,8 @@ public sealed class FlowBuilderGenerator : IIncrementalGenerator
     // FlowLabel is stamped centrally by FlowBuilder.Add via IStepNode.OnAddedToFlow;
     // emitting `flowLabel: this.Label` here would duplicate that responsibility.
     sb.AppendLine("      saveOutputs,");
-    sb.AppendLine($"      codeVersion: {codeVersionExpr}));");
+    sb.AppendLine($"      codeVersion: {codeVersionExpr},");
+    sb.AppendLine("      serviceDependencies: global::Flowthru.Step.StepMetadataResolver.ResolveServicesFromDelegate(transform)));");
   }
 
   /// <summary>
@@ -640,7 +648,8 @@ public sealed class FlowBuilderGenerator : IIncrementalGenerator
     // FlowLabel is stamped centrally by FlowBuilder.Add via IStepNode.OnAddedToFlow;
     // emitting `flowLabel: this.Label` here would duplicate that responsibility.
     sb.AppendLine("      saveOutputs,");
-    sb.AppendLine($"      codeVersion: {codeVersionExpr}));");
+    sb.AppendLine($"      codeVersion: {codeVersionExpr},");
+    sb.AppendLine("      serviceDependencies: global::Flowthru.Step.StepMetadataResolver.ResolveServicesFromDelegate(transform)));");
   }
 
   /// <summary>
@@ -683,6 +692,7 @@ public sealed class FlowBuilderGenerator : IIncrementalGenerator
     // FlowLabel is stamped centrally by FlowBuilder.Add via IStepNode.OnAddedToFlow;
     // emitting `flowLabel: this.Label` here would duplicate that responsibility.
     sb.AppendLine("      saveOutputs,");
-    sb.AppendLine($"      codeVersion: {codeVersionExpr}));");
+    sb.AppendLine($"      codeVersion: {codeVersionExpr},");
+    sb.AppendLine("      serviceDependencies: global::Flowthru.Step.StepMetadataResolver.ResolveServicesFromDelegate(transform)));");
   }
 }

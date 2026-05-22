@@ -56,7 +56,7 @@ flowchart TB
     CoverageXmlFiles[("CoverageXmlFiles")]
     ProjectManifest[("ProjectManifest")]
     SrcInventory[("SrcInventory")]
-    UnitCoverageReportOptions[("UnitCoverageReportOptions")]
+    UnitCoverageReportOptions{{"UnitCoverageReportOptions"}}
     UnitCoverageReportTemplate[("UnitCoverageReportTemplate")]
 
     subgraph Coverage["Coverage"]
@@ -79,11 +79,11 @@ flowchart TB
         PivotCoverage[("PivotCoverage")]
         BuildProvenanceIcicleCoverage["BuildProvenanceIcicleCoverage"]
         ProvenanceIcicleCoverage[("ProvenanceIcicleCoverage")]
-        GenerateCoverageHeatmap["GenerateCoverageHeatmap"]
+        GenerateCoverageHeatmap["GenerateCoverageHeatmap (python)"]
         CoverageHeatmap[("CoverageHeatmap")]
         AggregatePackageCoverage["AggregatePackageCoverage"]
         PackageCoverageMax[("PackageCoverageMax")]
-        GenerateProvenanceCoverageIcicle["GenerateProvenanceCoverageIcicle"]
+        GenerateProvenanceCoverageIcicle["GenerateProvenanceCoverageIcicle (python)"]
         ProvenanceCoverageIcicles[("ProvenanceCoverageIcicles")]
         BuildUnitCoverageReport["BuildUnitCoverageReport"]
         UnitCoverageReport[("UnitCoverageReport")]
@@ -175,20 +175,24 @@ FlowthruCoverage/
 │   │   │   ├── Flowthru.Misc.DataFrames.Tests.xml
 │   │   │   ├── Flowthru.Tests.xml
 │   │   │   ├── FlowthruCoverage.xml
-│   │   │   ├── Iris.xml
-│   │   │   ├── IrisFUnit.xml
-│   │   │   ├── IrisPython.xml
-│   │   │   ├── Spaceflights.xml
-│   │   │   ├── SpaceflightsEnhanced.xml
-│   │   │   ├── SpaceflightsFUnit.xml
-│   │   │   ├── SpaceflightsGQL.xml
-│   │   │   ├── SpaceflightsPython.xml
+│   │   │   ├── KedroIris.xml
+│   │   │   ├── KedroIrisFUnit.xml
+│   │   │   ├── KedroIrisPython.xml
+│   │   │   ├── KedroSpaceflights.xml
+│   │   │   ├── KedroSpaceflightsCustom.xml
+│   │   │   ├── KedroSpaceflightsFUnit.xml
+│   │   │   ├── KedroSpaceflightsGQL.xml
+│   │   │   ├── KedroSpaceflightsPython.xml
 │   │   │   ├── Minimal.xml
 │   │   │   ├── project_manifest.csv
 │   │   │   ├── RetailDataSplitFlow.xml
 │   │   │   ├── SimpleEffectsExample.xml
+│   │   │   ├── Spaceflights.xml
 │   │   │   ├── SpaceflightsDistributed.xml
 │   │   │   ├── SpaceflightsEFCore.xml
+│   │   │   ├── SpaceflightsEnhanced.xml
+│   │   │   ├── SpaceflightsFUnit.xml
+│   │   │   ├── SpaceflightsGQL.xml
 │   │   │   ├── SpaceflightsHybridCatalog.xml
 │   │   │   ├── SpaceflightsNewTypes.xml
 │   │   │   ├── SpaceflightsPythonEFCore.xml
@@ -207,7 +211,6 @@ FlowthruCoverage/
 │       │   ├── coverage_heatmap.png
 │       │   ├── icicle_coverage_provenance.csv
 │       │   ├── package_coverage_max.csv
-│       │   ├── README.md
 │       │   ├── uncovered_method_hits.csv
 │       │   ├── uncovered_method_names.csv
 │       │   ├── unit_coverage_report.md

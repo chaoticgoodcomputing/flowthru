@@ -121,6 +121,15 @@ public sealed class PythonStep<TIn, TOut> : IStepNode<TIn, TOut>
   public string? CodeVersion { get; }
 
   /// <inheritdoc/>
+  /// <remarks>
+  /// Always returns the canonical <c>"python"</c> identifier so the
+  /// Mermaid metadata provider can surface a <c>(python)</c> tag on
+  /// the step's label without needing to runtime-type-check against
+  /// the extension's concrete <see cref="PythonStep{TIn, TOut}"/>.
+  /// </remarks>
+  public string? SourceLanguage => "python";
+
+  /// <inheritdoc/>
   public FlowIO<ValidationResult> Validate() =>
     FlowIO.Pure(ValidationResult.Success());
 

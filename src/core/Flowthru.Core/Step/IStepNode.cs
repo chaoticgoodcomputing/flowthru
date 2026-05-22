@@ -110,6 +110,26 @@ public interface IStepNode : INode
   IReadOnlyList<ServiceRef> ServiceDependencies { get; }
 
   /// <summary>
+  /// Canonical lowercase identifier for the language a step's transform
+  /// was authored in. <c>null</c> or empty signals the host runtime's
+  /// primary language (i.e., .NET / C#) — metadata providers should
+  /// omit any language tag in that case. Non-default extensions (e.g.,
+  /// the Python extension's <c>PythonStep</c>) override to a stable
+  /// identifier so renderers can surface the distinction without
+  /// taking a dependency on the extension's concrete step type.
+  /// </summary>
+  /// <remarks>
+  /// <para>
+  /// The Mermaid metadata provider appends <c>" (value)"</c> to the
+  /// rendered step label when this property is non-empty; other
+  /// providers map the identifier into their own native distinction.
+  /// The renderer itself never enumerates languages — Core declares
+  /// the slot, language extensions populate it, providers consume it.
+  /// </para>
+  /// </remarks>
+  string? SourceLanguage => null;
+
+  /// <summary>
   /// Untyped, end-to-end execution: load each input item, run the
   /// transform, save each output item, propagate the first failure.
   /// The engine names this without knowing the typed shape of the

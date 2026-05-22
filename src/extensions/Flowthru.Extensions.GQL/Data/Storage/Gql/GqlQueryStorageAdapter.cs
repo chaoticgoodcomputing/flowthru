@@ -18,10 +18,14 @@ namespace Flowthru.Data.Storage.Gql;
 /// during pre-flight.
 /// </para>
 /// </remarks>
-public sealed class GqlQueryStorageAdapter<TResult, T> : IStorageAdapter<GqlQuery<TResult, T>>
+public sealed class GqlQueryStorageAdapter<TResult, T>
+  : IStorageAdapter<GqlQuery<TResult, T>>, IHasStorageKind
   where TResult : class
   where T : class
 {
+  /// <inheritdoc/>
+  public string StorageKind => "gql";
+
   private readonly GqlQuery<TResult, T> _query;
 
   /// <param name="query">The pre-built deferred query handle.</param>
@@ -98,11 +102,14 @@ public sealed class GqlQueryStorageAdapter<TResult, T> : IStorageAdapter<GqlQuer
 /// independently of any runtime-supplied filter value.
 /// </summary>
 public sealed class GqlQueryStorageAdapter<TFilter, TResult, T>
-  : IStorageAdapter<GqlQuery<TFilter, TResult, T>>
+  : IStorageAdapter<GqlQuery<TFilter, TResult, T>>, IHasStorageKind
   where TFilter : class
   where TResult : class
   where T : class
 {
+  /// <inheritdoc/>
+  public string StorageKind => "gql";
+
   private readonly GqlQuery<TFilter, TResult, T> _query;
 
   /// <param name="query">The pre-built deferred filtered query handle.</param>

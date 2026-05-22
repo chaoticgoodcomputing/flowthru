@@ -1,4 +1,5 @@
 using System.Text;
+using Flowthru.Data.Catalog;
 using Flowthru.Diagnostics;
 using Flowthru.Flow;
 using Flowthru.Step;
@@ -19,8 +20,11 @@ namespace Flowthru.Diagnostics.Mermaid.Internal;
 /// inside, steps are rectangles and produced items are databases.
 /// Step→item and item→step edges connect them in topological order.
 /// Service dependencies (declared via <see cref="IStepNode.ServiceDependencies"/>)
-/// render outside the flow subgraph as a separate, styled cluster
-/// with dashed <c>uses</c> edges to the consuming steps.
+/// render as an inline compartment inside the consuming step's node —
+/// step label, a Unicode rule divider, and one service per line. No
+/// separate service nodes or dashed edges; the compartment inherits
+/// whatever fill the step has (run-result heat-map, cache-plan blue,
+/// inactive grey).
 /// </para>
 /// <para>
 /// <strong>Run-result coloring.</strong> When a <see cref="FlowResult"/>
@@ -118,10 +122,24 @@ internal static class MermaidDiagramRenderer
     }
 
     var allItemLabels = new HashSet<string>(StringComparer.Ordinal);
+    // Label → IItem map so external-item and per-step-output emissions
+    // can consult the concrete item's StorageKind and runtime type
+    // (e.g. ConfigurationItem<_>) to pick a non-default shape. First
+    // occurrence wins on label collision — flow merging keys items by
+    // label, so collisions should already be resolved upstream.
+    var itemByLabel = new Dictionary<string, IItem>(StringComparer.Ordinal);
     foreach (var step in topology.Steps)
     {
-      foreach (var item in step.Inputs) allItemLabels.Add(item.Label);
-      foreach (var item in step.Outputs) allItemLabels.Add(item.Label);
+      foreach (var item in step.Inputs)
+      {
+        allItemLabels.Add(item.Label);
+        itemByLabel.TryAdd(item.Label, item);
+      }
+      foreach (var item in step.Outputs)
+      {
+        allItemLabels.Add(item.Label);
+        itemByLabel.TryAdd(item.Label, item);
+      }
     }
 
     var externalItems = allItemLabels
@@ -188,7 +206,8 @@ internal static class MermaidDiagramRenderer
       sb.AppendLine("    %% External Data Inputs");
       foreach (var label in externalItems)
       {
-        sb.AppendLine($"    {SanitizeId(label)}[(\"{EscapeLabel(label)}\")]");
+        itemByLabel.TryGetValue(label, out var item);
+        sb.AppendLine($"    {ItemNodeSyntax(label, item)}");
         if (!activeItemLabels.Contains(label))
         {
           sb.AppendLine(
@@ -219,9 +238,34 @@ internal static class MermaidDiagramRenderer
         StepResult? stepResult = null;
         resultsByLabel?.TryGetValue(step.Label, out stepResult);
         var isFailed = stepResult is StepResult.Failed;
-        var displayLabel = isFailed
-          ? step.Label + " (failed)"
-          : step.Label;
+        var displayLabel = step.Label;
+
+        // Source-language tag — `(python)`, `(fsharp)`, etc. Appended
+        // before failed/service suffixes so the tag stays on the step-
+        // name row, not the compartment. Null/empty means the host
+        // runtime's primary language (.NET) — omitted by convention.
+        if (!string.IsNullOrEmpty(step.SourceLanguage))
+        {
+          displayLabel += $" ({step.SourceLanguage})";
+        }
+
+        if (isFailed)
+        {
+          displayLabel += " (failed)";
+        }
+
+        // Service dependencies render as a compartment inside the step
+        // node — divider rule + one service per line. The whole node
+        // shares whatever fill the step has (run-result heat-map,
+        // cache-plan blue, slice-inactive grey, etc.) so the compartment
+        // inherits the active styling.
+        if (step.ServiceDependencies.Count > 0)
+        {
+          displayLabel += "<br>──<br>" + string.Join(
+            "<br>",
+            step.ServiceDependencies.Select(s => s.DisplayName)
+          );
+        }
         sb.AppendLine($"        {stepId}[\"{EscapeLabel(displayLabel)}\"]");
 
         // Run-result coloring takes precedence over slice styling.
@@ -250,12 +294,11 @@ internal static class MermaidDiagramRenderer
 
         foreach (var output in step.Outputs)
         {
-          var outputId = SanitizeId(output.Label);
-          sb.AppendLine($"        {outputId}[(\"{EscapeLabel(output.Label)}\")]");
+          sb.AppendLine($"        {ItemNodeSyntax(output.Label, output)}");
           if (!activeItemLabels.Contains(output.Label))
           {
             sb.AppendLine(
-              $"        style {outputId} fill:{theme.InactiveDataColor},"
+              $"        style {SanitizeId(output.Label)} fill:{theme.InactiveDataColor},"
               + $"stroke:{theme.InactiveTextColor},color:{theme.InactiveTextColor}"
             );
           }
@@ -289,8 +332,12 @@ internal static class MermaidDiagramRenderer
     }
     sb.AppendLine();
 
-    // ── Service dependencies (out-of-flow cluster) ─────────────────────
-    AppendServiceNodes(sb, topology.Steps);
+    // Service dependencies are surfaced inline in each step node's
+    // label (see the step-emission block above), not as a separate
+    // cluster — one compartment per step, divider rule plus the list
+    // of consumed services. The previous cluster-with-dashed-edges
+    // design was retired with the compartment redesign; see
+    // docs/scratch/mermaid-design/04-simple-effects.md.
 
     // ── Failed-step decoration ─────────────────────────────────────────
     // Mermaid doesn't let `style` directives set font-weight or
@@ -315,39 +362,6 @@ internal static class MermaidDiagramRenderer
 
     sb.AppendLine("```");
     return sb.ToString();
-  }
-
-  private static void AppendServiceNodes(StringBuilder sb, IReadOnlyList<IStepNode> steps)
-  {
-    var pairs = steps
-      .SelectMany(s => s.ServiceDependencies.Select(svc => (StepLabel: s.Label, Service: svc)))
-      .ToList();
-
-    if (pairs.Count == 0) return;
-
-    var uniqueServices = pairs
-      .Select(p => p.Service)
-      .Distinct()
-      .OrderBy(s => s.DagId, StringComparer.Ordinal)
-      .ToList();
-
-    sb.AppendLine();
-    sb.AppendLine("    %% Service Dependencies");
-    foreach (var svc in uniqueServices)
-    {
-      sb.AppendLine($"    {ServiceNodeId(svc)}[\"{EscapeLabel(svc.DisplayName)}\"]");
-    }
-    sb.AppendLine();
-
-    foreach (var (stepLabel, svc) in pairs.Distinct().OrderBy(p => p.StepLabel).ThenBy(p => p.Service.DagId))
-    {
-      sb.AppendLine($"    {SanitizeId(stepLabel)} -.uses.-> {ServiceNodeId(svc)}");
-    }
-    sb.AppendLine();
-
-    sb.AppendLine("    classDef service fill:#FEF7E0,stroke:#A05A00,color:#5E4400");
-    var classList = string.Join(",", uniqueServices.Select(ServiceNodeId));
-    sb.AppendLine($"    class {classList} service");
   }
 
   /// <summary>
@@ -426,7 +440,81 @@ internal static class MermaidDiagramRenderer
         && int.TryParse(hex.AsSpan(5, 2), System.Globalization.NumberStyles.HexNumber, null, out b);
   }
 
-  private static string ServiceNodeId(ServiceRef svc) => "svc_" + SanitizeId(svc.DagId);
+  /// <summary>
+  /// Build the Mermaid node syntax for a catalog item, picking a shape
+  /// based on the item's runtime type and declared
+  /// <see cref="IItem.StorageKind"/>. Decision order:
+  /// <list type="bullet">
+  ///   <item>
+  ///     <c>ConfigurationItem&lt;T&gt;</c> (any generic instantiation)
+  ///     renders as a hexagon — operator-tunable knob, not data.
+  ///   </item>
+  ///   <item>
+  ///     Known service-backed <c>StorageKind</c> values (<c>gql</c>,
+  ///     <c>http</c>, <c>database</c>) render as a stadium — runtime
+  ///     service surface, not a static file.
+  ///   </item>
+  ///   <item>Default (anything else) renders as a cylinder.</item>
+  /// </list>
+  /// The renderer never enumerates languages or kinds beyond this
+  /// table — Core declares the slots, extensions populate them,
+  /// unknown values fall back to the cylinder default so new storage
+  /// backends drop in without renderer changes.
+  /// </summary>
+  internal static string ItemNodeSyntax(string label, IItem? item)
+  {
+    var id = SanitizeId(label);
+    var escaped = EscapeLabel(label);
+
+    if (item is not null && IsConfigurationItem(item))
+    {
+      return $"{id}{{{{\"{escaped}\"}}}}";
+    }
+
+    var kind = item?.StorageKind;
+    if (!string.IsNullOrEmpty(kind) && IsServiceBackedKind(kind!))
+    {
+      return $"{id}([\"{escaped}\"])";
+    }
+
+    return $"{id}[(\"{escaped}\")]";
+  }
+
+  /// <summary>
+  /// True when <paramref name="item"/>'s runtime type is a closed or
+  /// open instantiation of
+  /// <see cref="Flowthru.Data.Catalog.Configuration.ConfigurationItem{T}"/>.
+  /// We walk the type chain so a subclass — should one ever exist —
+  /// still matches.
+  /// </summary>
+  private static bool IsConfigurationItem(IItem item)
+  {
+    for (var t = item.GetType(); t is not null; t = t.BaseType)
+    {
+      if (t.IsGenericType
+          && t.GetGenericTypeDefinition()
+            == typeof(Flowthru.Data.Catalog.Configuration.ConfigurationItem<>))
+      {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /// <summary>
+  /// Known service-backed storage kinds — items whose data lives
+  /// behind a runtime service rather than a static file. Membership is
+  /// closed here (a small whitelist) so unknown kinds fall back to the
+  /// default cylinder shape rather than rendering as a stadium by
+  /// accident; new service kinds opt in by adding to the set.
+  /// </summary>
+  private static bool IsServiceBackedKind(string kind) => kind switch
+  {
+    "gql" => true,
+    "http" => true,
+    "database" => true,
+    _ => false,
+  };
 
   internal static string SanitizeId(string id) =>
     id.Replace(" ", "_")

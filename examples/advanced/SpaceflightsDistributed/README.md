@@ -39,8 +39,8 @@ flowchart TB
 
     %% External Data Inputs
     Companies[("Companies")]
-    ConfusionMatrixOptions[("ConfusionMatrixOptions")]
-    ModelOptions[("ModelOptions")]
+    ConfusionMatrixOptions{{"ConfusionMatrixOptions"}}
+    ModelOptions{{"ModelOptions"}}
     Reviews[("Reviews")]
     Shuttles[("Shuttles")]
 

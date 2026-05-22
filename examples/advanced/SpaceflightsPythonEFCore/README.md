@@ -44,7 +44,7 @@ flowchart TB
     Companies[("Companies")]
     Reviews[("Reviews")]
     Shuttles[("Shuttles")]
-    SplitDataOptions[("SplitDataOptions")]
+    SplitDataOptions{{"SplitDataOptions"}}
 
     subgraph DataProcessing["DataProcessing"]
         PreprocessCompanies["PreprocessCompanies"]
@@ -56,25 +56,25 @@ flowchart TB
     end
 
     subgraph DataScience["DataScience"]
-        SplitData["SplitData"]
+        SplitData["SplitData (python)"]
         XTrain[("XTrain")]
         XTest[("XTest")]
         YTrain[("YTrain")]
         YTest[("YTest")]
-        TrainModel["TrainModel"]
+        TrainModel["TrainModel (python)"]
         Regressor[("Regressor")]
-        EvaluateModel["EvaluateModel"]
+        EvaluateModel["EvaluateModel (python)"]
         ModelMetrics[("ModelMetrics")]
-        GeneratePredictions["GeneratePredictions"]
+        GeneratePredictions["GeneratePredictions (python)"]
         ModelPredictions[("ModelPredictions")]
     end
 
     subgraph Reporting["Reporting"]
-        ComparePassengerCapacityExpress["ComparePassengerCapacityExpress"]
+        ComparePassengerCapacityExpress["ComparePassengerCapacityExpress (python)"]
         CapacityPlotExpress[("CapacityPlotExpress")]
-        ComparePassengerCapacityGraphObj["ComparePassengerCapacityGraphObj"]
+        ComparePassengerCapacityGraphObj["ComparePassengerCapacityGraphObj (python)"]
         CapacityPlotGraphObj[("CapacityPlotGraphObj")]
-        CreateConfusionMatrix["CreateConfusionMatrix"]
+        CreateConfusionMatrix["CreateConfusionMatrix (python)"]
         ConfusionMatrix[("ConfusionMatrix")]
     end
 
