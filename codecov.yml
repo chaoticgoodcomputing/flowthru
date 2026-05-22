@@ -74,7 +74,17 @@ flags:
     carryforward: true
   IrisPython:
     carryforward: true
+  Minimal:
+    carryforward: true
+  RetailDataSplitFlow:
+    carryforward: true
+  SimpleEffectsExample:
+    carryforward: true
   Spaceflights:
+    carryforward: true
+  SpaceflightsDistributed:
+    carryforward: true
+  SpaceflightsEFCore:
     carryforward: true
   SpaceflightsEnhanced:
     carryforward: true
@@ -82,21 +92,11 @@ flags:
     carryforward: true
   SpaceflightsGQL:
     carryforward: true
-  SpaceflightsPython:
-    carryforward: true
-  Minimal:
-    carryforward: true
-  RetailDataSplitFlow:
-    carryforward: true
-  SimpleEffectsExample:
-    carryforward: true
-  SpaceflightsDistributed:
-    carryforward: true
-  SpaceflightsEFCore:
-    carryforward: true
   SpaceflightsHybridCatalog:
     carryforward: true
   SpaceflightsNewTypes:
+    carryforward: true
+  SpaceflightsPython:
     carryforward: true
   SpaceflightsPythonEFCore:
     carryforward: true

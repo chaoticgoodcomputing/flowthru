@@ -1,3 +1,13 @@
+## 0.18.4 (2026-05-22)
+
+### 🩹 Fixes
+
+- fix package prop files on examples ([be6b18f0](https://github.com/chaoticgoodcomputing/flowthru/commit/be6b18f0))
+
+### ❤️ Thank You
+
+- Spencer Elkington
+
 ## 0.18.3 (2026-05-19)
 
 ### 🩹 Fixes
