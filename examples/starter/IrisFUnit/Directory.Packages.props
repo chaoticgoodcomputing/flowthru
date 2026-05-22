@@ -33,6 +33,8 @@
     <PackageVersion Include="Flowthru.Core" Version="FlowthruVersion" />
     <PackageVersion Include="Flowthru.Cli" Version="FlowthruVersion" />
     <PackageVersion Include="Flowthru.FUnit" Version="FlowthruVersion" />
+    <PackageVersion Include="Flowthru.Extensions.Metadata.Json" Version="FlowthruVersion" />
+    <PackageVersion Include="Flowthru.Extensions.Metadata.Mermaid" Version="FlowthruVersion" />
   </ItemGroup>
 
 </Project>
