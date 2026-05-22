@@ -1,3 +1,13 @@
+## 0.18.5 (2026-05-22)
+
+### 🩹 Fixes
+
+- mermaid and metadata fixes ([#32](https://github.com/chaoticgoodcomputing/flowthru/pull/32))
+
+### ❤️ Thank You
+
+- Spencer Elkington
+
 ## 0.18.4 (2026-05-22)
 
 ### 🩹 Fixes
