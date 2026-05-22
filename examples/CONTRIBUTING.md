@@ -104,7 +104,7 @@ A minimal, copy-pasteable invocation block.
 - **Advanced:** assume the reader is inside this monorepo. The run command is `nx run <ProjectName>` (project name from the CSProj — `nx run FlowthruCoverage`, `nx run RetailDataSplitFlow`, etc.).
 - **Prerequisites** (Python 3.10+, `uv sync`, Docker for Testcontainers, etc.) go inline above the run block as one sentence per prereq. Do not introduce a separate `### Prerequisites` subsection.
 - **What success looks like.** One sentence after the run block linking to the canonical output file(s).
-- **Multi-flow or env-var-driven examples** document only first-time-reader invocations; defer the full surface to `--help` or a code link. Exception: when the invocations themselves are the concepts being demonstrated (e.g., `SpaceflightsStagingSchema`'s `--dry-run --acquire-on-dry-run` lifecycle), they may be enumerated explicitly here.
+- **Multi-flow or env-var-driven examples** document only first-time-reader invocations; defer the full surface to `--help` or a code link. Exception: when the invocations themselves are the concepts being demonstrated (e.g., `SpaceflightsHybridCatalog`'s `ASPNETCORE_ENVIRONMENT` toggle, or `SpaceflightsStagingSchema`'s `--dry-run` lifecycle), they may be enumerated explicitly here.
 
 ### `## Concepts`
 

@@ -22,23 +22,9 @@ public partial class Catalog
       .Memory()
       .Build());
 
-  /// <summary>Shuttle passenger capacity bar chart (PNG image).</summary>
-  public IItem<byte[]> ShuttlePassengerCapacityPlotPng =>
-    CreateItem(() => Item.Of<byte[]>("ShuttlePassengerCapacityPlotPng")
-      .Binary()
-      .AtPath($"{_basePath}/_08_Reporting/Images/shuttle_passenger_capacity_plot.png")
-      .Build());
-
   /// <summary>Confusion matrix heatmap (in-memory GenericChart).</summary>
   public IItem<GenericChart> ConfusionMatrixChart =>
     CreateItem(() => Item.Of<GenericChart>("ConfusionMatrixChart")
       .Memory()
-      .Build());
-
-  /// <summary>Confusion matrix heatmap (PNG image).</summary>
-  public IItem<byte[]> ConfusionMatrixPlotPng =>
-    CreateItem(() => Item.Of<byte[]>("ConfusionMatrixPlotPng")
-      .Binary()
-      .AtPath($"{_basePath}/_08_Reporting/Images/confusion_matrix_plot.png")
       .Build());
 }

@@ -46,20 +46,6 @@ public partial class Catalog
       .AtPath($"{_basePath}/_06_Reporting/Datasets/confusion_matrix_plot.json")
       .Build());
 
-  /// <summary>Shuttle passenger capacity bar chart (PNG image).</summary>
-  public IItem<byte[]> ShuttlePassengerCapacityPlotPng =>
-    CreateItem(() => Item.Of<byte[]>("ShuttlePassengerCapacityPlotPng")
-      .Binary()
-      .AtPath($"{_basePath}/_06_Reporting/Datasets/shuttle_passenger_capacity_plot.png")
-      .Build());
-
-  /// <summary>Confusion matrix heatmap (PNG image).</summary>
-  public IItem<byte[]> ConfusionMatrixPlotPng =>
-    CreateItem(() => Item.Of<byte[]>("ConfusionMatrixPlotPng")
-      .Binary()
-      .AtPath($"{_basePath}/_06_Reporting/Datasets/confusion_matrix_plot.png")
-      .Build());
-
   /// <summary>Cross-validation visualization chart (in-memory GenericChart).</summary>
   public IItem<GenericChart> CrossValidationChart =>
     CreateItem(() => Item.Of<GenericChart>("CrossValidationChart")
@@ -73,13 +59,6 @@ public partial class Catalog
       .AtPath($"{_basePath}/_06_Reporting/Datasets/cross_validation_plot.json")
       .Build());
 
-  /// <summary>Cross-validation visualization (PNG image).</summary>
-  public IItem<byte[]> CrossValidationPlotPng =>
-    CreateItem(() => Item.Of<byte[]>("CrossValidationPlotPng")
-      .Binary()
-      .AtPath($"{_basePath}/_06_Reporting/Datasets/cross_validation_plot.png")
-      .Build());
-
   /// <summary>Prediction scatter plot chart (in-memory GenericChart).</summary>
   public IItem<GenericChart> PredictionScatterChart =>
     CreateItem(() => Item.Of<GenericChart>("PredictionScatterChart")
@@ -91,12 +70,5 @@ public partial class Catalog
     CreateItem(() => Item.Of<string>("PredictionScatterPlot")
       .Text()
       .AtPath($"{_basePath}/_06_Reporting/Datasets/prediction_scatter_plot.json")
-      .Build());
-
-  /// <summary>Prediction scatter plot visualization (PNG image).</summary>
-  public IItem<byte[]> PredictionScatterPlotPng =>
-    CreateItem(() => Item.Of<byte[]>("PredictionScatterPlotPng")
-      .Binary()
-      .AtPath($"{_basePath}/_06_Reporting/Datasets/prediction_scatter_plot.png")
       .Build());
 }

@@ -17,7 +17,7 @@ This project:
 ## Getting Started
 
 ```bash
-dotnet run
+nx run SpaceflightsGQL
 ```
 
 The build invokes StrawberryShake's code generator over [`schema.graphql`](./Infra/GqlClient/schema.graphql) and [`Operations.graphql`](./Infra/GqlClient/Operations.graphql) before the harness starts. The capacity report lands at [`Data/_08_Reporting/Datasets/shuttle_capacity_report.json`](./Data/_08_Reporting/Datasets/shuttle_capacity_report.json).

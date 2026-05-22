@@ -17,7 +17,7 @@ This project:
 ## Getting Started
 
 ```bash
-dotnet run
+nx run SpaceflightsEnhanced
 ```
 
 Inspect the run by reading two places:

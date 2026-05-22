@@ -31,14 +31,6 @@ public static class ReportingFlow
         outputs: catalog.ShuttlePassengerCapacityChart
       );
 
-      // NOTE: PNG export commented out due to Plotly.NET PuppeteerSharp performance issues.
-      // pipeline.AddStep<GenericChart, byte[]>(
-      //   label: "ExportPassengerCapacityPng",
-      //   transform: PlotlyImageExportStep.Create(),
-      //   inputs: catalog.ShuttlePassengerCapacityChart,
-      //   outputs: catalog.ShuttlePassengerCapacityPlotPng
-      // );
-
       pipeline.AddStep<
         IEnumerable<ModelPredictions>,
         CreateConfusionMatrixStep.Options,
@@ -49,14 +41,6 @@ public static class ReportingFlow
         inputs: (catalog.ModelPredictions, catalog.ConfusionMatrixOptions),
         outputs: catalog.ConfusionMatrixChart
       );
-
-      // NOTE: PNG export commented out due to Plotly.NET PuppeteerSharp performance issues.
-      // pipeline.AddStep<GenericChart, byte[]>(
-      //   label: "ExportConfusionMatrixPng",
-      //   transform: PlotlyImageExportStep.Create(),
-      //   inputs: catalog.ConfusionMatrixChart,
-      //   outputs: catalog.ConfusionMatrixPlotPng
-      // );
     });
   }
 }
