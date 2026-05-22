@@ -115,6 +115,16 @@ public sealed class StepMetadataGenerator : IIncrementalGenerator
     // not contribute to the hash.
     var codeVersion = codeVersionOverride ?? ComputeCodeVersion(classDecl);
 
+    // Service-dependency extraction. Heuristic: interface-typed
+    // parameters on any public static Create overload are treated as
+    // DI service dependencies. Class- and value-typed parameters
+    // (TimeZoneInfo, string, schema records, options) are closures
+    // bound at the AddStep call site and not services. Multiple
+    // Create overloads are unioned and deduped by fully-qualified
+    // type name — StepMetadataResolver records identity per-step-class
+    // not per-overload, so the registry must reflect the superset.
+    var serviceTypes = ExtractServiceDependencies(typeSymbol);
+
     return new StepInfo(
       Namespace: ns,
       ClassName: typeSymbol.Name,
@@ -122,8 +132,38 @@ public sealed class StepMetadataGenerator : IIncrementalGenerator
       IsIdempotent: isIdempotent,
       HasSideEffects: hasSideEffects,
       CodeVersion: codeVersion,
-      TypeArity: typeSymbol.IsGenericType ? typeSymbol.Arity : 0
+      TypeArity: typeSymbol.IsGenericType ? typeSymbol.Arity : 0,
+      ServiceTypeFqns: serviceTypes
     );
+  }
+
+  /// <summary>
+  /// Collect fully-qualified type names of interface-typed parameters
+  /// across every public static <c>Create</c> overload on the step
+  /// class. The union (deduped, ordered) becomes the
+  /// <c>ServiceRefs</c> array emitted on the <c>_Metadata</c>
+  /// companion. Filters to <see cref="TypeKind.Interface"/> only —
+  /// class- and value-typed Create params are treated as
+  /// configuration closures, not services.
+  /// </summary>
+  private static System.Collections.Generic.IReadOnlyList<string> ExtractServiceDependencies(
+    INamedTypeSymbol typeSymbol)
+  {
+    var seen = new System.Collections.Generic.HashSet<string>(System.StringComparer.Ordinal);
+    var ordered = new System.Collections.Generic.List<string>();
+    foreach (var member in typeSymbol.GetMembers("Create"))
+    {
+      if (member is not IMethodSymbol method) continue;
+      if (!method.IsStatic) continue;
+      if (method.DeclaredAccessibility != Accessibility.Public) continue;
+      foreach (var param in method.Parameters)
+      {
+        if (param.Type.TypeKind != TypeKind.Interface) continue;
+        var fqn = param.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+        if (seen.Add(fqn)) ordered.Add(fqn);
+      }
+    }
+    return ordered;
   }
 
   /// <summary>
@@ -189,6 +229,20 @@ public sealed class StepMetadataGenerator : IIncrementalGenerator
     sb.AppendLine($"    IsIdempotent = {(info.IsIdempotent ? "true" : "false")},");
     sb.AppendLine($"    HasSideEffects = {(info.HasSideEffects ? "true" : "false")},");
     sb.AppendLine("  };");
+    sb.AppendLine();
+    // Service dependencies discovered from interface-typed Create
+    // parameters. Empty when the step takes no services (the common
+    // case). StepMetadataResolver.ResolveServicesFromDelegate reads
+    // this array to populate IStepNode.ServiceDependencies at
+    // FlowBuilder.AddStep time.
+    sb.AppendLine(
+      "  public static readonly global::Flowthru.Validation.Runtime.ServiceRef[] ServiceRefs = new global::Flowthru.Validation.Runtime.ServiceRef[]");
+    sb.AppendLine("  {");
+    foreach (var fqn in info.ServiceTypeFqns)
+    {
+      sb.AppendLine($"    new global::Flowthru.Validation.Runtime.ServiceRef.CSharp(typeof({fqn})),");
+    }
+    sb.AppendLine("  };");
     sb.AppendLine("}");
     sb.AppendLine();
 
@@ -210,7 +264,7 @@ public sealed class StepMetadataGenerator : IIncrementalGenerator
     sb.AppendLine("{");
     sb.AppendLine("  [global::System.Runtime.CompilerServices.ModuleInitializer]");
     sb.AppendLine("  internal static void Register() =>");
-    sb.AppendLine($"    global::Flowthru.Step.StepMetadataRegistry.Register(typeof({typeofExpr}), {info.ClassName}_Metadata.CodeVersion);");
+    sb.AppendLine($"    global::Flowthru.Step.StepMetadataRegistry.Register(typeof({typeofExpr}), {info.ClassName}_Metadata.CodeVersion, {info.ClassName}_Metadata.ServiceRefs);");
     sb.AppendLine("}");
 
     var fileName = string.IsNullOrEmpty(info.Namespace)
@@ -244,5 +298,6 @@ internal sealed record StepInfo(
   bool IsIdempotent,
   bool HasSideEffects,
   string CodeVersion,
-  int TypeArity
+  int TypeArity,
+  System.Collections.Generic.IReadOnlyList<string> ServiceTypeFqns
 );

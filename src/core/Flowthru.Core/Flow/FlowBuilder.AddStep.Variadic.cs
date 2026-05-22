@@ -260,7 +260,8 @@ public sealed partial class FlowBuilder
       loadInputs: loadInputs,
       saveOutputs: saveOutputs,
       flowLabel: this.Label,
-      codeVersion: codeVersion
+      codeVersion: codeVersion,
+      serviceDependencies: Flowthru.Step.StepMetadataResolver.ResolveServicesFromDelegate(transformIO)
     ));
   }
 }

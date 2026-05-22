@@ -393,6 +393,8 @@
     href: Flowthru.Step.StepExtensionCapabilitiesAttribute.md
   - name: StepMetadataRegistry
     href: Flowthru.Step.StepMetadataRegistry.md
+  - name: StepMetadataRegistry.Entry
+    href: Flowthru.Step.StepMetadataRegistry.Entry.md
   - name: StepMetadataResolver
     href: Flowthru.Step.StepMetadataResolver.md
   - name: StepTraits

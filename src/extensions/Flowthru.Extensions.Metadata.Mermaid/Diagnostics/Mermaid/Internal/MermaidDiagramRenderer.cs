@@ -19,8 +19,11 @@ namespace Flowthru.Diagnostics.Mermaid.Internal;
 /// inside, steps are rectangles and produced items are databases.
 /// Step→item and item→step edges connect them in topological order.
 /// Service dependencies (declared via <see cref="IStepNode.ServiceDependencies"/>)
-/// render outside the flow subgraph as a separate, styled cluster
-/// with dashed <c>uses</c> edges to the consuming steps.
+/// render as an inline compartment inside the consuming step's node —
+/// step label, a Unicode rule divider, and one service per line. No
+/// separate service nodes or dashed edges; the compartment inherits
+/// whatever fill the step has (run-result heat-map, cache-plan blue,
+/// inactive grey).
 /// </para>
 /// <para>
 /// <strong>Run-result coloring.</strong> When a <see cref="FlowResult"/>
@@ -222,6 +225,19 @@ internal static class MermaidDiagramRenderer
         var displayLabel = isFailed
           ? step.Label + " (failed)"
           : step.Label;
+
+        // Service dependencies render as a compartment inside the step
+        // node — divider rule + one service per line. The whole node
+        // shares whatever fill the step has (run-result heat-map,
+        // cache-plan blue, slice-inactive grey, etc.) so the compartment
+        // inherits the active styling.
+        if (step.ServiceDependencies.Count > 0)
+        {
+          displayLabel += "<br>──<br>" + string.Join(
+            "<br>",
+            step.ServiceDependencies.Select(s => s.DisplayName)
+          );
+        }
         sb.AppendLine($"        {stepId}[\"{EscapeLabel(displayLabel)}\"]");
 
         // Run-result coloring takes precedence over slice styling.
@@ -289,8 +305,12 @@ internal static class MermaidDiagramRenderer
     }
     sb.AppendLine();
 
-    // ── Service dependencies (out-of-flow cluster) ─────────────────────
-    AppendServiceNodes(sb, topology.Steps);
+    // Service dependencies are surfaced inline in each step node's
+    // label (see the step-emission block above), not as a separate
+    // cluster — one compartment per step, divider rule plus the list
+    // of consumed services. The previous cluster-with-dashed-edges
+    // design was retired with the compartment redesign; see
+    // docs/scratch/mermaid-design/04-simple-effects.md.
 
     // ── Failed-step decoration ─────────────────────────────────────────
     // Mermaid doesn't let `style` directives set font-weight or
@@ -315,39 +335,6 @@ internal static class MermaidDiagramRenderer
 
     sb.AppendLine("```");
     return sb.ToString();
-  }
-
-  private static void AppendServiceNodes(StringBuilder sb, IReadOnlyList<IStepNode> steps)
-  {
-    var pairs = steps
-      .SelectMany(s => s.ServiceDependencies.Select(svc => (StepLabel: s.Label, Service: svc)))
-      .ToList();
-
-    if (pairs.Count == 0) return;
-
-    var uniqueServices = pairs
-      .Select(p => p.Service)
-      .Distinct()
-      .OrderBy(s => s.DagId, StringComparer.Ordinal)
-      .ToList();
-
-    sb.AppendLine();
-    sb.AppendLine("    %% Service Dependencies");
-    foreach (var svc in uniqueServices)
-    {
-      sb.AppendLine($"    {ServiceNodeId(svc)}[\"{EscapeLabel(svc.DisplayName)}\"]");
-    }
-    sb.AppendLine();
-
-    foreach (var (stepLabel, svc) in pairs.Distinct().OrderBy(p => p.StepLabel).ThenBy(p => p.Service.DagId))
-    {
-      sb.AppendLine($"    {SanitizeId(stepLabel)} -.uses.-> {ServiceNodeId(svc)}");
-    }
-    sb.AppendLine();
-
-    sb.AppendLine("    classDef service fill:#FEF7E0,stroke:#A05A00,color:#5E4400");
-    var classList = string.Join(",", uniqueServices.Select(ServiceNodeId));
-    sb.AppendLine($"    class {classList} service");
   }
 
   /// <summary>
@@ -425,8 +412,6 @@ internal static class MermaidDiagramRenderer
         && int.TryParse(hex.AsSpan(3, 2), System.Globalization.NumberStyles.HexNumber, null, out g)
         && int.TryParse(hex.AsSpan(5, 2), System.Globalization.NumberStyles.HexNumber, null, out b);
   }
-
-  private static string ServiceNodeId(ServiceRef svc) => "svc_" + SanitizeId(svc.DagId);
 
   internal static string SanitizeId(string id) =>
     id.Replace(" ", "_")
