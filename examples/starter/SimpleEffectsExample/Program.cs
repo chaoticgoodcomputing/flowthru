@@ -89,7 +89,7 @@ public class Program
         });
 
         flowthru
-          .RegisterFlow<Catalog, IRemoteTimeService>(
+          .RegisterFlow<Catalog, IRemoteTimeService, ILogger>(
             label: "ReportTime",
             factory: ReportTimeFlow.Create
           )

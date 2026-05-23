@@ -1,5 +1,6 @@
 using Flowthru.Data.Catalog;
 using Flowthru.Flow;
+using Microsoft.Extensions.Logging;
 using SimpleEffectsExample.Data;
 using SimpleEffectsExample.Flows.Reporting.Steps;
 
@@ -21,7 +22,10 @@ public static class ReportTimeFlow
     ("ReportPacific",  "America/Los_Angeles", "PT", c => c.PacificTimeReport),
   };
 
-  public static BuiltFlow Create(Catalog catalog, Services.IRemoteTimeService timeService)
+  public static BuiltFlow Create(
+    Catalog catalog,
+    Services.IRemoteTimeService timeService,
+    ILogger logger)
   {
     return FlowBuilder.CreateFlow("ReportTime", pipeline =>
     {
@@ -30,7 +34,7 @@ public static class ReportTimeFlow
         var zone = TimeZoneInfo.FindSystemTimeZoneById(zoneId);
         pipeline.AddStep<string, string>(
           label: label,
-          transform: ReportTimeStep.Create(timeService, zone, abbrev),
+          transform: ReportTimeStep.Create(timeService, zone, abbrev, logger),
           inputs: catalog.ReportTemplate,
           outputs: outputSelector(catalog)
         );

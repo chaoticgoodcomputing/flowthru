@@ -1,8 +1,10 @@
 using Flowthru.Step;
+using Microsoft.Extensions.Logging;
 using SimpleEffectsExample.Services;
 #if FUNIT_ENABLED
 using Flowthru.Step.Testing;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging.Abstractions;
 #endif
 
 namespace SimpleEffectsExample.Flows.Reporting.Steps;
@@ -14,17 +16,18 @@ namespace SimpleEffectsExample.Flows.Reporting.Steps;
 /// </summary>
 /// <remarks>
 /// <para>
-/// The factory accepts the service plus a <see cref="TimeZoneInfo"/> and a short
-/// label (e.g., "ET"). The flow adds the same step four times — once per US
-/// timezone — so all four steps share a single <see cref="IRemoteTimeService"/>
-/// service node in the rendered DAG (one node, four dashed <c>-.uses.-&gt;</c>
-/// edges).
+/// The factory accepts the service plus a <see cref="TimeZoneInfo"/>, a short
+/// label (e.g., "ET"), and the shared <see cref="ILogger"/>. The flow adds the
+/// same step four times — once per US timezone — so all four steps share a
+/// single <see cref="IRemoteTimeService"/> service node in the rendered DAG
+/// (one node, four dashed <c>-.uses.-&gt;</c> edges).
 /// </para>
 /// <para>
-/// Source-generated <c>ReportTimeStep_Metadata</c> records
-/// <see cref="IRemoteTimeService"/> as the only service dependency;
+/// Source-generated <c>ReportTimeStep_Metadata</c> records two service
+/// dependencies — <see cref="IRemoteTimeService"/> and <see cref="ILogger"/> —
+/// both extracted by the metadata generator's interface-typed-param heuristic.
 /// <see cref="TimeZoneInfo"/> and <see cref="string"/> are non-interface params
-/// and skipped by the metadata generator's service-detection heuristic.
+/// and stay closure-bound at the AddStep call site.
 /// </para>
 /// </remarks>
 [FlowthruStep(IsIdempotent = true, HasSideEffects = true)]
@@ -33,12 +36,17 @@ public static class ReportTimeStep
   public static Func<string, Task<string>> Create(
     IRemoteTimeService timeService,
     TimeZoneInfo timeZone,
-    string zoneLabel
+    string zoneLabel,
+    ILogger logger
   ) =>
     async template =>
     {
       var utc = await timeService.GetCurrentUtcAsync();
       var local = TimeZoneInfo.ConvertTime(utc, timeZone);
+      logger.LogInformation(
+        "Fetched UTC {Utc:yyyy-MM-dd HH:mm:ss}Z → {Local:yyyy-MM-dd HH:mm:ss} {Zone}",
+        utc.UtcDateTime, local.DateTime, zoneLabel
+      );
       return string.Format(
         System.Globalization.CultureInfo.InvariantCulture,
         template,
@@ -76,7 +84,7 @@ public static class ReportTimeStep
       var service = GetRequiredService<IRemoteTimeService>();
       // 2026-04-30 14:00 UTC → 10:00 ET (DST: UTC-4)
       var eastern = TimeZoneInfo.FindSystemTimeZoneById("America/New_York");
-      var transform = ReportTimeStep.Create(service, eastern, "ET");
+      var transform = ReportTimeStep.Create(service, eastern, "ET", NullLogger.Instance);
 
       // The FUnit runner generator currently emits sync runners; we block on
       // the async transform via GetResult so the test runs deterministically.
