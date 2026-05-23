@@ -1,6 +1,10 @@
 using System.Diagnostics;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace Flowthru.Flow;
+
+
 
 /// <summary>
 /// Core's shipped <see cref="IFlowScheduler"/> — runs a built flow
@@ -41,6 +45,22 @@ namespace Flowthru.Flow;
 /// </remarks>
 public sealed class ParallelFlowScheduler : IFlowScheduler
 {
+  private readonly ILogger _logger;
+
+  /// <summary>
+  /// Construct with the engine's shared <see cref="ILogger"/>. Per
+  /// ADR-0005 / ADR-0006 the engine and every step share one
+  /// <c>"Flowthru"</c>-category logger; this scheduler logs per-step
+  /// lifecycle boundaries directly through it. When no logger is
+  /// supplied (the historical parameterless ctor path used by
+  /// <see cref="BuiltFlow.RunAsync()"/>) the
+  /// <see cref="NullLogger"/> instance drops calls silently.
+  /// </summary>
+  public ParallelFlowScheduler(ILogger? logger = null)
+  {
+    _logger = logger ?? NullLogger.Instance;
+  }
+
   /// <inheritdoc/>
   public async Task<FlowResult> ExecuteAsync(
     BuiltFlow flow,
@@ -179,7 +199,7 @@ public sealed class ParallelFlowScheduler : IFlowScheduler
   /// step-timings, run-summary) consume it directly off the
   /// resulting <see cref="StepResult"/>.
   /// </summary>
-  private static async Task<(int Index, StepResult Result)> ExecuteOneAsync(
+  private async Task<(int Index, StepResult Result)> ExecuteOneAsync(
     IStepNode step,
     int index,
     ExecutionOptions options,
@@ -212,6 +232,8 @@ public sealed class ParallelFlowScheduler : IFlowScheduler
       }
     );
 
+    _logger.LogInformation("  → {StepLabel} executing…", step.Label);
+
     var sw = Stopwatch.StartNew();
     var result = await step.Execute().Run(cancellationToken).ConfigureAwait(false);
     sw.Stop();
@@ -227,8 +249,21 @@ public sealed class ParallelFlowScheduler : IFlowScheduler
       _ => throw new InvalidOperationException("Unreachable: EffResult is a closed sum"),
     };
 
+    var ms = sw.Elapsed.TotalMilliseconds;
+    if (stepResult is StepResult.Failed failed)
+    {
+      _logger.LogWarning(
+        "  ✗ {StepLabel} failed in {Duration:F2} ms: {Reason}",
+        step.Label, ms, failed.Error.Message
+      );
+    }
+    else
+    {
+      _logger.LogInformation("  ✓ {StepLabel} ({Duration:F2} ms)", step.Label, ms);
+    }
+
     activity?.SetStatus(
-      stepResult is StepResult.Failed fail ? ActivityStatusCode.Error : ActivityStatusCode.Ok,
+      stepResult is StepResult.Failed ? ActivityStatusCode.Error : ActivityStatusCode.Ok,
       (stepResult as StepResult.Failed)?.Error.Message
     );
     return (index, stepResult);

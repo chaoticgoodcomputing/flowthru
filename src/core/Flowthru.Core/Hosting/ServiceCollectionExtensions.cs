@@ -4,6 +4,8 @@ using Flowthru.Data.Storage;
 using Flowthru.Flow;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace Flowthru.Hosting;
 
@@ -32,6 +34,22 @@ public static class ServiceCollectionExtensions
 
     var builder = new FlowthruServiceBuilder(services);
     configure(builder);
+
+    // Logging registration — per ADR-0005 / ADR-0006 the engine and
+    // every step share one ILogger (category "Flowthru"). Hosts that
+    // called AddLogging() before AddFlowthru see their real
+    // ILoggerFactory; hosts that didn't get NullLoggerFactory via
+    // the TryAdd-doesn't-overwrite pattern. The shared ILogger
+    // resolves to loggerFactory.CreateLogger("Flowthru") in either
+    // case. The open-generic ILogger<> shim stays for hosts that
+    // opt into per-step categorization on their own — taking
+    // ILoggerFactory in Create() and calling CreateLogger<T>() is
+    // the escape hatch.
+    services.TryAddSingleton<ILoggerFactory, NullLoggerFactory>();
+    services.TryAdd(ServiceDescriptor.Singleton(typeof(ILogger<>), typeof(NullLogger<>)));
+    services.TryAddSingleton<ILogger>(sp =>
+      sp.GetRequiredService<ILoggerFactory>().CreateLogger("Flowthru")
+    );
 
     // Default scheduler — TryAdd lets a host register its own
     // IFlowScheduler before AddFlowthru and have that win, the same
@@ -62,7 +80,11 @@ public static class ServiceCollectionExtensions
 
     services.AddSingleton(builder);
     services.AddSingleton<IFlowthruService>(sp =>
-      new FlowthruService(sp, sp.GetRequiredService<FlowthruServiceBuilder>())
+      new FlowthruService(
+        sp,
+        sp.GetRequiredService<FlowthruServiceBuilder>(),
+        sp.GetRequiredService<ILogger>()
+      )
     );
     return services;
   }

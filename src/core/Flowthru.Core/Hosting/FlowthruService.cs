@@ -6,6 +6,7 @@ using Flowthru.Diagnostics;
 using Flowthru.Flow;
 using Flowthru.Step;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace Flowthru.Hosting;
 
@@ -39,6 +40,7 @@ public sealed class FlowthruService : IFlowthruService
 {
   private readonly IServiceProvider _services;
   private readonly FlowthruServiceBuilder _registry;
+  private readonly ILogger _logger;
   private readonly Lazy<MergedFlow> _merged;
 
   // Registration-validation cache. Holds Valid (success) once every
@@ -48,10 +50,15 @@ public sealed class FlowthruService : IFlowthruService
   private readonly SemaphoreSlim _registrationGate = new(1, 1);
   private Validated<PreFlightError, FlowUnit>? _registrationCache;
 
-  public FlowthruService(IServiceProvider services, FlowthruServiceBuilder registry)
+  public FlowthruService(
+    IServiceProvider services,
+    FlowthruServiceBuilder registry,
+    ILogger logger
+  )
   {
     _services = services ?? throw new ArgumentNullException(nameof(services));
     _registry = registry ?? throw new ArgumentNullException(nameof(registry));
+    _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     _merged = new Lazy<MergedFlow>(BuildMergedFlow);
   }
 
@@ -168,6 +175,25 @@ public sealed class FlowthruService : IFlowthruService
       }
     );
 
+    // Human-readable run-start log. Replaces the FlowthruActivityLogger
+    // bridge that retired with ADR-0006 — engine logs lifecycle directly
+    // now; the activity span above stays for OTel tracing.
+    if (isSliced)
+    {
+      _logger.LogInformation(
+        "→ Running flow '{FlowLabel}' ({StepCount} step(s) after slicing)",
+        flowLabel ?? "(merged)", effectiveFlow.Steps.Count
+      );
+    }
+    else
+    {
+      _logger.LogInformation(
+        "→ Running merged DAG ({StepCount} step(s))",
+        effectiveFlow.Steps.Count
+      );
+    }
+    var runStopwatch = Stopwatch.StartNew();
+
     // Acquire FlowResources declared on registered catalogs.
     // Per §2.6 / FlowResource.Use's bracket spec, this runs BEFORE
     // pre-flight (so probes can exercise live handles) and releases
@@ -248,6 +274,7 @@ public sealed class FlowthruService : IFlowthruService
     // Bracket discipline: surface release errors only on body success.
     // Body-failure paths suppress them — the user already has the
     // body diagnostic, and the failed cleanup is incidental.
+    FlowResult finalResult;
     if (!bodyResult.HasFailures && releaseErrors.Count > 0)
     {
       var augmented = bodyResult.StepResults.ToList();
@@ -256,9 +283,27 @@ public sealed class FlowthruService : IFlowthruService
         augmented.Add(new StepResult.Failed(
           $"resource.release[{i}]", releaseErrors[i], TimeSpan.Zero));
       }
-      return new FlowResult(augmented, bodyResult.Duration);
+      finalResult = new FlowResult(augmented, bodyResult.Duration);
     }
-    return bodyResult;
+    else
+    {
+      finalResult = bodyResult;
+    }
+
+    runStopwatch.Stop();
+    var ms = runStopwatch.Elapsed.TotalMilliseconds;
+    if (finalResult.HasFailures)
+    {
+      _logger.LogWarning(
+        "Flow run finished with failures in {Duration:F2} ms: {Reason}",
+        ms, finalResult.FirstFailure?.Error.Message
+      );
+    }
+    else
+    {
+      _logger.LogInformation("Flow run finished in {Duration:F2} ms", ms);
+    }
+    return finalResult;
   }
 
   /// <inheritdoc/>
@@ -400,10 +445,13 @@ public sealed class FlowthruService : IFlowthruService
         .GetServices<Flowthru.Validation.Runtime.IServiceRefDispatcher>()
         .ToList();
 
+      _logger.LogInformation("→ Pre-flight checks…");
+      var preFlightStopwatch = Stopwatch.StartNew();
       var preFlightResult = await PreFlightPipeline
         .Run(effectiveFlow, _registry.ValidationHooks, probes, dispatchers, inspectionLevel)
         .Run(cancellationToken)
         .ConfigureAwait(false);
+      preFlightStopwatch.Stop();
 
       var preFlightOutcome = preFlightResult switch
       {
@@ -417,6 +465,10 @@ public sealed class FlowthruService : IFlowthruService
 
       if (preFlightOutcome is Validated<PreFlightError, FlowUnit>.Invalid invalid)
       {
+        _logger.LogWarning(
+          "  ✗ Pre-flight failed with {ErrorCount} error(s) in {Duration:F2} ms",
+          invalid.Errors.Count, preFlightStopwatch.Elapsed.TotalMilliseconds
+        );
         // Surface every pre-flight error as its own synthetic StepResult so
         // the FlowResult preserves per-error granularity (and per-cause
         // FT3xxx codes via PreFlightFailed → classifier delegation). Labels
@@ -446,6 +498,11 @@ public sealed class FlowthruService : IFlowthruService
         return new FlowResult(preFlightFailures);
       }
 
+      _logger.LogInformation(
+        "  ✓ Pre-flight passed ({Duration:F2} ms)",
+        preFlightStopwatch.Elapsed.TotalMilliseconds
+      );
+
       // Pre-flight passed — build the cache plan from the
       // framework-managed manifest. Plan is consumed by the scheduler
       // (short-circuits fresh steps) and exposed on the metadata
@@ -467,32 +524,25 @@ public sealed class FlowthruService : IFlowthruService
           options = options with { CachePlan = cachePlan };
           metadataContext = metadataContext with { CachePlan = cachePlan };
 
-          // Surface every uncacheable-step decision via the
-          // FlowthruActivitySource so the CLI's FlowthruActivityLogger
-          // (and any other listener) can render each as an Information-
+          // Surface every uncacheable-step decision as an Information-
           // level log line. The MagicAtlas report flagged that a
           // single .Memory() input cascaded through 7+ Python steps
           // with no observable signal — the warm run looked identical
           // to the cold run, which made the cascade undebuggable.
           //
-          // Tags must be passed at construction so OnStarted sees them
-          // (SetTag after StartActivity fires too late — the listener
-          // already snapshotted the activity).
+          // Previously this emitted FlowthruActivitySource activities
+          // for the CLI bridge to render; ADR-0006 retired the bridge,
+          // so the engine logs directly. The CacheUncacheable activity
+          // wasn't a real span (no enclosed work) — it stood in for a
+          // log line, which is what we emit here now.
           foreach (var label in cachePlan.UncacheableStepLabels)
           {
             if (!cachePlan.UncacheableReasons.TryGetValue(label, out var reason))
               continue;
-            using var uncacheableActivity = FlowthruActivitySource.Source.StartActivity(
-              FlowthruActivitySource.CacheUncacheableActivityName,
-              System.Diagnostics.ActivityKind.Internal,
-              default(System.Diagnostics.ActivityContext),
-              new[]
-              {
-                new System.Collections.Generic.KeyValuePair<string, object?>(
-                  FlowthruActivitySource.TagStepLabel, label),
-                new System.Collections.Generic.KeyValuePair<string, object?>(
-                  FlowthruActivitySource.TagCacheUncacheableReason, reason.Describe()),
-              });
+            _logger.LogInformation(
+              "  ⊘ {StepLabel} uncacheable: {Reason}",
+              label, reason.Describe()
+            );
           }
         }
       }
@@ -514,7 +564,11 @@ public sealed class FlowthruService : IFlowthruService
     // Execute via the DI-resolved scheduler. Core ships
     // ParallelFlowScheduler as the default; extensions can register
     // an alternative IFlowScheduler before AddFlowthru runs.
-    var scheduler = _services.GetService<IFlowScheduler>() ?? new ParallelFlowScheduler();
+    // ActivatorUtilities resolves the scheduler's ctor params (the
+    // shared "Flowthru"-category ILogger) from the service provider
+    // when no override is registered.
+    var scheduler = _services.GetService<IFlowScheduler>()
+      ?? ActivatorUtilities.CreateInstance<ParallelFlowScheduler>(_services);
     var flowResult = await scheduler
       .ExecuteAsync(effectiveFlow, options, cancellationToken)
       .ConfigureAwait(false);

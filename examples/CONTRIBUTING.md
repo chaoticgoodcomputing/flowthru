@@ -56,6 +56,71 @@ Every example project in `starter/` and `advanced/` must include:
 
    Hand-authored `## File Structure` / `## Project Structure` blocks present at first sync are migrated in place into marker-wrapped auto-managed blocks; any annotations inside the original fence are dropped — see the marker as a contract that the section's content is now generated.
 
+## Logging from Steps
+
+Steps that want to emit log lines declare `ILogger` (non-generic) as a parameter on their `Create()` factory:
+
+```csharp
+[FlowthruStep]
+public static class PreprocessCompaniesStep
+{
+  public static Func<IEnumerable<CompanySchema>, IEnumerable<PreprocessedCompanySchema>> Create(
+    ILogger logger)
+  {
+    return input =>
+    {
+      var rows = input.ToList();
+      var processed = rows.Select(Parse).Where(item => item != null).Cast<PreprocessedCompanySchema>().ToList();
+      var dropped = rows.Count - processed.Count;
+      if (dropped > 0)
+      {
+        logger.LogWarning("Dropped {Count} rows with invalid rating percentages", dropped);
+      }
+      return processed;
+    };
+  }
+}
+```
+
+The `[FlowthruStep]` source generator recognises interface-typed `Create()` parameters as service dependencies, so no other wiring is required — `AddFlowthru` registers a singleton `ILogger` resolved as `loggerFactory.CreateLogger("Flowthru")`, and the engine and every step share that single logger identity under the category `Flowthru`. Flow factories resolve it like any other DI dependency:
+
+```csharp
+b.RegisterFlow<MyCatalog, ILogger>(
+  "main",
+  (catalog, logger) => FlowBuilder.CreateFlow("main", p =>
+    p.AddStep<TIn, TOut>(
+      "preprocess",
+      PreprocessCompaniesStep.Create(logger),
+      catalog.RawCompanies,
+      catalog.PreprocessedCompanies))
+);
+```
+
+The convention is *declare when useful*, not *declare always*. Pure-transform steps that have no events worth narrating leave `Create()` parameterless — adding `ILogger` everywhere just to satisfy a rule produces noise, not signal.
+
+Hosts wire logging the standard .NET way:
+
+```csharp
+services.AddLogging(b => b.AddConsole());
+services.AddFlowthru(b => { /* ... */ });
+```
+
+Without `AddLogging()`, the logger resolves to a `NullLogger` via `AddFlowthru`'s `TryAdd<NullLoggerFactory>` fallback and calls are silently dropped. Engine internals (`FlowthruService`, `ParallelFlowScheduler`) follow the same convention and render their lifecycle lines through the same shared `ILogger`.
+
+**Per-step categorization (opt-in).** The default collapses every Flowthru log into one `"Flowthru"` category — engine and steps are indistinguishable in the log stream. Hosts that want per-step filtering in `appsettings.json` take `ILoggerFactory` in `Create()` and build a categorized logger themselves:
+
+```csharp
+public static Func<...> Create(ILoggerFactory loggerFactory)
+{
+  var logger = loggerFactory.CreateLogger(typeof(PreprocessCompaniesStep).FullName!);
+  // ...
+}
+```
+
+This is the escape hatch, not the default — most flows are fine with the single shared category.
+
+The full rationale lives in [.claude/docs/adr/0005-step-logging-via-shared-ilogger.md](/.claude/docs/adr/0005-step-logging-via-shared-ilogger.md).
+
 ## README Standards
 
 Every example README follows a three-section skeleton: `## Getting Started`, `## Concepts`, `## Structure`. Structural conformance is enforced by the README meta-test (see [§ Meta-test scope](#meta-test-scope)); deviations fail the build.

@@ -47,6 +47,12 @@ Source generators and code fixes are Core concerns, not a specialty:
 
 Every new analyzer or source-generator diagnostic ships with its companion code fix as part of the same change.
 
+## Engine Logging
+
+Engine components (`FlowthruService`, `ParallelFlowScheduler`, future schedulers) take `ILogger` (non-generic) as a constructor dependency. `AddFlowthru` registers a singleton resolved as `loggerFactory.CreateLogger("Flowthru")`, so the engine and every step share **one logger identity** under the single category `Flowthru` (ADR-0005). Lifecycle, pre-flight, and cache-decision logs go out through that shared logger. The `Microsoft.Extensions.Logging.Abstractions` dependency is the only logging coupling Core carries — concrete providers come from the host via `services.AddLogging(...)`. Hosts that don't register a factory get the `NullLogger` fallback wired by `AddFlowthru` and see no output.
+
+`FlowthruActivitySource` still emits trace spans (`flowthru.run`, `flowthru.preflight`, `flowthru.step`) for OpenTelemetry and other distributed-tracing consumers — that was always activities' real job. The CLI-side `FlowthruActivityLogger` bridge that translated those activities into log lines has been retired; see [.claude/docs/adr/0006-engine-logs-directly-retire-activity-bridge.md](/.claude/docs/adr/0006-engine-logs-directly-retire-activity-bridge.md). The step-side convention (`Create(ILogger)`) lives in [/examples/CONTRIBUTING.md](/examples/CONTRIBUTING.md) and [.claude/docs/adr/0005-step-logging-via-shared-ilogger.md](/.claude/docs/adr/0005-step-logging-via-shared-ilogger.md).
+
 ## Prelude
 
 `Flowthru.Prelude` houses the FP primitives the rest of Core builds on — `FlowIO<T>`, `EffResult<A>`, `Validated<TError, TValue>`, `FlowUnit`, `FlowResource`, plus the `IFlowResource` interface.

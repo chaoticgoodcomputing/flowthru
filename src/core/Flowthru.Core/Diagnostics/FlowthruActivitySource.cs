@@ -4,20 +4,20 @@ namespace Flowthru.Diagnostics;
 
 /// <summary>
 /// Single <see cref="ActivitySource"/> Core uses to publish runtime
-/// events (flow run started/finished, pre-flight phase entered/exited,
-/// per-step start/finish). Consumers — <c>Flowthru.Cli</c>, OpenTelemetry
-/// providers, App Insights, custom dashboards — subscribe via
-/// <see cref="ActivityListener"/>; Core itself has no logging
-/// dependency and does no rendering.
+/// trace spans (flow run started/finished, pre-flight phase
+/// entered/exited, per-step start/finish). Consumers — OpenTelemetry
+/// exporters, App Insights, custom dashboards — subscribe via
+/// <see cref="ActivityListener"/>.
 /// </summary>
 /// <remarks>
 /// <para>
-/// Per §2.6, the runtime is the interpreter side — IO happens here.
-/// But the runtime emits structured *events*, not formatted log
-/// lines: bridging events to <c>ILogger</c> / OpenTelemetry / a
-/// terminal UI is a consumer concern, not a Core concern. The
-/// CLI's <c>FlowthruActivityLogger</c> is the canonical bridge that
-/// translates these activities into <c>ILogger</c> log lines.
+/// Per ADR-0006, human-readable logging is handled directly by
+/// <c>ILogger&lt;TSelf&gt;</c> in engine components
+/// (<c>FlowthruService</c>, <c>ParallelFlowScheduler</c>); this
+/// <see cref="ActivitySource"/> emits trace spans for distributed-
+/// tracing consumers only. The previous CLI-side
+/// <c>FlowthruActivityLogger</c> bridge that translated activities
+/// into <c>ILogger</c> calls has been retired.
 /// </para>
 /// <para>
 /// Standard activity names emitted by Core:
@@ -49,13 +49,11 @@ public static class FlowthruActivitySource
   public const string StepActivityName = "flowthru.step";
 
   /// <summary>
-  /// Activity name for one cache-plan uncacheability decision.
-  /// Emitted once per step that landed in
-  /// <see cref="Flowthru.Caching.CachePlan.UncacheableStepLabels"/>
-  /// during pre-flight. The CLI's <c>FlowthruActivityLogger</c> renders
-  /// each instance as an Information-level log line so flow authors can
-  /// audit cache eligibility without spelunking through the
-  /// cache-plan-builder source.
+  /// Reserved activity name for the cache-uncacheability decision.
+  /// Engine no longer emits this — <c>FlowthruService</c> logs each
+  /// uncacheable-step decision directly via <c>ILogger</c> (ADR-0006).
+  /// The constant remains for any external consumer that wired filters
+  /// against this name in the activity-bridge era.
   /// </summary>
   public const string CacheUncacheableActivityName = "flowthru.cache.uncacheable";
 

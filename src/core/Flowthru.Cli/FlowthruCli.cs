@@ -1,5 +1,4 @@
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 
 namespace Flowthru.Cli;
 
@@ -83,16 +82,6 @@ public static class FlowthruCli
       }
       return 0;
     }
-
-    // Bridge Core's Activity events → ILogger if the host wired
-    // logging through DI. Optional: hosts that haven't called
-    // AddLogging(...) get the spartan default — only the final
-    // FlowResult render. Hosts that have registered logging see
-    // the full per-step "→ executing… ✓ done" progress.
-    var loggerFactory = provider.GetService<ILoggerFactory>();
-    using var activityLogger = loggerFactory is null
-      ? null
-      : new FlowthruActivityLogger(loggerFactory);
 
     // Per §2.4, all flows registered with the same FlowthruService
     // merge into a single DAG. Three dispatch paths, mutually exclusive
