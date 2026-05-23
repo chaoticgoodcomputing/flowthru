@@ -1,3 +1,20 @@
+## 0.19.0 (2026-05-23)
+
+### 🚀 Features
+
+- **core:** share a single ILogger between the engine and steps ([26754906](https://github.com/chaoticgoodcomputing/flowthru/commit/26754906))
+- **examples:** wire ILogger through Iris and Spaceflights ([450837cb](https://github.com/chaoticgoodcomputing/flowthru/commit/450837cb))
+- **examples:** wire ILogger through SimpleEffectsExample ([9c80f9fc](https://github.com/chaoticgoodcomputing/flowthru/commit/9c80f9fc))
+- **python:** bridge Python stderr into engine's shared ILogger ([7496e075](https://github.com/chaoticgoodcomputing/flowthru/commit/7496e075))
+
+### 🩹 Fixes
+
+- **logging:** post-audit cleanup against CONTRIBUTING conventions ([83cf9a10](https://github.com/chaoticgoodcomputing/flowthru/commit/83cf9a10))
+
+### ❤️ Thank You
+
+- Spencer Elkington
+
 ## 0.18.5 (2026-05-22)
 
 ### 🩹 Fixes
