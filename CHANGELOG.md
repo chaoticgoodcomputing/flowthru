@@ -1,3 +1,13 @@
+## 0.20.0 (2026-05-23)
+
+### 🚀 Features
+
+- mermaid split-diagrams for >3 flows in a DAG ([f8336ba5](https://github.com/chaoticgoodcomputing/flowthru/commit/f8336ba5))
+
+### ❤️ Thank You
+
+- Spencer Elkington
+
 ## 0.19.0 (2026-05-23)
 
 ### 🚀 Features
