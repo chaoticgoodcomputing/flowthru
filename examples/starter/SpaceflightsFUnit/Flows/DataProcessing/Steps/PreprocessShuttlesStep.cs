@@ -1,5 +1,7 @@
 using Flowthru.Step;
 using Flowthru.Step.Testing;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using SpaceflightsFUnit.Data._01_Raw.Schemas;
 using SpaceflightsFUnit.Data._02_Intermediate.Schemas;
 
@@ -18,14 +20,30 @@ public static class PreprocessShuttlesStep
   /// A function that converts <see cref="ShuttleSchema"/> records to <see cref="PreprocessedShuttleSchema"/> records.
   /// Records with invalid numeric fields or currency values are filtered out.
   /// </returns>
-  public static Func<IEnumerable<ShuttleSchema>, IEnumerable<PreprocessedShuttleSchema>> Create()
+  public static Func<IEnumerable<ShuttleSchema>, IEnumerable<PreprocessedShuttleSchema>> Create(
+    ILogger logger)
   {
     return (input) =>
     {
-      var processed = input
+      var rows = input.ToList();
+      var processed = rows
         .Select(raw => Parse(raw))
         .Where(item => item != null)
-        .Cast<PreprocessedShuttleSchema>();
+        .Cast<PreprocessedShuttleSchema>()
+        .ToList();
+
+      var dropped = rows.Count - processed.Count;
+      if (dropped > 0)
+      {
+        logger.LogWarning(
+          "Dropped {Dropped}/{Total} shuttle rows with invalid numeric/currency fields",
+          dropped, rows.Count
+        );
+      }
+      else
+      {
+        logger.LogInformation("Preprocessed {Count} shuttle rows", processed.Count);
+      }
 
       return processed;
     };
@@ -129,7 +147,7 @@ public static class PreprocessShuttlesStep
       var input = Samples.Of(ValidRaw);
 
       // Apply
-      var result = Invoke(Create(), input).ToList();
+      var result = Invoke(Create(NullLogger.Instance), input).ToList();
 
       // Assert
       Assert.That(result, Has.Count.EqualTo(1));
@@ -150,7 +168,7 @@ public static class PreprocessShuttlesStep
       var input = Samples.Of(ValidRaw with { Engines = "many" });
 
       // Apply
-      var result = Invoke(Create(), input).ToList();
+      var result = Invoke(Create(NullLogger.Instance), input).ToList();
 
       // Assert
       Assert.That(result, Is.Empty);
@@ -166,7 +184,7 @@ public static class PreprocessShuttlesStep
       var input = Samples.Of(ValidRaw with { Price = "$9,999.99" });
 
       // Apply
-      var result = Invoke(Create(), input).ToList();
+      var result = Invoke(Create(NullLogger.Instance), input).ToList();
 
       // Assert
       Assert.That(result[0].Price, Is.EqualTo(9999.99m));

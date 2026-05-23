@@ -1,4 +1,5 @@
 using Flowthru.Step;
+using Microsoft.Extensions.Logging;
 using Spaceflights.Data._03_Primary.Schemas;
 using Spaceflights.Data._05_ModelInput.Schemas;
 
@@ -43,7 +44,7 @@ public static class SplitDataStep
   public static Func<
     (IEnumerable<ModelInputTableSchema>, ModelOptions),
     (IEnumerable<TrainingData>, IEnumerable<TestData>)
-  > Create() => input =>
+  > Create(ILogger logger) => input =>
   {
     var (rawData, options) = input;
     var data = rawData.ToList();
@@ -53,6 +54,11 @@ public static class SplitDataStep
     var shuffled = data.OrderBy(_ => random.Next()).ToList();
 
     var splitIndex = (int)(shuffled.Count * (1 - options.TestSize));
+
+    logger.LogInformation(
+      "Split {Total} rows: {Train} train / {Test} test ({Ratio:P0} test, seed={Seed})",
+      shuffled.Count, splitIndex, shuffled.Count - splitIndex, options.TestSize, options.RandomState
+    );
 
     var trainData = shuffled
       .Take(splitIndex)

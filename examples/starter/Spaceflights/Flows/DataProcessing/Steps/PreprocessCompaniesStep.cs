@@ -1,4 +1,5 @@
 using Flowthru.Step;
+using Microsoft.Extensions.Logging;
 using Spaceflights.Data._01_Raw.Schemas;
 using Spaceflights.Data._02_Intermediate.Schemas;
 
@@ -17,14 +18,30 @@ public static class PreprocessCompaniesStep
   /// A function that converts <see cref="CompanySchema"/> records to <see cref="PreprocessedCompanySchema"/> records.
   /// Records with invalid rating percentages are filtered out.
   /// </returns>
-  public static Func<IEnumerable<CompanySchema>, IEnumerable<PreprocessedCompanySchema>> Create()
+  public static Func<IEnumerable<CompanySchema>, IEnumerable<PreprocessedCompanySchema>> Create(
+    ILogger logger)
   {
     return (input) =>
     {
-      var processed = input
+      var rows = input.ToList();
+      var processed = rows
         .Select(raw => Parse(raw))
         .Where(item => item != null)
-        .Cast<PreprocessedCompanySchema>();
+        .Cast<PreprocessedCompanySchema>()
+        .ToList();
+
+      var dropped = rows.Count - processed.Count;
+      if (dropped > 0)
+      {
+        logger.LogWarning(
+          "Dropped {Dropped}/{Total} company rows with invalid rating percentages",
+          dropped, rows.Count
+        );
+      }
+      else
+      {
+        logger.LogInformation("Preprocessed {Count} company rows", processed.Count);
+      }
 
       return processed;
     };

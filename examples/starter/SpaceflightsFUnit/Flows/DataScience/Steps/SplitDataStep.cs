@@ -1,5 +1,7 @@
 using Flowthru.Step;
 using Flowthru.Step.Testing;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using SpaceflightsFUnit.Data._03_Primary.Schemas;
 using SpaceflightsFUnit.Data._05_ModelInput.Schemas;
 
@@ -45,7 +47,7 @@ public static class SplitDataStep
   public static Func<
     (IEnumerable<ModelInputTableSchema> Data, ModelOptions Options),
     (IEnumerable<TrainingData>, IEnumerable<TestData>)
-  > Create() => input =>
+  > Create(ILogger logger) => input =>
   {
     var (rawData, options) = input;
     var data = rawData.ToList();
@@ -55,6 +57,11 @@ public static class SplitDataStep
     var shuffled = data.OrderBy(_ => random.Next()).ToList();
 
     var splitIndex = (int)(shuffled.Count * (1 - options.TestSize));
+
+    logger.LogInformation(
+      "Split {Total} rows: {Train} train / {Test} test ({Ratio:P0} test, seed={Seed})",
+      shuffled.Count, splitIndex, shuffled.Count - splitIndex, options.TestSize, options.RandomState
+    );
 
     var trainData = shuffled
       .Take(splitIndex)
@@ -128,7 +135,7 @@ public static class SplitDataStep
       var input = Samples.Generate(10, i => Row($"S{i}"));
 
       // Apply
-      var (train, test) = Invoke(Create(), (input, DefaultOptions));
+      var (train, test) = Invoke(Create(NullLogger.Instance), (input, DefaultOptions));
 
       // Assert
       Assert.That(train.Count(), Is.EqualTo(8));
@@ -145,7 +152,7 @@ public static class SplitDataStep
       var input = Samples.Generate(15, i => Row($"S{i}"));
 
       // Apply
-      var (train, test) = Invoke(Create(), (input, DefaultOptions));
+      var (train, test) = Invoke(Create(NullLogger.Instance), (input, DefaultOptions));
 
       // Assert
       Assert.That(train.Count() + test.Count(), Is.EqualTo(15));
@@ -161,8 +168,8 @@ public static class SplitDataStep
       var input = Samples.Generate(10, i => Row($"S{i}"));
 
       // Apply
-      var (train1, _) = Invoke(Create(), (input, DefaultOptions));
-      var (train2, _) = Invoke(Create(), (input, DefaultOptions));
+      var (train1, _) = Invoke(Create(NullLogger.Instance), (input, DefaultOptions));
+      var (train2, _) = Invoke(Create(NullLogger.Instance), (input, DefaultOptions));
 
       // Assert
       var ids1 = train1.Select(r => r.Features.Engines).ToList();

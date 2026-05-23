@@ -73,10 +73,10 @@ public class Program
         meta.AddMermaidMetadata(opt => opt.WithOutputDirectory(metadataPath));
       });
 
-      b.RegisterFlow<Catalog>("DataEngineering", DataEngineeringFlow.Create)
+      b.RegisterFlow<Catalog, ILogger>("DataEngineering", DataEngineeringFlow.Create)
         .WithDescription("Splits iris data into training and test sets with one-hot encoding");
 
-      b.RegisterFlow<Catalog>("DataScience", DataScienceFlow.Create)
+      b.RegisterFlow<Catalog, ILogger>("DataScience", DataScienceFlow.Create)
         .WithDescription("Trains multi-class logistic regression model for iris classification");
     });
 

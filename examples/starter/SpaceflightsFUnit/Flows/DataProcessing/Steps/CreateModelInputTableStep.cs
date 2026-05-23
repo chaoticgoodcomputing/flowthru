@@ -1,5 +1,7 @@
 using Flowthru.Step;
 using Flowthru.Step.Testing;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using SpaceflightsFUnit.Data._01_Raw.Schemas;
 using SpaceflightsFUnit.Data._02_Intermediate.Schemas;
 using SpaceflightsFUnit.Data._03_Primary.Schemas;
@@ -26,14 +28,17 @@ public static class CreateModelInputTableStep
       IEnumerable<ReviewSchema>
     ),
     IEnumerable<ModelInputTableSchema>
-  > Create()
+  > Create(ILogger logger)
   {
     return (input) =>
     {
       var (shuttles, companies, reviews) = input;
+      var shuttleList = shuttles.ToList();
+      var companyList = companies.ToList();
+      var reviewList = reviews.ToList();
 
       // Parse reviews to have decimal scores
-      var parsedReviews = reviews
+      var parsedReviews = reviewList
         .Select(r => new
         {
           r.ShuttleId,
@@ -42,10 +47,19 @@ public static class CreateModelInputTableStep
         .Where(r => r.Score.HasValue)
         .ToList();
 
+      var droppedReviews = reviewList.Count - parsedReviews.Count;
+      if (droppedReviews > 0)
+      {
+        logger.LogWarning(
+          "Dropped {Dropped}/{Total} reviews with unparseable rating scores",
+          droppedReviews, reviewList.Count
+        );
+      }
+
       // Join reviews to shuttles
       var ratedShuttles = parsedReviews
         .Join(
-          shuttles,
+          shuttleList,
           r => r.ShuttleId,
           s => s.Id,
           (r, s) => new { Shuttle = s, ReviewScore = r.Score!.Value }
@@ -55,7 +69,7 @@ public static class CreateModelInputTableStep
       // Join with companies
       var modelInputTable = ratedShuttles
         .Join(
-          companies,
+          companyList,
           rs => rs.Shuttle.CompanyId,
           c => c.Id,
           (rs, c) =>
@@ -76,6 +90,12 @@ public static class CreateModelInputTableStep
             }
         )
         .ToList(); // Materialize query to ensure LINQ execution completes
+
+      logger.LogInformation(
+        "Joined {Shuttles} shuttle rows × {Companies} company rows × {Reviews} reviews "
+        + "→ {Out} model-input rows",
+        shuttleList.Count, companyList.Count, parsedReviews.Count, modelInputTable.Count
+      );
 
       return modelInputTable;
     };
@@ -123,7 +143,7 @@ public static class CreateModelInputTableStep
       var reviews = Samples.Of(Review("S1", "90"));
 
       // Apply
-      var result = Invoke(Create(), (shuttles, companies, reviews)).ToList();
+      var result = Invoke(Create(NullLogger.Instance), (shuttles, companies, reviews)).ToList();
 
       // Assert
       Assert.That(result, Has.Count.EqualTo(1));
@@ -143,7 +163,7 @@ public static class CreateModelInputTableStep
       var reviews = Samples.Of(Review("S1", "90"));
 
       // Apply
-      var result = Invoke(Create(), (shuttles, companies, reviews)).ToList();
+      var result = Invoke(Create(NullLogger.Instance), (shuttles, companies, reviews)).ToList();
 
       // Assert
       Assert.That(result, Is.Empty);
@@ -161,7 +181,7 @@ public static class CreateModelInputTableStep
       var reviews = Samples.Of(Review("S1", "not-a-number"));
 
       // Apply
-      var result = Invoke(Create(), (shuttles, companies, reviews)).ToList();
+      var result = Invoke(Create(NullLogger.Instance), (shuttles, companies, reviews)).ToList();
 
       // Assert
       Assert.That(result, Is.Empty);

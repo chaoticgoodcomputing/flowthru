@@ -4,6 +4,7 @@ using IrisFUnit.Data._01_Raw.Schemas;
 using IrisFUnit.Data._04_Feature.Schemas;
 using IrisFUnit.Data._05_ModelInput.Schemas;
 using IrisFUnit.Flows.DataEngineering.Steps;
+using Microsoft.Extensions.Logging;
 
 namespace IrisFUnit.Flows.DataEngineering;
 
@@ -17,7 +18,7 @@ namespace IrisFUnit.Flows.DataEngineering;
 /// </summary>
 public static class DataEngineeringFlow
 {
-  public static BuiltFlow Create(Catalog catalog)
+  public static BuiltFlow Create(Catalog catalog, ILogger logger)
   {
     return FlowBuilder.CreateFlow("DataEngineering", pipeline =>
     {
@@ -31,7 +32,7 @@ public static class DataEngineeringFlow
         IEnumerable<TargetLabelSchema>
       >(
         label: "SplitAndEncode",
-        transform: SplitAndEncodeStep.Create(),
+        transform: SplitAndEncodeStep.Create(logger),
         inputs: (catalog.IrisRaw, catalog.SplitOptions),
         outputs: (catalog.IrisFeatures, catalog.TrainX, catalog.TrainY, catalog.TestX, catalog.TestY)
       );

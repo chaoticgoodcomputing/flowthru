@@ -1,8 +1,11 @@
+using System.Diagnostics;
 using Flowthru.Step;
 using Flowthru.Step.Testing;
+using MathNet.Numerics.LinearRegression;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using SpaceflightsFUnit.Data._05_ModelInput.Schemas;
 using SpaceflightsFUnit.Data._06_Models.Schemas;
-using MathNet.Numerics.LinearRegression;
 
 namespace SpaceflightsFUnit.Flows.DataScience.Steps;
 
@@ -24,7 +27,7 @@ public static class TrainModelStep
   /// Excludes moon_clearance_complete feature due to zero variance in training data.
   /// </remarks>
   /// <exception cref="InvalidOperationException">Thrown when no training data is available.</exception>
-  public static Func<IEnumerable<TrainingData>, LinearRegressionModel> Create()
+  public static Func<IEnumerable<TrainingData>, LinearRegressionModel> Create(ILogger logger)
   {
     return (input) =>
     {
@@ -34,6 +37,12 @@ public static class TrainModelStep
       {
         throw new InvalidOperationException("No training data available");
       }
+
+      logger.LogInformation(
+        "Training linear regression on {Samples} samples × 7 features (QR decomposition)",
+        data.Count
+      );
+      var stopwatch = Stopwatch.StartNew();
 
       // Extract features and labels
       var features = data.Select(d => d.Features).ToList();
@@ -75,6 +84,12 @@ public static class TrainModelStep
         },
       };
 
+      stopwatch.Stop();
+      logger.LogInformation(
+        "Training completed in {Elapsed:F0} ms (intercept={Intercept:F2})",
+        stopwatch.Elapsed.TotalMilliseconds, model.Intercept
+      );
+
       return model;
     };
   }
@@ -107,7 +122,7 @@ public static class TrainModelStep
     public void EmptyInput_ThrowsInvalidOperationException()
     {
       Assert.Throws<InvalidOperationException>(
-        () => Invoke(Create(), Enumerable.Empty<TrainingData>())
+        () => Invoke(Create(NullLogger.Instance), Enumerable.Empty<TrainingData>())
       );
     }
 
@@ -121,7 +136,7 @@ public static class TrainModelStep
       var input = Samples.Generate(20, i => SampleRow(1000.0 + i * 10.0));
 
       // Apply
-      var model = Invoke(Create(), input);
+      var model = Invoke(Create(NullLogger.Instance), input);
 
       // Assert
       Assert.That(model.Coefficients.Length, Is.EqualTo(model.FeatureNames.Length));

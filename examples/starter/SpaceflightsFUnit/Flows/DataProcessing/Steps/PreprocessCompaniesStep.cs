@@ -1,5 +1,7 @@
 using Flowthru.Step;
 using Flowthru.Step.Testing;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using SpaceflightsFUnit.Data._01_Raw.Schemas;
 using SpaceflightsFUnit.Data._02_Intermediate.Schemas;
 
@@ -18,14 +20,30 @@ public static class PreprocessCompaniesStep
   /// A function that converts <see cref="CompanySchema"/> records to <see cref="PreprocessedCompanySchema"/> records.
   /// Records with invalid rating percentages are filtered out.
   /// </returns>
-  public static Func<IEnumerable<CompanySchema>, IEnumerable<PreprocessedCompanySchema>> Create()
+  public static Func<IEnumerable<CompanySchema>, IEnumerable<PreprocessedCompanySchema>> Create(
+    ILogger logger)
   {
     return (input) =>
     {
-      var processed = input
+      var rows = input.ToList();
+      var processed = rows
         .Select(raw => Parse(raw))
         .Where(item => item != null)
-        .Cast<PreprocessedCompanySchema>();
+        .Cast<PreprocessedCompanySchema>()
+        .ToList();
+
+      var dropped = rows.Count - processed.Count;
+      if (dropped > 0)
+      {
+        logger.LogWarning(
+          "Dropped {Dropped}/{Total} company rows with invalid rating percentages",
+          dropped, rows.Count
+        );
+      }
+      else
+      {
+        logger.LogInformation("Preprocessed {Count} company rows", processed.Count);
+      }
 
       return processed;
     };
@@ -108,7 +126,7 @@ public static class PreprocessCompaniesStep
       var input = Samples.Of(ValidRaw);
 
       // Apply
-      var result = Invoke(Create(), input).ToList();
+      var result = Invoke(Create(NullLogger.Instance), input).ToList();
 
       // Assert
       Assert.That(result, Has.Count.EqualTo(1));
@@ -128,7 +146,7 @@ public static class PreprocessCompaniesStep
       var input = Samples.Of(ValidRaw with { IataApproved = "f" });
 
       // Apply
-      var result = Invoke(Create(), input).ToList();
+      var result = Invoke(Create(NullLogger.Instance), input).ToList();
 
       // Assert
       Assert.That(result[0].IataApproved, Is.False);
@@ -144,7 +162,7 @@ public static class PreprocessCompaniesStep
       var input = Samples.Of(ValidRaw with { CompanyRating = "not-a-percent" });
 
       // Apply
-      var result = Invoke(Create(), input).ToList();
+      var result = Invoke(Create(NullLogger.Instance), input).ToList();
 
       // Assert
       Assert.That(result, Is.Empty);

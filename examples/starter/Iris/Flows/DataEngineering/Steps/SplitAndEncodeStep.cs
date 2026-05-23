@@ -2,6 +2,7 @@ using Flowthru.Step;
 using Iris.Data._01_Raw.Schemas;
 using Iris.Data._04_Feature.Schemas;
 using Iris.Data._05_ModelInput.Schemas;
+using Microsoft.Extensions.Logging;
 
 namespace Iris.Flows.DataEngineering.Steps;
 
@@ -39,7 +40,7 @@ public static class SplitAndEncodeStep
       IEnumerable<FeatureVectorSchema> TestX,
       IEnumerable<TargetLabelSchema> TestY
     )
-  > Create() => input =>
+  > Create(ILogger logger) => input =>
   {
     var (rawData, options) = input;
 
@@ -66,6 +67,11 @@ public static class SplitAndEncodeStep
     var testCount = (int)(totalCount * options.TestDataRatio);
     var testData = shuffled.Take(testCount).ToList();
     var trainData = shuffled.Skip(testCount).ToList();
+
+    logger.LogInformation(
+      "Encoded {Total} iris rows; split {Train} train / {Test} test ({Ratio:P0})",
+      totalCount, trainData.Count, testData.Count, options.TestDataRatio
+    );
 
     // Separate features (X) from labels (Y)
     var trainX = trainData.Select(row => new FeatureVectorSchema

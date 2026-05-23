@@ -2,6 +2,7 @@ using Flowthru.Step;
 using Iris.Data._05_ModelInput.Schemas;
 using Iris.Data._07_ModelOutput.Schemas;
 using Iris.Data._08_Reporting.Schemas;
+using Microsoft.Extensions.Logging;
 
 namespace Iris.Flows.DataScience.Steps;
 
@@ -20,7 +21,7 @@ public static class EvaluateModelStep
   public static Func<
     (IEnumerable<PredictionSchema> Predictions, IEnumerable<TargetLabelSchema> TestY),
     MetricsSchema
-  > Create()
+  > Create(ILogger logger)
   {
     return (input) =>
     {
@@ -60,8 +61,10 @@ public static class EvaluateModelStep
       var numTotal = predList.Count;
       var accuracy = (double)numCorrect / numTotal;
 
-      // Log accuracy to console
-      Console.WriteLine($"Model accuracy on test set: {accuracy:P2} ({numCorrect}/{numTotal})");
+      logger.LogInformation(
+        "Test-set accuracy: {Accuracy:P2} ({Correct}/{Total})",
+        accuracy, numCorrect, numTotal
+      );
 
       return new MetricsSchema
       {

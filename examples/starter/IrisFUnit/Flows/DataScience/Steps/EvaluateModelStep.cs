@@ -3,6 +3,8 @@ using Flowthru.Step.Testing;
 using IrisFUnit.Data._05_ModelInput.Schemas;
 using IrisFUnit.Data._07_ModelOutput.Schemas;
 using IrisFUnit.Data._08_Reporting.Schemas;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace IrisFUnit.Flows.DataScience.Steps;
 
@@ -21,7 +23,7 @@ public static class EvaluateModelStep
   public static Func<
     (IEnumerable<PredictionSchema> Predictions, IEnumerable<TargetLabelSchema> TestY),
     MetricsSchema
-  > Create() =>
+  > Create(ILogger logger) =>
     input =>
     {
       var (predictions, testY) = input;
@@ -60,8 +62,10 @@ public static class EvaluateModelStep
       var numTotal = predList.Count;
       var accuracy = (double)numCorrect / numTotal;
 
-      // Log accuracy to console
-      Console.WriteLine($"Model accuracy on test set: {accuracy:P2} ({numCorrect}/{numTotal})");
+      logger.LogInformation(
+        "Test-set accuracy: {Accuracy:P2} ({Correct}/{Total})",
+        accuracy, numCorrect, numTotal
+      );
 
       return new MetricsSchema
       {
@@ -114,7 +118,7 @@ public static class EvaluateModelStep
       var labels = new[] { Setosa, Versicolor, Virginica };
 
       // Apply
-      var result = Invoke(Create(), (predictions, labels));
+      var result = Invoke(Create(NullLogger.Instance), (predictions, labels));
 
       // Assert
       Assert.That(result.Accuracy, Is.EqualTo(1.0));
@@ -139,7 +143,7 @@ public static class EvaluateModelStep
       var labels = new[] { Setosa, Versicolor, Virginica };
 
       // Apply
-      var result = Invoke(Create(), (predictions, labels));
+      var result = Invoke(Create(NullLogger.Instance), (predictions, labels));
 
       // Assert
       Assert.That(result.Accuracy, Is.EqualTo(0.0));
@@ -162,7 +166,7 @@ public static class EvaluateModelStep
       var labels = new[] { Setosa, Versicolor };
 
       // Apply
-      var result = Invoke(Create(), (predictions, labels));
+      var result = Invoke(Create(NullLogger.Instance), (predictions, labels));
 
       // Assert
       Assert.That(result.Accuracy, Is.EqualTo(0.5));

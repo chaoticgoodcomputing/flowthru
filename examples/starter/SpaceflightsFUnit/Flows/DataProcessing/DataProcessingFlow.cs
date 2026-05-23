@@ -1,4 +1,5 @@
 using Flowthru.Flow;
+using Microsoft.Extensions.Logging;
 using SpaceflightsFUnit.Data;
 using SpaceflightsFUnit.Data._01_Raw.Schemas;
 using SpaceflightsFUnit.Data._02_Intermediate.Schemas;
@@ -13,20 +14,20 @@ namespace SpaceflightsFUnit.Flows.DataProcessing;
 /// </summary>
 public static class DataProcessingFlow
 {
-  public static BuiltFlow Create(Catalog catalog)
+  public static BuiltFlow Create(Catalog catalog, ILogger logger)
   {
     return FlowBuilder.CreateFlow("DataProcessing", pipeline =>
     {
       pipeline.AddStep<IEnumerable<CompanySchema>, IEnumerable<PreprocessedCompanySchema>>(
         label: "PreprocessCompanies",
-        transform: PreprocessCompaniesStep.Create(),
+        transform: PreprocessCompaniesStep.Create(logger),
         inputs: catalog.Companies,
         outputs: catalog.PreprocessedCompanies
       );
 
       pipeline.AddStep<IEnumerable<ShuttleSchema>, IEnumerable<PreprocessedShuttleSchema>>(
         label: "PreprocessShuttles",
-        transform: PreprocessShuttlesStep.Create(),
+        transform: PreprocessShuttlesStep.Create(logger),
         inputs: catalog.Shuttles,
         outputs: catalog.PreprocessedShuttles
       );
@@ -38,7 +39,7 @@ public static class DataProcessingFlow
         IEnumerable<ModelInputTableSchema>
       >(
         label: "CreateModelInputTable",
-        transform: CreateModelInputTableStep.Create(),
+        transform: CreateModelInputTableStep.Create(logger),
         inputs: (catalog.PreprocessedShuttles, catalog.PreprocessedCompanies, catalog.Reviews),
         outputs: catalog.ModelInputTable
       );

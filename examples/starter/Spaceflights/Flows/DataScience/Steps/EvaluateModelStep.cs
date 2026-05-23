@@ -1,4 +1,5 @@
 using Flowthru.Step;
+using Microsoft.Extensions.Logging;
 using Spaceflights.Data._02_Intermediate.Schemas;
 using Spaceflights.Data._05_ModelInput.Schemas;
 using Spaceflights.Data._06_Models.Schemas;
@@ -23,7 +24,7 @@ public static class EvaluateModelStep
   public static Func<
     (LinearRegressionModel, IEnumerable<TestData>),
     (ModelMetrics, IEnumerable<ModelPredictions>)
-  > Create()
+  > Create(ILogger logger)
   {
     return (input) =>
     {
@@ -32,7 +33,7 @@ public static class EvaluateModelStep
 
       if (data.Count == 0)
       {
-        Console.WriteLine("No test data available for evaluation");
+        logger.LogWarning("No test data available for evaluation");
         return (
           new ModelMetrics
           {
@@ -52,6 +53,11 @@ public static class EvaluateModelStep
       var r2 = CalculateR2(actuals, predictions);
       var mae = CalculateMae(actuals, predictions);
       var maxError = CalculateMaxError(actuals, predictions);
+
+      logger.LogInformation(
+        "Evaluated on {Count} test rows: R²={R2:F3}, MAE={MAE:F2}, MaxError={MaxError:F2}",
+        data.Count, r2, mae, maxError
+      );
 
       // Create prediction pairs for visualization
       var predictionPairs = actuals

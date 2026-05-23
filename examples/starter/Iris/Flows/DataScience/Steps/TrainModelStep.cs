@@ -1,6 +1,8 @@
+using System.Diagnostics;
 using Flowthru.Step;
 using Iris.Data._05_ModelInput.Schemas;
 using Iris.Data._06_Models.Schemas;
+using Microsoft.Extensions.Logging;
 
 namespace Iris.Flows.DataScience.Steps;
 
@@ -36,7 +38,7 @@ public static class TrainModelStep
       Options
     ),
     ModelWeightsSchema
-  > Create() => input =>
+  > Create(ILogger logger) => input =>
   {
     var (trainXSeq, trainYSeq, options) = input;
     var numIterations = options.NumTrainIter;
@@ -52,6 +54,13 @@ public static class TrainModelStep
     var numSamples = xList.Count;
     var numFeatures = 4; // sepal_length, sepal_width, petal_length, petal_width
     var numClasses = 3; // setosa, versicolor, virginica
+
+    logger.LogInformation(
+      "Training one-vs-rest logistic regression on {Samples} samples "
+      + "× {Features} features × {Classes} classes ({Iters} iters, lr={LR})",
+      numSamples, numFeatures, numClasses, numIterations, learningRate
+    );
+    var stopwatch = Stopwatch.StartNew();
 
     // Build feature matrix X with bias term (num_samples x (num_features + 1))
     var X = new double[numSamples, numFeatures + 1];
@@ -136,6 +145,11 @@ public static class TrainModelStep
         flatWeights[row * numClasses + col] = weights[col][row];
       }
     }
+
+    stopwatch.Stop();
+    logger.LogInformation(
+      "Training completed in {Elapsed:F0} ms", stopwatch.Elapsed.TotalMilliseconds
+    );
 
     return new ModelWeightsSchema
     {

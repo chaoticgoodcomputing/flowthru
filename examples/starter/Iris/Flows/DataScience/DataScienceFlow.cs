@@ -5,6 +5,7 @@ using Iris.Data._06_Models.Schemas;
 using Iris.Data._07_ModelOutput.Schemas;
 using Iris.Data._08_Reporting.Schemas;
 using Iris.Flows.DataScience.Steps;
+using Microsoft.Extensions.Logging;
 
 namespace Iris.Flows.DataScience;
 
@@ -13,7 +14,7 @@ namespace Iris.Flows.DataScience;
 /// </summary>
 public static class DataScienceFlow
 {
-  public static BuiltFlow Create(Catalog catalog)
+  public static BuiltFlow Create(Catalog catalog, ILogger logger)
   {
     return FlowBuilder.CreateFlow("DataScience", pipeline =>
     {
@@ -24,7 +25,7 @@ public static class DataScienceFlow
         ModelWeightsSchema
       >(
         label: "TrainModel",
-        transform: TrainModelStep.Create(),
+        transform: TrainModelStep.Create(logger),
         inputs: (catalog.TrainX, catalog.TrainY, catalog.TrainModelOptions),
         outputs: catalog.IrisModel
       );
@@ -38,7 +39,7 @@ public static class DataScienceFlow
 
       pipeline.AddStep<IEnumerable<PredictionSchema>, IEnumerable<TargetLabelSchema>, MetricsSchema>(
         label: "Evaluate",
-        transform: EvaluateModelStep.Create(),
+        transform: EvaluateModelStep.Create(logger),
         inputs: (catalog.Predictions, catalog.TestY),
         outputs: catalog.Metrics
       );

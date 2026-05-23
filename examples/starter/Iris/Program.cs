@@ -59,11 +59,11 @@ public class Program
       });
 
       flowthru
-        .RegisterFlow<Catalog>("DataEngineering", DataEngineeringFlow.Create)
+        .RegisterFlow<Catalog, ILogger>("DataEngineering", DataEngineeringFlow.Create)
         .WithDescription("Splits iris data into training and test sets with one-hot encoding");
 
       flowthru
-        .RegisterFlow<Catalog>("DataScience", DataScienceFlow.Create)
+        .RegisterFlow<Catalog, ILogger>("DataScience", DataScienceFlow.Create)
         .WithDescription("Trains multi-class logistic regression model for iris classification");
     });
 

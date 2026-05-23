@@ -60,11 +60,11 @@ public class Program
       });
 
       flowthru
-        .RegisterFlow<Catalog>("DataProcessing", DataProcessingFlow.Create)
+        .RegisterFlow<Catalog, ILogger>("DataProcessing", DataProcessingFlow.Create)
         .WithDescription("Preprocesses companies and shuttles data");
 
       flowthru
-        .RegisterFlow<Catalog>("DataScience", DataScienceFlow.Create)
+        .RegisterFlow<Catalog, ILogger>("DataScience", DataScienceFlow.Create)
         .WithDescription("Trains linear regression model for price prediction");
 
       flowthru

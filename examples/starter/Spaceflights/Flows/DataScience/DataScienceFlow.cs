@@ -1,4 +1,5 @@
 using Flowthru.Flow;
+using Microsoft.Extensions.Logging;
 using Spaceflights.Data;
 using Spaceflights.Data._03_Primary.Schemas;
 using Spaceflights.Data._05_ModelInput.Schemas;
@@ -13,7 +14,7 @@ namespace Spaceflights.Flows.DataScience;
 /// </summary>
 public static class DataScienceFlow
 {
-  public static BuiltFlow Create(Catalog catalog)
+  public static BuiltFlow Create(Catalog catalog, ILogger logger)
   {
     return FlowBuilder.CreateFlow("DataScience", pipeline =>
     {
@@ -24,14 +25,14 @@ public static class DataScienceFlow
         IEnumerable<TestData>
       >(
         label: "SplitData",
-        transform: SplitDataStep.Create(),
+        transform: SplitDataStep.Create(logger),
         inputs: (catalog.ModelInputTable, catalog.ModelOptions),
         outputs: (catalog.TrainSplit, catalog.TestSplit)
       );
 
       pipeline.AddStep<IEnumerable<TrainingData>, LinearRegressionModel>(
         label: "TrainModel",
-        transform: TrainModelStep.Create(),
+        transform: TrainModelStep.Create(logger),
         inputs: catalog.TrainSplit,
         outputs: catalog.Regressor
       );
@@ -43,7 +44,7 @@ public static class DataScienceFlow
         IEnumerable<ModelPredictions>
       >(
         label: "EvaluateModel",
-        transform: EvaluateModelStep.Create(),
+        transform: EvaluateModelStep.Create(logger),
         inputs: (catalog.Regressor, catalog.TestSplit),
         outputs: (catalog.ModelMetrics, catalog.ModelPredictions)
       );

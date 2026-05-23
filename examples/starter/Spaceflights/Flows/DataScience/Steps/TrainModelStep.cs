@@ -1,8 +1,10 @@
+using System.Diagnostics;
 using Flowthru.Step;
+using MathNet.Numerics.LinearRegression;
+using Microsoft.Extensions.Logging;
 using Spaceflights.Data._02_Intermediate.Schemas;
 using Spaceflights.Data._05_ModelInput.Schemas;
 using Spaceflights.Data._06_Models.Schemas;
-using MathNet.Numerics.LinearRegression;
 
 namespace Spaceflights.Flows.DataScience.Steps;
 
@@ -24,7 +26,7 @@ public static class TrainModelStep
   /// Excludes moon_clearance_complete feature due to zero variance in training data.
   /// </remarks>
   /// <exception cref="InvalidOperationException">Thrown when no training data is available.</exception>
-  public static Func<IEnumerable<TrainingData>, LinearRegressionModel> Create()
+  public static Func<IEnumerable<TrainingData>, LinearRegressionModel> Create(ILogger logger)
   {
     return (input) =>
     {
@@ -34,6 +36,12 @@ public static class TrainModelStep
       {
         throw new InvalidOperationException("No training data available");
       }
+
+      logger.LogInformation(
+        "Training linear regression on {Samples} samples × 7 features (QR decomposition)",
+        data.Count
+      );
+      var stopwatch = Stopwatch.StartNew();
 
       // Extract features and labels
       var features = data.Select(d => d.Features).ToList();
@@ -74,6 +82,12 @@ public static class TrainModelStep
           "review_scores_rating",
         },
       };
+
+      stopwatch.Stop();
+      logger.LogInformation(
+        "Training completed in {Elapsed:F0} ms (intercept={Intercept:F2})",
+        stopwatch.Elapsed.TotalMilliseconds, model.Intercept
+      );
 
       return model;
     };

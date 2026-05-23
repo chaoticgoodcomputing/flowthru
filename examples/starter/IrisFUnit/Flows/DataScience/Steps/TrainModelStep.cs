@@ -1,7 +1,10 @@
+using System.Diagnostics;
 using Flowthru.Step;
 using Flowthru.Step.Testing;
 using IrisFUnit.Data._05_ModelInput.Schemas;
 using IrisFUnit.Data._06_Models.Schemas;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace IrisFUnit.Flows.DataScience.Steps;
 
@@ -36,7 +39,7 @@ public static class TrainModelStep
       Options
     ),
     ModelWeightsSchema
-  > Create() =>
+  > Create(ILogger logger) =>
     input =>
     {
       var (trainX, trainY, options) = input;
@@ -49,6 +52,13 @@ public static class TrainModelStep
       var numSamples = xList.Count;
       var numFeatures = 4; // sepal_length, sepal_width, petal_length, petal_width
       var numClasses = 3; // setosa, versicolor, virginica
+
+      logger.LogInformation(
+        "Training one-vs-rest logistic regression on {Samples} samples "
+        + "× {Features} features × {Classes} classes ({Iters} iters, lr={LR})",
+        numSamples, numFeatures, numClasses, numIterations, learningRate
+      );
+      var stopwatch = Stopwatch.StartNew();
 
       // Build feature matrix X with bias term (numSamples × (numFeatures + 1)).
       var X = new double[numSamples, numFeatures + 1];
@@ -114,6 +124,11 @@ public static class TrainModelStep
         }
       }
 
+      stopwatch.Stop();
+      logger.LogInformation(
+        "Training completed in {Elapsed:F0} ms", stopwatch.Elapsed.TotalMilliseconds
+      );
+
       return new ModelWeightsSchema
       {
         Weights = flatWeights,
@@ -151,7 +166,7 @@ public static class TrainModelStep
       var trainY = SampleLabels(12);
 
       var model = Invoke(
-        Create(),
+        Create(NullLogger.Instance),
         (trainX, trainY, new Options { NumTrainIter = 100, LearningRate = 0.01 })
       );
 
@@ -167,7 +182,7 @@ public static class TrainModelStep
       var trainY = SampleLabels(6);
 
       Assert.DoesNotThrow(() =>
-        Invoke(Create(), (trainX, trainY, new Options { NumTrainIter = 1, LearningRate = 0.001 }))
+        Invoke(Create(NullLogger.Instance), (trainX, trainY, new Options { NumTrainIter = 1, LearningRate = 0.001 }))
       );
     }
   }

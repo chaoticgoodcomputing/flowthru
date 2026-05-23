@@ -1,4 +1,5 @@
 using Flowthru.Step;
+using Microsoft.Extensions.Logging;
 using Spaceflights.Data._01_Raw.Schemas;
 using Spaceflights.Data._02_Intermediate.Schemas;
 
@@ -17,14 +18,30 @@ public static class PreprocessShuttlesStep
   /// A function that converts <see cref="ShuttleSchema"/> records to <see cref="PreprocessedShuttleSchema"/> records.
   /// Records with invalid numeric fields or currency values are filtered out.
   /// </returns>
-  public static Func<IEnumerable<ShuttleSchema>, IEnumerable<PreprocessedShuttleSchema>> Create()
+  public static Func<IEnumerable<ShuttleSchema>, IEnumerable<PreprocessedShuttleSchema>> Create(
+    ILogger logger)
   {
     return (input) =>
     {
-      var processed = input
+      var rows = input.ToList();
+      var processed = rows
         .Select(raw => Parse(raw))
         .Where(item => item != null)
-        .Cast<PreprocessedShuttleSchema>();
+        .Cast<PreprocessedShuttleSchema>()
+        .ToList();
+
+      var dropped = rows.Count - processed.Count;
+      if (dropped > 0)
+      {
+        logger.LogWarning(
+          "Dropped {Dropped}/{Total} shuttle rows with invalid numeric/currency fields",
+          dropped, rows.Count
+        );
+      }
+      else
+      {
+        logger.LogInformation("Preprocessed {Count} shuttle rows", processed.Count);
+      }
 
       return processed;
     };

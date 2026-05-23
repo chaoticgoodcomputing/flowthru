@@ -36,19 +36,16 @@ public static class ServiceCollectionExtensions
     configure(builder);
 
     // Logging registration — per ADR-0005 / ADR-0006 the engine and
-    // every step share one ILogger (category "Flowthru"). Hosts that
-    // called AddLogging() before AddFlowthru see their real
-    // ILoggerFactory; hosts that didn't get NullLoggerFactory via
-    // the TryAdd-doesn't-overwrite pattern. The shared ILogger
-    // resolves to loggerFactory.CreateLogger("Flowthru") in either
-    // case. The open-generic ILogger<> shim stays for hosts that
-    // opt into per-step categorization on their own — taking
-    // ILoggerFactory in Create() and calling CreateLogger<T>() is
-    // the escape hatch.
-    services.TryAddSingleton<ILoggerFactory, NullLoggerFactory>();
-    services.TryAdd(ServiceDescriptor.Singleton(typeof(ILogger<>), typeof(NullLogger<>)));
+    // every step share one ILogger (category "Flowthru"). The shared
+    // ILogger resolves to whatever ILoggerFactory the host wired via
+    // AddLogging(); if no factory is registered, the lambda falls
+    // back to NullLoggerFactory.Instance and calls are silently
+    // dropped. Avoid TryAdd<NullLoggerFactory> here — AddLogging()
+    // also uses TryAdd, so whichever runs first wins, and an eager
+    // NullLoggerFactory registration would block a real factory the
+    // host registers afterward.
     services.TryAddSingleton<ILogger>(sp =>
-      sp.GetRequiredService<ILoggerFactory>().CreateLogger("Flowthru")
+      (sp.GetService<ILoggerFactory>() ?? NullLoggerFactory.Instance).CreateLogger("Flowthru")
     );
 
     // Default scheduler — TryAdd lets a host register its own

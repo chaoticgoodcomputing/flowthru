@@ -1,5 +1,7 @@
 using Flowthru.Step;
 using Flowthru.Step.Testing;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using SpaceflightsFUnit.Data._05_ModelInput.Schemas;
 using SpaceflightsFUnit.Data._06_Models.Schemas;
 using SpaceflightsFUnit.Data._07_ModelOutput.Schemas;
@@ -23,7 +25,7 @@ public static class EvaluateModelStep
   public static Func<
     (LinearRegressionModel, IEnumerable<TestData>),
     (ModelMetrics, IEnumerable<ModelPredictions>)
-  > Create()
+  > Create(ILogger logger)
   {
     return (input) =>
     {
@@ -32,7 +34,7 @@ public static class EvaluateModelStep
 
       if (data.Count == 0)
       {
-        Console.WriteLine("No test data available for evaluation");
+        logger.LogWarning("No test data available for evaluation");
         return (
           new ModelMetrics
           {
@@ -52,6 +54,11 @@ public static class EvaluateModelStep
       var r2 = CalculateR2(actuals, predictions);
       var mae = CalculateMae(actuals, predictions);
       var maxError = CalculateMaxError(actuals, predictions);
+
+      logger.LogInformation(
+        "Evaluated on {Count} test rows: R²={R2:F3}, MAE={MAE:F2}, MaxError={MaxError:F2}",
+        data.Count, r2, mae, maxError
+      );
 
       // Create prediction pairs for visualization
       var predictionPairs = actuals
@@ -189,7 +196,7 @@ public static class EvaluateModelStep
     public void EmptyInput_ReturnsZeroMetrics()
     {
       // Apply
-      var (metrics, predictions) = Invoke(Create(), (IdentityModel, Enumerable.Empty<TestData>()));
+      var (metrics, predictions) = Invoke(Create(NullLogger.Instance), (IdentityModel, Enumerable.Empty<TestData>()));
 
       // Assert
       Assert.That(metrics.R2Score, Is.EqualTo(0m));
@@ -208,7 +215,7 @@ public static class EvaluateModelStep
       var testData = Samples.Generate(5, i => TestRow(1000m + i * 100m));
 
       // Apply
-      var (_, predictions) = Invoke(Create(), (IdentityModel, testData));
+      var (_, predictions) = Invoke(Create(NullLogger.Instance), (IdentityModel, testData));
 
       // Assert
       Assert.That(predictions.Count(), Is.EqualTo(5));
