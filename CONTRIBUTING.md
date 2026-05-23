@@ -35,15 +35,16 @@ Every possible failure in a Flow falls into one of three phases:
 
 ## Flowthru Development Roles
 
-Contributions to Flowthru fall under one of four roles. Each role's full definition, conventions, and vocabulary live in a per-context CONTRIBUTING file:
+Contributions to Flowthru fall under one of five roles. Each role's full definition, conventions, and vocabulary live in a per-context CONTRIBUTING file:
 
 - **Flow Developer** / **Catalog Developer** — writing Flows and Catalogs on top of Flowthru. See [examples/CONTRIBUTING.md](/examples/CONTRIBUTING.md).
 - **Extension Developer** — extending Flowthru with new Catalog formats, Step types, or type-safety patterns. See [src/extensions/CONTRIBUTING.md](/src/extensions/CONTRIBUTING.md).
 - **Core Developer** — curating Flowthru's core library and Roslyn surface. See [src/core/CONTRIBUTING.md](/src/core/CONTRIBUTING.md).
+- **Tool Developer** — building processes that consume Flowthru from outside a Flow Dev's project: editor frontends, agent frontends, CLI utilities, and the shared Inspector backbone they rely on. See [src/tools/CONTRIBUTING.md](/src/tools/CONTRIBUTING.md).
 
 Testing-specific conventions for each context live in [tests/core/CONTRIBUTING.md](/tests/core/CONTRIBUTING.md) and [tests/extensions/CONTRIBUTING.md](/tests/extensions/CONTRIBUTING.md).
 
-The design rules in this document apply to all four roles regardless of which context they're working in.
+The design rules in this document apply to all five roles regardless of which context they're working in.
 
 ## What Flowthru *Won't* Be
 

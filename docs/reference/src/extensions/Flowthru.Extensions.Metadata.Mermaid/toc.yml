@@ -16,3 +16,5 @@
   - name: Enums
   - name: MermaidFlowchartDirection
     href: Flowthru.Diagnostics.Mermaid.MermaidFlowchartDirection.md
+  - name: PerFlowMode
+    href: Flowthru.Diagnostics.Mermaid.PerFlowMode.md
