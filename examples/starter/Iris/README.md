@@ -44,7 +44,7 @@ flowchart TB
     TrainModelOptions{{"TrainModelOptions"}}
 
     subgraph DataEngineering["DataEngineering"]
-        SplitAndEncode["SplitAndEncode"]
+        SplitAndEncode["SplitAndEncode<br>──<br>ILogger"]
         IrisFeatures[("IrisFeatures")]
         TrainX[("TrainX")]
         TrainY[("TrainY")]
@@ -53,11 +53,11 @@ flowchart TB
     end
 
     subgraph DataScience["DataScience"]
-        TrainModel["TrainModel"]
+        TrainModel["TrainModel<br>──<br>ILogger"]
         IrisModel[("IrisModel")]
         Predict["Predict"]
         Predictions[("Predictions")]
-        Evaluate["Evaluate"]
+        Evaluate["Evaluate<br>──<br>ILogger"]
         Metrics[("Metrics")]
     end
 

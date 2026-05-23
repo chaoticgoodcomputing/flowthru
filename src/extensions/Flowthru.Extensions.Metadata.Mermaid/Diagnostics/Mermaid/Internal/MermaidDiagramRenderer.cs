@@ -90,6 +90,32 @@ internal static class MermaidDiagramRenderer
     MermaidFlowchartDirection direction, Theme theme
   ) => Render(ctx.Static, ctx.Result, showFullDag, direction, theme);
 
+  /// <summary>
+  /// Render the per-flow DAG diagram (pre-run). Returns a Markdown
+  /// document containing one heading + one fenced Mermaid block per
+  /// Flow in the topology. Neighboring Flows are collapsed to
+  /// dashed-border subgraphs containing only their boundary Items
+  /// (upstream) or boundary Steps (downstream). The heading level is
+  /// caller-supplied so the output nests cleanly under whatever parent
+  /// heading the document context provides.
+  /// </summary>
+  public static string RenderDagPerFlow(
+    FlowMetadataContext ctx, bool showFullDag,
+    MermaidFlowchartDirection direction, Theme theme, int headingLevel
+  ) => RenderPerFlow(ctx, result: null, showFullDag, direction, theme, headingLevel);
+
+  /// <summary>
+  /// Render the per-flow diagram with run-result coloring (post-run).
+  /// Local Steps carry their normal heat-map / cache-plan fill;
+  /// collapsed-neighbor Steps stay neutral. The heat-map curve is
+  /// normalised globally (across all Flows) so colours are comparable
+  /// between per-flow blocks.
+  /// </summary>
+  public static string RenderRunPerFlow(
+    FlowRunMetadataContext ctx, bool showFullDag,
+    MermaidFlowchartDirection direction, Theme theme, int headingLevel
+  ) => RenderPerFlow(ctx.Static, ctx.Result, showFullDag, direction, theme, headingLevel);
+
   private static string Render(
     FlowMetadataContext ctx, FlowResult? result, bool showFullDag,
     MermaidFlowchartDirection direction, Theme theme
@@ -348,6 +374,356 @@ internal static class MermaidDiagramRenderer
     if (resultsByLabel is not null)
     {
       var failedIds = topology.Steps
+        .Where(s => resultsByLabel.TryGetValue(s.Label, out var r) && r is StepResult.Failed)
+        .Select(s => SanitizeId(s.Label))
+        .ToList();
+      if (failedIds.Count > 0)
+      {
+        sb.AppendLine();
+        sb.AppendLine($"    classDef failed stroke:{theme.FailedStepColor},"
+          + "stroke-width:3px,font-weight:bold");
+        sb.AppendLine($"    class {string.Join(",", failedIds)} failed");
+      }
+    }
+
+    sb.AppendLine("```");
+    return sb.ToString();
+  }
+
+  /// <summary>
+  /// Render one Markdown document holding N per-flow Mermaid blocks,
+  /// where N is the number of distinct <see cref="IStepNode.FlowLabel"/>
+  /// values in the topology. Each block shows that Flow's local Steps
+  /// and Items at full fidelity, with neighbor Flows collapsed.
+  /// </summary>
+  private static string RenderPerFlow(
+    FlowMetadataContext ctx, FlowResult? result, bool showFullDag,
+    MermaidFlowchartDirection direction, Theme theme, int headingLevel
+  )
+  {
+    if (headingLevel < 1 || headingLevel > 6)
+    {
+      throw new ArgumentOutOfRangeException(
+        nameof(headingLevel), headingLevel, "Heading level must be between 1 and 6."
+      );
+    }
+    var headingPrefix = new string('#', headingLevel);
+    var topology = showFullDag ? ctx.MergedFlow : ctx.EffectiveFlow;
+
+    // Shared maps and run-state lookups — computed once, passed to each
+    // per-flow block so colour curves and producer lookups stay
+    // consistent across the document.
+    var producerByLabel = new Dictionary<string, IStepNode>(StringComparer.Ordinal);
+    var itemByLabel = new Dictionary<string, IItem>(StringComparer.Ordinal);
+    foreach (var step in topology.Steps)
+    {
+      foreach (var output in step.Outputs)
+      {
+        producerByLabel[output.Label] = step;
+        itemByLabel.TryAdd(output.Label, output);
+      }
+      foreach (var input in step.Inputs)
+      {
+        itemByLabel.TryAdd(input.Label, input);
+      }
+    }
+
+    var resultsByLabel = result?.StepResults
+      .ToDictionary(r => r.StepLabel, r => r, StringComparer.Ordinal);
+
+    // Heat-map normaliser — same rule as Render(): exclude cache hits
+    // and only normalise when 2+ non-cached succeeded steps ran.
+    var ranSucceededDurations = result?.StepResults
+      .OfType<StepResult.Succeeded>()
+      .Where(s => !IsCacheHit(s))
+      .Select(s => s.Duration)
+      .ToList();
+    var heatMapMax = ranSucceededDurations is { Count: >= 2 }
+      ? ranSucceededDurations.Max()
+      : (TimeSpan?)null;
+
+    var cachePlanFreshLabels = ctx.CachePlan?.FreshStepLabels;
+    var active = ctx.ActiveStepLabels;
+
+    // Group steps by FlowLabel — the same grouping the merged renderer
+    // uses for subgraphs. The auto-threshold check in the provider also
+    // counts distinct FlowLabels off this topology, so the threshold
+    // and the rendered block count always agree.
+    var stepsByFlow = topology.Steps
+      .GroupBy(s => string.IsNullOrEmpty(s.FlowLabel) ? topology.Label : s.FlowLabel,
+        StringComparer.Ordinal)
+      .OrderBy(g => g.Key, StringComparer.Ordinal)
+      .ToList();
+
+    var sb = new StringBuilder();
+    foreach (var group in stepsByFlow)
+    {
+      if (sb.Length > 0) sb.AppendLine();
+      sb.Append(RenderSingleFlowBlock(
+        flowLabel: group.Key,
+        localSteps: group.ToList(),
+        topology: topology,
+        producerByLabel: producerByLabel,
+        itemByLabel: itemByLabel,
+        resultsByLabel: resultsByLabel,
+        heatMapMax: heatMapMax,
+        cachePlanFreshLabels: cachePlanFreshLabels,
+        active: active,
+        direction: direction,
+        theme: theme,
+        headingPrefix: headingPrefix
+      ));
+    }
+    return sb.ToString();
+  }
+
+  /// <summary>
+  /// Render one Flow's Mermaid block: full local subgraph plus
+  /// dashed-border collapsed subgraphs for upstream Flows (containing
+  /// the boundary Items they produce) and downstream Flows (containing
+  /// the boundary Steps that consume locally-produced Items). External
+  /// Items (consumed by the local Flow with no Flowthru producer)
+  /// render above the local subgraph as bare nodes.
+  /// </summary>
+  private static string RenderSingleFlowBlock(
+    string flowLabel,
+    IReadOnlyList<IStepNode> localSteps,
+    Flowthru.Flow.BuiltFlow topology,
+    IReadOnlyDictionary<string, IStepNode> producerByLabel,
+    IReadOnlyDictionary<string, IItem> itemByLabel,
+    IReadOnlyDictionary<string, StepResult>? resultsByLabel,
+    TimeSpan? heatMapMax,
+    IReadOnlySet<string>? cachePlanFreshLabels,
+    IReadOnlySet<string> active,
+    MermaidFlowchartDirection direction,
+    Theme theme,
+    string headingPrefix
+  )
+  {
+    var localStepLabels = new HashSet<string>(
+      localSteps.Select(s => s.Label), StringComparer.Ordinal
+    );
+    var localItemLabels = new HashSet<string>(
+      localSteps.SelectMany(s => s.Outputs).Select(o => o.Label),
+      StringComparer.Ordinal
+    );
+
+    // Partition consumed Items into upstream-flow groups + external.
+    var upstreamByFlow = new SortedDictionary<string, List<string>>(StringComparer.Ordinal);
+    var externalItems = new SortedSet<string>(StringComparer.Ordinal);
+    foreach (var step in localSteps)
+    {
+      foreach (var input in step.Inputs)
+      {
+        if (localItemLabels.Contains(input.Label)) continue;
+        if (producerByLabel.TryGetValue(input.Label, out var producer))
+        {
+          var producerFlow = string.IsNullOrEmpty(producer.FlowLabel)
+            ? topology.Label : producer.FlowLabel;
+          if (!upstreamByFlow.TryGetValue(producerFlow, out var items))
+          {
+            items = new List<string>();
+            upstreamByFlow[producerFlow] = items;
+          }
+          if (!items.Contains(input.Label, StringComparer.Ordinal))
+          {
+            items.Add(input.Label);
+          }
+        }
+        else
+        {
+          externalItems.Add(input.Label);
+        }
+      }
+    }
+    foreach (var items in upstreamByFlow.Values)
+    {
+      items.Sort(StringComparer.Ordinal);
+    }
+
+    // Partition consumer Steps that live in other Flows into downstream-flow groups.
+    var downstreamByFlow = new SortedDictionary<string, List<IStepNode>>(StringComparer.Ordinal);
+    foreach (var step in topology.Steps)
+    {
+      if (localStepLabels.Contains(step.Label)) continue;
+      var consumesLocal = step.Inputs.Any(i => localItemLabels.Contains(i.Label));
+      if (!consumesLocal) continue;
+      var consumerFlow = string.IsNullOrEmpty(step.FlowLabel)
+        ? topology.Label : step.FlowLabel;
+      if (!downstreamByFlow.TryGetValue(consumerFlow, out var steps))
+      {
+        steps = new List<IStepNode>();
+        downstreamByFlow[consumerFlow] = steps;
+      }
+      steps.Add(step);
+    }
+    foreach (var steps in downstreamByFlow.Values)
+    {
+      steps.Sort((a, b) => StringComparer.Ordinal.Compare(a.Label, b.Label));
+    }
+
+    var sb = new StringBuilder();
+    sb.AppendLine($"{headingPrefix} {flowLabel}");
+    sb.AppendLine();
+    sb.AppendLine("```mermaid");
+    sb.AppendLine($"flowchart {DirectionCode(direction)}");
+    sb.AppendLine();
+
+    // ── External inputs ───────────────────────────────────────────────
+    if (externalItems.Count > 0)
+    {
+      sb.AppendLine("    %% External Data Inputs");
+      foreach (var label in externalItems)
+      {
+        itemByLabel.TryGetValue(label, out var item);
+        sb.AppendLine($"    {ItemNodeSyntax(label, item)}");
+      }
+      sb.AppendLine();
+    }
+
+    // ── Upstream collapsed subgraphs ──────────────────────────────────
+    var collapsedSubgraphIds = new List<string>();
+    foreach (var (upstreamFlow, items) in upstreamByFlow)
+    {
+      var subgraphId = SanitizeId(upstreamFlow) + "_us";
+      collapsedSubgraphIds.Add(subgraphId);
+      sb.AppendLine($"    subgraph {subgraphId}[\"{EscapeLabel(upstreamFlow)}\"]");
+      foreach (var label in items)
+      {
+        itemByLabel.TryGetValue(label, out var item);
+        sb.AppendLine($"        {ItemNodeSyntax(label, item)}");
+      }
+      sb.AppendLine("    end");
+      sb.AppendLine();
+    }
+
+    // ── Local subgraph (full fidelity) ────────────────────────────────
+    sb.AppendLine($"    subgraph {SanitizeId(flowLabel)}[\"{EscapeLabel(flowLabel)}\"]");
+    foreach (var step in localSteps)
+    {
+      var stepId = SanitizeId(step.Label);
+      var stepActive = active.Contains(step.Label);
+
+      StepResult? stepResult = null;
+      resultsByLabel?.TryGetValue(step.Label, out stepResult);
+      var isFailed = stepResult is StepResult.Failed;
+
+      var displayLabel = step.Label;
+      if (!string.IsNullOrEmpty(step.SourceLanguage))
+      {
+        displayLabel += $" ({step.SourceLanguage})";
+      }
+      if (isFailed)
+      {
+        displayLabel += " (failed)";
+      }
+      if (step.ServiceDependencies.Count > 0)
+      {
+        displayLabel += "<br>──<br>" + string.Join(
+          "<br>",
+          step.ServiceDependencies.Select(s => s.DisplayName)
+        );
+      }
+      sb.AppendLine($"        {stepId}[\"{EscapeLabel(displayLabel)}\"]");
+
+      if (stepResult is not null)
+      {
+        var color = ColorFor(stepResult, theme, heatMapMax);
+        sb.AppendLine($"        style {stepId} fill:{color}");
+      }
+      else if (!stepActive)
+      {
+        sb.AppendLine(
+          $"        style {stepId} fill:{theme.InactiveStepColor},"
+          + $"stroke:{theme.InactiveTextColor},color:{theme.InactiveTextColor}"
+        );
+      }
+      else if (cachePlanFreshLabels is not null
+        && cachePlanFreshLabels.Contains(step.Label))
+      {
+        sb.AppendLine(
+          $"        style {stepId} fill:{theme.CachedStepColor},color:#FFFFFF"
+        );
+      }
+
+      foreach (var output in step.Outputs)
+      {
+        sb.AppendLine($"        {ItemNodeSyntax(output.Label, output)}");
+      }
+    }
+    sb.AppendLine("    end");
+    sb.AppendLine();
+
+    // ── Downstream collapsed subgraphs ────────────────────────────────
+    // Collapsed-neighbor Steps render with language tag preserved but
+    // no run-state fill, no service compartment, no failed suffix.
+    // Reader navigates to that Flow's own per-flow block for full
+    // styling.
+    foreach (var (downstreamFlow, steps) in downstreamByFlow)
+    {
+      var subgraphId = SanitizeId(downstreamFlow) + "_ds";
+      collapsedSubgraphIds.Add(subgraphId);
+      sb.AppendLine($"    subgraph {subgraphId}[\"{EscapeLabel(downstreamFlow)}\"]");
+      foreach (var step in steps)
+      {
+        var stepId = SanitizeId(step.Label);
+        var displayLabel = step.Label;
+        if (!string.IsNullOrEmpty(step.SourceLanguage))
+        {
+          displayLabel += $" ({step.SourceLanguage})";
+        }
+        sb.AppendLine($"        {stepId}[\"{EscapeLabel(displayLabel)}\"]");
+      }
+      sb.AppendLine("    end");
+      sb.AppendLine();
+    }
+
+    // ── Edges ─────────────────────────────────────────────────────────
+    // Edges from local Steps' inputs/outputs cover: external → local,
+    // upstream-boundary → local, local → local, and local → boundary
+    // (when the local output is a node that exists in the diagram).
+    // Plus: local-boundary → downstream-consumer edges for each
+    // collapsed consumer Step.
+    sb.AppendLine("    %% Edges");
+    foreach (var step in localSteps)
+    {
+      var stepId = SanitizeId(step.Label);
+      var stepActive = active.Contains(step.Label);
+      var arrow = stepActive ? "-->" : "-.->";
+      foreach (var input in step.Inputs)
+      {
+        sb.AppendLine($"    {SanitizeId(input.Label)} {arrow} {stepId}");
+      }
+      foreach (var output in step.Outputs)
+      {
+        sb.AppendLine($"    {stepId} {arrow} {SanitizeId(output.Label)}");
+      }
+    }
+    foreach (var steps in downstreamByFlow.Values)
+    {
+      foreach (var step in steps)
+      {
+        var stepId = SanitizeId(step.Label);
+        foreach (var input in step.Inputs)
+        {
+          if (!localItemLabels.Contains(input.Label)) continue;
+          sb.AppendLine($"    {SanitizeId(input.Label)} --> {stepId}");
+        }
+      }
+    }
+
+    // ── Collapsed-subgraph styling ────────────────────────────────────
+    if (collapsedSubgraphIds.Count > 0)
+    {
+      sb.AppendLine();
+      sb.AppendLine("    classDef collapsed stroke-dasharray:5 5,fill:transparent");
+      sb.AppendLine($"    class {string.Join(",", collapsedSubgraphIds)} collapsed");
+    }
+
+    // ── Failed-step decoration (local Steps only) ─────────────────────
+    if (resultsByLabel is not null)
+    {
+      var failedIds = localSteps
         .Where(s => resultsByLabel.TryGetValue(s.Label, out var r) && r is StepResult.Failed)
         .Select(s => SanitizeId(s.Label))
         .ToList();

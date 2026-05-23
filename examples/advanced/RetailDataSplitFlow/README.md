@@ -41,13 +41,18 @@ First run downloads the 43 MB transactions CSV from GitHub (subsequent runs with
 ### Diagram
 
 <!-- flowthru:mermaid:start -->
+#### Analysis
+
 ```mermaid
 flowchart TB
 
     %% External Data Inputs
     CountryCurrencies[("CountryCurrencies")]
     OfxRates[("OfxRates")]
-    RetailTransactionsRaw[("RetailTransactionsRaw")]
+
+    subgraph DataIngestion_us["DataIngestion"]
+        AllRetailTransactions[("AllRetailTransactions")]
+    end
 
     subgraph Analysis["Analysis"]
         Analyze_germany["Analyze_germany"]
@@ -62,33 +67,11 @@ flowchart TB
         WeeklyDtu_netherlands[("WeeklyDtu_netherlands")]
     end
 
-    subgraph Consolidation["Consolidation"]
+    subgraph Consolidation_ds["Consolidation"]
         ConsolidateShards["ConsolidateShards"]
-        AllCountriesWeeklyDtu[("AllCountriesWeeklyDtu")]
-    end
-
-    subgraph DataIngestion["DataIngestion"]
-        ValidateCsvTransactions["ValidateCsvTransactions"]
-        AllRetailTransactions[("AllRetailTransactions")]
-    end
-
-    subgraph Graphing["Graphing"]
-        PlotDollarsChart["PlotDollarsChart (python)"]
-        DollarsChart[("DollarsChart")]
-        PlotTransactionsChart["PlotTransactionsChart (python)"]
-        TransactionsChart[("TransactionsChart")]
-        PlotUsersChart["PlotUsersChart (python)"]
-        UsersChart[("UsersChart")]
-    end
-
-    subgraph Reporting["Reporting"]
-        SummarizeByCountry["SummarizeByCountry"]
-        CountryTransactionSummary[("CountryTransactionSummary")]
     end
 
     %% Edges
-    RetailTransactionsRaw --> ValidateCsvTransactions
-    ValidateCsvTransactions --> AllRetailTransactions
     AllRetailTransactions --> Analyze_germany
     CountryCurrencies --> Analyze_germany
     OfxRates --> Analyze_germany
@@ -109,8 +92,41 @@ flowchart TB
     CountryCurrencies --> Analyze_netherlands
     OfxRates --> Analyze_netherlands
     Analyze_netherlands --> WeeklyDtu_netherlands
-    AllRetailTransactions --> SummarizeByCountry
-    SummarizeByCountry --> CountryTransactionSummary
+    WeeklyDtu_germany --> ConsolidateShards
+    WeeklyDtu_france --> ConsolidateShards
+    WeeklyDtu_eire --> ConsolidateShards
+    WeeklyDtu_spain --> ConsolidateShards
+    WeeklyDtu_netherlands --> ConsolidateShards
+
+    classDef collapsed stroke-dasharray:5 5,fill:transparent
+    class DataIngestion_us,Consolidation_ds collapsed
+```
+
+#### Consolidation
+
+```mermaid
+flowchart TB
+
+    subgraph Analysis_us["Analysis"]
+        WeeklyDtu_eire[("WeeklyDtu_eire")]
+        WeeklyDtu_france[("WeeklyDtu_france")]
+        WeeklyDtu_germany[("WeeklyDtu_germany")]
+        WeeklyDtu_netherlands[("WeeklyDtu_netherlands")]
+        WeeklyDtu_spain[("WeeklyDtu_spain")]
+    end
+
+    subgraph Consolidation["Consolidation"]
+        ConsolidateShards["ConsolidateShards"]
+        AllCountriesWeeklyDtu[("AllCountriesWeeklyDtu")]
+    end
+
+    subgraph Graphing_ds["Graphing"]
+        PlotDollarsChart["PlotDollarsChart (python)"]
+        PlotTransactionsChart["PlotTransactionsChart (python)"]
+        PlotUsersChart["PlotUsersChart (python)"]
+    end
+
+    %% Edges
     WeeklyDtu_germany --> ConsolidateShards
     WeeklyDtu_france --> ConsolidateShards
     WeeklyDtu_eire --> ConsolidateShards
@@ -118,12 +134,102 @@ flowchart TB
     WeeklyDtu_netherlands --> ConsolidateShards
     ConsolidateShards --> AllCountriesWeeklyDtu
     AllCountriesWeeklyDtu --> PlotDollarsChart
+    AllCountriesWeeklyDtu --> PlotTransactionsChart
+    AllCountriesWeeklyDtu --> PlotUsersChart
+
+    classDef collapsed stroke-dasharray:5 5,fill:transparent
+    class Analysis_us,Graphing_ds collapsed
+```
+
+#### DataIngestion
+
+```mermaid
+flowchart TB
+
+    %% External Data Inputs
+    RetailTransactionsRaw[("RetailTransactionsRaw")]
+
+    subgraph DataIngestion["DataIngestion"]
+        ValidateCsvTransactions["ValidateCsvTransactions"]
+        AllRetailTransactions[("AllRetailTransactions")]
+    end
+
+    subgraph Analysis_ds["Analysis"]
+        Analyze_eire["Analyze_eire"]
+        Analyze_france["Analyze_france"]
+        Analyze_germany["Analyze_germany"]
+        Analyze_netherlands["Analyze_netherlands"]
+        Analyze_spain["Analyze_spain"]
+    end
+
+    subgraph Reporting_ds["Reporting"]
+        SummarizeByCountry["SummarizeByCountry"]
+    end
+
+    %% Edges
+    RetailTransactionsRaw --> ValidateCsvTransactions
+    ValidateCsvTransactions --> AllRetailTransactions
+    AllRetailTransactions --> Analyze_eire
+    AllRetailTransactions --> Analyze_france
+    AllRetailTransactions --> Analyze_germany
+    AllRetailTransactions --> Analyze_netherlands
+    AllRetailTransactions --> Analyze_spain
+    AllRetailTransactions --> SummarizeByCountry
+
+    classDef collapsed stroke-dasharray:5 5,fill:transparent
+    class Analysis_ds,Reporting_ds collapsed
+```
+
+#### Graphing
+
+```mermaid
+flowchart TB
+
+    subgraph Consolidation_us["Consolidation"]
+        AllCountriesWeeklyDtu[("AllCountriesWeeklyDtu")]
+    end
+
+    subgraph Graphing["Graphing"]
+        PlotDollarsChart["PlotDollarsChart (python)"]
+        DollarsChart[("DollarsChart")]
+        PlotTransactionsChart["PlotTransactionsChart (python)"]
+        TransactionsChart[("TransactionsChart")]
+        PlotUsersChart["PlotUsersChart (python)"]
+        UsersChart[("UsersChart")]
+    end
+
+    %% Edges
+    AllCountriesWeeklyDtu --> PlotDollarsChart
     PlotDollarsChart --> DollarsChart
     AllCountriesWeeklyDtu --> PlotTransactionsChart
     PlotTransactionsChart --> TransactionsChart
     AllCountriesWeeklyDtu --> PlotUsersChart
     PlotUsersChart --> UsersChart
 
+    classDef collapsed stroke-dasharray:5 5,fill:transparent
+    class Consolidation_us collapsed
+```
+
+#### Reporting
+
+```mermaid
+flowchart TB
+
+    subgraph DataIngestion_us["DataIngestion"]
+        AllRetailTransactions[("AllRetailTransactions")]
+    end
+
+    subgraph Reporting["Reporting"]
+        SummarizeByCountry["SummarizeByCountry"]
+        CountryTransactionSummary[("CountryTransactionSummary")]
+    end
+
+    %% Edges
+    AllRetailTransactions --> SummarizeByCountry
+    SummarizeByCountry --> CountryTransactionSummary
+
+    classDef collapsed stroke-dasharray:5 5,fill:transparent
+    class DataIngestion_us collapsed
 ```
 <!-- flowthru:mermaid:end -->
 

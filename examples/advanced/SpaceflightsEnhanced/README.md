@@ -43,16 +43,19 @@ The validation is **observational** — no Step throws or returns non-zero on dr
 ### Diagram
 
 <!-- flowthru:mermaid:start -->
+#### DataDiagnostics
+
 ```mermaid
 flowchart TB
 
     %% External Data Inputs
-    CrossValidationParams{{"CrossValidationParams"}}
     KedroModelInputTable[("KedroModelInputTable")]
-    ModelParams{{"ModelParams"}}
-    RawCompanies[("RawCompanies")]
-    RawReviews[("RawReviews")]
-    RawShuttles[("RawShuttles")]
+
+    subgraph DataProcessing_us["DataProcessing"]
+        CleanedCompanies[("CleanedCompanies")]
+        CleanedShuttles[("CleanedShuttles")]
+        ModelInputTable[("ModelInputTable")]
+    end
 
     subgraph DataDiagnostics["DataDiagnostics"]
         ExportCompaniesToDiagnosticCsv["ExportCompaniesToDiagnosticCsv"]
@@ -66,6 +69,40 @@ flowchart TB
         ModelInputTableJsonMinified[("ModelInputTableJsonMinified")]
     end
 
+    %% Edges
+    CleanedCompanies --> ExportCompaniesToDiagnosticCsv
+    ExportCompaniesToDiagnosticCsv --> CleanedCompaniesCsv
+    CleanedShuttles --> ExportShuttlesToDiagnosticCsv
+    ExportShuttlesToDiagnosticCsv --> CleanedShuttlesCsv
+    ModelInputTable --> ValidateModelInputTableAgainstKedroSource
+    KedroModelInputTable --> ValidateModelInputTableAgainstKedroSource
+    ModelInputTable --> ExportModelInputTableToDiagnosticCsv
+    ExportModelInputTableToDiagnosticCsv --> ModelInputTableCsv
+    ModelInputTable --> ExportModelInputTableToMinifiedJson
+    ExportModelInputTableToMinifiedJson --> ModelInputTableJsonMinified
+
+    classDef collapsed stroke-dasharray:5 5,fill:transparent
+    class DataProcessing_us collapsed
+```
+
+#### DataEvaluation
+
+```mermaid
+flowchart TB
+
+    %% External Data Inputs
+    CrossValidationParams{{"CrossValidationParams"}}
+
+    subgraph DataProcessing_us["DataProcessing"]
+        ModelInputTable[("ModelInputTable")]
+    end
+
+    subgraph DataScience_us["DataScience"]
+        Regressor[("Regressor")]
+        XTest[("XTest")]
+        YTest[("YTest")]
+    end
+
     subgraph DataEvaluation["DataEvaluation"]
         PerformCrossValidatedOLSRegressionTest["PerformCrossValidatedOLSRegressionTest"]
         CrossValidationResults[("CrossValidationResults")]
@@ -73,6 +110,40 @@ flowchart TB
         ModelMetrics[("ModelMetrics")]
         ModelPredictions[("ModelPredictions")]
     end
+
+    subgraph Reporting_ds["Reporting"]
+        GenerateCrossValidationChart["GenerateCrossValidationChart"]
+        GenerateCrossValidationReport["GenerateCrossValidationReport"]
+        GeneratePredictionScatterChart["GeneratePredictionScatterChart"]
+    end
+
+    %% Edges
+    ModelInputTable --> PerformCrossValidatedOLSRegressionTest
+    CrossValidationParams --> PerformCrossValidatedOLSRegressionTest
+    PerformCrossValidatedOLSRegressionTest --> CrossValidationResults
+    Regressor --> EvaluateOLSModel
+    XTest --> EvaluateOLSModel
+    YTest --> EvaluateOLSModel
+    EvaluateOLSModel --> ModelMetrics
+    EvaluateOLSModel --> ModelPredictions
+    CrossValidationResults --> GenerateCrossValidationChart
+    CrossValidationResults --> GenerateCrossValidationReport
+    ModelMetrics --> GeneratePredictionScatterChart
+    ModelPredictions --> GeneratePredictionScatterChart
+
+    classDef collapsed stroke-dasharray:5 5,fill:transparent
+    class DataProcessing_us,DataScience_us,Reporting_ds collapsed
+```
+
+#### DataProcessing
+
+```mermaid
+flowchart TB
+
+    %% External Data Inputs
+    RawCompanies[("RawCompanies")]
+    RawReviews[("RawReviews")]
+    RawShuttles[("RawShuttles")]
 
     subgraph DataProcessing["DataProcessing"]
         PreprocessCompanies["PreprocessCompanies"]
@@ -85,6 +156,64 @@ flowchart TB
         ModelInputTable[("ModelInputTable")]
     end
 
+    subgraph DataDiagnostics_ds["DataDiagnostics"]
+        ExportCompaniesToDiagnosticCsv["ExportCompaniesToDiagnosticCsv"]
+        ExportModelInputTableToDiagnosticCsv["ExportModelInputTableToDiagnosticCsv"]
+        ExportModelInputTableToMinifiedJson["ExportModelInputTableToMinifiedJson"]
+        ExportShuttlesToDiagnosticCsv["ExportShuttlesToDiagnosticCsv"]
+        ValidateModelInputTableAgainstKedroSource["ValidateModelInputTableAgainstKedroSource"]
+    end
+
+    subgraph DataEvaluation_ds["DataEvaluation"]
+        PerformCrossValidatedOLSRegressionTest["PerformCrossValidatedOLSRegressionTest"]
+    end
+
+    subgraph DataScience_ds["DataScience"]
+        CreateTestTrainSplitDatasets["CreateTestTrainSplitDatasets"]
+    end
+
+    subgraph Reporting_ds["Reporting"]
+        GenerateConfusionMatrixChart["GenerateConfusionMatrixChart"]
+        GeneratePassengerCapacityChart["GeneratePassengerCapacityChart"]
+    end
+
+    %% Edges
+    RawCompanies --> PreprocessCompanies
+    PreprocessCompanies --> CleanedCompanies
+    RawShuttles --> PreprocessShuttles
+    PreprocessShuttles --> CleanedShuttles
+    RawReviews --> PreprocessReviews
+    PreprocessReviews --> CleanedReviews
+    CleanedShuttles --> CreateModelInputTable
+    CleanedCompanies --> CreateModelInputTable
+    CleanedReviews --> CreateModelInputTable
+    CreateModelInputTable --> ModelInputTable
+    CleanedCompanies --> ExportCompaniesToDiagnosticCsv
+    ModelInputTable --> ExportModelInputTableToDiagnosticCsv
+    ModelInputTable --> ExportModelInputTableToMinifiedJson
+    CleanedShuttles --> ExportShuttlesToDiagnosticCsv
+    ModelInputTable --> ValidateModelInputTableAgainstKedroSource
+    ModelInputTable --> PerformCrossValidatedOLSRegressionTest
+    ModelInputTable --> CreateTestTrainSplitDatasets
+    CleanedCompanies --> GenerateConfusionMatrixChart
+    CleanedShuttles --> GeneratePassengerCapacityChart
+
+    classDef collapsed stroke-dasharray:5 5,fill:transparent
+    class DataDiagnostics_ds,DataEvaluation_ds,DataScience_ds,Reporting_ds collapsed
+```
+
+#### DataScience
+
+```mermaid
+flowchart TB
+
+    %% External Data Inputs
+    ModelParams{{"ModelParams"}}
+
+    subgraph DataProcessing_us["DataProcessing"]
+        ModelInputTable[("ModelInputTable")]
+    end
+
     subgraph DataScience["DataScience"]
         CreateTestTrainSplitDatasets["CreateTestTrainSplitDatasets"]
         XTrain[("XTrain")]
@@ -93,6 +222,44 @@ flowchart TB
         YTest[("YTest")]
         TrainOLSModel["TrainOLSModel"]
         Regressor[("Regressor")]
+    end
+
+    subgraph DataEvaluation_ds["DataEvaluation"]
+        EvaluateOLSModel["EvaluateOLSModel"]
+    end
+
+    %% Edges
+    ModelInputTable --> CreateTestTrainSplitDatasets
+    ModelParams --> CreateTestTrainSplitDatasets
+    CreateTestTrainSplitDatasets --> XTrain
+    CreateTestTrainSplitDatasets --> XTest
+    CreateTestTrainSplitDatasets --> YTrain
+    CreateTestTrainSplitDatasets --> YTest
+    XTrain --> TrainOLSModel
+    YTrain --> TrainOLSModel
+    TrainOLSModel --> Regressor
+    Regressor --> EvaluateOLSModel
+    XTest --> EvaluateOLSModel
+    YTest --> EvaluateOLSModel
+
+    classDef collapsed stroke-dasharray:5 5,fill:transparent
+    class DataProcessing_us,DataEvaluation_ds collapsed
+```
+
+#### Reporting
+
+```mermaid
+flowchart TB
+
+    subgraph DataEvaluation_us["DataEvaluation"]
+        CrossValidationResults[("CrossValidationResults")]
+        ModelMetrics[("ModelMetrics")]
+        ModelPredictions[("ModelPredictions")]
+    end
+
+    subgraph DataProcessing_us["DataProcessing"]
+        CleanedCompanies[("CleanedCompanies")]
+        CleanedShuttles[("CleanedShuttles")]
     end
 
     subgraph Reporting["Reporting"]
@@ -117,55 +284,18 @@ flowchart TB
     end
 
     %% Edges
-    RawCompanies --> PreprocessCompanies
-    PreprocessCompanies --> CleanedCompanies
-    RawShuttles --> PreprocessShuttles
-    PreprocessShuttles --> CleanedShuttles
-    RawReviews --> PreprocessReviews
-    PreprocessReviews --> CleanedReviews
-    CleanedCompanies --> ExportCompaniesToDiagnosticCsv
-    ExportCompaniesToDiagnosticCsv --> CleanedCompaniesCsv
     CleanedCompanies --> GenerateConfusionMatrixChart
     GenerateConfusionMatrixChart --> ConfusionMatrixChart
-    CleanedShuttles --> ExportShuttlesToDiagnosticCsv
-    ExportShuttlesToDiagnosticCsv --> CleanedShuttlesCsv
     CleanedShuttles --> GeneratePassengerCapacityChart
     GeneratePassengerCapacityChart --> ShuttlePassengerCapacityChart
-    CleanedShuttles --> CreateModelInputTable
-    CleanedCompanies --> CreateModelInputTable
-    CleanedReviews --> CreateModelInputTable
-    CreateModelInputTable --> ModelInputTable
     ConfusionMatrixChart --> ExportConfusionMatrixJson
     ExportConfusionMatrixJson --> ConfusionMatrixPlot
     ShuttlePassengerCapacityChart --> ExportPassengerCapacityJson
     ExportPassengerCapacityJson --> ShuttlePassengerCapacityPlot
-    ModelInputTable --> CreateTestTrainSplitDatasets
-    ModelParams --> CreateTestTrainSplitDatasets
-    CreateTestTrainSplitDatasets --> XTrain
-    CreateTestTrainSplitDatasets --> XTest
-    CreateTestTrainSplitDatasets --> YTrain
-    CreateTestTrainSplitDatasets --> YTest
-    ModelInputTable --> ValidateModelInputTableAgainstKedroSource
-    KedroModelInputTable --> ValidateModelInputTableAgainstKedroSource
-    ModelInputTable --> ExportModelInputTableToDiagnosticCsv
-    ExportModelInputTableToDiagnosticCsv --> ModelInputTableCsv
-    ModelInputTable --> ExportModelInputTableToMinifiedJson
-    ExportModelInputTableToMinifiedJson --> ModelInputTableJsonMinified
-    ModelInputTable --> PerformCrossValidatedOLSRegressionTest
-    CrossValidationParams --> PerformCrossValidatedOLSRegressionTest
-    PerformCrossValidatedOLSRegressionTest --> CrossValidationResults
-    XTrain --> TrainOLSModel
-    YTrain --> TrainOLSModel
-    TrainOLSModel --> Regressor
     CrossValidationResults --> GenerateCrossValidationChart
     GenerateCrossValidationChart --> CrossValidationChart
     CrossValidationResults --> GenerateCrossValidationReport
     GenerateCrossValidationReport --> CrossValidationReport
-    Regressor --> EvaluateOLSModel
-    XTest --> EvaluateOLSModel
-    YTest --> EvaluateOLSModel
-    EvaluateOLSModel --> ModelMetrics
-    EvaluateOLSModel --> ModelPredictions
     CrossValidationChart --> ExportCrossValidationJson
     ExportCrossValidationJson --> CrossValidationPlot
     ModelMetrics --> GeneratePredictionScatterChart
@@ -174,6 +304,8 @@ flowchart TB
     PredictionScatterChart --> ExportPredictionScatterJson
     ExportPredictionScatterJson --> PredictionScatterPlot
 
+    classDef collapsed stroke-dasharray:5 5,fill:transparent
+    class DataEvaluation_us,DataProcessing_us collapsed
 ```
 <!-- flowthru:mermaid:end -->
 

@@ -19,6 +19,7 @@ public sealed class MermaidMetadataProviderBuilder
   private string _failedStepColor = "#C62828";
   private string _skippedStepColor = "#757575";
   private bool _showFullDag = true;
+  private readonly PerFlowOptions _perFlow = new();
   private ILogger? _logger;
 
   /// <summary>Output directory for emitted Markdown files.</summary>
@@ -104,6 +105,21 @@ public sealed class MermaidMetadataProviderBuilder
     return this;
   }
 
+  /// <summary>
+  /// Configure per-flow rendering — whether the merged DAG file holds
+  /// a per-flow rendering instead of the monolithic single-block view,
+  /// the auto-mode threshold, and the Markdown heading level used to
+  /// label each per-flow block. See <see cref="PerFlowOptions"/> for
+  /// each knob's default. Output filenames are unaffected by per-flow
+  /// rendering — downstream readers always open the same file.
+  /// </summary>
+  public MermaidMetadataProviderBuilder WithPerFlow(Action<PerFlowOptions> configure)
+  {
+    if (configure is null) throw new ArgumentNullException(nameof(configure));
+    configure(_perFlow);
+    return this;
+  }
+
   /// <summary>Optional logger for export targets and outcomes.</summary>
   public MermaidMetadataProviderBuilder WithLogger(ILogger logger)
   {
@@ -129,6 +145,7 @@ public sealed class MermaidMetadataProviderBuilder
       _direction,
       theme,
       _showFullDag,
+      _perFlow,
       _logger
     );
   }

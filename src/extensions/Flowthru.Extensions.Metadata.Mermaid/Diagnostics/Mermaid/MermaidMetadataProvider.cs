@@ -1,6 +1,7 @@
 using Flowthru.Diagnostics.Mermaid.Internal;
 using Flowthru.Flow;
 using Flowthru.Prelude;
+using Flowthru.Step;
 using Microsoft.Extensions.Logging;
 
 namespace Flowthru.Diagnostics.Mermaid;
@@ -47,6 +48,7 @@ public sealed class MermaidMetadataProvider : IMetadataProvider, IPostRunMetadat
   private readonly MermaidFlowchartDirection _direction;
   private readonly MermaidDiagramRenderer.Theme _theme;
   private readonly bool _showFullDag;
+  private readonly PerFlowOptions _perFlow;
   private readonly ILogger? _logger;
 
   internal MermaidMetadataProvider(
@@ -57,6 +59,7 @@ public sealed class MermaidMetadataProvider : IMetadataProvider, IPostRunMetadat
     MermaidFlowchartDirection direction,
     MermaidDiagramRenderer.Theme theme,
     bool showFullDag,
+    PerFlowOptions perFlow,
     ILogger? logger
   )
   {
@@ -69,6 +72,7 @@ public sealed class MermaidMetadataProvider : IMetadataProvider, IPostRunMetadat
     _direction = direction;
     _theme = theme ?? throw new ArgumentNullException(nameof(theme));
     _showFullDag = showFullDag;
+    _perFlow = perFlow ?? throw new ArgumentNullException(nameof(perFlow));
     _logger = logger;
   }
 
@@ -91,13 +95,19 @@ public sealed class MermaidMetadataProvider : IMetadataProvider, IPostRunMetadat
       _logger?.LogInformation("Exporting Mermaid DAG diagram to {FilePath}", filePath);
 
       Directory.CreateDirectory(_outputDirectory);
-      var diagram = MermaidDiagramRenderer.RenderDag(ctx, _showFullDag, _direction, _theme);
+      var topology = _showFullDag ? ctx.MergedFlow : ctx.EffectiveFlow;
+      var perFlow = ShouldEmitPerFlow(topology);
+      var diagram = perFlow
+        ? MermaidDiagramRenderer.RenderDagPerFlow(
+            ctx, _showFullDag, _direction, _theme, _perFlow.HeadingLevel)
+        : MermaidDiagramRenderer.RenderDag(ctx, _showFullDag, _direction, _theme);
       await AtomicWriteFile(filePath, diagram, ct).ConfigureAwait(false);
 
       _logger?.LogInformation(
-        "Exported Mermaid DAG diagram ({Steps} steps, fullDag={FullDag})",
-        _showFullDag ? ctx.MergedFlow.Steps.Count : ctx.EffectiveFlow.Steps.Count,
-        _showFullDag
+        "Exported Mermaid DAG diagram ({Steps} steps, fullDag={FullDag}, perFlow={PerFlow})",
+        topology.Steps.Count,
+        _showFullDag,
+        perFlow
       );
 
       return FlowUnit.Default;
@@ -116,18 +126,47 @@ public sealed class MermaidMetadataProvider : IMetadataProvider, IPostRunMetadat
       _logger?.LogInformation("Exporting Mermaid run diagram to {FilePath}", filePath);
 
       Directory.CreateDirectory(_outputDirectory);
-      var diagram = MermaidDiagramRenderer.RenderRun(ctx, _showFullDag, _direction, _theme);
+      var topology = _showFullDag ? ctx.Static.MergedFlow : ctx.Static.EffectiveFlow;
+      var perFlow = ShouldEmitPerFlow(topology);
+      var diagram = perFlow
+        ? MermaidDiagramRenderer.RenderRunPerFlow(
+            ctx, _showFullDag, _direction, _theme, _perFlow.HeadingLevel)
+        : MermaidDiagramRenderer.RenderRun(ctx, _showFullDag, _direction, _theme);
       await AtomicWriteFile(filePath, diagram, ct).ConfigureAwait(false);
 
       _logger?.LogInformation(
-        "Exported Mermaid run diagram (success={Success}, steps={Steps}, fullDag={FullDag})",
+        "Exported Mermaid run diagram (success={Success}, steps={Steps}, fullDag={FullDag}, perFlow={PerFlow})",
         ctx.Result.IsSuccess,
         ctx.Result.StepResults.Count,
-        _showFullDag
+        _showFullDag,
+        perFlow
       );
 
       return FlowUnit.Default;
     }, source: $"MermaidMetadataProvider.Emit[Run,{ctx.Static.EffectiveFlow.Label}]");
+
+  /// <summary>
+  /// Per-flow emission gate. <see cref="PerFlowMode.Auto"/> counts
+  /// distinct <see cref="IStepNode.FlowLabel"/> values in the topology
+  /// (the same grouping the renderer uses for subgraphs) and emits
+  /// when that count meets the configured threshold. Counting off the
+  /// rendered topology rather than the host's registered Flow list
+  /// keeps the threshold consistent with the per-flow document's
+  /// actual block count.
+  /// </summary>
+  private bool ShouldEmitPerFlow(BuiltFlow topology) => _perFlow.Mode switch
+  {
+    PerFlowMode.Disabled => false,
+    PerFlowMode.Enabled => true,
+    PerFlowMode.Auto => CountDistinctFlows(topology) >= _perFlow.AutoThreshold,
+    _ => false,
+  };
+
+  private static int CountDistinctFlows(BuiltFlow topology) =>
+    topology.Steps
+      .Select(s => string.IsNullOrEmpty(s.FlowLabel) ? topology.Label : s.FlowLabel)
+      .Distinct(StringComparer.Ordinal)
+      .Count();
 
   private static async Task AtomicWriteFile(string filePath, string content, CancellationToken ct)
   {

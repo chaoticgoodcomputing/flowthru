@@ -41,13 +41,13 @@ The capacity report lands at [`Data/_08_Reporting/Datasets/shuttle_capacity_repo
 ### Diagram
 
 <!-- flowthru:mermaid:start -->
+#### DataProcessing
+
 ```mermaid
 flowchart TB
 
     %% External Data Inputs
     Companies[("Companies")]
-    ConfusionMatrixOptions{{"ConfusionMatrixOptions"}}
-    ModelOptions{{"ModelOptions"}}
     Reviews[("Reviews")]
     SeedingOptions{{"SeedingOptions"}}
     Shuttles[("Shuttles")]
@@ -59,6 +59,44 @@ flowchart TB
         StagingShuttles[("StagingShuttles")]
         PreprocessReviews["PreprocessReviews"]
         StagingReviews[("StagingReviews")]
+    end
+
+    subgraph Promotion_ds["Promotion"]
+        PromoteCompanies["PromoteCompanies"]
+        PromoteReviews["PromoteReviews"]
+        PromoteShuttles["PromoteShuttles"]
+    end
+
+    %% Edges
+    Companies --> PreprocessCompanies
+    SeedingOptions --> PreprocessCompanies
+    PreprocessCompanies --> StagingCompanies
+    Shuttles --> PreprocessShuttles
+    SeedingOptions --> PreprocessShuttles
+    PreprocessShuttles --> StagingShuttles
+    Reviews --> PreprocessReviews
+    SeedingOptions --> PreprocessReviews
+    PreprocessReviews --> StagingReviews
+    StagingCompanies --> PromoteCompanies
+    StagingReviews --> PromoteReviews
+    StagingShuttles --> PromoteShuttles
+
+    classDef collapsed stroke-dasharray:5 5,fill:transparent
+    class Promotion_ds collapsed
+```
+
+#### DataScience
+
+```mermaid
+flowchart TB
+
+    %% External Data Inputs
+    ModelOptions{{"ModelOptions"}}
+
+    subgraph Promotion_us["Promotion"]
+        ProductionCompanies[("ProductionCompanies")]
+        ProductionReviews[("ProductionReviews")]
+        ProductionShuttles[("ProductionShuttles")]
     end
 
     subgraph DataScience["DataScience"]
@@ -74,46 +112,11 @@ flowchart TB
         ModelPredictions[("ModelPredictions")]
     end
 
-    subgraph Promotion["Promotion"]
-        PromoteCompanies["PromoteCompanies"]
-        ProductionCompanies[("ProductionCompanies")]
-        PromoteShuttles["PromoteShuttles"]
-        ProductionShuttles[("ProductionShuttles")]
-        PromoteReviews["PromoteReviews"]
-        ProductionReviews[("ProductionReviews")]
-    end
-
-    subgraph Reporting["Reporting"]
-        ComparePassengerCapacity["ComparePassengerCapacity"]
-        ShuttleCapacityReport[("ShuttleCapacityReport")]
-        GeneratePassengerCapacityChart["GeneratePassengerCapacityChart<br>──<br>ILogger"]
-        ShuttlePassengerCapacityChart[("ShuttlePassengerCapacityChart")]
+    subgraph Reporting_ds["Reporting"]
         GenerateConfusionMatrixChart["GenerateConfusionMatrixChart"]
-        ConfusionMatrixChart[("ConfusionMatrixChart")]
     end
 
     %% Edges
-    Companies --> PreprocessCompanies
-    SeedingOptions --> PreprocessCompanies
-    PreprocessCompanies --> StagingCompanies
-    Shuttles --> PreprocessShuttles
-    SeedingOptions --> PreprocessShuttles
-    PreprocessShuttles --> StagingShuttles
-    Reviews --> PreprocessReviews
-    SeedingOptions --> PreprocessReviews
-    PreprocessReviews --> StagingReviews
-    StagingCompanies --> PromoteCompanies
-    PromoteCompanies --> ProductionCompanies
-    StagingShuttles --> PromoteShuttles
-    ProductionCompanies --> PromoteShuttles
-    PromoteShuttles --> ProductionShuttles
-    StagingReviews --> PromoteReviews
-    ProductionShuttles --> PromoteReviews
-    PromoteReviews --> ProductionReviews
-    ProductionShuttles --> ComparePassengerCapacity
-    ComparePassengerCapacity --> ShuttleCapacityReport
-    ProductionShuttles --> GeneratePassengerCapacityChart
-    GeneratePassengerCapacityChart --> ShuttlePassengerCapacityChart
     ProductionShuttles --> BuildModelInputTable
     ProductionCompanies --> BuildModelInputTable
     ProductionReviews --> BuildModelInputTable
@@ -129,9 +132,95 @@ flowchart TB
     EvaluateModel --> ModelMetrics
     EvaluateModel --> ModelPredictions
     ModelPredictions --> GenerateConfusionMatrixChart
+
+    classDef collapsed stroke-dasharray:5 5,fill:transparent
+    class Promotion_us,Reporting_ds collapsed
+```
+
+#### Promotion
+
+```mermaid
+flowchart TB
+
+    subgraph DataProcessing_us["DataProcessing"]
+        StagingCompanies[("StagingCompanies")]
+        StagingReviews[("StagingReviews")]
+        StagingShuttles[("StagingShuttles")]
+    end
+
+    subgraph Promotion["Promotion"]
+        PromoteCompanies["PromoteCompanies"]
+        ProductionCompanies[("ProductionCompanies")]
+        PromoteShuttles["PromoteShuttles"]
+        ProductionShuttles[("ProductionShuttles")]
+        PromoteReviews["PromoteReviews"]
+        ProductionReviews[("ProductionReviews")]
+    end
+
+    subgraph DataScience_ds["DataScience"]
+        BuildModelInputTable["BuildModelInputTable"]
+    end
+
+    subgraph Reporting_ds["Reporting"]
+        ComparePassengerCapacity["ComparePassengerCapacity"]
+        GeneratePassengerCapacityChart["GeneratePassengerCapacityChart"]
+    end
+
+    %% Edges
+    StagingCompanies --> PromoteCompanies
+    PromoteCompanies --> ProductionCompanies
+    StagingShuttles --> PromoteShuttles
+    ProductionCompanies --> PromoteShuttles
+    PromoteShuttles --> ProductionShuttles
+    StagingReviews --> PromoteReviews
+    ProductionShuttles --> PromoteReviews
+    PromoteReviews --> ProductionReviews
+    ProductionShuttles --> BuildModelInputTable
+    ProductionCompanies --> BuildModelInputTable
+    ProductionReviews --> BuildModelInputTable
+    ProductionShuttles --> ComparePassengerCapacity
+    ProductionShuttles --> GeneratePassengerCapacityChart
+
+    classDef collapsed stroke-dasharray:5 5,fill:transparent
+    class DataProcessing_us,DataScience_ds,Reporting_ds collapsed
+```
+
+#### Reporting
+
+```mermaid
+flowchart TB
+
+    %% External Data Inputs
+    ConfusionMatrixOptions{{"ConfusionMatrixOptions"}}
+
+    subgraph DataScience_us["DataScience"]
+        ModelPredictions[("ModelPredictions")]
+    end
+
+    subgraph Promotion_us["Promotion"]
+        ProductionShuttles[("ProductionShuttles")]
+    end
+
+    subgraph Reporting["Reporting"]
+        ComparePassengerCapacity["ComparePassengerCapacity"]
+        ShuttleCapacityReport[("ShuttleCapacityReport")]
+        GeneratePassengerCapacityChart["GeneratePassengerCapacityChart<br>──<br>ILogger"]
+        ShuttlePassengerCapacityChart[("ShuttlePassengerCapacityChart")]
+        GenerateConfusionMatrixChart["GenerateConfusionMatrixChart"]
+        ConfusionMatrixChart[("ConfusionMatrixChart")]
+    end
+
+    %% Edges
+    ProductionShuttles --> ComparePassengerCapacity
+    ComparePassengerCapacity --> ShuttleCapacityReport
+    ProductionShuttles --> GeneratePassengerCapacityChart
+    GeneratePassengerCapacityChart --> ShuttlePassengerCapacityChart
+    ModelPredictions --> GenerateConfusionMatrixChart
     ConfusionMatrixOptions --> GenerateConfusionMatrixChart
     GenerateConfusionMatrixChart --> ConfusionMatrixChart
 
+    classDef collapsed stroke-dasharray:5 5,fill:transparent
+    class DataScience_us,Promotion_us collapsed
 ```
 <!-- flowthru:mermaid:end -->
 

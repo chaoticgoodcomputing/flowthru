@@ -35,21 +35,50 @@ The build invokes StrawberryShake's code generator over [`schema.graphql`](./Inf
 ### Diagram
 
 <!-- flowthru:mermaid:start -->
+#### DataProcessing
+
 ```mermaid
 flowchart TB
 
     %% External Data Inputs
-    ConfusionMatrixOptions{{"ConfusionMatrixOptions"}}
     GQLCompanies(["GQLCompanies"])
     GQLReviews(["GQLReviews"])
     GQLShuttles(["GQLShuttles"])
-    ModelOptions{{"ModelOptions"}}
-    SeedCompanies[("SeedCompanies")]
-    SeedReviews[("SeedReviews")]
-    SeedShuttles[("SeedShuttles")]
+
+    subgraph Ingest_us["Ingest"]
+        GqlDatabaseSeeded[("GqlDatabaseSeeded")]
+    end
 
     subgraph DataProcessing["DataProcessing"]
         CreateModelInputTable["CreateModelInputTable"]
+        ModelInputTable[("ModelInputTable")]
+    end
+
+    subgraph DataScience_ds["DataScience"]
+        SplitData["SplitData"]
+    end
+
+    %% Edges
+    GqlDatabaseSeeded --> CreateModelInputTable
+    GQLShuttles --> CreateModelInputTable
+    GQLCompanies --> CreateModelInputTable
+    GQLReviews --> CreateModelInputTable
+    CreateModelInputTable --> ModelInputTable
+    ModelInputTable --> SplitData
+
+    classDef collapsed stroke-dasharray:5 5,fill:transparent
+    class Ingest_us,DataScience_ds collapsed
+```
+
+#### DataScience
+
+```mermaid
+flowchart TB
+
+    %% External Data Inputs
+    ModelOptions{{"ModelOptions"}}
+
+    subgraph DataProcessing_us["DataProcessing"]
         ModelInputTable[("ModelInputTable")]
     end
 
@@ -64,6 +93,37 @@ flowchart TB
         ModelPredictions[("ModelPredictions")]
     end
 
+    subgraph Reporting_ds["Reporting"]
+        GenerateConfusionMatrixChart["GenerateConfusionMatrixChart"]
+    end
+
+    %% Edges
+    ModelInputTable --> SplitData
+    ModelOptions --> SplitData
+    SplitData --> XTrain
+    SplitData --> XTest
+    XTrain --> TrainModel
+    TrainModel --> Regressor
+    Regressor --> EvaluateModel
+    XTest --> EvaluateModel
+    EvaluateModel --> ModelMetrics
+    EvaluateModel --> ModelPredictions
+    ModelPredictions --> GenerateConfusionMatrixChart
+
+    classDef collapsed stroke-dasharray:5 5,fill:transparent
+    class DataProcessing_us,Reporting_ds collapsed
+```
+
+#### Ingest
+
+```mermaid
+flowchart TB
+
+    %% External Data Inputs
+    SeedCompanies[("SeedCompanies")]
+    SeedReviews[("SeedReviews")]
+    SeedShuttles[("SeedShuttles")]
+
     subgraph Ingest["Ingest"]
         PreprocessCompanies["PreprocessCompanies"]
         PreprocessedCompanies[("PreprocessedCompanies")]
@@ -73,6 +133,50 @@ flowchart TB
         PreprocessedReviews[("PreprocessedReviews")]
         SeedGqlDatabase["SeedGqlDatabase<br>──<br>ISpaceflightsClient"]
         GqlDatabaseSeeded[("GqlDatabaseSeeded")]
+    end
+
+    subgraph DataProcessing_ds["DataProcessing"]
+        CreateModelInputTable["CreateModelInputTable"]
+    end
+
+    subgraph Reporting_ds["Reporting"]
+        ComparePassengerCapacity["ComparePassengerCapacity"]
+        GeneratePassengerCapacityChart["GeneratePassengerCapacityChart"]
+    end
+
+    %% Edges
+    SeedCompanies --> PreprocessCompanies
+    PreprocessCompanies --> PreprocessedCompanies
+    SeedShuttles --> PreprocessShuttles
+    PreprocessShuttles --> PreprocessedShuttles
+    SeedReviews --> PreprocessReviews
+    PreprocessReviews --> PreprocessedReviews
+    PreprocessedCompanies --> SeedGqlDatabase
+    PreprocessedShuttles --> SeedGqlDatabase
+    PreprocessedReviews --> SeedGqlDatabase
+    SeedGqlDatabase --> GqlDatabaseSeeded
+    GqlDatabaseSeeded --> CreateModelInputTable
+    PreprocessedShuttles --> ComparePassengerCapacity
+    PreprocessedShuttles --> GeneratePassengerCapacityChart
+
+    classDef collapsed stroke-dasharray:5 5,fill:transparent
+    class DataProcessing_ds,Reporting_ds collapsed
+```
+
+#### Reporting
+
+```mermaid
+flowchart TB
+
+    %% External Data Inputs
+    ConfusionMatrixOptions{{"ConfusionMatrixOptions"}}
+
+    subgraph DataScience_us["DataScience"]
+        ModelPredictions[("ModelPredictions")]
+    end
+
+    subgraph Ingest_us["Ingest"]
+        PreprocessedShuttles[("PreprocessedShuttles")]
     end
 
     subgraph Reporting["Reporting"]
@@ -85,39 +189,16 @@ flowchart TB
     end
 
     %% Edges
-    SeedCompanies --> PreprocessCompanies
-    PreprocessCompanies --> PreprocessedCompanies
-    SeedShuttles --> PreprocessShuttles
-    PreprocessShuttles --> PreprocessedShuttles
-    SeedReviews --> PreprocessReviews
-    PreprocessReviews --> PreprocessedReviews
     PreprocessedShuttles --> ComparePassengerCapacity
     ComparePassengerCapacity --> ShuttleCapacityReport
     PreprocessedShuttles --> GeneratePassengerCapacityChart
     GeneratePassengerCapacityChart --> ShuttlePassengerCapacityChart
-    PreprocessedCompanies --> SeedGqlDatabase
-    PreprocessedShuttles --> SeedGqlDatabase
-    PreprocessedReviews --> SeedGqlDatabase
-    SeedGqlDatabase --> GqlDatabaseSeeded
-    GqlDatabaseSeeded --> CreateModelInputTable
-    GQLShuttles --> CreateModelInputTable
-    GQLCompanies --> CreateModelInputTable
-    GQLReviews --> CreateModelInputTable
-    CreateModelInputTable --> ModelInputTable
-    ModelInputTable --> SplitData
-    ModelOptions --> SplitData
-    SplitData --> XTrain
-    SplitData --> XTest
-    XTrain --> TrainModel
-    TrainModel --> Regressor
-    Regressor --> EvaluateModel
-    XTest --> EvaluateModel
-    EvaluateModel --> ModelMetrics
-    EvaluateModel --> ModelPredictions
     ModelPredictions --> GenerateConfusionMatrixChart
     ConfusionMatrixOptions --> GenerateConfusionMatrixChart
     GenerateConfusionMatrixChart --> ConfusionMatrixChart
 
+    classDef collapsed stroke-dasharray:5 5,fill:transparent
+    class DataScience_us,Ingest_us collapsed
 ```
 <!-- flowthru:mermaid:end -->
 

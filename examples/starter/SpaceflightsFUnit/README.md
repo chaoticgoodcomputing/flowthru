@@ -45,21 +45,21 @@ flowchart TB
     Shuttles[("Shuttles")]
 
     subgraph DataProcessing["DataProcessing"]
-        PreprocessCompanies["PreprocessCompanies"]
+        PreprocessCompanies["PreprocessCompanies<br>──<br>ILogger"]
         PreprocessedCompanies[("PreprocessedCompanies")]
-        PreprocessShuttles["PreprocessShuttles"]
+        PreprocessShuttles["PreprocessShuttles<br>──<br>ILogger"]
         PreprocessedShuttles[("PreprocessedShuttles")]
-        CreateModelInputTable["CreateModelInputTable"]
+        CreateModelInputTable["CreateModelInputTable<br>──<br>ILogger"]
         ModelInputTable[("ModelInputTable")]
     end
 
     subgraph DataScience["DataScience"]
-        SplitData["SplitData"]
+        SplitData["SplitData<br>──<br>ILogger"]
         XTrain[("XTrain")]
         XTest[("XTest")]
-        TrainModel["TrainModel"]
+        TrainModel["TrainModel<br>──<br>ILogger"]
         Regressor[("Regressor")]
-        EvaluateModel["EvaluateModel"]
+        EvaluateModel["EvaluateModel<br>──<br>ILogger"]
         ModelMetrics[("ModelMetrics")]
         ModelPredictions[("ModelPredictions")]
     end
