@@ -2,7 +2,7 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using Microsoft.Extensions.Logging;
 
-namespace Flowthru.Extensions.Python.Step.Python.Internal;
+namespace Flowthru.Step.Python.Internal;
 
 /// <summary>
 /// Classifies a single line of stderr output from the Python worker

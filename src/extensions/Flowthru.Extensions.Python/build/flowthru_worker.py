@@ -60,6 +60,7 @@ import json
 import base64
 import importlib
 import logging
+import threading
 import traceback
 import contextlib
 
@@ -78,6 +79,15 @@ _flowthru_arrow = None
 # with StderrLineClassifier.LogFramePrefix on the C# side.
 _LOG_FRAME_PREFIX = "__flowthru_log__:"
 
+# Process-wide lock serialising the (write, flush) pair so concurrent
+# emitters can't interleave bytes on stderr — the C# reader expects
+# one frame per line, and a torn write would surface as a malformed
+# JSON parse on the host side. The lock covers our handler's emits;
+# user code calling sys.stderr.write() directly still bypasses it
+# (documented constraint — Python steps that spawn their own threads
+# and write stderr directly are responsible for their own framing).
+_STDERR_WRITE_LOCK = threading.Lock()
+
 
 class _FlowthruJsonLogHandler(logging.Handler):
     """
@@ -86,6 +96,15 @@ class _FlowthruJsonLogHandler(logging.Handler):
     worker startup so any user code that uses stdlib `logging`
     (`log.info(...)`, `log.warning(...)`, third-party libraries) flows
     through with its level preserved.
+
+    Thread safety: `logging.Handler.handle()` already wraps each
+    `emit()` call in `self.acquire()/release()`, so single-handler
+    instances serialise their own emissions. The
+    `_STDERR_WRITE_LOCK` additionally protects against torn writes
+    when other threads in the worker (e.g. background tasks the user
+    step spawned) write to stderr concurrently — only the path
+    *through this handler* is protected; direct `sys.stderr.write()`
+    calls from user code bypass the lock by design.
 
     `print()` calls and direct `sys.stderr.write()` calls bypass this
     handler — they reach the C# reader as unprefixed lines and bridge
@@ -102,8 +121,10 @@ class _FlowthruJsonLogHandler(logging.Handler):
             }
             if record.exc_info:
                 frame["exc"] = "".join(traceback.format_exception(*record.exc_info))
-            sys.stderr.write(_LOG_FRAME_PREFIX + json.dumps(frame) + "\n")
-            sys.stderr.flush()
+            line = _LOG_FRAME_PREFIX + json.dumps(frame) + "\n"
+            with _STDERR_WRITE_LOCK:
+                sys.stderr.write(line)
+                sys.stderr.flush()
         except Exception:
             # A logging failure must never crash the worker. The record
             # is silently dropped — the host still has the raw stderr

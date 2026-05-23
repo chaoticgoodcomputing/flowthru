@@ -61,52 +61,11 @@ public class SubprocessPythonExecutorBridgeTests
   [OneTimeSetUp]
   public void Setup()
   {
-    // Mirror the integration fixture's venv provisioning. This is
-    // deliberately a duplicate path rather than a shared base class
-    // because NUnit fixture inheritance doesn't compose cleanly with
-    // [OneTimeSetUp] when both base and derived define one.
-    var workerScript = Path.Combine(AppContext.BaseDirectory, "flowthru_worker.py");
-    if (!File.Exists(workerScript))
-    {
-      Assert.Ignore(
-        $"flowthru_worker.py not copied to bin output at '{workerScript}'. "
-        + "Check that the Python extension csproj's <Content> items propagate."
-      );
-    }
-
-    _tempProjectDir = Path.Combine(
-      Path.GetTempPath(),
-      $"flowthru-pylog-{Guid.NewGuid():N}"
-    );
-    Directory.CreateDirectory(_tempProjectDir);
-
-    File.WriteAllText(
-      Path.Combine(_tempProjectDir, "pyproject.toml"),
-      """
-      [project]
-      name = "flowthru-pylog"
-      version = "0.0.1"
-      description = "Probe project for SubprocessPythonExecutor bridge tests"
-      requires-python = ">=3.10"
-      dependencies = []
-      """
-    );
-
-    if (!RunUv("lock", _tempProjectDir, out var lockErr))
-    {
-      Assert.Ignore($"`uv lock` failed: {lockErr}");
-    }
-    if (!RunUv("sync --frozen", _tempProjectDir, out var syncErr))
-    {
-      Assert.Ignore($"`uv sync --frozen` failed: {syncErr}");
-    }
-
-    _venvPath = Path.Combine(_tempProjectDir, ".venv");
-    if (!Directory.Exists(_venvPath))
-    {
-      Assert.Ignore($"venv was not created at '{_venvPath}' after uv sync.");
-    }
-
+    // Stdlib-only venv — bridge tests don't exercise pandas/Arrow,
+    // so an empty dependency list keeps `uv sync` fast.
+    var venv = PythonHermeticVenv.Provision(tempDirPrefix: "flowthru-pylog");
+    _tempProjectDir = venv.TempProjectDir;
+    _venvPath = venv.VenvPath;
     WriteBridgeProbeModules(_tempProjectDir);
   }
 
@@ -120,11 +79,7 @@ public class SubprocessPythonExecutorBridgeTests
     }
     _liveExecutors.Clear();
 
-    if (!string.IsNullOrEmpty(_tempProjectDir) && Directory.Exists(_tempProjectDir))
-    {
-      try { Directory.Delete(_tempProjectDir, recursive: true); }
-      catch { /* swallow */ }
-    }
+    PythonHermeticVenv.TryDelete(_tempProjectDir);
   }
 
   [TearDown]
@@ -357,32 +312,6 @@ public class SubprocessPythonExecutorBridgeTests
       await Task.Delay(PollIntervalMs);
     }
     return null;
-  }
-
-  private static bool RunUv(string args, string workingDir, out string err)
-  {
-    var psi = new System.Diagnostics.ProcessStartInfo("uv", args)
-    {
-      WorkingDirectory = workingDir,
-      RedirectStandardOutput = true,
-      RedirectStandardError = true,
-      UseShellExecute = false,
-      CreateNoWindow = true,
-    };
-    using var proc = System.Diagnostics.Process.Start(psi);
-    if (proc is null)
-    {
-      err = "Failed to start `uv`. Is it on PATH?";
-      return false;
-    }
-    if (!proc.WaitForExit(TimeSpan.FromSeconds(120)))
-    {
-      try { proc.Kill(entireProcessTree: true); } catch { }
-      err = "uv timed out (120s).";
-      return false;
-    }
-    err = proc.StandardError.ReadToEnd().Trim();
-    return proc.ExitCode == 0;
   }
 
   /// <summary>

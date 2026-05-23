@@ -259,6 +259,52 @@ public class ExtensionNamespaceMirrorTests
       + string.Join(", ", offenders.Select(t => t.FullName)));
   }
 
+  /// <summary>
+  /// Internal types in an extension assembly must follow the same
+  /// namespace-prefix rule as public types. The risk this catches is
+  /// drift: an <c>internal</c> helper added under <c>Internal/</c> on
+  /// disk that lands in the wrong namespace because the public-type
+  /// test filters it out. Even though such drift doesn't leak to
+  /// downstream users, it breaks the "namespace mirrors source-tree
+  /// layout" promise that the Core <see cref="NamespaceLayoutTests"/>
+  /// enforces inside Core and that extensions are expected to honour
+  /// internally. Restricting the assembly-types view to a single
+  /// assembly here keeps the law per-extension rather than asserting
+  /// a global rule.
+  /// </summary>
+  [TestCaseSource(nameof(MigratedExtensions))]
+  public void InternalTypes_LiveInAllowedNamespaces(ExtensionMirror ext)
+  {
+    var internalTypes = SafeGetTypes(ext.ProbeType.Assembly)
+      // Top-level non-public types. Nested types (compiler-generated
+      // closures from lambdas, anonymous classes) are walked through
+      // their declaring type's visibility, so they're skipped here.
+      .Where(t => !t.IsPublic && !t.IsNested)
+      // Compiler-generated infrastructure (CS$<>, <PrivateImplementationDetails>,
+      // generic instantiation markers) lives in the global namespace
+      // or has internal-marker names — skip them.
+      .Where(t => !string.IsNullOrEmpty(t.Namespace))
+      .Where(t => !t.Name.StartsWith('<'))
+      // Tooling-injected types: Coverlet emits one
+      // Coverlet.Core.Instrumentation.Tracker.<asm>_<guid> per
+      // instrumented assembly at test-instrument time. These aren't
+      // source code; the namespace rule shouldn't apply.
+      .Where(t => !(t.Namespace ?? string.Empty).StartsWith("Coverlet.", StringComparison.Ordinal))
+      .ToList();
+
+    var offenders = internalTypes
+      .Where(t => !ext.AllowedNamespacePrefixes.Any(prefix =>
+        (t.Namespace ?? string.Empty) == prefix
+        || (t.Namespace ?? string.Empty).StartsWith(prefix + ".")
+      ))
+      .ToList();
+
+    Assert.That(offenders, Is.Empty,
+      $"{ext.Name}'s internal types must live in one of: "
+      + $"[{string.Join(", ", ext.AllowedNamespacePrefixes)}]. Offenders: "
+      + string.Join(", ", offenders.Select(t => t.FullName)));
+  }
+
   [TestCaseSource(nameof(MigratedExtensions))]
   public void NoTypesLeakIntoUnscopedAlgebraRoot(ExtensionMirror ext)
   {

@@ -1,4 +1,4 @@
-using Flowthru.Extensions.Python.Step.Python.Internal;
+using Flowthru.Step.Python.Internal;
 using Microsoft.Extensions.Logging;
 
 namespace Flowthru.Extensions.Python.Tests;

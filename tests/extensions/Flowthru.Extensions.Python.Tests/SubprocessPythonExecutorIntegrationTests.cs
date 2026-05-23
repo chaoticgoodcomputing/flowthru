@@ -89,56 +89,12 @@ public class SubprocessPythonExecutorIntegrationTests
   [OneTimeSetUp]
   public void ProvisionPythonEnvironment()
   {
-    // The worker script ships next to the test assembly via the test csproj's
-    // <Content Include="...flowthru_worker.py"> entry. If it's missing the
-    // copy step did not run — bail out clearly.
-    var workerScript = Path.Combine(AppContext.BaseDirectory, "flowthru_worker.py");
-    if (!File.Exists(workerScript))
-    {
-      Assert.Ignore(
-        $"flowthru_worker.py not found at '{workerScript}'. " +
-        "Check that the test csproj's <Content> items propagated to the output directory."
-      );
-    }
-
-    _tempProjectDir = Path.Combine(
-      Path.GetTempPath(),
-      $"flowthru-pytest-{Guid.NewGuid():N}"
+    var venv = PythonHermeticVenv.Provision(
+      tempDirPrefix: "flowthru-pytest",
+      "pandas>=2.0.0", "pyarrow>=18.0.0", "numpy>=1.24.0"
     );
-    Directory.CreateDirectory(_tempProjectDir);
-
-    // Minimal pyproject.toml — uv lock + sync resolves transitive deps.
-    File.WriteAllText(
-      Path.Combine(_tempProjectDir, "pyproject.toml"),
-      """
-      [project]
-      name = "flowthru-pytest"
-      version = "0.0.1"
-      description = "Probe project for SubprocessPythonExecutor integration tests"
-      requires-python = ">=3.10"
-      dependencies = ["pandas>=2.0.0", "pyarrow>=18.0.0", "numpy>=1.24.0"]
-      """
-    );
-
-    // `uv lock` produces uv.lock; `uv sync --frozen` materializes .venv/.
-    // Both steps are gated — if either fails (no uv on PATH, no network,
-    // resolver failure) the whole fixture is ignored rather than failing.
-    if (!RunUv("lock", _tempProjectDir, out var lockErr))
-    {
-      Assert.Ignore($"`uv lock` failed: {lockErr}");
-    }
-
-    if (!RunUv("sync --frozen", _tempProjectDir, out var syncErr))
-    {
-      Assert.Ignore($"`uv sync --frozen` failed: {syncErr}");
-    }
-
-    _venvPath = Path.Combine(_tempProjectDir, ".venv");
-    if (!Directory.Exists(_venvPath))
-    {
-      Assert.Ignore($"venv was not created at '{_venvPath}' after uv sync.");
-    }
-
+    _tempProjectDir = venv.TempProjectDir;
+    _venvPath = venv.VenvPath;
     WriteProbeModules(_tempProjectDir);
   }
 
@@ -155,11 +111,7 @@ public class SubprocessPythonExecutorIntegrationTests
     }
     _liveExecutors.Clear();
 
-    if (!string.IsNullOrEmpty(_tempProjectDir) && Directory.Exists(_tempProjectDir))
-    {
-      try { Directory.Delete(_tempProjectDir, recursive: true); }
-      catch { /* swallow — temp dir cleanup is advisory */ }
-    }
+    PythonHermeticVenv.TryDelete(_tempProjectDir);
   }
 
   // ── Per-test executor lifecycle ─────────────────────────────────────
@@ -543,38 +495,6 @@ public class SubprocessPythonExecutorIntegrationTests
   }
 
   // ── Helpers ─────────────────────────────────────────────────────────
-
-  /// <summary>
-  /// Runs <c>uv</c> with the given args in the given directory and captures
-  /// stderr for diagnostic surfacing. Returns true on exit-code 0.
-  /// </summary>
-  private static bool RunUv(string args, string workingDirectory, out string stderr)
-  {
-    try
-    {
-      var psi = new ProcessStartInfo
-      {
-        FileName = "uv",
-        Arguments = args,
-        WorkingDirectory = workingDirectory,
-        UseShellExecute = false,
-        RedirectStandardOutput = true,
-        RedirectStandardError = true,
-        CreateNoWindow = true,
-      };
-      using var process = Process.Start(psi);
-      if (process == null) { stderr = "Process.Start returned null"; return false; }
-      stderr = process.StandardError.ReadToEnd();
-      _ = process.StandardOutput.ReadToEnd();
-      process.WaitForExit(120_000);
-      return process.HasExited && process.ExitCode == 0;
-    }
-    catch (Exception ex)
-    {
-      stderr = ex.Message;
-      return false;
-    }
-  }
 
   /// <summary>
   /// Writes the probe step + service modules into the temp project dir so
