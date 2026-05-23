@@ -30,16 +30,15 @@ def split_data(data: pd.DataFrame, options: dict) -> tuple:
     random_state = options["RandomState"]
     features = options["Features"]
 
-    logger.info(f"[split_data] Starting with data shape {data.shape}, columns: {list(data.columns)}")
-    logger.info(f"[split_data] Extracting features: {features}")
     X = data[features]
     y = data[["price"]]
-    logger.info(f"[split_data] X shape: {X.shape}, y shape: {y.shape}")
-
-    logger.info(f"[split_data] Splitting with test_size={test_size}, random_state={random_state}")
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=test_size, random_state=random_state
     )
-    logger.info(f"[split_data] Completed: X_train {X_train.shape}, X_test {X_test.shape}, y_train {y_train.shape}, y_test {y_test.shape}")
+
+    logger.info(
+        "Split %d rows: %d train / %d test (%.0f%% test, seed=%d)",
+        len(data), len(X_train), len(X_test), test_size * 100, random_state,
+    )
 
     return X_train, X_test, y_train, y_test

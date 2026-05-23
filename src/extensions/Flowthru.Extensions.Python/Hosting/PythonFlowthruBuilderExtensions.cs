@@ -6,6 +6,8 @@ using Flowthru.Validation.Runtime;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace Flowthru.Hosting;
 
@@ -48,6 +50,14 @@ public static class PythonFlowthruBuilderExtensions
     // earlier in the pipeline take precedence.
     builder.Services.TryAddSingleton<IPythonConfigurationFlattener, PythonConfigurationFlattener>();
     builder.Services.TryAddSingleton<IPythonServiceInspectorRegistry, PythonServiceInspectorRegistry>();
+    // Shared "Flowthru"-category ILogger for the Python executor
+    // (ADR-0005). Mirrors AddFlowthru's fallback so UsePython() can
+    // stand alone in tests that don't also call AddFlowthru. The
+    // resolver lazily picks the host's ILoggerFactory if AddLogging
+    // ran, otherwise falls back to NullLoggerFactory.Instance.
+    builder.Services.TryAddSingleton<ILogger>(sp =>
+      (sp.GetService<ILoggerFactory>() ?? NullLoggerFactory.Instance).CreateLogger("Flowthru")
+    );
     builder.Services.TryAddSingleton<IPythonExecutor, SubprocessPythonExecutor>();
 
     // Service-ref dispatch: matches Category="python".

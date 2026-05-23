@@ -18,22 +18,22 @@ def train_model(X_train: pd.DataFrame, y_train: pd.DataFrame) -> dict:
     Returns:
         Dictionary with model parameters (coefficients, intercept, feature_names).
     """
-    logger.info(f"[train_model] Starting with X_train {X_train.shape}, y_train {y_train.shape}")
-    
+    logger.info(
+        "Training linear regression on %d samples × %d features",
+        len(X_train), X_train.shape[1],
+    )
+
     regressor = LinearRegression()
-    
-    # Convert single-column DataFrame to Series for sklearn
     y_train_series = y_train.squeeze()
-    logger.info(f"[train_model] Fitting LinearRegression with {len(X_train)} samples")
-    
     regressor.fit(X_train, y_train_series)
-    logger.info(f"[train_model] Model trained successfully, coefficients shape: {regressor.coef_.shape}")
-    
-    # Extract model parameters to match LinearRegressionModel schema
+
     result = {
         "Coefficients": regressor.coef_.tolist(),
         "Intercept": float(regressor.intercept_),
         "FeatureNames": list(X_train.columns),
     }
-    logger.info(f"[train_model] Returning model with {len(result['Coefficients'])} coefficients, intercept={result['Intercept']}")
+    logger.info(
+        "Training complete (intercept=%.2f, %d coefficients)",
+        result["Intercept"], len(result["Coefficients"]),
+    )
     return result

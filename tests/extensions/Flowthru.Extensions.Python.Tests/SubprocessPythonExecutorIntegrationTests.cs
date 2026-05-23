@@ -165,7 +165,8 @@ public class SubprocessPythonExecutorIntegrationTests
   // ── Per-test executor lifecycle ─────────────────────────────────────
 
   private SubprocessPythonExecutor CreateExecutor(
-    PythonRuntimeOptions? overrideOptions = null
+    PythonRuntimeOptions? overrideOptions = null,
+    Microsoft.Extensions.Logging.ILogger? logger = null
   )
   {
     var options = overrideOptions ?? new PythonRuntimeOptions
@@ -176,7 +177,7 @@ public class SubprocessPythonExecutorIntegrationTests
     var executor = new SubprocessPythonExecutor(
       Options.Create(options),
       new NullFlattener(),
-      NullLogger<SubprocessPythonExecutor>.Instance
+      logger ?? NullLogger.Instance
     );
     _liveExecutors.Add(executor);
     return executor;
@@ -694,6 +695,33 @@ public class SubprocessPythonExecutorIntegrationTests
       @step(inputs=["int"], outputs=["int"])
       def boom(n: int) -> int:
           raise ValueError("intentional boom for test coverage")
+      """);
+
+    // Stderr-bridge probes — exercise the three classification paths
+    // (structured logging records, raw print(), unhandled exception
+    // traceback) against the StderrLineClassifier.
+    File.WriteAllText(Path.Combine(stepsDir, "logs_via_stdlib.py"),
+      """
+      import logging
+      from flowthru import step
+
+      _log = logging.getLogger("test_steps.logs_via_stdlib")
+
+      @step(inputs=["int"], outputs=["int"])
+      def emit(n: int) -> int:
+          _log.info("informational %d", n)
+          _log.warning("warning %d", n)
+          return n
+      """);
+
+    File.WriteAllText(Path.Combine(stepsDir, "prints_to_stdout.py"),
+      """
+      from flowthru import step
+
+      @step(inputs=["int"], outputs=["int"])
+      def emit(n: int) -> int:
+          print(f"raw-print-line {n}")
+          return n
       """);
 
     // Service probes for InvokeInspector. Each "service" is a zero-arg class;

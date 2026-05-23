@@ -6,6 +6,7 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using Apache.Arrow;
 using Flowthru.Data.Storage;
+using Flowthru.Extensions.Python.Step.Python.Internal;
 using Flowthru.Prelude;
 using Flowthru.Step.Python;
 using Flowthru.Validation.PreFlight;
@@ -40,11 +41,13 @@ public sealed class SubprocessPythonExecutor : IPythonExecutor, IDisposable
 {
   private readonly PythonRuntimeOptions _options;
   private readonly IPythonConfigurationFlattener _flattener;
-  private readonly ILogger<SubprocessPythonExecutor> _logger;
+  private readonly ILogger _logger;
 
   private Process? _worker;
   private StreamWriter? _stdin;
   private StreamReader? _stdout;
+  private CancellationTokenSource? _stderrReaderCts;
+  private Task? _stderrReaderTask;
   private readonly object _lock = new();
   private volatile bool _started;
   private bool _disposed;
@@ -68,12 +71,19 @@ public sealed class SubprocessPythonExecutor : IPythonExecutor, IDisposable
   /// the worker's <see cref="ProcessStartInfo.EnvironmentVariables"/> from
   /// the section named in <see cref="PythonRuntimeOptions.ConfigurationSection"/>.
   /// </param>
-  /// <param name="logger">The logger instance.</param>
+  /// <param name="logger">
+  /// The engine's shared <see cref="ILogger"/> — registered as a
+  /// singleton under category <c>"Flowthru"</c> by
+  /// <c>AddFlowthru</c> per ADR-0005. Worker stderr lines bridge
+  /// through this logger via <see cref="StderrLineClassifier"/>, so
+  /// Python step output appears alongside engine and C# step logs in
+  /// the same stream.
+  /// </param>
   /// <exception cref="ArgumentNullException"></exception>
   public SubprocessPythonExecutor(
     IOptions<PythonRuntimeOptions> options,
     IPythonConfigurationFlattener flattener,
-    ILogger<SubprocessPythonExecutor> logger
+    ILogger logger
   )
   {
     _options = options?.Value ?? throw new ArgumentNullException(nameof(options));
@@ -435,7 +445,11 @@ public sealed class SubprocessPythonExecutor : IPythonExecutor, IDisposable
       UseShellExecute = false,
       RedirectStandardInput = true,
       RedirectStandardOutput = true,
-      RedirectStandardError = false, // let stderr pass through to parent for visibility
+      // stderr carries Python `logging` records (as JSON frames the
+      // worker emits via _FlowthruJsonLogHandler) plus raw print()
+      // output. ReadStderrLoopAsync forwards each line to the engine's
+      // ILogger via StderrLineClassifier.
+      RedirectStandardError = true,
       CreateNoWindow = true,
     };
     psi.ArgumentList.Add(workerScript);
@@ -467,6 +481,16 @@ public sealed class SubprocessPythonExecutor : IPythonExecutor, IDisposable
     _stdin = _worker.StandardInput;
     _stdin.AutoFlush = true;
     _stdout = _worker.StandardOutput;
+
+    // Bridge stderr → ILogger. The reader runs for the worker's
+    // lifetime; Dispose() cancels the CTS and awaits the task. Doing
+    // this before sending the init message ensures any startup
+    // diagnostics from the worker (import errors, sys.path issues)
+    // are captured rather than buffered.
+    _stderrReaderCts = new CancellationTokenSource();
+    _stderrReaderTask = Task.Run(
+      () => ReadStderrLoopAsync(_worker.StandardError, _stderrReaderCts.Token)
+    );
 
     // Build init message: sys.path includes configured search paths + the base directory
     // (so flowthru_worker.py can import _flowthru_arrow from the same directory)
@@ -784,6 +808,58 @@ public sealed class SubprocessPythonExecutor : IPythonExecutor, IDisposable
 
   // ── Dispose ───────────────────────────────────────────────────────────────────────────
 
+  /// <summary>
+  /// Drain the worker's stderr, line by line, into the engine's
+  /// shared <see cref="ILogger"/>. Runs on a background task for the
+  /// worker's lifetime; <see cref="Dispose"/> cancels the CTS and
+  /// awaits the task.
+  /// </summary>
+  /// <remarks>
+  /// <para>
+  /// The classifier (<see cref="StderrLineClassifier"/>) decides each
+  /// line's <see cref="LogLevel"/>: structured frames the Python
+  /// worker emits via its <c>_FlowthruJsonLogHandler</c> carry the
+  /// embedded level; raw <c>print()</c> output defaults to
+  /// <see cref="LogLevel.Information"/>; tracebacks elevate to
+  /// <see cref="LogLevel.Error"/>.
+  /// </para>
+  /// <para>
+  /// Exceptions raised by the stream (worker exited, pipe broke) are
+  /// swallowed — the bridge is best-effort observation, not a hard
+  /// dependency of step execution. The reader returns and the task
+  /// completes; subsequent <c>Dispose</c> still runs cleanly.
+  /// </para>
+  /// </remarks>
+  private async Task ReadStderrLoopAsync(StreamReader stderr, CancellationToken cancellationToken)
+  {
+    try
+    {
+      while (!cancellationToken.IsCancellationRequested)
+      {
+        var line = await stderr.ReadLineAsync(cancellationToken).ConfigureAwait(false);
+        if (line is null)
+        {
+          // End of stream — worker closed stderr (likely exited).
+          break;
+        }
+
+        var (level, message) = StderrLineClassifier.Classify(line);
+        _logger.Log(level, "{Message}", message);
+      }
+    }
+    catch (OperationCanceledException)
+    {
+      // Dispose called — expected.
+    }
+    catch (Exception ex)
+    {
+      // Defensive: don't let a stderr-read crash escape the background
+      // task. Surface it once at Warning so the bridge failure is
+      // visible, then exit.
+      _logger.LogWarning(ex, "Python stderr reader exited unexpectedly");
+    }
+  }
+
   /// <inheritdoc/>
   public void Dispose()
   {
@@ -832,6 +908,25 @@ public sealed class SubprocessPythonExecutor : IPythonExecutor, IDisposable
         }
         catch { }
         _worker.Dispose();
+      }
+
+      // Cancel the stderr reader and wait briefly for it to drain. The
+      // reader is best-effort, so we don't propagate exceptions or
+      // wait forever — a short timeout matches the worker exit budget
+      // above. The reader naturally exits when the worker closes
+      // stderr; the cancellation just covers the edge case where the
+      // OS holds the pipe open past process exit.
+      try
+      {
+        _stderrReaderCts?.Cancel();
+        _stderrReaderTask?.Wait(TimeSpan.FromSeconds(2));
+      }
+      catch { /* best-effort cleanup */ }
+      finally
+      {
+        _stderrReaderCts?.Dispose();
+        _stderrReaderCts = null;
+        _stderrReaderTask = null;
       }
 
       _stdin = null;

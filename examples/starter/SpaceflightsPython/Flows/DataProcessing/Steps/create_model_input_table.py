@@ -23,37 +23,34 @@ def create_model_input_table(
     Returns:
         Model input table.
     """
-    logger.info(f"[create_model_input_table] Starting with shuttles {shuttles.shape}, companies {companies.shape}, reviews {reviews.shape}")
-    
-    logger.info("[create_model_input_table] Converting review columns to numeric")
+    n_shuttles = len(shuttles)
+    n_companies = len(companies)
+    n_reviews_in = len(reviews)
+
     reviews["shuttle_id"] = pd.to_numeric(reviews["shuttle_id"], errors="coerce").astype(int)
     reviews["review_scores_rating"] = pd.to_numeric(reviews["review_scores_rating"], errors="coerce")
-    
-    logger.info("[create_model_input_table] Merging shuttles with reviews")
+    dropped_reviews = n_reviews_in - reviews["review_scores_rating"].notna().sum()
+    if dropped_reviews > 0:
+        logger.warning(
+            "Dropped %d/%d reviews with unparseable rating scores",
+            int(dropped_reviews), n_reviews_in,
+        )
+
     rated_shuttles = shuttles.merge(reviews, left_on="id", right_on="shuttle_id", suffixes=("", "_review"))
-    logger.info(f"[create_model_input_table] After first merge: {rated_shuttles.shape}")
-    
-    logger.info("[create_model_input_table] Merging with companies")
     model_input_table = rated_shuttles.merge(
         companies, left_on="company_id", right_on="id", suffixes=("", "_company")
     )
-    logger.info(f"[create_model_input_table] After second merge: {model_input_table.shape}")
-    
-    logger.info("[create_model_input_table] Dropping NaN values")
     model_input_table = model_input_table.dropna()
-    
-    logger.info(f"[create_model_input_table] Available columns after dropna: {list(model_input_table.columns)}")
-    logger.info(f"[create_model_input_table] Dtypes after dropna: {dict(model_input_table.dtypes)}")
-    
+
     # Convert all integer columns explicitly to int32 (C# Int32 type)
     # After dropna(), we can safely cast without null issues
     for col in ["id", "engines", "passenger_capacity", "crew", "company_id"]:
         model_input_table[col] = model_input_table[col].astype('int32')
-    
+
     # Convert id fields to strings to match ModelInputTableSchema
     model_input_table["id"] = model_input_table["id"].astype(str)
     model_input_table["company_id"] = model_input_table["company_id"].astype(str)
-    
+
     # Select and rename columns to match ModelInputTableSchema exactly
     # All fields use snake_case SerializedLabel attributes
     result = pd.DataFrame({
@@ -73,7 +70,9 @@ def create_model_input_table(
         "total_fleet_count": model_input_table["total_fleet_count"],
         "review_scores_rating": model_input_table["review_scores_rating"],
     })
-    
-    logger.info(f"[create_model_input_table] Completed, output shape {result.shape}")
-    logger.info(f"[create_model_input_table] Final dtypes: {dict(result.dtypes)}")
+
+    logger.info(
+        "Joined %d shuttle rows × %d company rows × %d reviews → %d model-input rows",
+        n_shuttles, n_companies, n_reviews_in, len(result),
+    )
     return result

@@ -3,8 +3,11 @@
 Phase 9: ``options`` arrives as a singleton ``SplitDataOptions`` input,
 marshalled from C# via the JSON scalar path.
 """
+import logging
 import pandas as pd
 from flowthru import step
+
+logger = logging.getLogger(__name__)
 
 
 @step(
@@ -55,5 +58,10 @@ def split_data(data: pd.DataFrame, options: dict) -> tuple[pd.DataFrame, pd.Data
     train_data_y = training_data[[f"Iris-{cls}" for cls in classes]]
     test_data_x = test_data.loc[:, "sepal_length":"petal_width"]
     test_data_y = test_data[[f"Iris-{cls}" for cls in classes]]
+
+    logger.info(
+        "Encoded %d iris rows; split %d train / %d test (%.0f%% test, seed=%d)",
+        n, n - n_test, n_test, test_data_ratio * 100, random_state
+    )
 
     return train_data_x, train_data_y, test_data_x, test_data_y

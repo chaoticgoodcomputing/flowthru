@@ -31,29 +31,22 @@ def preprocess_companies(companies: pd.DataFrame) -> pd.DataFrame:
         Preprocessed data, with `company_rating` converted to a float and
         `iata_approved` converted to boolean.
     """
-    print(f"[PYTHON] preprocess_companies STARTED with shape {companies.shape}", flush=True)
-    print(f"[PYTHON] columns: {list(companies.columns)}", flush=True)
-    logger.info(f"[preprocess_companies] Starting with shape {companies.shape}, columns: {list(companies.columns)}")
-    
-    print("[PYTHON] Converting id to int...", flush=True)
+    n_in = len(companies)
     companies["id"] = companies["id"].astype('int32')
-    
-    print("[PYTHON] Converting iata_approved...", flush=True)
-    logger.info("[preprocess_companies] Converting iata_approved to boolean")
     companies["iata_approved"] = _is_true(companies["iata_approved"])
-    
-    print("[PYTHON] Parsing company_rating...", flush=True)
-    logger.info("[preprocess_companies] Parsing company_rating percentages")
     companies["company_rating"] = _parse_percentage(companies["company_rating"])
-    
-    print("[PYTHON] Converting total_fleet_count to float...", flush=True)
     companies["total_fleet_count"] = companies["total_fleet_count"].replace("", np.nan).astype(float)
-    
+
     # Filter out rows with missing company_rating (matches C# behavior)
-    print("[PYTHON] Filtering out rows with missing company_rating...", flush=True)
     companies = companies.dropna(subset=["company_rating"])
-    
-    print(f"[PYTHON] preprocess_companies COMPLETED, output shape {companies.shape}", flush=True)
-    print(f"[PYTHON] Final columns: {list(companies.columns)}", flush=True)
-    logger.info(f"[preprocess_companies] Completed, output shape {companies.shape}")
+
+    dropped = n_in - len(companies)
+    if dropped > 0:
+        logger.warning(
+            "Dropped %d/%d company rows with invalid rating percentages",
+            dropped, n_in,
+        )
+    else:
+        logger.info("Preprocessed %d company rows", len(companies))
+
     return companies

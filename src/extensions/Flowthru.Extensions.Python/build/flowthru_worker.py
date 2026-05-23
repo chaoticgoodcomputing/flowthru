@@ -56,10 +56,10 @@ Encoding
 """
 
 import sys
-import io
 import json
 import base64
 import importlib
+import logging
 import traceback
 import contextlib
 
@@ -68,6 +68,62 @@ _module_cache: dict = {}
 
 # Loaded lazily after sys.path is configured
 _flowthru_arrow = None
+
+# Prefix the C# host (StderrLineClassifier) recognises when bridging
+# stderr lines into the engine's shared ILogger. Any stderr line that
+# starts with this marker is parsed as a JSON frame
+# {"level": "...", "logger": "...", "msg": "..."} and forwarded at the
+# embedded level; unmarked lines fall through to LogInformation (with
+# a traceback heuristic that elevates to LogError). Keep this in sync
+# with StderrLineClassifier.LogFramePrefix on the C# side.
+_LOG_FRAME_PREFIX = "__flowthru_log__:"
+
+
+class _FlowthruJsonLogHandler(logging.Handler):
+    """
+    Bridges Python `logging` records to the C# host's ILogger by emitting
+    a JSON frame on stderr per record. Installed on the root logger at
+    worker startup so any user code that uses stdlib `logging`
+    (`log.info(...)`, `log.warning(...)`, third-party libraries) flows
+    through with its level preserved.
+
+    `print()` calls and direct `sys.stderr.write()` calls bypass this
+    handler — they reach the C# reader as unprefixed lines and bridge
+    at LogInformation by default. See ADR-0005 (shared ILogger) and the
+    Python extension's stderr bridge for the full contract.
+    """
+
+    def emit(self, record: logging.LogRecord) -> None:
+        try:
+            frame = {
+                "level": record.levelname,
+                "logger": record.name,
+                "msg": record.getMessage(),
+            }
+            if record.exc_info:
+                frame["exc"] = "".join(traceback.format_exception(*record.exc_info))
+            sys.stderr.write(_LOG_FRAME_PREFIX + json.dumps(frame) + "\n")
+            sys.stderr.flush()
+        except Exception:
+            # A logging failure must never crash the worker. The record
+            # is silently dropped — the host still has the raw stderr
+            # stream for forensics.
+            pass
+
+
+def _install_log_bridge() -> None:
+    """
+    Install the Flowthru JSON log handler on the root logger and clear
+    any pre-existing handlers so a later `logging.basicConfig(...)` call
+    in user code becomes a no-op (basicConfig short-circuits when the
+    root logger already has handlers — see Python docs). Root level is
+    set to DEBUG so every record reaches our handler; the C# host's
+    LogLevel.MinimumLevel decides what ultimately renders.
+    """
+    root = logging.getLogger()
+    root.handlers.clear()
+    root.addHandler(_FlowthruJsonLogHandler())
+    root.setLevel(logging.DEBUG)
 
 
 # ---------------------------------------------------------------------------
@@ -283,20 +339,18 @@ def _handle_invoke(msg: dict) -> dict:
 
         decoded = _decode(msg["input_type"], msg["input"])
 
-        # Redirect stdout to stderr during invocation so user print() calls don't
-        # corrupt the newline-delimited JSON protocol on stdout.
-        captured = io.StringIO()
-        with contextlib.redirect_stdout(captured):
+        # Redirect stdout to stderr for the duration of the user call so
+        # print() doesn't corrupt the newline-delimited JSON protocol on
+        # stdout. Direct redirection (no buffering layer) means each
+        # print() line bridges to the host's ILogger interleaved with
+        # engine logs — important for failure paths where the step
+        # crashes mid-execution and a batched buffer would never flush.
+        with contextlib.redirect_stdout(sys.stderr):
             # Unpack multi-input as positional args
             if msg["input_type"] == "multi":
                 result = func(*decoded)
             else:
                 result = func(decoded)
-
-        user_output = captured.getvalue()
-        if user_output:
-            sys.stderr.write(user_output)
-            sys.stderr.flush()
 
         encoded = _encode(
             msg["output_type"],
@@ -316,6 +370,24 @@ def _handle_invoke(msg: dict) -> dict:
 
 def main() -> None:
     global _flowthru_arrow
+
+    # Line-buffer stderr so each log line/print() flushes immediately.
+    # Without this, Python buffers stderr when it's a pipe (default
+    # behaviour when stderr isn't a tty), and the host sees output in
+    # 4KB chunks rather than line-by-line — breaking the interleaving
+    # between engine logs and step logs the bridge is designed for.
+    try:
+        sys.stderr.reconfigure(line_buffering=True)
+    except AttributeError:
+        # Python < 3.7 lacks reconfigure(); the bridge still works,
+        # output just lands in larger batches.
+        pass
+
+    # Install the Flowthru log bridge before any user code runs so
+    # `logging.basicConfig(...)` in user modules is a no-op (Python's
+    # basicConfig short-circuits when the root logger already has
+    # handlers).
+    _install_log_bridge()
 
     # First line must be the init message
     init_line = sys.stdin.readline()
