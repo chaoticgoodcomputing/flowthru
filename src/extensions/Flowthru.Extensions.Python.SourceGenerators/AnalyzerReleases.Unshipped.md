@@ -12,6 +12,8 @@
 | FTPY3008 | Flowthru.Validation | Error    | Pre-flight (Python): module not on search path                       |
 | FTPY3009 | Flowthru.Validation | Error    | Pre-flight (Python): decorator-less module                           |
 | FTPY3010 | Flowthru.Validation | Error    | Pre-flight (Python): decorator schema not registered                 |
+| FTPY3011 | Flowthru.Validation | Error    | Pre-flight (Python): declared package missing from venv              |
+| FTPY3012 | Flowthru.Validation | Error    | Pre-flight (Python): installed package version fails declared constraint |
 | FTPY4007 | Flowthru.Runtime    | Error    | Runtime (Python): worker startup failed                              |
 | FTPY4008 | Flowthru.Runtime    | Error    | Runtime (Python): worker crashed                                     |
 | FTPY4009 | Flowthru.Runtime    | Error    | Runtime (Python): worker timed out                                   |

@@ -65,6 +65,19 @@ public static class PythonFlowthruBuilderExtensions
     builder.Services.TryAddSingleton<IPythonLauncher, DirectPythonLauncher>();
     builder.Services.TryAddSingleton<IPythonExecutor, SubprocessPythonExecutor>();
 
+    // Base Python-side capability declaration — the floor of what
+    // SubprocessPythonExecutor's worker assumes is in the venv.
+    // Registered via AddSingleton (NOT TryAddSingleton): the
+    // requirements algebra folds *every* registered capability, so a
+    // user who supplies an additional IPythonCapability shouldn't
+    // displace the base, they should compose with it. Per ADR-0013.
+    builder.Services.AddSingleton<IPythonCapability, BasePythonExtensionCapability>();
+
+    // Installed-package probe — default subprocess implementation
+    // shells out to `python -m pip list --format=json`. TryAddSingleton
+    // so tests / users can substitute a stub.
+    builder.Services.TryAddSingleton<IInstalledPackageProbe, SubprocessInstalledPackageProbe>();
+
     // Service-ref dispatch: matches Category="python".
     builder.Services.AddSingleton<IServiceRefDispatcher, PythonServiceRefDispatcher>();
 
@@ -72,6 +85,13 @@ public static class PythonFlowthruBuilderExtensions
     // module-import / decorator-presence / schema-agreement / arity
     // checks against every PythonStep<,> in the registered flows.
     builder.Services.AddSingleton<IFlowValidationHook, PythonStepValidationHook>();
+
+    // Pre-flight hook: requirements-algebra enforcement (ADR-0013).
+    // Folds every IPythonCapability + the active IPythonLauncher's
+    // Requirements, probes the configured venv via `pip list`, and
+    // surfaces typed PythonPreFlightError variants for missing or
+    // wrong-version packages.
+    builder.Services.AddSingleton<IFlowValidationHook, PythonRequirementsValidationHook>();
 
     return builder;
   }

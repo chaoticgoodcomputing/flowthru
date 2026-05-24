@@ -29,6 +29,8 @@ public enum PythonSchemaSide
 ///   <item>FTPY3008 — schema name mismatch at a positional index</item>
 ///   <item>FTPY3009 — function arity mismatch</item>
 ///   <item>FTPY3010 — service inspection failed</item>
+///   <item>FTPY3011 — Python package missing from venv</item>
+///   <item>FTPY3012 — installed Python package version doesn't satisfy declared constraints</item>
 /// </list>
 /// </remarks>
 public abstract record PythonPreFlightError : IExtensionPreFlightError
@@ -118,5 +120,83 @@ public abstract record PythonPreFlightError : IExtensionPreFlightError
       $"Python service '{ServiceClassPath}' inspection failed: {Detail}";
     /// <inheritdoc/>
     public override string DiagnosticCode => "FTPY3010";
+  }
+
+  /// <summary>
+  /// A capability declared a Python-side package requirement (via
+  /// <see cref="Step.Python.IPythonCapability.Requirements"/> or
+  /// <see cref="Step.Python.IPythonLauncher.Requirements"/>) but the
+  /// package is absent from the configured venv. Surfaced by the
+  /// requirements algebra (ADR-0013) during pre-flight.
+  /// </summary>
+  /// <param name="Package">PyPI package name.</param>
+  /// <param name="RequiredConstraint">
+  /// Folded constraint string the declarers collectively asked for.
+  /// </param>
+  /// <param name="Declarers">
+  /// Human-readable list of the capabilities that declared the
+  /// requirement — used so the user knows what's asking and can
+  /// resolve the gap with a single <c>uv add</c>.
+  /// </param>
+  public sealed record MissingRequirement(
+    string Package,
+    string RequiredConstraint,
+    IReadOnlyList<string> Declarers
+  ) : PythonPreFlightError
+  {
+    /// <inheritdoc/>
+    public override string Message
+    {
+      get
+      {
+        var declarerList = Declarers.Count == 0
+          ? "(no declarer attribution)"
+          : string.Join("; ", Declarers);
+        var constraint = string.IsNullOrWhiteSpace(RequiredConstraint) ? "*" : RequiredConstraint;
+        return
+          $"Python package '{Package}' (constraint: {constraint}) is required but not installed "
+          + $"in the configured venv. Declared by: {declarerList}. "
+          + $"Run `uv add {Package}{(constraint == "*" ? "" : constraint)}` to resolve.";
+      }
+    }
+
+    /// <inheritdoc/>
+    public override string DiagnosticCode => "FTPY3011";
+  }
+
+  /// <summary>
+  /// A capability-declared Python-side package is present in the venv
+  /// but the installed version does not satisfy the folded constraint.
+  /// Per ADR-0013, this single variant covers both
+  /// "installed-version-too-old" and conflicting-declarer cases —
+  /// users see every contributing capability so internal
+  /// inconsistencies are diagnosable from the error itself. Symbolic
+  /// "unsatisfiable intersection" detection (a sharper diagnostic) is
+  /// deferred to the design-time analyzer (slice 3).
+  /// </summary>
+  public sealed record VersionConstraintNotSatisfied(
+    string Package,
+    string InstalledVersion,
+    string RequiredConstraint,
+    IReadOnlyList<string> Declarers
+  ) : PythonPreFlightError
+  {
+    /// <inheritdoc/>
+    public override string Message
+    {
+      get
+      {
+        var declarerList = Declarers.Count == 0
+          ? "(no declarer attribution)"
+          : string.Join("; ", Declarers);
+        return
+          $"Python package '{Package}' is installed at version '{InstalledVersion}' "
+          + $"but the folded constraint '{RequiredConstraint}' is not satisfied. "
+          + $"Declared by: {declarerList}.";
+      }
+    }
+
+    /// <inheritdoc/>
+    public override string DiagnosticCode => "FTPY3012";
   }
 }
