@@ -350,6 +350,102 @@ public class CachePlanBuilderTests
     Assert.That(((StepUncacheableReason.HasServiceDependencies)reason).Count, Is.EqualTo(2));
   }
 
+  // ── ObservationOnly carve-out (ADR-0010) ────────────────────────────
+
+  [Test]
+  public async Task ObservationOnlyDeps_DoNotMarkStepUncacheable()
+  {
+    // ADR-0010: ServiceRef.ObservationOnly variants (e.g., ILogger)
+    // are skipped when computing cache eligibility — observation
+    // surfaces don't affect step output values, so their presence
+    // can't invalidate a cached result.
+    var input = new FakeFingerprintItem<int>("in", fingerprint: "fp-in", exists: true);
+    var output = new FakeFingerprintItem<int>("out", fingerprint: "fp-out", exists: true);
+    var step = MakeStep(
+      label: "transform", codeVersion: "code-v1",
+      input: input, output: output,
+      serviceDependencies: new ServiceRef[]
+      {
+        new ServiceRef.ObservationOnly(typeof(Microsoft.Extensions.Logging.ILogger)),
+      });
+
+    var composite = CachePlanBuilder.ComposeStepFingerprint(
+      "code-v1", new[] { ("in", "fp-in") });
+    var manifest = Manifest(
+      steps: new[] { ("transform", composite) },
+      items: new[] { ("in", "fp-in") });
+
+    var plan = await CachePlanBuilder.BuildAsync(BuildFlow(step), manifest);
+
+    Assert.That(plan.FreshStepLabels, Is.EquivalentTo(new[] { "transform" }),
+      "A step with only observation-only deps must remain eligible for caching when "
+      + "its inputs and code version match the manifest.");
+    Assert.That(plan.UncacheableStepLabels, Is.Empty,
+      "Observation-only deps must not push the step into the uncacheable bucket.");
+  }
+
+  [Test]
+  public async Task ObservationOnlyPlusRegularDep_StillUncacheable_CountExcludesObservation()
+  {
+    // The carve-out is for observation-only refs specifically; a step
+    // that also declares a regular service dep is still uncacheable.
+    // The reason's Count surfaces only the cache-affecting deps so
+    // the developer-facing message stays meaningful.
+    var input = new FakeFingerprintItem<int>("in", fingerprint: "fp-in", exists: true);
+    var output = new FakeFingerprintItem<int>("out", fingerprint: "fp-out", exists: true);
+    var step = MakeStep(
+      label: "transform", codeVersion: "code-v1",
+      input: input, output: output,
+      serviceDependencies: new ServiceRef[]
+      {
+        new ServiceRef.ObservationOnly(typeof(Microsoft.Extensions.Logging.ILogger)),
+        ServiceRef.Of<object>(),
+      });
+
+    var plan = await CachePlanBuilder.BuildAsync(BuildFlow(step), CacheManifest.Empty);
+
+    Assert.That(plan.UncacheableStepLabels, Is.EquivalentTo(new[] { "transform" }));
+    var reason = plan.UncacheableReasons["transform"];
+    Assert.That(reason, Is.TypeOf<StepUncacheableReason.HasServiceDependencies>());
+    Assert.That(((StepUncacheableReason.HasServiceDependencies)reason).Count, Is.EqualTo(1),
+      "Count surfaces cache-affecting deps only — the ObservationOnly logger is excluded.");
+  }
+
+  [Test]
+  public async Task ObservationOnlyParent_DoesNotCascadeUncacheabilityToChildren()
+  {
+    // The original motivation for ADR-0010 was the cascade: an
+    // ILogger-declaring parent step uncacheabilised every downstream
+    // consumer too. With the carve-out the parent is cache-eligible,
+    // so the cascade rule has nothing to propagate.
+    var seedInput = new FakeFingerprintItem<int>("seed", fingerprint: "fp-seed", exists: true);
+    var mid = new FakeFingerprintItem<int>("mid", fingerprint: "fp-mid", exists: true);
+    var output = new FakeFingerprintItem<int>("out", fingerprint: "fp-out", exists: true);
+    var stepA = MakeStep(
+      label: "A", codeVersion: "code-A-v1",
+      input: seedInput, output: mid,
+      serviceDependencies: new ServiceRef[]
+      {
+        new ServiceRef.ObservationOnly(typeof(Microsoft.Extensions.Logging.ILogger)),
+      });
+    var stepB = MakeStep("B", "code-B-v1", mid, output);
+
+    var compositeA = CachePlanBuilder.ComposeStepFingerprint(
+      "code-A-v1", new[] { ("seed", "fp-seed") });
+    var compositeB = CachePlanBuilder.ComposeStepFingerprint(
+      "code-B-v1", new[] { ("mid", "fp-mid") });
+    var manifest = Manifest(
+      steps: new[] { ("A", compositeA), ("B", compositeB) },
+      items: new[] { ("seed", "fp-seed"), ("mid", "fp-mid") });
+
+    var plan = await CachePlanBuilder.BuildAsync(BuildFlow(stepA, stepB), manifest);
+
+    Assert.That(plan.UncacheableStepLabels, Is.Empty,
+      "Observation-only deps on the parent must not cascade into the child.");
+    Assert.That(plan.FreshStepLabels, Is.EquivalentTo(new[] { "A", "B" }),
+      "Both steps eligible and matching the manifest → both fresh.");
+  }
+
   [Test]
   public async Task UncacheableReason_UnfingerprintableInput_NamesItemLabel()
   {

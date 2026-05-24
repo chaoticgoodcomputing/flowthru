@@ -46,8 +46,9 @@ public static class FixtureLoggingStep
 /// (ADR-0005): a <c>[FlowthruStep]</c> class declares
 /// <see cref="ILogger"/> as a parameter on its <c>Create()</c>
 /// factory; the source generator extracts it as a
-/// <see cref="ServiceRef.CSharp"/>; the host resolves it through DI;
-/// the step's logged lines hit the captured provider.
+/// <see cref="ServiceRef.ObservationOnly"/> (ADR-0010); the host
+/// resolves it through DI; the step's logged lines hit the captured
+/// provider.
 /// </summary>
 [TestFixture]
 public class StepLoggerInjectionTests
@@ -62,22 +63,25 @@ public class StepLoggerInjectionTests
   }
 
   [Test]
-  public void SourceGenerator_ExtractsILoggerParameter_AsServiceRef()
+  public void SourceGenerator_ExtractsILoggerParameter_AsObservationOnlyServiceRef()
   {
     // The [FlowthruStep] generator inspects Create() parameter types
-    // and registers interface-typed params as ServiceRef.CSharp on the
+    // and registers interface-typed params as ServiceRefs on the
     // step's metadata. ILogger (non-generic) must round-trip through
     // this path so the engine's shared "Flowthru"-category logger is
-    // resolvable at flow-construction time.
+    // resolvable at flow-construction time — AND it must be emitted
+    // as the ObservationOnly variant (ADR-0010) so the cache planner
+    // doesn't cascade uncacheability from steps that only declare a
+    // logger.
     var entry = StepMetadataRegistry.TryGetEntry(typeof(FixtureLoggingStep));
     Assert.That(entry, Is.Not.Null,
       "ModuleInitializer should have registered the fixture step before any test runs.");
     Assert.That(
-      entry!.Services.OfType<ServiceRef.CSharp>()
+      entry!.Services.OfType<ServiceRef.ObservationOnly>()
         .Any(r => r.ServiceType == typeof(ILogger)),
       Is.True,
-      "Step metadata must record ILogger as a CSharp ServiceRef. Found: "
-        + string.Join(", ", entry.Services.Select(s => s.DisplayName))
+      "Step metadata must record ILogger as an ObservationOnly ServiceRef. Found: "
+        + string.Join(", ", entry.Services.Select(s => $"{s.GetType().Name}({s.DisplayName})"))
     );
   }
 

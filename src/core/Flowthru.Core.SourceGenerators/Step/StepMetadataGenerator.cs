@@ -57,6 +57,22 @@ public sealed class StepMetadataGenerator : IIncrementalGenerator
   /// </summary>
   private const int CodeVersionHexLength = 16;
 
+  /// <summary>
+  /// Fully-qualified type names of framework-recognised observation-
+  /// only services. When a <c>Create()</c> parameter's FQN matches an
+  /// entry here, the generator emits a <c>ServiceRef.ObservationOnly</c>
+  /// instead of the default <c>ServiceRef.CSharp</c> — the cache
+  /// planner skips observation-only refs when deciding step
+  /// cacheability (ADR-0010). Keep this set tiny; an
+  /// <c>[ObservationOnly]</c> per-parameter attribute is the planned
+  /// opt-in mechanism for user-defined observability services.
+  /// </summary>
+  private static readonly System.Collections.Generic.HashSet<string> _observationOnlyFqns =
+    new(System.StringComparer.Ordinal)
+    {
+      "global::Microsoft.Extensions.Logging.ILogger",
+    };
+
   /// <inheritdoc/>
   public void Initialize(IncrementalGeneratorInitializationContext context)
   {
@@ -240,7 +256,8 @@ public sealed class StepMetadataGenerator : IIncrementalGenerator
     sb.AppendLine("  {");
     foreach (var fqn in info.ServiceTypeFqns)
     {
-      sb.AppendLine($"    new global::Flowthru.Validation.Runtime.ServiceRef.CSharp(typeof({fqn})),");
+      var variant = _observationOnlyFqns.Contains(fqn) ? "ObservationOnly" : "CSharp";
+      sb.AppendLine($"    new global::Flowthru.Validation.Runtime.ServiceRef.{variant}(typeof({fqn})),");
     }
     sb.AppendLine("  };");
     sb.AppendLine("}");

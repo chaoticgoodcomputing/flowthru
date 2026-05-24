@@ -59,6 +59,40 @@ public abstract record ServiceRef
     public override string DisplayName => Cause.DisplayName;
   }
 
+  /// <summary>
+  /// A C# service identified by an interface or class type, classified
+  /// as <em>observation-only</em>: its calls don't affect the step's
+  /// output values, only the IO timeline. DI resolution is identical
+  /// to <see cref="CSharp"/> — the <see cref="ServiceType"/> is the
+  /// lookup key used against the host's
+  /// <see cref="System.IServiceProvider"/> at runtime — but the cache
+  /// planner skips refs of this variant when deciding step
+  /// cacheability. The canonical (and currently only) recognised case
+  /// is <c>Microsoft.Extensions.Logging.ILogger</c>; the
+  /// <c>[FlowthruStep]</c> source generator emits this variant when a
+  /// <c>Create()</c> parameter's fully-qualified type matches a
+  /// hardcoded set.
+  /// </summary>
+  /// <remarks>
+  /// <para>
+  /// Per ADR-0010, this variant exists because the smart-caching
+  /// planner's invariant is "any service dep makes a step
+  /// uncacheable" (and cascades downstream) — true for domain
+  /// services whose state can change the step's output (e.g.,
+  /// <c>IRemoteTimeService</c>) but wrong for pure observation
+  /// surfaces. Without this carve-out, declaring a logger
+  /// uncacheabilises every Flow in the workspace.
+  /// </para>
+  /// </remarks>
+  public sealed record ObservationOnly(Type ServiceType) : ServiceRef
+  {
+    /// <inheritdoc/>
+    public override string DagId => ServiceType.FullName ?? ServiceType.Name;
+
+    /// <inheritdoc/>
+    public override string DisplayName => ServiceType.Name;
+  }
+
   /// <summary>Build a <see cref="CSharp"/> ref from a generic type parameter.</summary>
   public static ServiceRef Of<TService>() where TService : class =>
     new CSharp(typeof(TService));
