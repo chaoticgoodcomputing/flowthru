@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<coverage line-rate="0.8865999999999999" branch-rate="0.6537999999999999" version="1.9" timestamp="1779431690" lines-covered="446" lines-valid="503" branches-covered="85" branches-valid="130">
+<coverage line-rate="0.8865999999999999" branch-rate="0.6537999999999999" version="1.9" timestamp="1779579933" lines-covered="446" lines-valid="503" branches-covered="85" branches-valid="130">
   <sources>
     <source></source>
   </sources>
   <packages>
     <package name="Flowthru.FUnit.SourceGenerators" line-rate="0.8865999999999999" branch-rate="0.6537999999999999" complexity="134">
       <classes>
-        <class name="Flowthru.FUnit.SourceGenerators.FUnitDiagnosticAnalyzer" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/8c9c3fa8900ab0b0504745a621c9dc9deebb526d/src/core/Flowthru.FUnit.SourceGenerators/FUnitDiagnosticAnalyzer.cs" line-rate="0.8959" branch-rate="0.6829000000000001" complexity="85">
+        <class name="Flowthru.FUnit.SourceGenerators.FUnitDiagnosticAnalyzer" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/005ca67100d1571ea323fa3920e5deb4ad5ac978/src/core/Flowthru.FUnit.SourceGenerators/FUnitDiagnosticAnalyzer.cs" line-rate="0.8959" branch-rate="0.6829000000000001" complexity="85">
           <methods>
             <method name="get_SupportedDiagnostics" signature="()" line-rate="1" branch-rate="1" complexity="1">
               <lines>
@@ -882,7 +882,7 @@
             <line number="102" hits="1" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.FUnit.SourceGenerators.FUnitSyntaxHelpers" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/8c9c3fa8900ab0b0504745a621c9dc9deebb526d/src/core/Flowthru.FUnit.SourceGenerators/FUnitSyntaxHelpers.cs" line-rate="0.5151" branch-rate="0.4285" complexity="14">
+        <class name="Flowthru.FUnit.SourceGenerators.FUnitSyntaxHelpers" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/005ca67100d1571ea323fa3920e5deb4ad5ac978/src/core/Flowthru.FUnit.SourceGenerators/FUnitSyntaxHelpers.cs" line-rate="0.5151" branch-rate="0.4285" complexity="14">
           <methods>
             <method name="IsInsidePreprocessorGuard" signature="(Microsoft.CodeAnalysis.CSharp.Syntax.ClassDeclarationSyntax,System.String)" line-rate="0.5151" branch-rate="0.4285" complexity="14">
               <lines>
@@ -1008,7 +1008,7 @@
             <line number="56" hits="9" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.FUnit.SourceGenerators.StepTestRegistryGenerator" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/8c9c3fa8900ab0b0504745a621c9dc9deebb526d/src/core/Flowthru.FUnit.SourceGenerators/StepTestRegistryGenerator.cs" line-rate="0.9353" branch-rate="0.6764" complexity="35">
+        <class name="Flowthru.FUnit.SourceGenerators.StepTestRegistryGenerator" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/005ca67100d1571ea323fa3920e5deb4ad5ac978/src/core/Flowthru.FUnit.SourceGenerators/StepTestRegistryGenerator.cs" line-rate="0.9353" branch-rate="0.6764" complexity="35">
           <methods>
             <method name="Initialize" signature="(Microsoft.CodeAnalysis.IncrementalGeneratorInitializationContext)" line-rate="1" branch-rate="1" complexity="1">
               <lines>
