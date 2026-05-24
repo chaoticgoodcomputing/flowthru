@@ -58,6 +58,11 @@ public static class PythonFlowthruBuilderExtensions
     builder.Services.TryAddSingleton<ILogger>(sp =>
       (sp.GetService<ILoggerFactory>() ?? NullLoggerFactory.Instance).CreateLogger("Flowthru")
     );
+    // Default launcher — preserves historical [pyExe, workerScript]
+    // behaviour. Registered via TryAddSingleton so users / tests that
+    // wire an alternative (TorchrunLauncher, AccelerateLauncher, a
+    // bespoke IPythonLauncher) earlier in the pipeline take precedence.
+    builder.Services.TryAddSingleton<IPythonLauncher, DirectPythonLauncher>();
     builder.Services.TryAddSingleton<IPythonExecutor, SubprocessPythonExecutor>();
 
     // Service-ref dispatch: matches Category="python".

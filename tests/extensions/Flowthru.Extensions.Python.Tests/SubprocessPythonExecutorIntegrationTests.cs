@@ -129,6 +129,7 @@ public class SubprocessPythonExecutorIntegrationTests
     var executor = new SubprocessPythonExecutor(
       Options.Create(options),
       new NullFlattener(),
+      new DirectPythonLauncher(),
       logger ?? NullLogger.Instance
     );
     _liveExecutors.Add(executor);

@@ -23,12 +23,12 @@ public enum PythonSchemaSide
 /// <see cref="IExtensionPreFlightError"/> contract.
 /// </summary>
 /// <remarks>
-/// Diagnostic codes live in the FT30xx range:
+/// Diagnostic codes live in the FTPY30xx range:
 /// <list type="bullet">
-///   <item>FT3007 — schema count mismatch</item>
-///   <item>FT3008 — schema name mismatch at a positional index</item>
-///   <item>FT3009 — function arity mismatch</item>
-///   <item>FT3010 — service inspection failed</item>
+///   <item>FTPY3007 — schema count mismatch</item>
+///   <item>FTPY3008 — schema name mismatch at a positional index</item>
+///   <item>FTPY3009 — function arity mismatch</item>
+///   <item>FTPY3010 — service inspection failed</item>
 /// </list>
 /// </remarks>
 public abstract record PythonPreFlightError : IExtensionPreFlightError
@@ -60,7 +60,7 @@ public abstract record PythonPreFlightError : IExtensionPreFlightError
       $"Python step '{StepLabel}' {Side.ToString().ToLowerInvariant()} schema count: "
         + $"C# expects {Expected}, decorator declares {Actual}.";
     /// <inheritdoc/>
-    public override string DiagnosticCode => "FT3007";
+    public override string DiagnosticCode => "FTPY3007";
   }
 
   /// <summary>
@@ -81,7 +81,7 @@ public abstract record PythonPreFlightError : IExtensionPreFlightError
         + $"position {Position + 1}: C# declares '{ExpectedName}', "
         + $"decorator declares '{ActualName}'.";
     /// <inheritdoc/>
-    public override string DiagnosticCode => "FT3008";
+    public override string DiagnosticCode => "FTPY3008";
   }
 
   /// <summary>
@@ -101,7 +101,7 @@ public abstract record PythonPreFlightError : IExtensionPreFlightError
       $"Python function '{Module}.{Function}' has {Actual} parameter(s), "
         + $"but step '{StepLabel}' is registered with {Expected} input(s).";
     /// <inheritdoc/>
-    public override string DiagnosticCode => "FT3009";
+    public override string DiagnosticCode => "FTPY3009";
   }
 
   /// <summary>
@@ -117,6 +117,6 @@ public abstract record PythonPreFlightError : IExtensionPreFlightError
     public override string Message =>
       $"Python service '{ServiceClassPath}' inspection failed: {Detail}";
     /// <inheritdoc/>
-    public override string DiagnosticCode => "FT3010";
+    public override string DiagnosticCode => "FTPY3010";
   }
 }

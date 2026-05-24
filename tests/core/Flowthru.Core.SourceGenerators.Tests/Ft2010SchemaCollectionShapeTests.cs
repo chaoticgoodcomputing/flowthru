@@ -290,7 +290,7 @@ public class Ft2010SchemaCollectionShapeTests
   [Test]
   public async Task ByteArrayProperty_NoFt2010()
   {
-    // byte[] is the canonical scalar binary type (FT2008 wire-format
+    // byte[] is the canonical scalar binary type (FTPY2008 wire-format
     // list). Not a collection in the schema sense, and not set-shaped.
     var source = """
       using Flowthru.Data.Schema;

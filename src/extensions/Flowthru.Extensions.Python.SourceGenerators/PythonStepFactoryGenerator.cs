@@ -19,7 +19,7 @@ namespace Flowthru.Extensions.Python.SourceGenerators;
 /// returns a <c>PythonStep&lt;TIn,TOut&gt;</c>. The schema names in
 /// the decorator are resolved against the consuming compilation's
 /// <c>[FlowthruSchema]</c>-decorated record types — unresolved names
-/// surface as build errors (FT2xxx range), giving the user the
+/// surface as build errors (FTPY2xxx range), giving the user the
 /// strongest possible compile-time agreement between the Python and
 /// C# sides.
 /// </summary>
@@ -56,9 +56,9 @@ public class PythonStepFactoryGenerator : IIncrementalGenerator
   // (<c>PythonSteps.{X}(...)</c>) hit a downstream compile error
   // because the factory's signature uses <c>object</c> for unresolved
   // type parameters — that downstream error is the actionable one,
-  // so FT2007 here serves as advisory rather than build-breaking.
+  // so FTPY2007 here serves as advisory rather than build-breaking.
   private static readonly DiagnosticDescriptor SchemaNotFound = new(
-    id: "FT2007",
+    id: "FTPY2007",
     title: "Python decorator references unknown schema",
     // `{{X}}` escapes a literal `{X}` for string.Format — without the escape the formatter trips on `{X}` (X isn't a valid argument index), the substitution throws, and Roslyn surfaces the raw unformatted template so consumers see a literal `{0}` instead of the schema name. Reported by MagicAtlas in 0.18.2.
     messageFormat: "Schema '{0}' referenced in @step decorator is not a [FlowthruSchema]-decorated type in the consuming compilation. Named-factory consumers (PythonSteps.{{X}}) will see a downstream compile error.",
@@ -76,7 +76,7 @@ public class PythonStepFactoryGenerator : IIncrementalGenerator
   /// CONTRIBUTING.md's three-error-phase model.
   /// </summary>
   private static readonly DiagnosticDescriptor SchemaUnmarshallable = new(
-    id: "FT2008",
+    id: "FTPY2008",
     title: "Python step schema contains a property type Arrow cannot marshal",
     messageFormat: "Schema '{0}' (used by Python step '{1}') has property '{2}' of type '{3}', which is not supported by the Python extension's Arrow marshaller. Supported types: int, long, float, double, bool, string, DateTime, DateTimeOffset, TimeSpan, Guid, byte[], enum, list/array of any supported type, and their nullable variants.",
     category: "Flowthru.Python",
@@ -94,7 +94,7 @@ public class PythonStepFactoryGenerator : IIncrementalGenerator
   /// CONTRIBUTING.md's "if it compiles, Arrow can encode it" promise.
   /// </summary>
   private static readonly DiagnosticDescriptor AddPythonStepUnmarshallable = new(
-    id: "FT2009",
+    id: "FTPY2009",
     title: "Python step type argument contains a property type Arrow cannot marshal",
     messageFormat: "Type argument '{0}' on AddPythonStep contains property '{1}' of type '{2}', which the Python extension's Arrow marshaller cannot encode. Supported types: int, long, float, double, bool, string, DateTime, DateTimeOffset, TimeSpan, Guid, byte[], enum, list/array of any supported type, and their nullable variants.",
     category: "Flowthru.Python",
@@ -170,10 +170,10 @@ public class PythonStepFactoryGenerator : IIncrementalGenerator
       ctx.AddSource("PythonSteps.g.cs", SourceText.From(sb.ToString(), Encoding.UTF8));
     });
 
-    // FT2009: walk every call site of AddPythonStep<...>(...) in the
+    // FTPY2009: walk every call site of AddPythonStep<...>(...) in the
     // consuming compilation and report unmarshallable property types
     // reachable from TIn or TOut. This is the C#-escape-hatch twin of
-    // FT2008 (which flags the @step-decorator path).
+    // FTPY2008 (which flags the @step-decorator path).
     var addPythonStepInvocations = context.SyntaxProvider
       .CreateSyntaxProvider(
         predicate: static (node, _) =>
@@ -287,7 +287,7 @@ public class PythonStepFactoryGenerator : IIncrementalGenerator
       var outputs = ParseSchemaList(outputsRaw);
       var cacheable = string.Equals(cacheableRaw, "True", StringComparison.Ordinal);
 
-      // Per-decorator Location so FT2007 (and any future per-decorator
+      // Per-decorator Location so FTPY2007 (and any future per-decorator
       // diagnostic) points the IDE at the exact @step(...) span, not the
       // project root. Without this, a consumer with N broken decorators
       // sees N project-level warnings with no file/line to navigate to.
@@ -613,7 +613,7 @@ public class PythonStepFactoryGenerator : IIncrementalGenerator
 
     if (!schemaIndex.TryGetValue(schemaName, out var symbol))
     {
-      // FT2007 fires at the @step(...) decorator span (computed during
+      // FTPY2007 fires at the @step(...) decorator span (computed during
       // ParsePythonSteps). MagicAtlas reported 0.18.2 emitting these
       // project-level — without a Location, the IDE has no anchor and a
       // consumer with N misses cannot tell which decorator each refers to.
@@ -805,12 +805,12 @@ public class PythonStepFactoryGenerator : IIncrementalGenerator
     return string.Join("", parts.Select(p => p.Length == 0 ? p : char.ToUpperInvariant(p[0]) + p.Substring(1)));
   }
 
-  // ── FT2009: AddPythonStep<TIn, TOut>(...) call-site analysis ─────────
+  // ── FTPY2009: AddPythonStep<TIn, TOut>(...) call-site analysis ─────────
 
   /// <summary>
   /// Walk every <c>AddPythonStep&lt;...&gt;(...)</c> invocation seen by
   /// the syntax provider, resolve it to an <see cref="IMethodSymbol"/>,
-  /// and surface FT2009 for any <c>[FlowthruSchema]</c> reachable from
+  /// and surface FTPY2009 for any <c>[FlowthruSchema]</c> reachable from
   /// a type argument that has an unmarshallable property.
   /// </summary>
   private static void AnalyzeAddPythonStepCallSites(
@@ -879,7 +879,7 @@ public class PythonStepFactoryGenerator : IIncrementalGenerator
   /// <summary>
   /// Unwrap a single type-argument slot down to the
   /// <c>[FlowthruSchema]</c>-decorated leaf records it transitively
-  /// reaches, then emit FT2009 for any unmarshallable property on
+  /// reaches, then emit FTPY2009 for any unmarshallable property on
   /// each. The unwrap covers tabular shapes
   /// (<c>IEnumerable&lt;T&gt;</c>, <c>T[]</c>), the
   /// <c>Flowthru.Data.Storage.DirectoryOf&lt;T&gt;</c> catalog wrapper,
@@ -1015,7 +1015,7 @@ public class PythonStepFactoryGenerator : IIncrementalGenerator
     /// <summary>
     /// Roslyn <see cref="Location"/> pointing at the <c>@step(...)</c>
     /// decorator span in the <c>.py</c> file. Used as the location on
-    /// per-decorator diagnostics (FT2007) so the IDE highlights the
+    /// per-decorator diagnostics (FTPY2007) so the IDE highlights the
     /// offending decorator rather than reporting at the project level.
     /// <see cref="Location.None"/> when the parse path didn't have a
     /// usable offset (e.g., synthetic test input without computed

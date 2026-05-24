@@ -74,14 +74,14 @@ public class PythonStepFactoryGeneratorTests
       "Files whose path doesn't end in .py must be ignored.");
   }
 
-  // ── FT2007: unknown schema ────────────────────────────────────────────
+  // ── FTPY2007: unknown schema ────────────────────────────────────────────
 
   [Test]
   public void UnknownSchemaReferenced_FiresFt2007()
   {
     // The decorator names DefinitelyNotARealSchema, and the consuming
     // compilation has no [FlowthruSchema] type by that name — the
-    // generator should raise FT2007 and skip emission of the factory.
+    // generator should raise FTPY2007 and skip emission of the factory.
     var py = new GeneratorTestHarness.InMemoryAdditionalText(
       path: "Flows/Train/train_model.py",
       text:
@@ -95,8 +95,8 @@ public class PythonStepFactoryGeneratorTests
       additionalFiles: new[] { py }
     );
 
-    Assert.That(result.Diagnostics.Where("FT2007").ToList(), Is.Not.Empty,
-      "FT2007 must fire when a decorator references an unknown schema.");
+    Assert.That(result.Diagnostics.Where("FTPY2007").ToList(), Is.Not.Empty,
+      "FTPY2007 must fire when a decorator references an unknown schema.");
   }
 
   [Test]
@@ -105,7 +105,7 @@ public class PythonStepFactoryGeneratorTests
     // The contract is "diagnostics > generation": if any schema fails
     // to resolve, the factory itself is skipped (otherwise the user
     // gets a cascading CS error on a method that references an
-    // unresolved type, drowning the FT2007 they care about).
+    // unresolved type, drowning the FTPY2007 they care about).
     var py = new GeneratorTestHarness.InMemoryAdditionalText(
       path: "Flows/Train/train_model.py",
       text:
@@ -128,12 +128,12 @@ public class PythonStepFactoryGeneratorTests
     // is the contract, not the empty PythonSteps class shell.
   }
 
-  // ── FT2007 per-decorator Location (regression: MagicAtlas Bug 2) ──────
+  // ── FTPY2007 per-decorator Location (regression: MagicAtlas Bug 2) ──────
 
   [Test]
   public void Ft2007_CarriesPerDecoratorLocation_NotProjectLevel()
   {
-    // Regression: MagicAtlas reported FT2007s were project-level (no
+    // Regression: MagicAtlas reported FTPY2007s were project-level (no
     // file/line), so a consumer with N misses couldn't tell which
     // decorator each one referred to. The fix computes a Roslyn Location
     // from the @step(...) match offset in the .py file. With two broken
@@ -155,14 +155,14 @@ public class PythonStepFactoryGeneratorTests
       additionalFiles: new[] { py }
     );
 
-    var ft2007s = result.Diagnostics.Where("FT2007").ToList();
+    var ft2007s = result.Diagnostics.Where("FTPY2007").ToList();
     Assert.That(ft2007s.Count, Is.GreaterThanOrEqualTo(2),
-      "Both decorators have unresolved schemas; expect at least two FT2007s.");
+      "Both decorators have unresolved schemas; expect at least two FTPY2007s.");
 
     foreach (var diag in ft2007s)
     {
       Assert.That(diag.Location, Is.Not.EqualTo(Microsoft.CodeAnalysis.Location.None),
-        "FT2007 must carry a non-None Location so the IDE can navigate to "
+        "FTPY2007 must carry a non-None Location so the IDE can navigate to "
         + "the offending decorator.");
       var mapped = diag.Location.GetLineSpan();
       Assert.That(mapped.Path, Is.EqualTo("Flows/Embed/embed.py"),
@@ -186,7 +186,7 @@ public class PythonStepFactoryGeneratorTests
   {
     // bytes/str/int/float/bool/object are first-class authoring
     // shortcuts for one-shot Python steps that don't need a schema
-    // record. They must NOT trip FT2007.
+    // record. They must NOT trip FTPY2007.
     var py = new GeneratorTestHarness.InMemoryAdditionalText(
       path: "Flows/Misc/transform.py",
       text:
@@ -200,8 +200,8 @@ public class PythonStepFactoryGeneratorTests
       additionalFiles: new[] { py }
     );
 
-    Assert.That(result.Diagnostics.Where("FT2007").ToList(), Is.Empty,
-      "Wire-format primitives must not raise FT2007.");
+    Assert.That(result.Diagnostics.Where("FTPY2007").ToList(), Is.Empty,
+      "Wire-format primitives must not raise FTPY2007.");
     Assert.That(result.GeneratedSources, Does.ContainKey("PythonSteps.g.cs"));
     var emitted = result.GeneratedSources["PythonSteps.g.cs"];
     Assert.That(emitted, Does.Contain("PythonStep<byte[], string>"),
@@ -288,8 +288,8 @@ public class PythonStepFactoryGeneratorTests
       extraReferences: typeof(FlowthruSchemaAttribute).Assembly
     );
 
-    Assert.That(result.Diagnostics.Where("FT2007").ToList(), Is.Empty,
-      "Properly-declared schemas must resolve without FT2007.");
+    Assert.That(result.Diagnostics.Where("FTPY2007").ToList(), Is.Empty,
+      "Properly-declared schemas must resolve without FTPY2007.");
     Assert.That(result.GeneratedSources, Does.ContainKey("PythonSteps.g.cs"));
     var emitted = result.GeneratedSources["PythonSteps.g.cs"];
     Assert.That(emitted, Does.Contain("TrainModel"),
@@ -337,7 +337,7 @@ public class PythonStepFactoryGeneratorTests
       extraReferences: typeof(FlowthruSchemaAttribute).Assembly
     );
 
-    Assert.That(result.Diagnostics.Where("FT2007").ToList(), Is.Empty);
+    Assert.That(result.Diagnostics.Where("FTPY2007").ToList(), Is.Empty);
     Assert.That(result.GeneratedSources["PythonSteps.g.cs"],
       Does.Contain("global::Sample.FeatureVectorSchema"));
   }
@@ -381,7 +381,7 @@ public class PythonStepFactoryGeneratorTests
       extraReferences: typeof(FlowthruSchemaAttribute).Assembly
     );
 
-    Assert.That(result.Diagnostics.Where("FT2007").ToList(), Is.Empty,
+    Assert.That(result.Diagnostics.Where("FTPY2007").ToList(), Is.Empty,
       "Dotted schema name should be resolved by its rightmost segment.");
   }
 
@@ -406,7 +406,7 @@ public class PythonStepFactoryGeneratorTests
       additionalFiles: new[] { py }
     );
 
-    Assert.That(result.Diagnostics.Where("FT2007").ToList(), Is.Empty);
+    Assert.That(result.Diagnostics.Where("FTPY2007").ToList(), Is.Empty);
     var emitted = result.GeneratedSources["PythonSteps.g.cs"];
     Assert.That(emitted, Does.Contain("PythonStep<byte[], object>"),
       "outputs=None should produce a PythonStep with TOut=object.");
@@ -549,7 +549,7 @@ public class PythonStepFactoryGeneratorTests
       "Second @step in the same .py file must also be emitted — this is the regression.");
   }
 
-  // ── FT2007 message-format substitution (regression: MagicAtlas Bug 2) ─
+  // ── FTPY2007 message-format substitution (regression: MagicAtlas Bug 2) ─
 
   [Test]
   public void Ft2007Message_SubstitutesSchemaName_And_KeepsLiteralPlaceholder()
@@ -573,10 +573,10 @@ public class PythonStepFactoryGeneratorTests
       additionalFiles: new[] { py }
     );
 
-    var ft2007 = result.Diagnostics.Where("FT2007").Single();
+    var ft2007 = result.Diagnostics.Where("FTPY2007").Single();
     var rendered = ft2007.GetMessage();
     Assert.That(rendered, Does.Contain("'DefinitelyNotARealSchema'"),
-      "FT2007 must substitute {0} with the unresolved schema name.");
+      "FTPY2007 must substitute {0} with the unresolved schema name.");
     Assert.That(rendered, Does.Not.Contain("{0}"),
       "Raw {0} placeholder must not leak into the rendered message.");
     Assert.That(rendered, Does.Contain("PythonSteps.{X}"),

@@ -23,8 +23,12 @@
   - name: Classes
   - name: ArrowDecimalAttribute
     href: Flowthru.Step.Python.ArrowDecimalAttribute.md
+  - name: DirectPythonLauncher
+    href: Flowthru.Step.Python.DirectPythonLauncher.md
   - name: PythonCodeVersion
     href: Flowthru.Step.Python.PythonCodeVersion.md
+  - name: PythonPackageRequirement
+    href: Flowthru.Step.Python.PythonPackageRequirement.md
   - name: PythonRuntimeOptions
     href: Flowthru.Step.Python.PythonRuntimeOptions.md
   - name: PythonServiceBuilder
@@ -44,6 +48,8 @@
   - name: Interfaces
   - name: IPythonExecutor
     href: Flowthru.Step.Python.IPythonExecutor.md
+  - name: IPythonLauncher
+    href: Flowthru.Step.Python.IPythonLauncher.md
   - name: IPythonServiceInspectorRegistry
     href: Flowthru.Step.Python.IPythonServiceInspectorRegistry.md
 - name: Flowthru.Step.Python.Internal

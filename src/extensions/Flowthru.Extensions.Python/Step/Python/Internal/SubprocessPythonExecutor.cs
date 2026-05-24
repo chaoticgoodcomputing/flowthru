@@ -40,6 +40,7 @@ public sealed class SubprocessPythonExecutor : IPythonExecutor, IDisposable
 {
   private readonly PythonRuntimeOptions _options;
   private readonly IPythonConfigurationFlattener _flattener;
+  private readonly IPythonLauncher _launcher;
   private readonly ILogger _logger;
 
   private Process? _worker;
@@ -70,6 +71,13 @@ public sealed class SubprocessPythonExecutor : IPythonExecutor, IDisposable
   /// the worker's <see cref="ProcessStartInfo.EnvironmentVariables"/> from
   /// the section named in <see cref="PythonRuntimeOptions.ConfigurationSection"/>.
   /// </param>
+  /// <param name="launcher">
+  /// Strategy that constructs the worker's
+  /// <see cref="ProcessStartInfo"/>. Defaults to
+  /// <see cref="DirectPythonLauncher"/> in production via the
+  /// <c>TryAddSingleton</c> registered by <c>UsePython()</c>; tests
+  /// pass an explicit instance.
+  /// </param>
   /// <param name="logger">
   /// The engine's shared <see cref="ILogger"/> — registered as a
   /// singleton under category <c>"Flowthru"</c> by
@@ -82,11 +90,13 @@ public sealed class SubprocessPythonExecutor : IPythonExecutor, IDisposable
   public SubprocessPythonExecutor(
     IOptions<PythonRuntimeOptions> options,
     IPythonConfigurationFlattener flattener,
+    IPythonLauncher launcher,
     ILogger logger
   )
   {
     _options = options?.Value ?? throw new ArgumentNullException(nameof(options));
     _flattener = flattener ?? throw new ArgumentNullException(nameof(flattener));
+    _launcher = launcher ?? throw new ArgumentNullException(nameof(launcher));
     _logger = logger ?? throw new ArgumentNullException(nameof(logger));
   }
 
@@ -436,37 +446,27 @@ public sealed class SubprocessPythonExecutor : IPythonExecutor, IDisposable
       );
     }
 
-    _logger.LogDebug("Starting Python worker: {Exe} {Script}", pyExe, workerScript);
-
-    var psi = new ProcessStartInfo
-    {
-      FileName = pyExe,
-      UseShellExecute = false,
-      RedirectStandardInput = true,
-      RedirectStandardOutput = true,
-      // stderr carries Python `logging` records (as JSON frames the
-      // worker emits via _FlowthruJsonLogHandler) plus raw print()
-      // output. ReadStderrLoopAsync forwards each line to the engine's
-      // ILogger via StderrLineClassifier.
-      RedirectStandardError = true,
-      CreateNoWindow = true,
-    };
-    psi.ArgumentList.Add(workerScript);
+    _logger.LogDebug(
+      "Starting Python worker: {Exe} {Script} via {Launcher}",
+      pyExe,
+      workerScript,
+      _launcher.Identity
+    );
 
     // ── IConfiguration → env-var bridge ──────────────────────────────────
-    // Inject the flattened section *before* Process.Start. The parent
-    // environment is inherited by default (UseShellExecute=false), so
-    // standard variables like PATH and HOME pass through unchanged; the
-    // flattener's entries layer on top using .NET's native :→__ rule.
-    // Pipeline-side Python code reads them via flowthru.config (or any
-    // other env-var consumer of the developer's choice).
+    // Flatten the configured section *before* PSI construction. The
+    // parent environment is inherited by default (UseShellExecute=false
+    // inside the launcher), so standard variables like PATH and HOME
+    // pass through unchanged; the flattener's entries layer on top
+    // using .NET's native :→__ rule. Pipeline-side Python code reads
+    // them via flowthru.config (or any other env-var consumer of the
+    // developer's choice). The launcher owns the final merge — launchers
+    // that set their own rank vars (RANK / WORLD_SIZE / etc.) overlay
+    // on top of the flattened section without losing either.
     var flattenedEnv = _flattener.Flatten();
+    var psi = _launcher.Build(pyExe, workerScript, flattenedEnv);
     if (flattenedEnv.Count > 0)
     {
-      foreach (var (key, value) in flattenedEnv)
-      {
-        psi.EnvironmentVariables[key] = value;
-      }
       _logger.LogDebug(
         "Injected {Count} configuration env var(s) into Python subprocess.",
         flattenedEnv.Count

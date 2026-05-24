@@ -279,6 +279,7 @@ public class SubprocessPythonExecutorBridgeTests
     var executor = new SubprocessPythonExecutor(
       Microsoft.Extensions.Options.Options.Create(options),
       new NullFlattener(),
+      new DirectPythonLauncher(),
       logger
     );
     _liveExecutors.Add(executor);

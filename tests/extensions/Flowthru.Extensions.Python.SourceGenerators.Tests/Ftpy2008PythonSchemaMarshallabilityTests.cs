@@ -3,14 +3,14 @@ using Flowthru.Data.Schema;
 namespace Flowthru.Extensions.Python.SourceGenerators.Tests;
 
 /// <summary>
-/// FT2008 closes the loop on CONTRIBUTING.md's three-error-phase model
+/// FTPY2008 closes the loop on CONTRIBUTING.md's three-error-phase model
 /// for Python step schemas: a property whose CLR type the Arrow
 /// marshaller cannot handle should be a build error, not a delayed
 /// runtime <see cref="System.NotSupportedException"/> wrapped behind
 /// a useless reflection-invocation envelope.
 /// </summary>
 [TestFixture]
-public class Ft2008PythonSchemaMarshallabilityTests
+public class Ftpy2008PythonSchemaMarshallabilityTests
 {
   [Test]
   public void Schema_With_IntPtr_Property_Used_By_Python_Step_FiresFt2008()
@@ -46,9 +46,9 @@ public class Ft2008PythonSchemaMarshallabilityTests
       extraReferences: typeof(FlowthruSchemaAttribute).Assembly
     );
 
-    var ft2008 = result.Diagnostics.Where("FT2008").ToList();
+    var ft2008 = result.Diagnostics.Where("FTPY2008").ToList();
     Assert.That(ft2008, Is.Not.Empty,
-      "FT2008 must fire when a Python-step schema declares a property the marshaller can't handle.");
+      "FTPY2008 must fire when a Python-step schema declares a property the marshaller can't handle.");
     Assert.That(ft2008[0].GetMessage(), Does.Contain("Handle"),
       "Diagnostic must name the offending property.");
     // Roslyn's default ToDisplayString renders IntPtr as the C# alias
@@ -63,7 +63,7 @@ public class Ft2008PythonSchemaMarshallabilityTests
   {
     // The bug-report's exact case: string[] keywords. Before list
     // support shipped this would have been the right place to warn —
-    // now it's a supported type and FT2008 must stay silent.
+    // now it's a supported type and FTPY2008 must stay silent.
     var py = new GeneratorTestHarness.InMemoryAdditionalText(
       path: "Flows/Clustering/labels.py",
       text:
@@ -93,8 +93,8 @@ public class Ft2008PythonSchemaMarshallabilityTests
       extraReferences: typeof(FlowthruSchemaAttribute).Assembly
     );
 
-    Assert.That(result.Diagnostics.Where("FT2008").ToList(), Is.Empty,
-      "string[] must round-trip through ListArray<String> without raising FT2008.");
+    Assert.That(result.Diagnostics.Where("FTPY2008").ToList(), Is.Empty,
+      "string[] must round-trip through ListArray<String> without raising FTPY2008.");
   }
 
   [Test]
@@ -130,7 +130,7 @@ public class Ft2008PythonSchemaMarshallabilityTests
       extraReferences: typeof(FlowthruSchemaAttribute).Assembly
     );
 
-    Assert.That(result.Diagnostics.Where("FT2008").ToList(), Is.Empty,
-      "Nested lists of supported scalar elements must satisfy FT2008's check.");
+    Assert.That(result.Diagnostics.Where("FTPY2008").ToList(), Is.Empty,
+      "Nested lists of supported scalar elements must satisfy FTPY2008's check.");
   }
 }
