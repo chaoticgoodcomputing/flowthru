@@ -1,3 +1,13 @@
+## 0.21.0 (2026-05-24)
+
+### 🚀 Features
+
+- **caching:** ServiceRef.ObservationOnly variant so ILogger doesn't uncacheable steps ([fcabff38](https://github.com/chaoticgoodcomputing/flowthru/commit/fcabff38))
+
+### ❤️ Thank You
+
+- Spencer Elkington
+
 ## 0.20.0 (2026-05-23)
 
 ### 🚀 Features
