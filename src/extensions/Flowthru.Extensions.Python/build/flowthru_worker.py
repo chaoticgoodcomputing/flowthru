@@ -162,7 +162,15 @@ def _get_module(module_name: str):
 # ---------------------------------------------------------------------------
 
 def _handle_init(msg: dict) -> None:
-    for p in msg.get("sys_path", []):
+    # Preserve the C#-side ordering — the executor sends the user's
+    # configured ModuleSearchPaths *first* and the framework's
+    # AppContext.BaseDirectory *last*, so user paths must win over
+    # framework defaults when Python resolves a module. Walking the
+    # list in reverse and inserting at 0 gives us that ordering;
+    # iterating forward with `insert(0, ...)` would silently reverse
+    # the intent.
+    incoming = msg.get("sys_path", [])
+    for p in reversed(incoming):
         if p not in sys.path:
             sys.path.insert(0, p)
 
