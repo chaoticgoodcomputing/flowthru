@@ -46,12 +46,35 @@
     explicitly copied by the consuming project's .csproj. See example projects for reference.
   -->
   <ItemGroup>
-    <!-- User .py files (node implementations) -->
-    <Content Include="**\*.py"
-             Exclude="bin\**;obj\**;_generated\**;build\**"
-             CopyToOutputDirectory="PreserveNewest"
-             PackageCopyToOutput="true"
-             Visible="false" />
+    <!--
+      User .py files (node implementations).
+
+      Two metadata flags worth dwelling on:
+
+      - `CopyToOutputDirectory="PreserveNewest"` keeps each project's
+        own .py files in its bin/ where the executor's
+        ModuleSearchPaths can find them at runtime.
+
+      - `CopyToPublishDirectory="Never"` stops MSBuild's
+        ProjectReference content-propagation from carrying these
+        files into aggregating consumers. Without it,
+        `Flowthru.Tests.Examples` — which references every example
+        via a `**/*.csproj` glob — ends up with every example's
+        `Flows/`-rooted .py files flattened into one publish dir at
+        the same relative paths. Two examples shipping
+        `Flows/DataScience/Steps/train_model.py` with different content
+        means last-writer-wins corrupts the test shards.
+
+      `None` rather than `Content` is also intentional: Content
+      items get implicitly packaged into NuGet, which is wrong for
+      example-level Python files. Library projects that genuinely
+      ship .py files via NuGet can override locally.
+    -->
+    <None Include="**\*.py"
+          Exclude="bin\**;obj\**;_generated\**;build\**"
+          CopyToOutputDirectory="PreserveNewest"
+          CopyToPublishDirectory="Never"
+          Visible="false" />
 
     <!--
       Expose .py files to source generators so PythonStepFactoryGenerator

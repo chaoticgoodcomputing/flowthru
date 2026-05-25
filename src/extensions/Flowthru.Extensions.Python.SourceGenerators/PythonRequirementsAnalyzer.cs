@@ -5,6 +5,7 @@ using System.Linq;
 using Flowthru.Step.Python;
 using Flowthru.Step.Python.Internal;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace Flowthru.Extensions.Python.SourceGenerators;
@@ -114,12 +115,18 @@ public sealed class PythonRequirementsAnalyzer : DiagnosticAnalyzer
 
     var installed = UvLockParser.ParsePackages(text.ToString());
 
-    // Collect requirements via attribute walk — picks up *every*
-    // type with [PythonPackageRequirement], including
-    // BasePythonExtensionCapability in the referenced
-    // Flowthru.Extensions.Python assembly. Single source of truth
-    // means no drift between hardcoded analyzer lists and runtime
-    // capability declarations.
+    // Collect requirements from three sources:
+    //   1. Source-defined types carrying [PythonPackageRequirement] —
+    //      the user's own IPythonCapability implementations.
+    //   2. The framework base capability — always enforced when the
+    //      Python extension is referenced; looked up by metadata name
+    //      because it's internal to Flowthru.Extensions.Python.
+    //   3. Types REFERENCED in the consumer's source code (new T(),
+    //      AddSingleton<I, T>(), etc.). This is the key to avoiding
+    //      false positives — TorchrunLauncher / AccelerateLauncher /
+    //      DeepspeedLauncher all carry [PythonPackageRequirement], but
+    //      only the ones the consumer actually instantiates should
+    //      contribute their requirements.
     var allRequirements = GetAttributeDeclaredRequirements(context.Compilation, attributeSymbol);
 
     var folded = PythonRequirementsAlgebra.Fold(allRequirements);
@@ -164,60 +171,125 @@ public sealed class PythonRequirementsAnalyzer : DiagnosticAnalyzer
   }
 
   /// <summary>
-  /// Walk every named type reachable from the compilation — both the
-  /// source assembly and every referenced assembly — for
-  /// <c>[PythonPackageRequirement]</c> attributes, and project them
-  /// into <see cref="PythonPackageRequirement"/> records the algebra
-  /// can fold. Inherited = false on the attribute, so we don't have
-  /// to recurse base types.
+  /// Aggregate <c>[PythonPackageRequirement]</c>-decorated capabilities
+  /// the consumer actually depends on:
+  /// <list type="number">
+  ///   <item>Types defined in the consumer's source assembly (any
+  ///         user-written <see cref="IPythonCapability"/> with the
+  ///         attribute).</item>
+  ///   <item>The framework's base capability
+  ///         (<c>Flowthru.Step.Python.Internal.BasePythonExtensionCapability</c>) —
+  ///         enforced whenever the Python extension is referenced.</item>
+  ///   <item>Types referenced in the consumer's source code (via
+  ///         <c>new T()</c>, generic type arguments like
+  ///         <c>AddSingleton&lt;IPythonLauncher, T&gt;()</c>,
+  ///         <c>typeof(T)</c>, etc.). This is what keeps the analyzer
+  ///         from folding every launcher class that happens to be in
+  ///         the reference chain — only launchers the consumer
+  ///         actually invokes contribute their requirements.</item>
+  /// </list>
   /// </summary>
   /// <remarks>
-  /// We iterate per-assembly rather than via
-  /// <c>compilation.GlobalNamespace</c> because the merged namespace
-  /// view filters out internal types from other assemblies that the
-  /// current compilation can't see. The framework's own
-  /// <c>BasePythonExtensionCapability</c> is internal, so the merged
-  /// view would skip it; per-assembly walks see every type regardless
-  /// of accessibility, which is what the analyzer wants.
+  /// Earlier slice-3 implementations walked every type in every
+  /// referenced assembly's namespace tree, which over-enforced —
+  /// <c>AccelerateLauncher</c> would force every project that
+  /// referenced Flowthru.Extensions.Python to add <c>accelerate</c>
+  /// to its uv.lock, even when the project never instantiated it. The
+  /// syntax-reference walk replaces that.
   /// </remarks>
   private static IEnumerable<PythonPackageRequirement> GetAttributeDeclaredRequirements(
     Compilation compilation,
     INamedTypeSymbol attributeSymbol
   )
   {
-    foreach (var type in EnumerateAllReachableTypes(compilation))
+    // (1) Source-defined types with the attribute — user-written
+    //     IPythonCapability implementations land here.
+    foreach (var type in EnumerateTypes(compilation.Assembly.GlobalNamespace))
     {
-      foreach (var attr in type.GetAttributes())
+      foreach (var req in ExtractRequirementsFrom(type, attributeSymbol))
       {
-        if (!SymbolEqualityComparer.Default.Equals(attr.AttributeClass, attributeSymbol)) continue;
+        yield return req;
+      }
+    }
 
-        if (!TryExtractRequirement(attr, type, out var requirement)) continue;
-        yield return requirement;
+    // (2) Framework base capability — fold whenever it resolves, since
+    //     the user referencing the extension implicitly opts into the
+    //     framework's floor requirements.
+    var baseCapability = compilation.GetTypeByMetadataName(
+      "Flowthru.Step.Python.Internal.BasePythonExtensionCapability"
+    );
+    if (baseCapability is not null)
+    {
+      foreach (var req in ExtractRequirementsFrom(baseCapability, attributeSymbol))
+      {
+        yield return req;
+      }
+    }
+
+    // (3) Types referenced in the consumer's source code. The
+    //     visited-set keeps us from re-walking shared symbols and
+    //     yielding duplicates that the algebra would then have to
+    //     merge by package.
+    var referenced = FindSyntaxReferencedTypes(compilation);
+    foreach (var type in referenced)
+    {
+      foreach (var req in ExtractRequirementsFrom(type, attributeSymbol))
+      {
+        yield return req;
       }
     }
   }
 
-  private static IEnumerable<INamedTypeSymbol> EnumerateAllReachableTypes(Compilation compilation)
+  /// <summary>
+  /// Walk every syntax tree's name/object-creation nodes, bind each
+  /// to a symbol, and return the named types referenced. Symbols are
+  /// deduplicated; non-type symbols (methods, namespaces, locals) are
+  /// filtered out by the <see cref="INamedTypeSymbol"/> cast.
+  /// </summary>
+  private static IEnumerable<INamedTypeSymbol> FindSyntaxReferencedTypes(
+    Compilation compilation
+  )
   {
-    // Source assembly first.
-    foreach (var type in EnumerateTypes(compilation.Assembly.GlobalNamespace))
-    {
-      yield return type;
-    }
+    var visited = new HashSet<INamedTypeSymbol>(SymbolEqualityComparer.Default);
 
-    // Then every referenced assembly's own namespace tree — this is
-    // where BasePythonExtensionCapability and any other internal
-    // framework capabilities live.
-    foreach (var reference in compilation.References)
+    foreach (var tree in compilation.SyntaxTrees)
     {
-      if (compilation.GetAssemblyOrModuleSymbol(reference) is not IAssemblySymbol assembly)
+      var model = compilation.GetSemanticModel(tree);
+      var root = tree.GetRoot();
+
+      foreach (var node in root.DescendantNodes())
       {
-        continue;
+        INamedTypeSymbol? typeSymbol = node switch
+        {
+          // `new T(...)` / `new T { ... }` — GetSymbolInfo returns the
+          // constructor; we want its ContainingType. GetTypeInfo
+          // works too but feels less direct.
+          ObjectCreationExpressionSyntax => model.GetTypeInfo(node).Type as INamedTypeSymbol,
+          // Identifier / generic-name / qualified-name — covers
+          // `TorchrunLauncher` in `services.AddSingleton<IPythonLauncher, TorchrunLauncher>()`,
+          // `typeof(T)`, `T x;`, and most other type-reference forms.
+          NameSyntax => model.GetSymbolInfo(node).Symbol as INamedTypeSymbol,
+          _ => null,
+        };
+
+        if (typeSymbol is null) continue;
+        if (!visited.Add(typeSymbol)) continue;
+
+        yield return typeSymbol;
       }
-      foreach (var type in EnumerateTypes(assembly.GlobalNamespace))
-      {
-        yield return type;
-      }
+    }
+  }
+
+  private static IEnumerable<PythonPackageRequirement> ExtractRequirementsFrom(
+    INamedTypeSymbol type,
+    INamedTypeSymbol attributeSymbol
+  )
+  {
+    foreach (var attr in type.GetAttributes())
+    {
+      if (!SymbolEqualityComparer.Default.Equals(attr.AttributeClass, attributeSymbol)) continue;
+      if (!TryExtractRequirement(attr, type, out var requirement)) continue;
+      yield return requirement;
     }
   }
 

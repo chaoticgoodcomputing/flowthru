@@ -37,16 +37,16 @@
   </ItemGroup>
 
   <!--
-    Unified Python environment for test scenarios. Contains all dependencies from
-    SpaceflightsPython and IrisPython. PythonEngine can only initialize
-    once per process, so all Python examples running in the same test host must
-    share this .venv.
+    The test project formerly bundled a unified pyproject.toml /
+    uv.lock / .python-version covering every Python example's deps,
+    materialized once at PUBLISH_DIR/.venv by run-tests.sh and `cp -r`d
+    into each shard. That pattern couples examples' Python deps and
+    broke whenever two examples disagreed (e.g. one declares
+    pyarrow>=18, another torch>=2 — the test venv has to satisfy both
+    simultaneously) or when example-side pyproject.toml propagation
+    flattened them into one publish-dir slot. Per-example venvs at
+    each example's outputPath sidestep the coupling entirely.
   -->
-  <ItemGroup>
-    <Content Include="pyproject.toml" CopyToOutputDirectory="PreserveNewest" />
-    <Content Include="uv.lock" CopyToOutputDirectory="PreserveNewest" />
-    <Content Include=".python-version" CopyToOutputDirectory="PreserveNewest" />
-  </ItemGroup>
 
   <Import Project="$(RepoRoot)build/FlowthruInRepoSwap.props"
           Condition="'$(RepoRoot)' != '' AND Exists('$(RepoRoot)build/FlowthruInRepoSwap.props')" />

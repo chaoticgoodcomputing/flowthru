@@ -28,12 +28,6 @@ public static class ExampleDiscovery
   private static readonly string ExamplesDirectory = Path.Combine(WorkspaceRoot, "examples");
 
   /// <summary>
-  /// The build configuration (e.g. "Debug" or "Release") of the currently running test assembly,
-  /// derived from its output path. Used to locate the matching example output directories.
-  /// </summary>
-  private static readonly string BuildConfiguration = InferBuildConfiguration();
-
-  /// <summary>
   /// Discovers all runnable example projects.
   /// </summary>
   public static IEnumerable<ExampleProject> DiscoverExamples()
@@ -79,15 +73,7 @@ public static class ExampleDiscovery
       {
         Name = name,
         ProjectPath = sourcePath,
-        OutputPath = Path.Combine(
-          WorkspaceRoot,
-          "dist",
-          "examples",
-          category,
-          name,
-          BuildConfiguration,
-          "net10.0"
-        ),
+        OutputPath = ResolveExampleOutputPath(category, name),
         EntryPointType = entryPointType,
       };
     }
@@ -222,27 +208,42 @@ public static class ExampleDiscovery
   }
 
   /// <summary>
-  /// Infers the build configuration from the running test assembly's output path.
-  /// The output path convention is <c>dist/…/&lt;Configuration&gt;/net10.0/</c>, so the
-  /// segment immediately before the TFM folder is the configuration name.
-  /// Falls back to <c>"Debug"</c> if the path doesn't match the expected shape.
+  /// Probe the filesystem for the example's actual build output directory
+  /// rather than inferring a configuration name from the test assembly's
+  /// path. The test runner executes from a sharded copy
+  /// (<c>dist/tests/integration/Flowthru.Tests.Examples/shards/&lt;Example&gt;/</c>)
+  /// whose path segments are unrelated to the example's MSBuild
+  /// <c>$(Configuration)</c>, so any inference scheme rooted at the
+  /// test assembly's location is structurally wrong.
   /// </summary>
-  private static string InferBuildConfiguration()
+  /// <remarks>
+  /// Tries <c>Debug</c> first because that's the dominant nx-driven
+  /// path, then <c>Release</c>, then the flat <c>net10.0</c> layout
+  /// some nx configurations produce. Returns the Debug path as a
+  /// last resort so downstream consumers fail loudly rather than
+  /// silently fall back to <c>AppContext.BaseDirectory</c>, which is
+  /// the shard — exactly what we want to avoid.
+  /// </remarks>
+  private static string ResolveExampleOutputPath(string category, string name)
   {
-    var assemblyDir = Path.GetDirectoryName(typeof(ExampleDiscovery).Assembly.Location);
-    if (assemblyDir == null)
+    foreach (var config in new[] { "Debug", "Release" })
     {
-      return "Debug";
+      var candidate = Path.Combine(
+        WorkspaceRoot, "dist", "examples", category, name, config, "net10.0"
+      );
+      if (Directory.Exists(candidate)) return candidate;
     }
 
-    // assemblyDir ends with …/<Configuration>/net10.0 — parent is the configuration folder
-    var configDir = Path.GetDirectoryName(assemblyDir);
-    if (configDir == null)
-    {
-      return "Debug";
-    }
+    var flat = Path.Combine(
+      WorkspaceRoot, "dist", "examples", category, name, "net10.0"
+    );
+    if (Directory.Exists(flat)) return flat;
 
-    var config = Path.GetFileName(configDir);
-    return string.IsNullOrEmpty(config) ? "Debug" : config;
+    // No output dir found — return the Debug candidate so the failure
+    // path is explicit (FileNotFoundException at first use) instead
+    // of silently resolving to a wrong venv.
+    return Path.Combine(
+      WorkspaceRoot, "dist", "examples", category, name, "Debug", "net10.0"
+    );
   }
 }

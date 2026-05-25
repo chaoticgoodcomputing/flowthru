@@ -181,6 +181,103 @@ public class PythonRequirementsAnalyzerTests
       "User declarer must also be named so the conflict is diagnosable.");
   }
 
+  // ── Reference-chain capabilities — only folded when used ────────────
+
+  [Test]
+  public async Task LauncherInReferenceChain_NotInstantiated_DoesNotFold()
+  {
+    // Regression: pre-fix the analyzer walked every referenced
+    // assembly's namespace tree for [PythonPackageRequirement] and
+    // folded AccelerateLauncher's `accelerate>=0.30` declaration even
+    // when the consumer never used the launcher. The fix walks source
+    // syntax for type references; if no `new AccelerateLauncher()` or
+    // generic-arg reference appears in source, the launcher's
+    // requirement is not folded.
+    var source = """
+      namespace Sample;
+      public static class Pipeline { }
+      """;
+    var diagnostics = await RunWithReferences(
+      source,
+      uvLock: UvLock(("pyarrow", "15.0.0"))  // no accelerate, no torch — only base
+    );
+
+    Assert.That(
+      diagnostics.Where("FTPY1501").Any(d => d.GetMessage().Contains("accelerate")),
+      Is.False,
+      "Untouched launchers in the reference chain must not contribute their requirements."
+    );
+    Assert.That(
+      diagnostics.Where("FTPY1501").Any(d => d.GetMessage().Contains("torch")),
+      Is.False,
+      "TorchrunLauncher in the reference chain must not contribute either."
+    );
+  }
+
+  [Test]
+  public async Task LauncherInstantiated_FoldsAttributeRequirements()
+  {
+    // Positive case for the new syntax-walk: `new AccelerateLauncher()`
+    // in source is the reference the analyzer needs to see in order
+    // to fold its declared `accelerate>=0.30` requirement.
+    var source = """
+      using Flowthru.Step.Python;
+      namespace Sample;
+
+      public static class Pipeline
+      {
+        public static IPythonLauncher Build() => new AccelerateLauncher();
+      }
+      """;
+    var diagnostics = await RunWithReferences(
+      source,
+      uvLock: UvLock(("pyarrow", "15.0.0"))  // accelerate missing
+    );
+
+    Assert.That(
+      diagnostics.Where("FTPY1501").Any(d => d.GetMessage().Contains("accelerate")),
+      Is.True,
+      "AccelerateLauncher referenced in source must contribute its accelerate dep."
+    );
+  }
+
+  [Test]
+  public async Task LauncherReferencedViaGenericArg_FoldsAttributeRequirements()
+  {
+    // Second positive case: DI registration via type arg, not `new`.
+    // `services.AddSingleton<IPythonLauncher, AccelerateLauncher>()`
+    // names AccelerateLauncher only as a generic type argument; the
+    // analyzer's NameSyntax binding must still discover it.
+    var source = """
+      using Flowthru.Step.Python;
+      using Microsoft.Extensions.DependencyInjection;
+      namespace Sample;
+
+      public static class Pipeline
+      {
+        public static void Register(IServiceCollection services) =>
+          services.AddSingleton<IPythonLauncher, AccelerateLauncher>();
+      }
+      """;
+    var diagnostics = await AnalyzerTestHarness.RunAsync(
+      new PythonRequirementsAnalyzer(),
+      source,
+      additionalFiles: new[] { UvLock(("pyarrow", "15.0.0")) },
+      extraReferences: new[]
+      {
+        typeof(IPythonCapability).Assembly,
+        typeof(Microsoft.Extensions.DependencyInjection.IServiceCollection).Assembly,
+        typeof(Microsoft.Extensions.DependencyInjection.ServiceCollectionServiceExtensions).Assembly,
+      }
+    );
+
+    Assert.That(
+      diagnostics.Where("FTPY1501").Any(d => d.GetMessage().Contains("accelerate")),
+      Is.True,
+      "AccelerateLauncher referenced as a generic type argument must still contribute its accelerate dep."
+    );
+  }
+
   // ── Helpers ──────────────────────────────────────────────────────────
 
   private static Task<System.Collections.Immutable.ImmutableArray<Microsoft.CodeAnalysis.Diagnostic>>

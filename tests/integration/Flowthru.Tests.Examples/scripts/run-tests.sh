@@ -112,19 +112,23 @@ else
   fi
 fi
 
-# ── 3. Pre-warm Python venv in publish output (once, before shard cloning) ────
+# ── 3. Run each affected example in its own shard, in parallel ────────────────
 #
-# The publish output contains the test project's pyproject.toml. Materializing
-# the venv here means each shard inherits .venv via cp -r, avoiding N redundant
-# uv syncs at run time.
-
-if [ -f "$PUBLISH_DIR/pyproject.toml" ] && [ ! -f "$PUBLISH_DIR/.venv/pyvenv.cfg" ]; then
-  echo "Pre-warming Python venv in $PUBLISH_DIR..."
-  (cd "$PUBLISH_DIR" && uv sync --frozen --python-preference only-managed) \
-    || echo "Warning: venv pre-warm failed; per-shard runs may retry."
-fi
-
-# ── 4. Run each affected example in its own shard, in parallel ────────────────
+# Earlier versions of this script pre-warmed a shared venv at
+# $PUBLISH_DIR/.venv from the test project's bundled pyproject.toml,
+# then `cp -r`d it into every shard. That coupled all Python examples'
+# Python deps into one lockfile and meant the test publish dir
+# accumulated every example's pyproject.toml at the same path —
+# whichever example wrote last won the lockfile slot, and the venv
+# materialized from the wrong example's deps.
+#
+# Now: each Python-using example uses its own per-example
+# outputPath/.venv (set via python.VenvPath = outputPath in the
+# example's Program.cs). The Flowthru runtime auto-materializes the
+# venv on first use via `uv sync --frozen` if pyproject.toml is
+# present alongside the missing .venv. First-test-run pays the
+# materialization cost; subsequent runs cache. The shard itself only
+# carries DLL inodes for coverlet isolation; the venv lives outside.
 #
 # xargs -P bounds concurrency to $MAX_PARALLEL. Each invocation is independent —
 # shards can't collide because each owns its own DLL set, and per-example

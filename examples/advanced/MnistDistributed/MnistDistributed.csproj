@@ -6,15 +6,6 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>MnistDistributed</RootNamespace>
-    <!--
-      Slice 3 false positive: the FTPY1501 analyzer walks every
-      [PythonPackageRequirement]-decorated type in the reference chain,
-      including AccelerateLauncher (which this example doesn't use).
-      Suppressed locally until the analyzer is revisited to fold only
-      capabilities actually referenced in source — see the slice-3
-      follow-up issue.
-    -->
-    <NoWarn>$(NoWarn);FTPY1501</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>

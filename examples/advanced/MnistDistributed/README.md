@@ -74,16 +74,6 @@ Slice 4's `TorchrunLauncher.RedirectsFlag` is enough to mitigate (3)
 *if* (1) and (2) are fixed first — but on its own it's useless
 because the run dies at (1) before reaching (3).
 
-## Slice 3 caveat — analyzer false positive
-
-`MnistDistributed.csproj` carries `<NoWarn>$(NoWarn);FTPY1501</NoWarn>`
-because the slice-3 design-time analyzer walks every
-`[PythonPackageRequirement]`-decorated type in the reference chain,
-including `AccelerateLauncher` which this example doesn't use. The
-analyzer should only fold requirements from capabilities actually
-referenced in the consumer's source — that's a slice-3 revisit, tracked
-separately.
-
 ## Running
 
 ```
