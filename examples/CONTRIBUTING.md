@@ -237,6 +237,16 @@ New example projects should be named for the concept or domain they demonstrate 
 
 The `Kedro*` prefix on older projects is historical — they were direct ports of Kedro's tutorial set. Going forward, **drop the prefix**; Flowthru is differentiated enough from Kedro that the prefix is no longer load-bearing. Existing `Kedro*` projects will be renamed as part of a separate cleanup; the Kedro origin moves to a README acknowledgement.
 
+## Local State
+
+Flowthru tooling (notably the Inspector) writes per-project local state under `.flowthru/` — pre-flight Manifest snapshots, cache manifests, log archives, user preferences. Every Flowthru project's `.gitignore` should include:
+
+```
+.flowthru/
+```
+
+The dot-prefix convention matches `.git/`, `.vscode/`, `.idea/`, etc. — anything under `.flowthru/` is Flowthru-owned, regenerable, and never belongs in version control.
+
 ## Glossary
 
 ### Roles
