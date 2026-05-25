@@ -29,6 +29,8 @@
     href: Flowthru.Step.Python.PythonCodeVersion.md
   - name: PythonPackageRequirement
     href: Flowthru.Step.Python.PythonPackageRequirement.md
+  - name: PythonPackageRequirementAttribute
+    href: Flowthru.Step.Python.PythonPackageRequirementAttribute.md
   - name: PythonRuntimeOptions
     href: Flowthru.Step.Python.PythonRuntimeOptions.md
   - name: PythonServiceBuilder

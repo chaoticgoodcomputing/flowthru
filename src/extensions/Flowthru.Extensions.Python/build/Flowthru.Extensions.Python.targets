@@ -62,6 +62,17 @@
     <AdditionalFiles Include="**\*.py"
                      Exclude="bin\**;obj\**;_generated\**;build\**;**\.venv\**"
                      Visible="false" />
+
+    <!--
+      Expose uv.lock to PythonRequirementsAnalyzer (FTPY1501 / FTPY1502)
+      so it can statically check the project's locked Python deps
+      against the algebra closure (base extension requirements + every
+      [PythonPackageRequirement]-decorated capability). Condition guards
+      against projects that don't use uv. Per ADR-0013.
+    -->
+    <AdditionalFiles Include="uv.lock"
+                     Condition="Exists('uv.lock')"
+                     Visible="false" />
     
     <!-- Phase 5: Generated Python schemas -->
     <Content Include="_generated\**\*.py"

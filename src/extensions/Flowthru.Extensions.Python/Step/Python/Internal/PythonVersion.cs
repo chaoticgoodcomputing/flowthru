@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Immutable;
 using System.Globalization;
 
@@ -39,7 +40,13 @@ internal readonly record struct PythonVersion(
     if (string.IsNullOrWhiteSpace(input)) return false;
 
     var s = input.Trim();
-    if (s.StartsWith('v') || s.StartsWith('V')) s = s.Substring(1);
+    // String overloads (not char) — char overloads of StartsWith /
+    // Contains are post-netstandard2.0; the source-generator project
+    // that links this file is netstandard2.0.
+    if (s.StartsWith("v", StringComparison.Ordinal) || s.StartsWith("V", StringComparison.Ordinal))
+    {
+      s = s.Substring(1);
+    }
 
     // Reject PEP 440 features we cannot accurately represent —
     // silently dropping these would misinform downstream comparisons
@@ -47,8 +54,8 @@ internal readonly record struct PythonVersion(
     // tag-equality semantic). The hook's lenient-parse fallback
     // catches these and skips the constraint check.
     if (s.Length == 0 || s[0] == '.') return false;
-    if (s.Contains('!')) return false;
-    if (s.Contains('+')) return false;
+    if (s.IndexOf('!') >= 0) return false;
+    if (s.IndexOf('+') >= 0) return false;
 
     // Split release segment from prerelease segment. The prerelease
     // marker is any of a/b/c/rc/alpha/beta after a numeric prefix,
@@ -62,7 +69,7 @@ internal readonly record struct PythonVersion(
     var releasePart = s.Substring(0, releaseEnd);
     var preReleasePart = s.Substring(releaseEnd);
 
-    var releaseSegments = releasePart.Split('.', StringSplitOptions.RemoveEmptyEntries);
+    var releaseSegments = releasePart.Split(new[] { '.' }, StringSplitOptions.RemoveEmptyEntries);
     if (releaseSegments.Length == 0) return false;
 
     var parsedRelease = ImmutableArray.CreateBuilder<int>(releaseSegments.Length);

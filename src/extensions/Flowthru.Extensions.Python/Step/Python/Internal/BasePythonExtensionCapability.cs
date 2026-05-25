@@ -34,21 +34,30 @@ namespace Flowthru.Step.Python.Internal;
 /// <c>pyproject.toml</c> as always.
 /// </para>
 /// </remarks>
+// Attributes are the *single* source of truth: the
+// PythonRequirementsAnalyzer reads them statically via Roslyn metadata
+// (FTPY1501 / FTPY1502 against uv.lock), and the runtime Requirements
+// property derives from the same attributes via reflection. No
+// hardcoded duplicate list means no drift possible.
+// pyarrow is the only base requirement that's a genuine pip-installed
+// package. The `flowthru` Python companion is shipped by the .NET
+// extension as a sys.path-resolvable directory under the project's
+// output (see Flowthru.Extensions.Python.targets); declaring it here
+// would surface false positives — `pip list` / `uv.lock` doesn't
+// know about it because it's not pip-managed.
+[PythonPackageRequirement(
+  package: "pyarrow",
+  versionConstraint: ">=14",
+  reason: "Required by PythonStepExtension (Arrow IPC marshaller)"
+)]
 internal sealed class BasePythonExtensionCapability : IPythonCapability
 {
-  private static readonly IReadOnlyList<PythonPackageRequirement> _requirements = new[]
-  {
-    new PythonPackageRequirement(
-      Package: "pyarrow",
-      VersionConstraint: ">=14",
-      Reason: "Required by PythonStepExtension (Arrow IPC marshaller)"
-    ),
-    new PythonPackageRequirement(
-      Package: "flowthru",
-      VersionConstraint: null,
-      Reason: "Required by PythonStepExtension (Python companion package)"
-    ),
-  };
+  private static readonly IReadOnlyList<PythonPackageRequirement> _requirements =
+    typeof(BasePythonExtensionCapability)
+      .GetCustomAttributes(typeof(PythonPackageRequirementAttribute), inherit: false)
+      .Cast<PythonPackageRequirementAttribute>()
+      .Select(a => new PythonPackageRequirement(a.Package, a.VersionConstraint, a.Reason))
+      .ToList();
 
   /// <inheritdoc/>
   public IReadOnlyList<PythonPackageRequirement> Requirements => _requirements;

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Immutable;
 
 namespace Flowthru.Step.Python.Internal;
@@ -44,12 +45,23 @@ internal sealed record PythonVersionConstraint(
   public static bool TryParse(string? input, out PythonVersionConstraint constraint)
   {
     constraint = Any;
-    if (string.IsNullOrWhiteSpace(input)) return true;
+    // Explicit null check before the string ops — netstandard2.0's
+    // reference assembly doesn't carry [NotNullWhen(false)] on
+    // string.IsNullOrWhiteSpace, so the analyzer-side build can't
+    // narrow the nullable param otherwise.
+    if (input is null) return true;
+    var trimmedInput = input.Trim();
+    if (trimmedInput.Length == 0) return true;
 
+    // Split + TrimEntries is post-netstandard2.0; do it manually so
+    // the source-generator project (netstandard2.0) compiles too.
     var clauses = ImmutableArray.CreateBuilder<PythonConstraintClause>();
-    foreach (var raw in input.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+    foreach (var raw in trimmedInput.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
     {
-      if (!TryParseClause(raw, out var clause)) return false;
+      if (raw is null) continue;
+      var trimmed = raw.Trim();
+      if (trimmed.Length == 0) continue;
+      if (!TryParseClause(trimmed, out var clause)) return false;
       clauses.Add(clause);
     }
 
