@@ -21,6 +21,8 @@
   href: Flowthru.Step.Python.md
   items:
   - name: Classes
+  - name: AccelerateLauncher
+    href: Flowthru.Step.Python.AccelerateLauncher.md
   - name: ArrowDecimalAttribute
     href: Flowthru.Step.Python.ArrowDecimalAttribute.md
   - name: DirectPythonLauncher
@@ -47,6 +49,8 @@
     href: Flowthru.Step.Python.PythonStepExtension.md
   - name: PythonStepMetadata
     href: Flowthru.Step.Python.PythonStepMetadata.md
+  - name: TorchrunLauncher
+    href: Flowthru.Step.Python.TorchrunLauncher.md
   - name: Interfaces
   - name: IPythonCapability
     href: Flowthru.Step.Python.IPythonCapability.md
