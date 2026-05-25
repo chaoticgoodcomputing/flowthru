@@ -56,11 +56,14 @@ Encoding
 """
 
 import sys
+import os
 import json
 import base64
 import importlib
 import logging
+import tempfile
 import threading
+import time
 import traceback
 import contextlib
 
@@ -87,6 +90,80 @@ _LOG_FRAME_PREFIX = "__flowthru_log__:"
 # (documented constraint — Python steps that spawn their own threads
 # and write stderr directly are responsible for their own framing).
 _STDERR_WRITE_LOCK = threading.Lock()
+
+
+# ── Rank-aware distributed dispatch (ADR-0014, slice 5) ─────────────────────
+#
+# When the launcher fans out N python workers (torchrun, accelerate, mpi…),
+# only rank 0 owns the parent's stdin/stdout pipe — the Flowthru protocol
+# channel. Non-rank-0 workers cannot read the init / invoke messages from
+# stdin (the pipe is shared and racy: whichever worker reads first consumes
+# the bytes). We coordinate via a session directory in $TMPDIR: rank 0 also
+# writes each protocol message to a sequenced file there, and non-rank-0
+# workers poll for those files in order.
+#
+# The session dir name is derived from MASTER_ADDR + MASTER_PORT, both set
+# by torchrun and unique per launch on a node. Multi-node setups produce
+# the same MASTER_ADDR/PORT across nodes (the rendezvous address), so the
+# session dir collides — but rank N>0 on a worker node has access to the
+# *local* tmpdir, and rank 0 on the master node writes there; we trust the
+# multi-node case to use a shared FS for the session dir (out of scope for
+# slice 5; single-node is the slice-5 target).
+#
+# Worker lifecycle in distributed mode is *single-shot*: after one invoke
+# returns, all ranks exit (the executor's worker is dead; the next Invoke
+# call would need to re-launch torchrun). torchrun's process model expects
+# this anyway — one DDP cycle per launch. Multi-step distributed flows
+# would require either re-launching the executor per step or a different
+# launcher-aware lifecycle; deferred until a real use case shows up.
+
+_DIST_RANK = int(os.environ.get("RANK", "0"))
+_DIST_WORLD_SIZE = int(os.environ.get("WORLD_SIZE", "1"))
+_DIST_ENABLED = _DIST_WORLD_SIZE > 1
+
+
+def _broadcast_session_dir() -> str:
+    """Per-launch tmpdir holding sequenced broadcast files. All ranks
+    compute the same path because MASTER_ADDR/MASTER_PORT are set
+    identically by torchrun across ranks."""
+    addr = os.environ.get("MASTER_ADDR", "127.0.0.1")
+    port = os.environ.get("MASTER_PORT", "29500")
+    pid = os.environ.get("TORCHELASTIC_RUN_ID", os.environ.get("PPID", "0"))
+    return os.path.join(
+        tempfile.gettempdir(), f"flowthru-bcast-{addr}-{port}-{pid}"
+    )
+
+
+def _broadcast_publish(seq: int, msg: dict) -> None:
+    """Rank-0 only: persist the just-received protocol message so
+    non-rank-0 ranks can pick it up. Atomic write via rename so polling
+    readers never see a half-written file."""
+    d = _broadcast_session_dir()
+    os.makedirs(d, exist_ok=True)
+    final_path = os.path.join(d, f"{seq:04d}.json")
+    tmp_path = final_path + ".tmp"
+    with open(tmp_path, "w") as f:
+        json.dump(msg, f)
+    os.replace(tmp_path, final_path)
+
+
+def _broadcast_receive(seq: int, timeout_seconds: float = 60.0) -> dict:
+    """Non-rank-0 only: poll for the sequenced file rank 0 published.
+    Times out with a clear error rather than hanging forever — slice-5
+    failures should surface, not deadlock."""
+    d = _broadcast_session_dir()
+    path = os.path.join(d, f"{seq:04d}.json")
+    deadline = time.monotonic() + timeout_seconds
+    while time.monotonic() < deadline:
+        if os.path.exists(path):
+            with open(path) as f:
+                return json.load(f)
+        time.sleep(0.05)
+    raise TimeoutError(
+        f"flowthru rank {_DIST_RANK}/{_DIST_WORLD_SIZE}: "
+        f"timed out waiting for broadcast file {path} after {timeout_seconds}s. "
+        f"Rank 0 may have failed before publishing the message."
+    )
 
 
 class _FlowthruJsonLogHandler(logging.Handler):
@@ -397,38 +474,44 @@ def _handle_invoke(msg: dict) -> dict:
 # Entry point
 # ---------------------------------------------------------------------------
 
-def main() -> None:
+def _configure_arrow_bridge() -> None:
+    """Late-load the Arrow bridge after sys.path is configured. Failure
+    is non-fatal — only tabular steps care, and they'll raise at
+    invocation time with a clear message."""
     global _flowthru_arrow
-
-    # Line-buffer stderr so each log line/print() flushes immediately.
-    # Without this, Python buffers stderr when it's a pipe (default
-    # behaviour when stderr isn't a tty), and the host sees output in
-    # 4KB chunks rather than line-by-line — breaking the interleaving
-    # between engine logs and step logs the bridge is designed for.
     try:
-        sys.stderr.reconfigure(line_buffering=True)
-    except AttributeError:
-        # Python < 3.7 lacks reconfigure(); the bridge still works,
-        # output just lands in larger batches.
+        _flowthru_arrow = importlib.import_module("_flowthru_arrow")
+    except ImportError:
         pass
 
-    # Install the Flowthru log bridge before any user code runs so
-    # `logging.basicConfig(...)` in user modules is a no-op (Python's
-    # basicConfig short-circuits when the root logger already has
-    # handlers).
-    _install_log_bridge()
 
+def _dispatch(msg: dict):
+    """Route a parsed protocol message to its handler. Shared between
+    rank 0 and non-rank-0 dispatch paths so both ranks execute the
+    same user-function entry point under torch.distributed."""
+    msg_type = msg.get("type")
+    if msg_type == "validate":
+        return _handle_validate(msg)
+    if msg_type == "invoke":
+        return _handle_invoke(msg)
+    if msg_type == "inspect":
+        return _handle_inspect(msg)
+    if msg_type == "shutdown":
+        return None
+    return {"status": "error", "message": f"Unknown message type: {msg_type!r}"}
+
+
+def _main_single_rank() -> None:
+    """Existing single-process path — preserved verbatim for
+    backwards compatibility with DirectPythonLauncher and any other
+    launcher that doesn't fan out workers."""
     # First line must be the init message
     init_line = sys.stdin.readline()
     if not init_line:
         sys.exit(1)
     _handle_init(json.loads(init_line))
 
-    # Load Arrow bridge after sys.path is configured
-    try:
-        _flowthru_arrow = importlib.import_module("_flowthru_arrow")
-    except ImportError:
-        pass  # tabular steps will raise at invocation time with a clear message
+    _configure_arrow_bridge()
 
     sys.stdout.write(
         json.dumps({
@@ -456,21 +539,127 @@ def main() -> None:
             sys.stdout.flush()
             continue
 
-        msg_type = msg.get("type")
-
-        if msg_type == "shutdown":
+        if msg.get("type") == "shutdown":
             break
-        elif msg_type == "validate":
-            resp = _handle_validate(msg)
-        elif msg_type == "invoke":
-            resp = _handle_invoke(msg)
-        elif msg_type == "inspect":
-            resp = _handle_inspect(msg)
-        else:
-            resp = {"status": "error", "message": f"Unknown message type: {msg_type!r}"}
+
+        resp = _dispatch(msg)
+        if resp is None:
+            break
 
         sys.stdout.write(json.dumps(resp) + "\n")
         sys.stdout.flush()
+
+
+def _main_rank_zero_distributed() -> None:
+    """Rank 0 of a distributed launch: reads stdin as usual, but
+    *additionally* publishes each protocol message to the broadcast
+    session dir so non-rank-0 workers can pick it up. Single-shot —
+    exits after one invoke, matching torchrun's DDP-cycle model."""
+    seq = 0
+
+    init_line = sys.stdin.readline()
+    if not init_line:
+        sys.exit(1)
+    init_msg = json.loads(init_line)
+
+    # Publish init *first* so non-rank-0 workers don't sit waiting
+    # while we initialise Python state locally.
+    seq += 1
+    _broadcast_publish(seq, init_msg)
+
+    _handle_init(init_msg)
+    _configure_arrow_bridge()
+
+    sys.stdout.write(
+        json.dumps({
+            "status": "ready",
+            "python_executable": sys.executable,
+            "python_prefix": sys.prefix,
+            "sys_path": sys.path,
+            "distributed_rank": _DIST_RANK,
+            "distributed_world_size": _DIST_WORLD_SIZE,
+        })
+        + "\n"
+    )
+    sys.stdout.flush()
+
+    # Read exactly one work message — distributed launches are
+    # single-shot.
+    work_line = sys.stdin.readline()
+    if not work_line:
+        sys.exit(1)
+    work_msg = json.loads(work_line.strip())
+
+    seq += 1
+    _broadcast_publish(seq, work_msg)
+
+    if work_msg.get("type") == "shutdown":
+        return
+
+    resp = _dispatch(work_msg)
+    if resp is not None:
+        sys.stdout.write(json.dumps(resp) + "\n")
+        sys.stdout.flush()
+
+
+def _main_non_rank_zero_distributed() -> None:
+    """Non-rank-0 worker: doesn't own the parent stdin/stdout. Reads
+    the init / work messages from the broadcast session dir, dispatches
+    locally so the user function participates in torch.distributed
+    coordination, then exits. The response is discarded — only rank 0
+    returns a result to the .NET host."""
+    # Redirect stdout to /dev/null so any user-code print() can't
+    # interleave with rank 0's protocol stream on the parent pipe.
+    # stderr is fine — the bridge classifier on the C# side handles
+    # multiple writers; user errors / framework logs from non-rank-0
+    # workers stay visible.
+    devnull = open(os.devnull, "w")
+    sys.stdout = devnull
+
+    seq = 0
+
+    seq += 1
+    init_msg = _broadcast_receive(seq)
+    _handle_init(init_msg)
+    _configure_arrow_bridge()
+
+    seq += 1
+    work_msg = _broadcast_receive(seq)
+
+    if work_msg.get("type") == "shutdown":
+        return
+
+    # Dispatch — the user function runs identically on all ranks; any
+    # torch.distributed coordination (DDP wrap, gradient sync) is its
+    # responsibility, not ours. Return value is discarded.
+    _dispatch(work_msg)
+
+
+def main() -> None:
+    # Line-buffer stderr so each log line/print() flushes immediately.
+    # Without this, Python buffers stderr when it's a pipe (default
+    # behaviour when stderr isn't a tty), and the host sees output in
+    # 4KB chunks rather than line-by-line — breaking the interleaving
+    # between engine logs and step logs the bridge is designed for.
+    try:
+        sys.stderr.reconfigure(line_buffering=True)
+    except AttributeError:
+        # Python < 3.7 lacks reconfigure(); the bridge still works,
+        # output just lands in larger batches.
+        pass
+
+    # Install the Flowthru log bridge before any user code runs so
+    # `logging.basicConfig(...)` in user modules is a no-op (Python's
+    # basicConfig short-circuits when the root logger already has
+    # handlers).
+    _install_log_bridge()
+
+    if not _DIST_ENABLED:
+        _main_single_rank()
+    elif _DIST_RANK == 0:
+        _main_rank_zero_distributed()
+    else:
+        _main_non_rank_zero_distributed()
 
 
 if __name__ == "__main__":

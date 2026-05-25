@@ -1,105 +1,76 @@
-# MnistDistributed — tracer-bullet for distributed Python training
+# MnistDistributed — distributed PyTorch training via TorchrunLauncher
 
-A one-step Flowthru pipeline that asks PyTorch to train a small CNN on
-synthetic 28×28 grayscale data using `TorchrunLauncher` (ADR-0014).
-The model and dataset are deliberately tiny — a few KB of model
-weights, a few hundred synthetic samples — because **this example is
-not for training quality**, it is for exercising the launcher seam and
-**reproducing the slice-5 protocol-coordination blockers** in a
-controlled setting.
+A one-step Flowthru pipeline that trains a small CNN on synthetic
+28×28 grayscale data using `TorchrunLauncher` (ADR-0014). The model
+and dataset are deliberately tiny — a few KB of model weights, a few
+hundred synthetic samples — because the example is for **exercising
+the distributed launcher seam**, not for training quality.
 
-## What works today
-
-With `NProcPerNode = 1` in `Program.cs`:
+## What it does
 
 ```
-[rank 0/1] entered train_ddp
-[rank 0/1] epoch 1/2 loss=2.2959
-[rank 0/1] epoch 2/2 loss=2.2875
+[rank 0/2] entered train_ddp
+[rank 0/2] epoch 1/2 loss=2.2959
+[rank 0/2] epoch 2/2 loss=2.2875
 [rank 0] returning 23063 bytes of pickled state_dict
-✓ TrainCnnDistributed (2362.95 ms)
+✓ TrainCnnDistributed (2740.25 ms)
 ```
 
-End-to-end success. `TorchrunLauncher` resolves the venv's `torchrun`
-binary, spawns one Python worker via `torchrun --nproc_per_node=1
-flowthru_worker.py`, the worker speaks the JSON-over-stdio protocol,
-and the trained `state_dict` flows back to the C# catalog as bytes.
-That single-rank path is the proof that the launcher seam — the
-`IPythonLauncher` abstraction from slice 1, wired through `UsePython()`
-to `SubprocessPythonExecutor` — is structurally sound.
+`TorchrunLauncher { NProcPerNode = 2 }` resolves the venv's
+`torchrun` binary, spawns two Python workers via
+`torchrun --nproc_per_node=2 flowthru_worker.py`, and lets PyTorch's
+gloo backend coordinate gradient synchronization across both ranks.
+Only rank 0 returns the trained `state_dict` to the C# catalog;
+rank 1's stdout is redirected to a per-rank log file (`/tmp/torchelastic_*`)
+to keep the Flowthru protocol stream clean on the parent pipe.
 
-## What's broken — reproduced failure modes
+Running with `NProcPerNode = 1` works identically — the rank-0 path
+gracefully degrades to single-process training.
 
-With `NProcPerNode = 2`, the run **hangs** at `init_process_group`.
-The root cause is a **stdin race**, not stdout interleaving as
-ADR-0014 originally framed it:
+## How the rank coordination works (slice 5)
 
-1. `torchrun --nproc_per_node=2` spawns two `flowthru_worker.py`
-   children.
-2. Both children inherit the parent's stdin file descriptor — the
-   single pipe that carries the Flowthru init message.
-3. They both attempt to read from that pipe at startup. **One wins**;
-   it parses the init JSON, calls the user step. **The other starves**
-   on an empty pipe.
-4. The winner reaches `dist.init_process_group(backend="gloo")` and
-   blocks waiting for the other rank to join.
-5. The loser is stuck in `sys.stdin.readline()` and never reaches
-   `init_process_group`.
-6. Deadlock. No timeout, no error — just hang.
+The slice-5 worker (`flowthru_worker.py`) branches on `RANK` /
+`WORLD_SIZE` env vars (set by torchrun) at startup:
 
-Worse, **which rank wins is non-deterministic**. Sometimes rank 0
-wins and rank 1 starves; sometimes rank 1 wins and rank 0 starves.
+- **Single-rank** (`WORLD_SIZE == 1`): existing protocol — read init
+  from stdin, respond, loop on stdin for invokes, exit on shutdown.
+- **Rank 0 in distributed**: read init + invoke from stdin as usual,
+  but **also publish each message** to a sequenced broadcast file in
+  `$TMPDIR/flowthru-bcast-<master-addr>-<master-port>-<run-id>/`.
+  Return the result via stdout. Exit after one invoke (single-shot;
+  torchrun expects to launch fresh per DDP cycle).
+- **Non-rank-0**: redirect own stdout to `/dev/null` (no protocol
+  corruption), poll the broadcast directory for the next sequenced
+  file, dispatch the message locally, discard the response. Exit
+  after one invoke.
 
-### Things that don't fix it
+All ranks call the user step function identically — DDP / NCCL / gloo
+coordination is the user code's responsibility (via
+`torch.distributed.init_process_group`, `DDP` wrapping, etc.). Rank
+1 publishes nothing back to the host.
 
-- **`TorchrunLauncher.RedirectsFlag = "1:3"`.** Redirects ranks
-  1..N-1's *stdout/stderr* to per-rank log files. Doesn't touch
-  *stdin* — the race is unaffected. Confirmed: still hangs.
-- **`--master_addr` / `--master_port` overrides.** Process-group
-  config can't help because the loser never reaches the call.
-- **Larger model / more epochs.** Orthogonal — the hang is at
-  pre-training process-group formation.
+## Slice-5 limitations / single-shot constraint
 
-### Three slice-5 blockers this example surfaces
+Distributed launches are **single-shot** in the current
+`SubprocessPythonExecutor`: after one invoke completes, all workers
+have exited and the executor can't serve another invoke against the
+same launch. Practical implication: a flow with multiple distributed
+steps should use **one `SubprocessPythonExecutor` per step** (each
+constructed with its own `TorchrunLauncher`). Sharing a single
+distributed executor across steps will fail with a broken-pipe error
+on the second invoke.
 
-The slice-5 fix needs to handle all three, in order of cause-and-effect:
-
-| # | Failure                  | Mechanism                                                                                              | Slice-5 fix candidate                                                                                                                                                                      |
-| - | ------------------------ | ------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| 1 | **Stdin race**           | Multiple workers contend for the same parent-stdin pipe.                                               | Worker reads `RANK` env at startup; if `RANK != 0`, skip the stdin read entirely.                                                                                                          |
-| 2 | **Non-rank-0 dispatch**  | If non-rank-0 doesn't read stdin, it has no init message — doesn't know which user function to call.   | Rank 0 broadcasts the init payload (module/function/args) to all ranks via `torch.distributed.broadcast_object_list` after `init_process_group`. Non-rank-0 receives + dispatches locally. |
-| 3 | **Stdout interleaving**  | Once all ranks reach the user function, their `print()` output multiplexes onto shared parent stdout. | Move the JSON protocol off stdout onto a dedicated fd. `TorchrunLauncher` adds `--redirects` to fan ranks 1..N-1's stdout to per-rank files; rank 0's stdout becomes free for the protocol. |
-
-Slice 4's `TorchrunLauncher.RedirectsFlag` is enough to mitigate (3)
-*if* (1) and (2) are fixed first — but on its own it's useless
-because the run dies at (1) before reaching (3).
+Multi-step distributed flows that share rank coordination are
+deferred until a concrete use case shows up.
 
 ## Running
 
-```
+```bash
 cd examples/advanced/MnistDistributed
 uv sync                       # materializes .venv with torch + pyarrow
-dotnet run                    # NProcPerNode=2 → hangs (see above)
+dotnet run                    # runs with NProcPerNode = 2
 ```
 
-For the working single-rank path: edit `Program.cs`, set
-`NProcPerNode = 1`, rebuild, rerun.
-
-## Why this example exists
-
-Slice 4 (ADR-0014) shipped `TorchrunLauncher` + `AccelerateLauncher`
-as a structural foundation: launchers that *can* express
-distributed-training entry points without forking
-`SubprocessPythonExecutor`. But the protocol the worker speaks was
-designed for a single Python process; it doesn't survive being
-fan-out by torchrun. The slice-4 work didn't address that gap because
-the right fix needs empirical decisions (which fd carries the
-protocol, which broadcast mechanism rank 0 uses, etc.) that are
-easier to make against a concrete reproducer than from theory.
-
-That's this example. It is **not** a working distributed-training
-demo; it is the **specification** for what slice 5 needs to deliver.
-When slice 5 lands, the same example with `NProcPerNode = 2` should
-run end-to-end without modification — and the README's "Reproduced
-failure modes" section should describe history rather than the
-present.
+Edit `Program.cs` to change `NProcPerNode` — the rank-0 single-rank
+path and the rank-0/rank-N>0 distributed path both work via the same
+worker entry point.

@@ -56,12 +56,16 @@ public sealed class TorchrunLauncher : IPythonLauncher
   public string? BinaryPath { get; init; }
 
   /// <summary>
-  /// Optional torchrun <c>--redirects</c> argument — see torchrun's
-  /// docs for the per-rank redirect bitmask. Default null means
-  /// "don't set it", which is the safest pre-slice-5 default
-  /// (avoid silently losing rank-0 protocol traffic). Common
-  /// values: <c>"1:3,2:3,3:3"</c> to redirect ranks 1+ stdout+stderr
-  /// to per-rank log files.
+  /// torchrun's <c>--redirects</c> argument controlling per-rank
+  /// stdout/stderr redirection. Default null lets the launcher
+  /// auto-compute <c>1:3,2:3,...,(N-1):3</c> for <c>NProcPerNode &gt; 1</c>,
+  /// which sends ranks 1..N-1's stdout+stderr to per-rank log files
+  /// in <c>$TORCHELASTIC_LOGS_DIR</c> (typically <c>/tmp/torchelastic_*</c>)
+  /// while keeping rank 0 connected to the parent — the
+  /// configuration the rank-aware worker (slice 5) needs. Set this
+  /// explicitly to override the default with a custom per-rank
+  /// mapping; set to the empty string to disable redirection
+  /// entirely.
   /// </summary>
   public string? RedirectsFlag { get; init; }
 
@@ -107,9 +111,10 @@ public sealed class TorchrunLauncher : IPythonLauncher
     };
 
     psi.ArgumentList.Add($"--nproc_per_node={NProcPerNode}");
-    if (!string.IsNullOrWhiteSpace(RedirectsFlag))
+    var redirects = ResolveRedirectsFlag();
+    if (!string.IsNullOrWhiteSpace(redirects))
     {
-      psi.ArgumentList.Add($"--redirects={RedirectsFlag}");
+      psi.ArgumentList.Add($"--redirects={redirects}");
     }
     psi.ArgumentList.Add(workerScript);
 
@@ -172,6 +177,25 @@ public sealed class TorchrunLauncher : IPythonLauncher
     }
 
     return Validated<PreFlightError, FlowUnit>.Pure(FlowUnit.Default);
+  }
+
+  /// <summary>
+  /// Compute the <c>--redirects</c> argument from <see cref="NProcPerNode"/>
+  /// and <see cref="RedirectsFlag"/>. Empty string disables the flag;
+  /// null falls back to the auto-default (redirect ranks 1..N-1 to
+  /// per-rank log files, leave rank 0 connected to the parent for the
+  /// protocol stream).
+  /// </summary>
+  private string? ResolveRedirectsFlag()
+  {
+    if (RedirectsFlag is not null) return RedirectsFlag;
+    if (NProcPerNode <= 1) return null;
+
+    // `i:3` redirects rank i's stdout (1) + stderr (2) bits to a
+    // per-rank log file. We leave rank 0 unredirected so its stdout
+    // remains the parent's protocol channel.
+    var clauses = Enumerable.Range(1, NProcPerNode - 1).Select(i => $"{i}:3");
+    return string.Join(",", clauses);
   }
 
   private static bool IsBinaryAvailable(string path)

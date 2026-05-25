@@ -45,17 +45,30 @@ public class TorchrunLauncherTests
   }
 
   [Test]
-  public void Build_OmitsRedirectsFlagByDefault()
+  public void Build_OmitsRedirectsFlagWhenNProcPerNodeIsOne()
   {
-    var launcher = new TorchrunLauncher { NProcPerNode = 2 };
+    // Single-rank torchrun has no non-rank-0 ranks to redirect, so
+    // the launcher skips --redirects entirely.
+    var launcher = new TorchrunLauncher { NProcPerNode = 1 };
     var psi = launcher.Build("/p", "/w.py", EmptyEnv);
 
-    Assert.That(psi.ArgumentList.Any(a => a.StartsWith("--redirects=")), Is.False,
-      "RedirectsFlag null → no --redirects arg (slice 4 safest default).");
+    Assert.That(psi.ArgumentList.Any(a => a.StartsWith("--redirects=")), Is.False);
   }
 
   [Test]
-  public void Build_IncludesRedirectsFlagWhenSet()
+  public void Build_AutoComputesRedirectsForMultiRank()
+  {
+    // Slice 5: redirect ranks 1..N-1's stdout+stderr (bitmask 3) to
+    // per-rank log files so they can't corrupt rank 0's protocol
+    // stream on the parent stdout pipe.
+    var launcher = new TorchrunLauncher { NProcPerNode = 3 };
+    var psi = launcher.Build("/p", "/w.py", EmptyEnv);
+
+    Assert.That(psi.ArgumentList, Does.Contain("--redirects=1:3,2:3"));
+  }
+
+  [Test]
+  public void Build_HonorsExplicitRedirectsOverride()
   {
     var launcher = new TorchrunLauncher
     {
@@ -65,6 +78,20 @@ public class TorchrunLauncherTests
     var psi = launcher.Build("/p", "/w.py", EmptyEnv);
 
     Assert.That(psi.ArgumentList, Does.Contain("--redirects=1:3,2:3,3:3"));
+  }
+
+  [Test]
+  public void Build_EmptyRedirectsFlagDisablesArg()
+  {
+    // Escape hatch: explicit empty string disables --redirects entirely.
+    var launcher = new TorchrunLauncher
+    {
+      NProcPerNode = 4,
+      RedirectsFlag = string.Empty,
+    };
+    var psi = launcher.Build("/p", "/w.py", EmptyEnv);
+
+    Assert.That(psi.ArgumentList.Any(a => a.StartsWith("--redirects=")), Is.False);
   }
 
   [Test]
