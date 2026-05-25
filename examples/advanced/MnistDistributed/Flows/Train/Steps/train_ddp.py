@@ -103,19 +103,20 @@ def train_ddp(config: dict) -> bytes:
     if world_size > 1:
         dist.barrier()
 
-    # Only rank 0 returns the state_dict to Flowthru. Other ranks fall
-    # through to destroy_process_group and exit.
+    # Don't destroy the process group — the worker is multi-shot
+    # (slice 5+), and subsequent distributed steps in the same flow
+    # reuse this group. Calling destroy then re-init in the same
+    # process is unreliable with gloo (some versions hang). The
+    # process group is torn down naturally when the worker exits.
+
+    # Only rank 0 returns the state_dict to Flowthru.
     if rank == 0:
         underlying = model.module if isinstance(model, DDP) else model
         result = pickle.dumps(underlying.state_dict())
-        if world_size > 1:
-            dist.destroy_process_group()
         print(f"[rank 0] returning {len(result)} bytes of pickled state_dict", flush=True)
         return result
 
-    if world_size > 1:
-        dist.destroy_process_group()
-    # Non-rank-0 returns are discarded by the protocol — but with slice
-    # 4's worker, only rank 0 even owns the protocol stream. This `b""`
-    # is observed only by the unit tests / type checker.
+    # Non-rank-0 returns are discarded by the protocol — only rank 0
+    # owns the stdout channel. The `b""` is observed only by type
+    # checkers.
     return b""

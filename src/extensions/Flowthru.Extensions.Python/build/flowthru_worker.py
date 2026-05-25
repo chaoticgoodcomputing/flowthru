@@ -553,8 +553,10 @@ def _main_single_rank() -> None:
 def _main_rank_zero_distributed() -> None:
     """Rank 0 of a distributed launch: reads stdin as usual, but
     *additionally* publishes each protocol message to the broadcast
-    session dir so non-rank-0 workers can pick it up. Single-shot —
-    exits after one invoke, matching torchrun's DDP-cycle model."""
+    session dir so non-rank-0 workers can pick it up. Multi-shot —
+    the worker stays alive across invokes (and across validate /
+    inspect calls), matching the per-FlowthruService executor model.
+    Exits cleanly on shutdown, or when stdin closes."""
     seq = 0
 
     init_line = sys.stdin.readline()
@@ -583,31 +585,43 @@ def _main_rank_zero_distributed() -> None:
     )
     sys.stdout.flush()
 
-    # Read exactly one work message — distributed launches are
-    # single-shot.
-    work_line = sys.stdin.readline()
-    if not work_line:
-        sys.exit(1)
-    work_msg = json.loads(work_line.strip())
+    # Multi-shot work loop. Every subsequent stdin message gets
+    # broadcast to non-rank-0 *before* local dispatch, so all ranks
+    # see the same invoke at compatible times for torch.distributed
+    # coordination.
+    for line in sys.stdin:
+        line = line.strip()
+        if not line:
+            continue
 
-    seq += 1
-    _broadcast_publish(seq, work_msg)
+        try:
+            work_msg = json.loads(line)
+        except json.JSONDecodeError as exc:
+            sys.stdout.write(
+                json.dumps({"status": "error", "message": f"JSON parse error: {exc}"}) + "\n"
+            )
+            sys.stdout.flush()
+            continue
 
-    if work_msg.get("type") == "shutdown":
-        return
+        seq += 1
+        _broadcast_publish(seq, work_msg)
 
-    resp = _dispatch(work_msg)
-    if resp is not None:
-        sys.stdout.write(json.dumps(resp) + "\n")
-        sys.stdout.flush()
+        if work_msg.get("type") == "shutdown":
+            break
+
+        resp = _dispatch(work_msg)
+        if resp is not None:
+            sys.stdout.write(json.dumps(resp) + "\n")
+            sys.stdout.flush()
 
 
 def _main_non_rank_zero_distributed() -> None:
-    """Non-rank-0 worker: doesn't own the parent stdin/stdout. Reads
-    the init / work messages from the broadcast session dir, dispatches
-    locally so the user function participates in torch.distributed
-    coordination, then exits. The response is discarded — only rank 0
-    returns a result to the .NET host."""
+    """Non-rank-0 worker: doesn't own the parent stdin/stdout. Polls
+    the broadcast session dir for each sequenced protocol message,
+    dispatches locally so the user function participates in
+    torch.distributed coordination, and loops until rank 0 publishes
+    a shutdown message. Responses are discarded — only rank 0 talks
+    to the .NET host."""
     # Redirect stdout to /dev/null so any user-code print() can't
     # interleave with rank 0's protocol stream on the parent pipe.
     # stderr is fine — the bridge classifier on the C# side handles
@@ -623,16 +637,21 @@ def _main_non_rank_zero_distributed() -> None:
     _handle_init(init_msg)
     _configure_arrow_bridge()
 
-    seq += 1
-    work_msg = _broadcast_receive(seq)
+    # Multi-shot receive loop. The seq counter must stay in lock-step
+    # with rank 0's publisher; once we miss a beat we'd be reading
+    # the wrong message for the rest of the session.
+    while True:
+        seq += 1
+        work_msg = _broadcast_receive(seq)
 
-    if work_msg.get("type") == "shutdown":
-        return
+        if work_msg.get("type") == "shutdown":
+            break
 
-    # Dispatch — the user function runs identically on all ranks; any
-    # torch.distributed coordination (DDP wrap, gradient sync) is its
-    # responsibility, not ours. Return value is discarded.
-    _dispatch(work_msg)
+        # Dispatch — the user function runs identically on all ranks;
+        # any torch.distributed coordination (DDP wrap, gradient
+        # sync) is its responsibility, not ours. Return value is
+        # discarded.
+        _dispatch(work_msg)
 
 
 def main() -> None:

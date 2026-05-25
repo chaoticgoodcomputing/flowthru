@@ -8,24 +8,31 @@ the distributed launcher seam**, not for training quality.
 
 ## What it does
 
+Two steps share one `TorchrunLauncher`-backed executor:
+
 ```
-[rank 0/2] entered train_ddp
-[rank 0/2] epoch 1/2 loss=2.2959
-[rank 0/2] epoch 2/2 loss=2.2875
-[rank 0] returning 23063 bytes of pickled state_dict
-✓ TrainCnnDistributed (2740.25 ms)
+✓ TrainCnnDistributed (2651.60 ms)   -- step 1: 2 DDP epochs
+→ VerifyModel executing…
+[rank 0/2] entered verify_model
+[rank 0/2] forward-pass norm = 0.4409
+[rank 0] returning 54 bytes of verification dict
+✓ VerifyModel (14.16 ms)             -- step 2: forward pass through same workers
+Flow run finished in 2688.23 ms
 ```
 
 `TorchrunLauncher { NProcPerNode = 2 }` resolves the venv's
 `torchrun` binary, spawns two Python workers via
 `torchrun --nproc_per_node=2 flowthru_worker.py`, and lets PyTorch's
 gloo backend coordinate gradient synchronization across both ranks.
-Only rank 0 returns the trained `state_dict` to the C# catalog;
-rank 1's stdout is redirected to a per-rank log file (`/tmp/torchelastic_*`)
-to keep the Flowthru protocol stream clean on the parent pipe.
+The same worker pool services both steps — `init_process_group` runs
+once during training, the process group stays alive, and the
+verification step reuses it without re-initialising. Only rank 0
+returns results to the C# catalog; rank 1's stdout is redirected to
+a per-rank log file (`/tmp/torchelastic_*`) to keep the Flowthru
+protocol stream clean on the parent pipe.
 
 Running with `NProcPerNode = 1` works identically — the rank-0 path
-gracefully degrades to single-process training.
+gracefully degrades to single-process execution for both steps.
 
 ## How the rank coordination works (slice 5)
 
@@ -49,19 +56,26 @@ coordination is the user code's responsibility (via
 `torch.distributed.init_process_group`, `DDP` wrapping, etc.). Rank
 1 publishes nothing back to the host.
 
-## Slice-5 limitations / single-shot constraint
+## Known limitations
 
-Distributed launches are **single-shot** in the current
-`SubprocessPythonExecutor`: after one invoke completes, all workers
-have exited and the executor can't serve another invoke against the
-same launch. Practical implication: a flow with multiple distributed
-steps should use **one `SubprocessPythonExecutor` per step** (each
-constructed with its own `TorchrunLauncher`). Sharing a single
-distributed executor across steps will fail with a broken-pipe error
-on the second invoke.
+- **Single-host only.** "Host" in the cluster sense — a physical
+  machine. The broadcast session dir lives in `$TMPDIR`, which is
+  local to each machine. Multi-host distributed training (where
+  torchrun is launched per machine with a rendezvous endpoint
+  coordinating across them) would need a shared filesystem for the
+  broadcast dir; not implemented for slice 5. (Note: "host" here is
+  the PyTorch/torchrun sense — Flowthru uses "node" in its DAG model
+  for Items and Steps, so this README sticks to "host" / "machine"
+  to avoid the collision.)
 
-Multi-step distributed flows that share rank coordination are
-deferred until a concrete use case shows up.
+- **User code must guard `init_process_group`.** A multi-step
+  distributed flow shares one process group across invokes (which is
+  what makes the executor reusable). User steps should check
+  `torch.distributed.is_initialized()` before calling
+  `init_process_group` themselves — `verify_model` in this example
+  does exactly that. HuggingFace `Trainer`, Accelerate, and Lightning
+  all handle this guard internally, so trainer-based steps are fine
+  without explicit handling.
 
 ## Running
 

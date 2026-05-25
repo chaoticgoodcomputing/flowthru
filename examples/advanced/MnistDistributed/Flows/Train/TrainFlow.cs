@@ -25,6 +25,21 @@ public static class TrainFlow
         output: catalog.ModelWeights,
         executor: executor
       );
+
+      // Second distributed step sharing the same executor. Verifies
+      // that the rank-aware worker stays alive across multiple
+      // invokes (the slice-5 multi-shot path) — the DAG runs this
+      // after TrainCnnDistributed because of the ModelWeights
+      // dependency, both invokes flowing through the same N-rank
+      // worker pool.
+      pipeline.AddPythonStep(
+        label: "VerifyModel",
+        module: "Flows.Train.Steps.verify_model",
+        function: "verify_model",
+        input: catalog.ModelWeights,
+        output: catalog.VerificationOutput,
+        executor: executor
+      );
     });
   }
 }
