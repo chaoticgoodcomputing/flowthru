@@ -31,6 +31,22 @@ namespace Flowthru.Extensions.Python.Tests;
 [Category("Python")]
 public class SubprocessPythonExecutorHelperTests
 {
+  private string _transitDir = null!;
+
+  [SetUp]
+  public void SetUp()
+  {
+    _transitDir = Path.Combine(Path.GetTempPath(), "flowthru-test", Guid.NewGuid().ToString("N"));
+    Directory.CreateDirectory(_transitDir);
+  }
+
+  [TearDown]
+  public void TearDown()
+  {
+    if (Directory.Exists(_transitDir))
+      Directory.Delete(_transitDir, recursive: true);
+  }
+
   // ── Probe schemas ─────────────────────────────────────────────────
 
   [FlowthruSchema]
@@ -617,7 +633,7 @@ public class SubprocessPythonExecutorHelperTests
   [Test]
   public void EncodeDecode_ScalarInt_RoundTrip()
   {
-    var encoded = SubprocessPythonExecutor.EncodeValue(42, typeof(int), "scalar");
+    var encoded = SubprocessPythonExecutor.EncodeValue(42, typeof(int), "scalar", _transitDir, "input");
     Assert.That(encoded, Is.EqualTo("42"));
 
     var decoded = SubprocessPythonExecutor.DecodeValue<int>(encoded, typeof(int), "scalar");
@@ -627,8 +643,7 @@ public class SubprocessPythonExecutorHelperTests
   [Test]
   public void EncodeDecode_ScalarString_RoundTrip()
   {
-    var encoded = SubprocessPythonExecutor.EncodeValue("hello", typeof(string), "scalar");
-    // JSON-serialised string is quoted.
+    var encoded = SubprocessPythonExecutor.EncodeValue("hello", typeof(string), "scalar", _transitDir, "input");
     Assert.That(encoded, Is.EqualTo("\"hello\""));
 
     var decoded = SubprocessPythonExecutor.DecodeValue<string>(encoded, typeof(string), "scalar");
@@ -642,10 +657,10 @@ public class SubprocessPythonExecutorHelperTests
   {
     var input = new byte[] { 0x00, 0x01, 0x10, 0x7F, 0xFF };
 
-    var encoded = SubprocessPythonExecutor.EncodeValue(input, typeof(byte[]), "bytes");
-    // Base64-encoded payload must be the canonical encoding of the
-    // input bytes — this is the wire format the worker expects.
-    Assert.That(encoded, Is.EqualTo(Convert.ToBase64String(input)));
+    var encoded = SubprocessPythonExecutor.EncodeValue(input, typeof(byte[]), "bytes", _transitDir, "input");
+    // Encoded value is a file path; the file must contain the raw bytes.
+    Assert.That(File.Exists(encoded), Is.True);
+    Assert.That(File.ReadAllBytes(encoded), Is.EqualTo(input));
 
     var decoded = SubprocessPythonExecutor.DecodeValue<byte[]>(encoded, typeof(byte[]), "bytes");
     Assert.That(decoded, Is.EqualTo(input));
@@ -659,7 +674,7 @@ public class SubprocessPythonExecutorHelperTests
     var tuple = (7, "seven");
     var tupleType = typeof((int, string));
 
-    var encoded = SubprocessPythonExecutor.EncodeValue(tuple, tupleType, "multi");
+    var encoded = SubprocessPythonExecutor.EncodeValue(tuple, tupleType, "multi", _transitDir, "input");
 
     // The envelope is a JSON array of {kind, value} entries.
     var arr = JsonNode.Parse(encoded)!.AsArray();
@@ -685,7 +700,7 @@ public class SubprocessPythonExecutorHelperTests
     var dir = new DirectoryOf<int>(dict);
     var dirType = typeof(DirectoryOf<int>);
 
-    var encoded = SubprocessPythonExecutor.EncodeValue(dir, dirType, "directory");
+    var encoded = SubprocessPythonExecutor.EncodeValue(dir, dirType, "directory", _transitDir, "input");
 
     var envelope = JsonNode.Parse(encoded)!.AsObject();
     Assert.That(envelope["inner_kind"]!.GetValue<string>(), Is.EqualTo("scalar"));
@@ -705,10 +720,10 @@ public class SubprocessPythonExecutorHelperTests
   [Test]
   public void EncodeDecode_Tabular_RoundTripThroughArrow()
   {
-    // The tabular path goes through ArrowMarshaller — encode produces a
-    // base64-wrapped Arrow IPC buffer; decode parses it back. This is
-    // the only kind that involves the marshaller, so we exercise it as
-    // one integrated round-trip.
+    // The tabular path goes through ArrowMarshaller — encode writes an
+    // Arrow IPC file; decode reads it back. This is the only kind that
+    // involves the marshaller, so we exercise it as one integrated
+    // round-trip.
     var rows = new[]
     {
       new MyRecord { Id = 1, Name = "alpha", Score = 1.5 },
@@ -716,11 +731,11 @@ public class SubprocessPythonExecutorHelperTests
     };
     var collectionType = typeof(IEnumerable<MyRecord>);
 
-    var encoded = SubprocessPythonExecutor.EncodeTabular(rows, collectionType);
+    var encoded = SubprocessPythonExecutor.EncodeTabular(rows, collectionType, _transitDir, "input");
 
-    // Encoding must be valid base64 — anything else means the wire
-    // contract with the worker is broken.
-    Assert.That(() => Convert.FromBase64String(encoded), Throws.Nothing);
+    // Encoding must produce a file path to a valid Arrow IPC file.
+    Assert.That(File.Exists(encoded), Is.True);
+    Assert.That(new FileInfo(encoded).Length, Is.GreaterThan(0));
 
     var decoded = SubprocessPythonExecutor.DecodeTabular<IEnumerable<MyRecord>>(
       encoded, collectionType

@@ -28,18 +28,20 @@ namespace Flowthru.Step.Python.Internal;
 /// </para>
 /// <para>
 /// <strong>Protocol:</strong> newline-delimited JSON over stdin/stdout.
-/// Tabular data is exchanged as base64-encoded Apache Arrow IPC buffers.
-/// Dtype coercion specs are serialized from <see cref="ArrowSchemaMapper.BuildDtypeSpecDictionary{T}"/>.
+/// Tabular data is exchanged as Arrow IPC files on disk; raw byte arrays as
+/// binary files. The JSON envelope carries file paths for bulk kinds and
+/// inline values for scalars.
 /// </para>
 /// <para>
 /// The worker script (<c>flowthru_worker.py</c>) must be present in
 /// <see cref="AppContext.BaseDirectory"/>.
 /// </para>
 /// </remarks>
-public sealed class SubprocessPythonExecutor : IPythonExecutor, IDisposable
+public sealed class SubprocessPythonExecutor : IPythonExecutor, IFlowResourceProvider, IDisposable
 {
   private readonly PythonRuntimeOptions _options;
   private readonly IPythonConfigurationFlattener _flattener;
+  private readonly IPythonLauncher _launcher;
   private readonly ILogger _logger;
 
   private Process? _worker;
@@ -50,6 +52,12 @@ public sealed class SubprocessPythonExecutor : IPythonExecutor, IDisposable
   private readonly object _lock = new();
   private volatile bool _started;
   private bool _disposed;
+
+  // Per-flow transit directory for Arrow IPC / raw binary file exchange.
+  // Acquired by the FlowResource bracket before pre-flight; released
+  // (deleted on success, preserved on failure) after post-run.
+  private string? _transitDir;
+  private int _invocationCounter;
 
   // Cached interpreter version string, probed lazily on first
   // GetInterpreterVersion() call. _interpreterVersionProbed is the
@@ -70,10 +78,17 @@ public sealed class SubprocessPythonExecutor : IPythonExecutor, IDisposable
   /// the worker's <see cref="ProcessStartInfo.EnvironmentVariables"/> from
   /// the section named in <see cref="PythonRuntimeOptions.ConfigurationSection"/>.
   /// </param>
+  /// <param name="launcher">
+  /// Strategy that constructs the worker's
+  /// <see cref="ProcessStartInfo"/>. Defaults to
+  /// <see cref="DirectPythonLauncher"/> in production via the
+  /// <c>TryAddSingleton</c> registered by <c>UsePython()</c>; tests
+  /// pass an explicit instance.
+  /// </param>
   /// <param name="logger">
   /// The engine's shared <see cref="ILogger"/> — registered as a
   /// singleton under category <c>"Flowthru"</c> by
-  /// <c>AddFlowthru</c> per ADR-0005. Worker stderr lines bridge
+  /// <c>AddFlowthru</c>. Worker stderr lines bridge
   /// through this logger via <see cref="StderrLineClassifier"/>, so
   /// Python step output appears alongside engine and C# step logs in
   /// the same stream.
@@ -82,13 +97,44 @@ public sealed class SubprocessPythonExecutor : IPythonExecutor, IDisposable
   public SubprocessPythonExecutor(
     IOptions<PythonRuntimeOptions> options,
     IPythonConfigurationFlattener flattener,
+    IPythonLauncher launcher,
     ILogger logger
   )
   {
     _options = options?.Value ?? throw new ArgumentNullException(nameof(options));
     _flattener = flattener ?? throw new ArgumentNullException(nameof(flattener));
+    _launcher = launcher ?? throw new ArgumentNullException(nameof(launcher));
     _logger = logger ?? throw new ArgumentNullException(nameof(logger));
   }
+
+  // ── IFlowResourceProvider ───────────────────────────────────────────────────────────────
+
+  public IFlowResource? FlowResource => Flowthru.Prelude.FlowResource.Make<string>(
+    acquire: FlowIO.LiftAsync<string>(ct =>
+    {
+      var dir = Path.Combine(Path.GetTempPath(), "flowthru", "transit", Guid.NewGuid().ToString("N"));
+      Directory.CreateDirectory(dir);
+      _transitDir = dir;
+      _invocationCounter = 0;
+      _logger.LogDebug("Transit directory acquired: {TransitDir}", dir);
+      return Task.FromResult(dir);
+    }, source: "SubprocessPythonExecutor.TransitDir.Acquire"),
+    release: (dir, bodyError) => FlowIO.LiftAsync<FlowUnit>(ct =>
+    {
+      if (bodyError is not null)
+      {
+        _logger.LogWarning(
+          "Transit directory preserved for debugging (flow failed): {TransitDir}", dir);
+      }
+      else if (Directory.Exists(dir))
+      {
+        Directory.Delete(dir, recursive: true);
+        _logger.LogDebug("Transit directory cleaned up: {TransitDir}", dir);
+      }
+      _transitDir = null;
+      return Task.FromResult(FlowUnit.Default);
+    }, source: "SubprocessPythonExecutor.TransitDir.Release")
+  );
 
   /// <inheritdoc />
   public FlowIO<TOutput> Invoke<TInput, TOutput>(
@@ -119,6 +165,12 @@ public sealed class SubprocessPythonExecutor : IPythonExecutor, IDisposable
   {
     EnsureStarted();
 
+    var invocationId = Interlocked.Increment(ref _invocationCounter);
+    var invocationDir = _transitDir is not null
+      ? Path.Combine(_transitDir, invocationId.ToString("D4"))
+      : Path.Combine(Path.GetTempPath(), "flowthru", "transit", Guid.NewGuid().ToString("N"));
+    Directory.CreateDirectory(invocationDir);
+
     var inputKind = ClassifyType(typeof(TInput));
     var outputKind = ClassifyType(typeof(TOutput));
 
@@ -128,11 +180,11 @@ public sealed class SubprocessPythonExecutor : IPythonExecutor, IDisposable
       ["module"] = moduleName,
       ["function"] = functionName,
       ["input_type"] = inputKind,
-      ["input"] = EncodeValue(input!, typeof(TInput), inputKind),
+      ["input"] = EncodeValue(input!, typeof(TInput), inputKind, invocationDir, "input"),
       ["output_type"] = outputKind,
+      ["transit_dir"] = invocationDir,
     };
 
-    // Include dtype spec for tabular outputs so the worker can coerce Arrow types
     if (outputKind == "tabular")
     {
       req["output_dtype_spec"] = BuildDtypeSpecJson(typeof(TOutput));
@@ -436,37 +488,27 @@ public sealed class SubprocessPythonExecutor : IPythonExecutor, IDisposable
       );
     }
 
-    _logger.LogDebug("Starting Python worker: {Exe} {Script}", pyExe, workerScript);
-
-    var psi = new ProcessStartInfo
-    {
-      FileName = pyExe,
-      UseShellExecute = false,
-      RedirectStandardInput = true,
-      RedirectStandardOutput = true,
-      // stderr carries Python `logging` records (as JSON frames the
-      // worker emits via _FlowthruJsonLogHandler) plus raw print()
-      // output. ReadStderrLoopAsync forwards each line to the engine's
-      // ILogger via StderrLineClassifier.
-      RedirectStandardError = true,
-      CreateNoWindow = true,
-    };
-    psi.ArgumentList.Add(workerScript);
+    _logger.LogDebug(
+      "Starting Python worker: {Exe} {Script} via {Launcher}",
+      pyExe,
+      workerScript,
+      _launcher.Identity
+    );
 
     // ── IConfiguration → env-var bridge ──────────────────────────────────
-    // Inject the flattened section *before* Process.Start. The parent
-    // environment is inherited by default (UseShellExecute=false), so
-    // standard variables like PATH and HOME pass through unchanged; the
-    // flattener's entries layer on top using .NET's native :→__ rule.
-    // Pipeline-side Python code reads them via flowthru.config (or any
-    // other env-var consumer of the developer's choice).
+    // Flatten the configured section *before* PSI construction. The
+    // parent environment is inherited by default (UseShellExecute=false
+    // inside the launcher), so standard variables like PATH and HOME
+    // pass through unchanged; the flattener's entries layer on top
+    // using .NET's native :→__ rule. Pipeline-side Python code reads
+    // them via flowthru.config (or any other env-var consumer of the
+    // developer's choice). The launcher owns the final merge — launchers
+    // that set their own rank vars (RANK / WORLD_SIZE / etc.) overlay
+    // on top of the flattened section without losing either.
     var flattenedEnv = _flattener.Flatten();
+    var psi = _launcher.Build(pyExe, workerScript, flattenedEnv);
     if (flattenedEnv.Count > 0)
     {
-      foreach (var (key, value) in flattenedEnv)
-      {
-        psi.EnvironmentVariables[key] = value;
-      }
       _logger.LogDebug(
         "Injected {Count} configuration env var(s) into Python subprocess.",
         flattenedEnv.Count
@@ -668,18 +710,20 @@ public sealed class SubprocessPythonExecutor : IPythonExecutor, IDisposable
 
   // ── Encoding ──────────────────────────────────────────────────────────────────────────
 
-  internal static string EncodeValue(object value, Type type, string kind) =>
+  internal static string EncodeValue(
+    object value, Type type, string kind, string transitDir, string filePrefix) =>
     kind switch
     {
       "scalar" => JsonSerializer.Serialize(value, type),
-      "bytes" => Convert.ToBase64String((byte[])value),
-      "tabular" => EncodeTabular(value, type),
-      "multi" => EncodeMulti(value, type),
-      "directory" => EncodeDirectory(value, type),
+      "bytes" => EncodeBytes((byte[])value, transitDir, filePrefix),
+      "tabular" => EncodeTabular(value, type, transitDir, filePrefix),
+      "multi" => EncodeMulti(value, type, transitDir, filePrefix),
+      "directory" => EncodeDirectory(value, type, transitDir, filePrefix),
       _ => throw new NotSupportedException($"Unknown serialization kind: {kind}"),
     };
 
-  internal static string EncodeDirectory(object value, Type directoryType)
+  internal static string EncodeDirectory(
+    object value, Type directoryType, string transitDir, string filePrefix)
   {
     var innerType = directoryType.GetGenericArguments()[0];
     var innerKind = ClassifyType(innerType);
@@ -691,23 +735,37 @@ public sealed class SubprocessPythonExecutor : IPythonExecutor, IDisposable
       var valueProp = kvp.GetType().GetProperty("Value")!;
       var key = (string)keyProp.GetValue(kvp)!;
       var inner = valueProp.GetValue(kvp)!;
-      entries[key] = EncodeValue(inner, innerType, innerKind);
+      var entryDir = Path.Combine(transitDir, $"{filePrefix}_dir");
+      Directory.CreateDirectory(entryDir);
+      entries[key] = EncodeValue(inner, innerType, innerKind, entryDir, key);
     }
 
     return new JsonObject { ["inner_kind"] = innerKind, ["entries"] = entries }.ToJsonString();
   }
 
-  internal static string EncodeTabular(object value, Type collectionType)
+  internal static string EncodeTabular(
+    object value, Type collectionType, string transitDir, string filePrefix)
   {
     var elemType = collectionType.GetGenericArguments()[0];
     var toRecordBatch = typeof(ArrowMarshaller)
       .GetMethod(nameof(ArrowMarshaller.ToRecordBatch))!
       .MakeGenericMethod(elemType);
     var batch = (RecordBatch)InvokeUnwrapping(toRecordBatch, null, new[] { value })!;
-    return Convert.ToBase64String(ArrowMarshaller.ToIpcBuffer(batch));
+    var ipcBytes = ArrowMarshaller.ToIpcBuffer(batch);
+    var filePath = Path.Combine(transitDir, $"{filePrefix}.arrow");
+    File.WriteAllBytes(filePath, ipcBytes);
+    return filePath;
   }
 
-  internal static string EncodeMulti(object tuple, Type tupleType)
+  internal static string EncodeBytes(byte[] value, string transitDir, string filePrefix)
+  {
+    var filePath = Path.Combine(transitDir, $"{filePrefix}.bin");
+    File.WriteAllBytes(filePath, value);
+    return filePath;
+  }
+
+  internal static string EncodeMulti(
+    object tuple, Type tupleType, string transitDir, string filePrefix)
   {
     if (tuple is not ITuple t)
     {
@@ -725,7 +783,7 @@ public sealed class SubprocessPythonExecutor : IPythonExecutor, IDisposable
         new JsonObject
         {
           ["kind"] = elemKind,
-          ["value"] = EncodeValue(t[i]!, elementTypes[i], elemKind),
+          ["value"] = EncodeValue(t[i]!, elementTypes[i], elemKind, transitDir, $"{filePrefix}_{i}"),
         }
       );
     }
@@ -738,7 +796,7 @@ public sealed class SubprocessPythonExecutor : IPythonExecutor, IDisposable
     kind switch
     {
       "scalar" => (TOutput)JsonSerializer.Deserialize(payload, type)!,
-      "bytes" => (TOutput)(object)Convert.FromBase64String(payload),
+      "bytes" => (TOutput)(object)File.ReadAllBytes(payload),
       "tabular" => DecodeTabular<TOutput>(payload, type),
       "multi" => DecodeMulti<TOutput>(payload, type),
       "directory" => DecodeDirectory<TOutput>(payload, type),
@@ -769,10 +827,10 @@ public sealed class SubprocessPythonExecutor : IPythonExecutor, IDisposable
     return (TOutput)Activator.CreateInstance(directoryType, dict)!;
   }
 
-  internal static TOutput DecodeTabular<TOutput>(string base64, Type collectionType)
+  internal static TOutput DecodeTabular<TOutput>(string filePath, Type collectionType)
   {
     var elemType = collectionType.GetGenericArguments()[0];
-    var batch = ArrowMarshaller.FromIpcBuffer(Convert.FromBase64String(base64));
+    var batch = ArrowMarshaller.FromIpcBuffer(File.ReadAllBytes(filePath));
     var fromRecordBatch = typeof(ArrowMarshaller)
       .GetMethod(nameof(ArrowMarshaller.FromRecordBatch))!
       .MakeGenericMethod(elemType);

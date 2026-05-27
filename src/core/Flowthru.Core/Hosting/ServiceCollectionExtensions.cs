@@ -35,8 +35,8 @@ public static class ServiceCollectionExtensions
     var builder = new FlowthruServiceBuilder(services);
     configure(builder);
 
-    // Logging registration — per ADR-0005 / ADR-0006 the engine and
-    // every step share one ILogger (category "Flowthru"). The shared
+    // Logging registration — the engine and every step share one
+    // ILogger (category "Flowthru"). The shared
     // ILogger resolves to whatever ILoggerFactory the host wired via
     // AddLogging(); if no factory is registered, the lambda falls
     // back to NullLoggerFactory.Instance and calls are silently

@@ -8,10 +8,10 @@ namespace Flowthru.Core.Tests.Diagnostics;
 
 /// <summary>
 /// Asserts the Core runtime emits the expected
-/// <see cref="FlowthruActivitySource"/> trace spans. Per ADR-0006,
-/// these activities exist for distributed-tracing consumers; engine
-/// logs are emitted directly via <c>ILogger&lt;TSelf&gt;</c>, not
-/// through the retired CLI activity bridge.
+/// <see cref="FlowthruActivitySource"/> trace spans. These activities
+/// exist for distributed-tracing consumers; engine logs are emitted
+/// directly via <c>ILogger&lt;TSelf&gt;</c>, not through the retired
+/// CLI activity bridge.
 /// </summary>
 [TestFixture]
 public class ActivitySourceTests

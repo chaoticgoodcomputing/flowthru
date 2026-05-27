@@ -17,7 +17,7 @@ internal interface IArrowMarshallingRule
 
   /// <summary>
   /// User-facing name for this CLR type, used in diagnostics
-  /// (e.g. FT2008 unmarshallable-property) and shared with the analyzer.
+  /// (e.g. FTPY2008 unmarshallable-property) and shared with the analyzer.
   /// </summary>
   string CanonicalTypeName { get; }
 

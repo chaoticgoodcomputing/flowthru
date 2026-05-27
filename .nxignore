@@ -1,2 +1,3 @@
-docs/reference/misc/external/**/repo/**/*
-.claude/worktrees/**/*
+docs/reference/misc/external/**/repo
+.claude/worktrees
+examples/archived

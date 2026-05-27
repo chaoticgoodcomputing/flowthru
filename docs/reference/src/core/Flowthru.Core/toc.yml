@@ -482,6 +482,8 @@
     href: Flowthru.Validation.Runtime.ServiceRef.CSharp.md
   - name: ServiceRef.External
     href: Flowthru.Validation.Runtime.ServiceRef.External.md
+  - name: ServiceRef.ObservationOnly
+    href: Flowthru.Validation.Runtime.ServiceRef.ObservationOnly.md
   - name: Structs
   - name: InspectionResult
     href: Flowthru.Validation.Runtime.InspectionResult.md

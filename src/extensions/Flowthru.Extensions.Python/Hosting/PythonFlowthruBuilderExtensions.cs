@@ -1,3 +1,4 @@
+using Flowthru.Prelude;
 using Flowthru.Step.Python;
 using Flowthru.Step.Python.Internal;
 using Flowthru.Validation.PreFlight;
@@ -50,15 +51,35 @@ public static class PythonFlowthruBuilderExtensions
     // earlier in the pipeline take precedence.
     builder.Services.TryAddSingleton<IPythonConfigurationFlattener, PythonConfigurationFlattener>();
     builder.Services.TryAddSingleton<IPythonServiceInspectorRegistry, PythonServiceInspectorRegistry>();
-    // Shared "Flowthru"-category ILogger for the Python executor
-    // (ADR-0005). Mirrors AddFlowthru's fallback so UsePython() can
+    // Shared "Flowthru"-category ILogger for the Python executor.
+    // Mirrors AddFlowthru's fallback so UsePython() can
     // stand alone in tests that don't also call AddFlowthru. The
     // resolver lazily picks the host's ILoggerFactory if AddLogging
     // ran, otherwise falls back to NullLoggerFactory.Instance.
     builder.Services.TryAddSingleton<ILogger>(sp =>
       (sp.GetService<ILoggerFactory>() ?? NullLoggerFactory.Instance).CreateLogger("Flowthru")
     );
+    // Default launcher — preserves historical [pyExe, workerScript]
+    // behaviour. Registered via TryAddSingleton so users / tests that
+    // wire an alternative (TorchrunLauncher, AccelerateLauncher, a
+    // bespoke IPythonLauncher) earlier in the pipeline take precedence.
+    builder.Services.TryAddSingleton<IPythonLauncher, DirectPythonLauncher>();
     builder.Services.TryAddSingleton<IPythonExecutor, SubprocessPythonExecutor>();
+    builder.Services.AddSingleton<IFlowResourceProvider>(
+      sp => (IFlowResourceProvider)sp.GetRequiredService<IPythonExecutor>());
+
+    // Base Python-side capability declaration — the floor of what
+    // SubprocessPythonExecutor's worker assumes is in the venv.
+    // Registered via AddSingleton (NOT TryAddSingleton): the
+    // requirements algebra folds *every* registered capability, so a
+    // user who supplies an additional IPythonCapability shouldn't
+    // displace the base, they should compose with it.
+    builder.Services.AddSingleton<IPythonCapability, BasePythonExtensionCapability>();
+
+    // Installed-package probe — default subprocess implementation
+    // shells out to `python -m pip list --format=json`. TryAddSingleton
+    // so tests / users can substitute a stub.
+    builder.Services.TryAddSingleton<IInstalledPackageProbe, SubprocessInstalledPackageProbe>();
 
     // Service-ref dispatch: matches Category="python".
     builder.Services.AddSingleton<IServiceRefDispatcher, PythonServiceRefDispatcher>();
@@ -67,6 +88,13 @@ public static class PythonFlowthruBuilderExtensions
     // module-import / decorator-presence / schema-agreement / arity
     // checks against every PythonStep<,> in the registered flows.
     builder.Services.AddSingleton<IFlowValidationHook, PythonStepValidationHook>();
+
+    // Pre-flight hook: requirements-algebra enforcement.
+    // Folds every IPythonCapability + the active IPythonLauncher's
+    // Requirements, probes the configured venv via `pip list`, and
+    // surfaces typed PythonPreFlightError variants for missing or
+    // wrong-version packages.
+    builder.Services.AddSingleton<IFlowValidationHook, PythonRequirementsValidationHook>();
 
     return builder;
   }

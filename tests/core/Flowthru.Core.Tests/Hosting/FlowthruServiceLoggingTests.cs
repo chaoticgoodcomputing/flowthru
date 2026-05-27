@@ -11,9 +11,9 @@ namespace Flowthru.Core.Tests.Hosting;
 /// <summary>
 /// Asserts <see cref="FlowthruService"/> emits lifecycle, pre-flight,
 /// and run-finished logs directly through its injected
-/// <see cref="ILogger{FlowthruService}"/>. Regression coverage for
-/// ADR-0006 — replaces the equivalent bridge-rendering tests that
-/// were retired with <c>FlowthruActivityLogger</c>.
+/// <see cref="ILogger{FlowthruService}"/>. Replaces the equivalent
+/// bridge-rendering tests that were retired with
+/// <c>FlowthruActivityLogger</c>.
 /// </summary>
 [TestFixture]
 public class FlowthruServiceLoggingTests

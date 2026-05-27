@@ -28,8 +28,8 @@ namespace Flowthru.Step.Python.Internal;
 /// </list>
 /// </summary>
 /// <remarks>
-/// Per ADR-0005 the engine and every step share one <c>"Flowthru"</c>-
-/// category <see cref="ILogger"/>; Python steps participate via the
+/// The engine and every step share one <c>"Flowthru"</c>-category
+/// <see cref="ILogger"/>; Python steps participate via the
 /// stderr bridge in
 /// <see cref="SubprocessPythonExecutor"/>. This classifier is the
 /// per-line decision point of that bridge.

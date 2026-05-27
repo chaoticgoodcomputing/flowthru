@@ -1,0 +1,12 @@
+[project]
+name = "mnist-distributed"
+version = "0.1.0"
+description = "Flowthru example exercising TorchrunLauncher for multi-rank distributed training"
+requires-python = ">=3.10"
+dependencies = [
+  "pyarrow>=18.0.0",
+  "torch>=2.0",
+]
+
+[tool.uv]
+dev-dependencies = []

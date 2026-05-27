@@ -1,0 +1,53 @@
+{
+  "name": "flowthru-vscode",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "sourceRoot": "src/tools/flowthru-vscode/src",
+  "tags": [ "scope:tools", "type:editor-frontend" ],
+  "targets": {
+    "build": {
+      "executor": "nx:run-commands",
+      "cache": true,
+      "inputs": [
+        "{projectRoot}/src/**/*",
+        "{projectRoot}/package.json",
+        "{projectRoot}/tsconfig.json",
+        "{projectRoot}/esbuild.config.mjs"
+      ],
+      "outputs": [ "{projectRoot}/out" ],
+      "options": {
+        "command": "pnpm run build",
+        "cwd": "src/tools/flowthru-vscode"
+      }
+    },
+    "install": {
+      "//": "Side-effecting: packages a .vsix and installs into the user's local VSCode via `code --install-extension`. Never cached; runs sequentially. Don't invoke from `nx affected` automation — only from explicit nx run.",
+      "executor": "nx:run-commands",
+      "dependsOn": [ "build" ],
+      "options": {
+        "commands": [
+          "pnpm run package",
+          "code --install-extension flowthru-vscode.vsix --force"
+        ],
+        "cwd": "src/tools/flowthru-vscode",
+        "parallel": false
+      }
+    },
+    "test": {
+      "executor": "nx:run-commands",
+      "cache": true,
+      "inputs": [
+        "{projectRoot}/src/**/*",
+        "{projectRoot}/tests/**/*",
+        "{projectRoot}/package.json",
+        "{projectRoot}/tsconfig.json",
+        "{projectRoot}/vitest.config.ts"
+      ],
+      "outputs": [],
+      "options": {
+        "command": "pnpm run test",
+        "cwd": "src/tools/flowthru-vscode"
+      }
+    }
+  }
+}

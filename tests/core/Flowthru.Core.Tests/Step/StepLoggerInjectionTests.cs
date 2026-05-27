@@ -12,7 +12,7 @@ namespace Flowthru.Core.Tests.Step;
 
 /// <summary>
 /// Fixture step that demonstrates the canonical
-/// <c>Create(ILogger)</c> shape (ADR-0005). Filters out zeros and
+/// <c>Create(ILogger)</c> shape. Filters out zeros and
 /// logs how many it dropped — the same data-quality pattern
 /// PreprocessCompaniesStep will adopt under Issue 3.
 /// </summary>
@@ -42,11 +42,11 @@ public static class FixtureLoggingStep
 }
 
 /// <summary>
-/// End-to-end coverage for the canonical step-logging convention
-/// (ADR-0005): a <c>[FlowthruStep]</c> class declares
+/// End-to-end coverage for the canonical step-logging convention:
+/// a <c>[FlowthruStep]</c> class declares
 /// <see cref="ILogger"/> as a parameter on its <c>Create()</c>
 /// factory; the source generator extracts it as a
-/// <see cref="ServiceRef.ObservationOnly"/> (ADR-0010); the host
+/// <see cref="ServiceRef.ObservationOnly"/>; the host
 /// resolves it through DI; the step's logged lines hit the captured
 /// provider.
 /// </summary>
@@ -70,7 +70,7 @@ public class StepLoggerInjectionTests
     // step's metadata. ILogger (non-generic) must round-trip through
     // this path so the engine's shared "Flowthru"-category logger is
     // resolvable at flow-construction time — AND it must be emitted
-    // as the ObservationOnly variant (ADR-0010) so the cache planner
+    // as the ObservationOnly variant so the cache planner
     // doesn't cascade uncacheability from steps that only declare a
     // logger.
     var entry = StepMetadataRegistry.TryGetEntry(typeof(FixtureLoggingStep));
@@ -139,8 +139,8 @@ public class StepLoggerInjectionTests
   [Test]
   public async Task SharedLoggerCategory_EngineAndStepEmitUnderSameCategory()
   {
-    // ADR-0005 collapses every Flowthru log into one "Flowthru"
-    // category — engine internals (FlowthruService,
+    // Every Flowthru log collapses into one "Flowthru" category —
+    // engine internals (FlowthruService,
     // ParallelFlowScheduler) and user-authored step logs share an
     // identity. This test pins that contract: both engine lifecycle
     // messages and the step's own LogWarning land under the same

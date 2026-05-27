@@ -117,8 +117,8 @@ public static class CachePlanBuilder
         continue;
       }
       // Cache-affecting deps only. ServiceRef.ObservationOnly variants
-      // (e.g., ILogger) are skipped — per ADR-0010, observation surfaces
-      // can't change a step's output values, so their presence or
+      // (e.g., ILogger) are skipped — observation surfaces can't change
+      // a step's output values, so their presence or
       // identity doesn't invalidate a cached result. Without this
       // filter, declaring a logger on a Create() factory would
       // uncacheabilise the step and cascade through every downstream

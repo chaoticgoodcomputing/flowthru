@@ -9,9 +9,8 @@ namespace Flowthru.Core.Tests.Flow;
 /// <summary>
 /// Asserts <see cref="ParallelFlowScheduler"/> emits per-step
 /// lifecycle logs directly through its injected
-/// <see cref="ILogger"/>. Regression coverage for ADR-0006 —
-/// replaces the equivalent bridge-rendering tests that were retired
-/// with <c>FlowthruActivityLogger</c>.
+/// <see cref="ILogger"/>. Replaces the equivalent bridge-rendering
+/// tests that were retired with <c>FlowthruActivityLogger</c>.
 /// </summary>
 [TestFixture]
 public class ParallelFlowSchedulerLoggingTests

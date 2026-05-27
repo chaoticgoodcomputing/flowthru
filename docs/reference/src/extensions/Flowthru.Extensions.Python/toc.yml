@@ -21,10 +21,18 @@
   href: Flowthru.Step.Python.md
   items:
   - name: Classes
+  - name: AccelerateLauncher
+    href: Flowthru.Step.Python.AccelerateLauncher.md
   - name: ArrowDecimalAttribute
     href: Flowthru.Step.Python.ArrowDecimalAttribute.md
+  - name: DirectPythonLauncher
+    href: Flowthru.Step.Python.DirectPythonLauncher.md
   - name: PythonCodeVersion
     href: Flowthru.Step.Python.PythonCodeVersion.md
+  - name: PythonPackageRequirement
+    href: Flowthru.Step.Python.PythonPackageRequirement.md
+  - name: PythonPackageRequirementAttribute
+    href: Flowthru.Step.Python.PythonPackageRequirementAttribute.md
   - name: PythonRuntimeOptions
     href: Flowthru.Step.Python.PythonRuntimeOptions.md
   - name: PythonServiceBuilder
@@ -41,9 +49,15 @@
     href: Flowthru.Step.Python.PythonStepExtension.md
   - name: PythonStepMetadata
     href: Flowthru.Step.Python.PythonStepMetadata.md
+  - name: TorchrunLauncher
+    href: Flowthru.Step.Python.TorchrunLauncher.md
   - name: Interfaces
+  - name: IPythonCapability
+    href: Flowthru.Step.Python.IPythonCapability.md
   - name: IPythonExecutor
     href: Flowthru.Step.Python.IPythonExecutor.md
+  - name: IPythonLauncher
+    href: Flowthru.Step.Python.IPythonLauncher.md
   - name: IPythonServiceInspectorRegistry
     href: Flowthru.Step.Python.IPythonServiceInspectorRegistry.md
 - name: Flowthru.Step.Python.Internal
@@ -57,6 +71,8 @@
   - name: SubprocessPythonExecutor
     href: Flowthru.Step.Python.Internal.SubprocessPythonExecutor.md
   - name: Interfaces
+  - name: IInstalledPackageProbe
+    href: Flowthru.Step.Python.Internal.IInstalledPackageProbe.md
   - name: IPythonConfigurationFlattener
     href: Flowthru.Step.Python.Internal.IPythonConfigurationFlattener.md
 - name: Flowthru.Validation.PreFlight.Python
@@ -67,12 +83,18 @@
     href: Flowthru.Validation.PreFlight.Python.PythonPreFlightError.md
   - name: PythonPreFlightError.ArityMismatch
     href: Flowthru.Validation.PreFlight.Python.PythonPreFlightError.ArityMismatch.md
+  - name: PythonPreFlightError.MissingRequirement
+    href: Flowthru.Validation.PreFlight.Python.PythonPreFlightError.MissingRequirement.md
   - name: PythonPreFlightError.SchemaCountMismatch
     href: Flowthru.Validation.PreFlight.Python.PythonPreFlightError.SchemaCountMismatch.md
   - name: PythonPreFlightError.SchemaNameMismatch
     href: Flowthru.Validation.PreFlight.Python.PythonPreFlightError.SchemaNameMismatch.md
   - name: PythonPreFlightError.ServiceInspectionFailed
     href: Flowthru.Validation.PreFlight.Python.PythonPreFlightError.ServiceInspectionFailed.md
+  - name: PythonPreFlightError.VersionConstraintNotSatisfied
+    href: Flowthru.Validation.PreFlight.Python.PythonPreFlightError.VersionConstraintNotSatisfied.md
+  - name: PythonRequirementsValidationHook
+    href: Flowthru.Validation.PreFlight.Python.PythonRequirementsValidationHook.md
   - name: PythonStepValidationHook
     href: Flowthru.Validation.PreFlight.Python.PythonStepValidationHook.md
   - name: Enums

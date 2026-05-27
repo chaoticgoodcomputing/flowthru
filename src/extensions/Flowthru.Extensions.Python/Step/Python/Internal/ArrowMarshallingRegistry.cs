@@ -19,7 +19,7 @@ internal static class ArrowMarshallingRegistry
     // the same definition under the same name.
     GuidExtensionDefinition.Instance.AddToDefaultRegistry();
 
-    // Fail-fast drift guard: the FT2008 / FT2009 analyzer consults
+    // Fail-fast drift guard: the FTPY2008 / FTPY2009 analyzer consults
     // PythonMarshallableTypeNames.All to decide which leaf property types
     // are allowed. If the analyzer ever advertises a name the registry
     // can't actually encode, every passing build is a runtime trap —

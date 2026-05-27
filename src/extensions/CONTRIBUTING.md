@@ -37,6 +37,22 @@ The extension surface is broadcast through *open* (unclosed) polymorphic types �
 - Sub-packages for variants on the same stack get a dotted suffix: `Flowthru.Extensions.EFCore.Bulk` complements `Flowthru.Extensions.EFCore`. Use a sub-package when the variant has its own dependency footprint or audience.
 - Source-generator companion packages use `.SourceGenerators`: `Flowthru.Extensions.Python.SourceGenerators` is the source-generator companion to `Flowthru.Extensions.Python`.
 
+## Diagnostic ID Namespaces
+
+Roslyn analyzer and source-generator diagnostic IDs are namespaced by extension. Bare `FT` (e.g. `FT1301`, `FT1303`) is reserved for Core; each extension under `src/extensions/` allocates its own short stable suffix and uses `FT<suffix>` for every `DiagnosticDescriptor.Id` it emits.
+
+| Extension | Prefix | Example |
+|-----------|--------|---------|
+| `Flowthru.Extensions.Python` | `FTPY` | `FTPY1501` |
+| (future) `Flowthru.Extensions.SQL` | `FTSQL` | `FTSQL1501` |
+| (future) `Flowthru.Extensions.Kafka` | `FTKFK` | `FTKFK1501` |
+
+Mirrors the convention used elsewhere in the Roslyn ecosystem (`CS`, `CA`, `IDE`, `xUnit`): each owner controls a distinct namespace, so diagnostic provenance is obvious from the ID alone, version numbering is independent per owner, and there is no risk of an extension's diagnostic colliding with a future Core diagnostic.
+
+Single spelling across code and docs — write `FTPY1501` in the `DiagnosticDescriptor.Id`, in error messages, and in prose. Never `FT-PY1501` (Roslyn IDs are alphanumeric-only; matching docs to the literal ID avoids confusion when readers grep for a diagnostic they saw in their build output).
+
+Each extension's diagnostics ship with companion code fixes per Core's rule — see [src/core/CONTRIBUTING.md](/src/core/CONTRIBUTING.md#source-generators-and-code-fixes). A design-time-only error is a tax; a design-time error plus code fix is the feature.
+
 ## Quality Bar
 
 Every extension must include:

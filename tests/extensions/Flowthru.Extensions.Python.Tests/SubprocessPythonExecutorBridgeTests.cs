@@ -8,7 +8,7 @@ namespace Flowthru.Extensions.Python.Tests;
 
 /// <summary>
 /// End-to-end coverage for the Python worker → engine
-/// <see cref="ILogger"/> stderr bridge (ADR-0005). Spawns a real
+/// <see cref="ILogger"/> stderr bridge. Spawns a real
 /// Python subprocess against the same hermetic venv as
 /// <see cref="SubprocessPythonExecutorIntegrationTests"/>, drives it
 /// through probe modules that exercise each of the three
@@ -279,6 +279,7 @@ public class SubprocessPythonExecutorBridgeTests
     var executor = new SubprocessPythonExecutor(
       Microsoft.Extensions.Options.Options.Create(options),
       new NullFlattener(),
+      new DirectPythonLauncher(),
       logger
     );
     _liveExecutors.Add(executor);

@@ -26,4 +26,21 @@
              Link="Shared/PythonMarshallableTypeNames.cs" />
   </ItemGroup>
 
+  <!-- Shared with the runtime extension: the requirements algebra
+       (ADR-0013). The analyzer (FTPY1501 / FTPY1502) uses the same
+       PythonVersion / PythonVersionConstraint / PythonRequirementsAlgebra
+       primitives as the pre-flight hook (FTPY3011 / FTPY3012) so design-
+       time and runtime enforcement cannot diverge on what "satisfies"
+       means. -->
+  <ItemGroup>
+    <Compile Include="$(RepoRoot)src/extensions/Flowthru.Extensions.Python/Step/Python/PythonPackageRequirement.cs"
+             Link="Shared/PythonPackageRequirement.cs" />
+    <Compile Include="$(RepoRoot)src/extensions/Flowthru.Extensions.Python/Step/Python/Internal/PythonVersion.cs"
+             Link="Shared/PythonVersion.cs" />
+    <Compile Include="$(RepoRoot)src/extensions/Flowthru.Extensions.Python/Step/Python/Internal/PythonVersionConstraint.cs"
+             Link="Shared/PythonVersionConstraint.cs" />
+    <Compile Include="$(RepoRoot)src/extensions/Flowthru.Extensions.Python/Step/Python/Internal/PythonRequirementsAlgebra.cs"
+             Link="Shared/PythonRequirementsAlgebra.cs" />
+  </ItemGroup>
+
 </Project>

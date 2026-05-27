@@ -21,7 +21,7 @@ public class PublicSurfaceTests
   public void PythonRuntimeError_ModuleNotFound_HasCorrectDiagnosticCode()
   {
     var err = new PythonRuntimeError.ModuleNotFound("foo.bar", "ImportError: …");
-    Assert.That(err.DiagnosticCode, Is.EqualTo("FT4007"));
+    Assert.That(err.DiagnosticCode, Is.EqualTo("FTPY4007"));
     Assert.That(err.Category, Is.EqualTo("python"));
     Assert.That(err.Message, Does.Contain("foo.bar"));
   }
@@ -41,8 +41,8 @@ public class PublicSurfaceTests
     Assert.That(codes.Distinct().Count(), Is.EqualTo(codes.Length),
       "Each PythonRuntimeError case must have a unique FT-code.");
     foreach (var code in codes)
-      Assert.That(code, Does.StartWith("FT40"),
-        "PythonRuntimeError codes live in the FT40xx range (runtime).");
+      Assert.That(code, Does.StartWith("FTPY40"),
+        "PythonRuntimeError codes live in the FTPY40xx range (runtime).");
   }
 
   [Test]
@@ -57,8 +57,8 @@ public class PublicSurfaceTests
     };
     Assert.That(codes.Distinct().Count(), Is.EqualTo(codes.Length));
     foreach (var code in codes)
-      Assert.That(code, Does.StartWith("FT30"),
-        "PythonPreFlightError codes live in the FT30xx range (pre-flight).");
+      Assert.That(code, Does.StartWith("FTPY30"),
+        "PythonPreFlightError codes live in the FTPY30xx range (pre-flight).");
   }
 
   // ── ServiceRef wrapping ───────────────────────────────────────────────

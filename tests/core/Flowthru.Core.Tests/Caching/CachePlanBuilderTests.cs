@@ -350,13 +350,13 @@ public class CachePlanBuilderTests
     Assert.That(((StepUncacheableReason.HasServiceDependencies)reason).Count, Is.EqualTo(2));
   }
 
-  // ── ObservationOnly carve-out (ADR-0010) ────────────────────────────
+  // ── ObservationOnly carve-out ────────────────────────────────────────
 
   [Test]
   public async Task ObservationOnlyDeps_DoNotMarkStepUncacheable()
   {
-    // ADR-0010: ServiceRef.ObservationOnly variants (e.g., ILogger)
-    // are skipped when computing cache eligibility — observation
+    // ServiceRef.ObservationOnly variants (e.g., ILogger) are skipped
+    // when computing cache eligibility — observation
     // surfaces don't affect step output values, so their presence
     // can't invalidate a cached result.
     var input = new FakeFingerprintItem<int>("in", fingerprint: "fp-in", exists: true);
@@ -414,7 +414,7 @@ public class CachePlanBuilderTests
   [Test]
   public async Task ObservationOnlyParent_DoesNotCascadeUncacheabilityToChildren()
   {
-    // The original motivation for ADR-0010 was the cascade: an
+    // The original motivation for the observation-only carve-out was the cascade: an
     // ILogger-declaring parent step uncacheabilised every downstream
     // consumer too. With the carve-out the parent is cache-eligible,
     // so the cascade rule has nothing to propagate.

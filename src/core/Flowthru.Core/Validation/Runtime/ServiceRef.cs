@@ -75,7 +75,7 @@ public abstract record ServiceRef
   /// </summary>
   /// <remarks>
   /// <para>
-  /// Per ADR-0010, this variant exists because the smart-caching
+  /// This variant exists because the smart-caching
   /// planner's invariant is "any service dep makes a step
   /// uncacheable" (and cascades downstream) — true for domain
   /// services whose state can change the step's output (e.g.,

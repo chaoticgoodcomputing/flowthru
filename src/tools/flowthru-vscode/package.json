@@ -1,0 +1,49 @@
+{
+  "name": "flowthru-vscode",
+  "displayName": "Flowthru",
+  "description": "Editor Frontend for Flowthru — visualize, run, and debug Flowthru data pipelines from VSCode",
+  "version": "0.0.1",
+  "publisher": "chaoticgoodcomputing",
+  "private": true,
+  "engines": {
+    "vscode": "^1.90.0",
+    "node": ">=20.0.0"
+  },
+  "categories": [
+    "Visualization",
+    "Other"
+  ],
+  "keywords": [
+    "flowthru",
+    "etl",
+    "data-engineering",
+    "dotnet"
+  ],
+  "main": "./out/extension.js",
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "contributes": {
+    "commands": [
+      {
+        "command": "flowthru-vscode.hello",
+        "title": "Flowthru: Hello",
+        "category": "Flowthru"
+      }
+    ]
+  },
+  "scripts": {
+    "build": "node esbuild.config.mjs",
+    "watch": "node esbuild.config.mjs --watch",
+    "test": "vitest run",
+    "package": "vsce package --no-dependencies --out flowthru-vscode.vsix"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "@types/vscode": "^1.90.0",
+    "@vscode/vsce": "^3.2.1",
+    "esbuild": "^0.24.0",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
+  }
+}

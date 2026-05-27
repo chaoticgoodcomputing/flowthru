@@ -14,14 +14,14 @@ namespace Flowthru.Validation.Runtime.Python;
 /// pipeline.
 /// </summary>
 /// <remarks>
-/// Diagnostic codes live in the FT40xx range:
+/// Diagnostic codes live in the FTPY40xx range:
 /// <list type="bullet">
-///   <item>FT4007 — module-not-found</item>
-///   <item>FT4008 — function-missing</item>
-///   <item>FT4009 — decorator-absent</item>
-///   <item>FT4010 — worker-error (Python exception inside step body)</item>
-///   <item>FT4011 — marshalling-failed</item>
-///   <item>FT4012 — worker-crashed (subprocess died / pipe broken)</item>
+///   <item>FTPY4007 — module-not-found</item>
+///   <item>FTPY4008 — function-missing</item>
+///   <item>FTPY4009 — decorator-absent</item>
+///   <item>FTPY4010 — worker-error (Python exception inside step body)</item>
+///   <item>FTPY4011 — marshalling-failed</item>
+///   <item>FTPY4012 — worker-crashed (subprocess died / pipe broken)</item>
 /// </list>
 /// </remarks>
 public abstract record PythonRuntimeError : IExtensionRuntimeError
@@ -47,7 +47,7 @@ public abstract record PythonRuntimeError : IExtensionRuntimeError
     public override string Message =>
       $"Python module '{Module}' could not be imported: {Detail}";
     /// <inheritdoc/>
-    public override string DiagnosticCode => "FT4007";
+    public override string DiagnosticCode => "FTPY4007";
   }
 
   /// <summary>
@@ -59,7 +59,7 @@ public abstract record PythonRuntimeError : IExtensionRuntimeError
     public override string Message =>
       $"Python function '{Function}' not found in module '{Module}'.";
     /// <inheritdoc/>
-    public override string DiagnosticCode => "FT4008";
+    public override string DiagnosticCode => "FTPY4008";
   }
 
   /// <summary>
@@ -76,7 +76,7 @@ public abstract record PythonRuntimeError : IExtensionRuntimeError
         + "Decorate the function with @flowthru.step(inputs=[...], outputs=[...]) "
         + "to make it callable from a Flowthru pipeline.";
     /// <inheritdoc/>
-    public override string DiagnosticCode => "FT4009";
+    public override string DiagnosticCode => "FTPY4009";
   }
 
   /// <summary>
@@ -90,7 +90,7 @@ public abstract record PythonRuntimeError : IExtensionRuntimeError
     public override string Message =>
       $"Python step '{Module}.{Function}' raised: {PythonMessage}";
     /// <inheritdoc/>
-    public override string DiagnosticCode => "FT4010";
+    public override string DiagnosticCode => "FTPY4010";
   }
 
   /// <summary>
@@ -103,7 +103,7 @@ public abstract record PythonRuntimeError : IExtensionRuntimeError
     public override string Message =>
       $"Python marshalling failure in {Source}: {Detail}";
     /// <inheritdoc/>
-    public override string DiagnosticCode => "FT4011";
+    public override string DiagnosticCode => "FTPY4011";
   }
 
   /// <summary>
@@ -117,6 +117,6 @@ public abstract record PythonRuntimeError : IExtensionRuntimeError
     public override string Message =>
       $"Python subprocess worker crashed: {Detail}";
     /// <inheritdoc/>
-    public override string DiagnosticCode => "FT4012";
+    public override string DiagnosticCode => "FTPY4012";
   }
 }

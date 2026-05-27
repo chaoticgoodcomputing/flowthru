@@ -13,6 +13,8 @@
     href: Flowthru.Diagnostics.Mermaid.MermaidMetadataProvider.md
   - name: MermaidMetadataProviderBuilder
     href: Flowthru.Diagnostics.Mermaid.MermaidMetadataProviderBuilder.md
+  - name: PerFlowOptions
+    href: Flowthru.Diagnostics.Mermaid.PerFlowOptions.md
   - name: Enums
   - name: MermaidFlowchartDirection
     href: Flowthru.Diagnostics.Mermaid.MermaidFlowchartDirection.md
