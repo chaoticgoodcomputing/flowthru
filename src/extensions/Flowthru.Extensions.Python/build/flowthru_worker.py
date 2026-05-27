@@ -35,6 +35,7 @@ Invoke:
       "input_type": "scalar" | "tabular" | "bytes" | "multi",
       "input": "<encoded>",
       "output_type": "scalar" | "tabular" | "bytes" | "multi",
+      "transit_dir": "/path/to/per-invocation/dir",
       "output_dtype_spec": {"col": "dtype", ...},   // tabular output only
       "output_element_specs": [{"kind": "...", "dtype_spec": {...}}, ...] // multi output only
     }
@@ -47,8 +48,8 @@ Shutdown:
 Encoding
 --------
 - scalar:    JSON (via json.dumps / json.loads)
-- tabular:   base64-encoded Apache Arrow IPC stream bytes
-- bytes:     base64-encoded raw bytes
+- tabular:   file path to Arrow IPC stream bytes on disk
+- bytes:     file path to raw bytes on disk
 - multi:     JSON array of {"kind": "<type>", "value": "<encoded>"}
 - directory: JSON object {"inner_kind": "<type>", "entries": {"<path>": "<encoded>", ...}}
              — represents a Directory<T> where each entry is one file. The Python step
@@ -58,7 +59,6 @@ Encoding
 import sys
 import os
 import json
-import base64
 import importlib
 import logging
 import tempfile
@@ -371,14 +371,16 @@ def _decode(input_type: str, encoded: str):
     if input_type == "scalar":
         return json.loads(encoded)
     if input_type == "bytes":
-        return base64.b64decode(encoded)
+        with open(encoded, "rb") as f:
+            return f.read()
     if input_type == "tabular":
         if _flowthru_arrow is None:
             raise RuntimeError(
                 "pyarrow / _flowthru_arrow not available. "
                 "Ensure pyarrow is listed in pyproject.toml."
             )
-        return _flowthru_arrow.df_from_ipc(base64.b64decode(encoded))
+        with open(encoded, "rb") as f:
+            return _flowthru_arrow.df_from_ipc(f.read())
     if input_type == "multi":
         elements = json.loads(encoded)
         return [_decode(e["kind"], e["value"]) for e in elements]
@@ -393,11 +395,15 @@ def _decode(input_type: str, encoded: str):
 # Output encoding
 # ---------------------------------------------------------------------------
 
-def _encode(output_type: str, value, dtype_spec=None, element_specs=None, directory_spec=None) -> str:
+def _encode(output_type: str, value, transit_dir: str, file_prefix: str = "output",
+            dtype_spec=None, element_specs=None, directory_spec=None) -> str:
     if output_type == "scalar":
         return json.dumps(value)
     if output_type == "bytes":
-        return base64.b64encode(value).decode("ascii")
+        file_path = os.path.join(transit_dir, f"{file_prefix}.bin")
+        with open(file_path, "wb") as f:
+            f.write(value)
+        return file_path
     if output_type == "tabular":
         if _flowthru_arrow is None:
             raise RuntimeError(
@@ -405,16 +411,21 @@ def _encode(output_type: str, value, dtype_spec=None, element_specs=None, direct
                 "Ensure pyarrow is listed in pyproject.toml."
             )
         ipc_bytes = _flowthru_arrow.df_to_ipc(value, dtype_spec)
-        return base64.b64encode(ipc_bytes).decode("ascii")
+        file_path = os.path.join(transit_dir, f"{file_prefix}.arrow")
+        with open(file_path, "wb") as f:
+            f.write(ipc_bytes)
+        return file_path
     if output_type == "multi":
         items = list(value) if not isinstance(value, (list, tuple)) else list(value)
         specs = element_specs or [{"kind": "scalar"}] * len(items)
         result = []
-        for item, spec in zip(items, specs):
+        for idx, (item, spec) in enumerate(zip(items, specs)):
             kind = spec.get("kind", "scalar")
             result.append({
                 "kind": kind,
-                "value": _encode(kind, item, dtype_spec=spec.get("dtype_spec")),
+                "value": _encode(kind, item, transit_dir,
+                                 file_prefix=f"{file_prefix}_{idx}",
+                                 dtype_spec=spec.get("dtype_spec")),
             })
         return json.dumps(result)
     if output_type == "directory":
@@ -427,8 +438,11 @@ def _encode(output_type: str, value, dtype_spec=None, element_specs=None, direct
             raise ValueError("directory output requires directory_spec.")
         inner_kind = directory_spec["inner_kind"]
         inner_dtype = directory_spec.get("dtype_spec")
+        entry_dir = os.path.join(transit_dir, f"{file_prefix}_dir")
+        os.makedirs(entry_dir, exist_ok=True)
         entries = {
-            k: _encode(inner_kind, v, dtype_spec=inner_dtype) for k, v in value.items()
+            k: _encode(inner_kind, v, entry_dir, file_prefix=k,
+                       dtype_spec=inner_dtype) for k, v in value.items()
         }
         return json.dumps({"inner_kind": inner_kind, "entries": entries})
     raise ValueError(f"Unknown output_type: {output_type!r}")
@@ -444,6 +458,8 @@ def _handle_invoke(msg: dict) -> dict:
         func = getattr(mod, msg["function"])
 
         decoded = _decode(msg["input_type"], msg["input"])
+
+        transit_dir = msg.get("transit_dir", "")
 
         # Redirect stdout to stderr for the duration of the user call so
         # print() doesn't corrupt the newline-delimited JSON protocol on
@@ -461,6 +477,7 @@ def _handle_invoke(msg: dict) -> dict:
         encoded = _encode(
             msg["output_type"],
             result,
+            transit_dir,
             dtype_spec=msg.get("output_dtype_spec"),
             element_specs=msg.get("output_element_specs"),
             directory_spec=msg.get("output_directory_spec"),

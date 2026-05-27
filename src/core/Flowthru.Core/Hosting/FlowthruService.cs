@@ -4,6 +4,7 @@ using Flowthru.Data.Catalog;
 using Flowthru.Data.Storage;
 using Flowthru.Diagnostics;
 using Flowthru.Flow;
+using Flowthru.Prelude;
 using Flowthru.Step;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -218,6 +219,26 @@ public sealed class FlowthruService : IFlowthruService
           // Acquire failed — release already-acquired LIFO, feeding
           // the acquire error as bodyError so any release closures
           // see the failure context.
+          await ReleaseLifoAsync(acquired, acquireFailure.Error, cancellationToken).ConfigureAwait(false);
+          runActivity?.SetStatus(ActivityStatusCode.Error, acquireFailure.Error.Message);
+          return new FlowResult(new[]
+          {
+            (StepResult)new StepResult.Failed("resource.acquire", acquireFailure.Error, TimeSpan.Zero),
+          });
+        }
+        acquired.Add((resource, ((EffResult<object?>.Success)acquireResult).Value));
+      }
+    }
+
+    // Acquire FlowResources declared by IFlowResourceProvider services.
+    // Same bracket contract as catalog resources above.
+    foreach (var provider in _services.GetServices<IFlowResourceProvider>())
+    {
+      if (provider.FlowResource is { } resource)
+      {
+        var acquireResult = await resource.AcquireUntyped().Run(cancellationToken).ConfigureAwait(false);
+        if (acquireResult is EffResult<object?>.Failure acquireFailure)
+        {
           await ReleaseLifoAsync(acquired, acquireFailure.Error, cancellationToken).ConfigureAwait(false);
           runActivity?.SetStatus(ActivityStatusCode.Error, acquireFailure.Error.Message);
           return new FlowResult(new[]

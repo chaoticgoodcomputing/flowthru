@@ -66,4 +66,6 @@ Only offer to create an ADR when all three are true:
 
 If any of the three is missing, skip the ADR. Use the template in [ADR-FORMAT.md](./ADR-FORMAT.md).
 
+**ADRs reference code, not the reverse.** Never add ADR numbers or references to source code, comments, or docstrings. Code should be self-explanatory without chasing a numbered document. ADRs should point at the code they govern (file paths, type names, protocol sections) so a reader who finds the ADR can locate the implementation — but a reader of the code should never need to find the ADR to understand what the code does.
+
 </supporting-info>

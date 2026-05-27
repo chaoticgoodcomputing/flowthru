@@ -14,6 +14,8 @@ The directory already exists. To add a new ADR, scan it for the highest existing
 
 That's it. An ADR can be a single paragraph. The value is in recording *that* a decision was made and *why* — not in filling out sections.
 
+**Directionality:** ADRs reference code (file paths, type names, protocol sections) so a reader can locate the implementation. Code never references ADRs — no ADR numbers in source code, comments, docstrings, or protocol headers. Code should stand on its own.
+
 ## Optional sections
 
 Only include these when they add genuine value. Most ADRs won't need them.

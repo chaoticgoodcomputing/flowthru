@@ -1,3 +1,4 @@
+using Flowthru.Prelude;
 using Flowthru.Step.Python;
 using Flowthru.Step.Python.Internal;
 using Flowthru.Validation.PreFlight;
@@ -64,6 +65,8 @@ public static class PythonFlowthruBuilderExtensions
     // bespoke IPythonLauncher) earlier in the pipeline take precedence.
     builder.Services.TryAddSingleton<IPythonLauncher, DirectPythonLauncher>();
     builder.Services.TryAddSingleton<IPythonExecutor, SubprocessPythonExecutor>();
+    builder.Services.AddSingleton<IFlowResourceProvider>(
+      sp => (IFlowResourceProvider)sp.GetRequiredService<IPythonExecutor>());
 
     // Base Python-side capability declaration — the floor of what
     // SubprocessPythonExecutor's worker assumes is in the venv.
