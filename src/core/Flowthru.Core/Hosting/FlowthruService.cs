@@ -176,9 +176,8 @@ public sealed class FlowthruService : IFlowthruService
       }
     );
 
-    // Human-readable run-start log. Replaces the FlowthruActivityLogger
-    // bridge that retired with ADR-0006 — engine logs lifecycle directly
-    // now; the activity span above stays for OTel tracing.
+    // Human-readable run-start log. The engine logs lifecycle events
+    // directly via ILogger; the activity span above stays for OTel tracing.
     if (isSliced)
     {
       _logger.LogInformation(
@@ -552,10 +551,10 @@ public sealed class FlowthruService : IFlowthruService
           // to the cold run, which made the cascade undebuggable.
           //
           // Previously this emitted FlowthruActivitySource activities
-          // for the CLI bridge to render; ADR-0006 retired the bridge,
-          // so the engine logs directly. The CacheUncacheable activity
-          // wasn't a real span (no enclosed work) — it stood in for a
-          // log line, which is what we emit here now.
+          // for a CLI bridge to render, but the engine now logs
+          // directly. CacheUncacheable was never a real span (no
+          // enclosed work) — it stood in for a log line, which is
+          // what we emit here now.
           foreach (var label in cachePlan.UncacheableStepLabels)
           {
             if (!cachePlan.UncacheableReasons.TryGetValue(label, out var reason))

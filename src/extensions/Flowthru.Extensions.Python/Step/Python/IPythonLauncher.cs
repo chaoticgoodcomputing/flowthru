@@ -26,15 +26,15 @@ namespace Flowthru.Step.Python;
 /// <see cref="Internal.SubprocessPythonExecutor"/>-specific concern,
 /// and alternative <see cref="IPythonExecutor"/> implementations
 /// (Python.NET in-process, gRPC, etc.) have no launcher concept at
-/// all. See ADR-0014.
+/// all.
 /// </para>
 /// <para>
 /// The full interface ships in Slice 1 even though only
 /// <see cref="Build"/> has a consumer today. <see cref="Identity"/>
 /// folds into <c>PythonCodeVersion.Derive</c> in a later slice;
-/// <see cref="Probe"/> participates in the pre-flight algebra from
-/// ADR-0013; <see cref="Requirements"/> feeds the requirements
-/// algebra in the same ADR. Defining all four members now means
+/// <see cref="Probe"/> participates in the pre-flight requirements
+/// algebra; <see cref="Requirements"/> feeds the same algebra.
+/// Defining all four members now means
 /// bespoke <see cref="IPythonLauncher"/> implementations (a user's
 /// in-house launcher, a community NuGet package) lock the interface
 /// shape from day one — later slices add *behaviour* against existing
@@ -83,8 +83,8 @@ public interface IPythonLauncher
 
   /// <summary>
   /// Pre-flight probe — fail fast on launcher misconfiguration before
-  /// any Step's logic runs. Per ADR-0014, this is what distinguishes
-  /// per-launcher classes from a generic process launcher: domain-
+  /// any Step's logic runs. This is what distinguishes per-launcher
+  /// classes from a generic process launcher: domain-
   /// specific checks (GPU count vs <c>nproc_per_node</c>, framework
   /// config validity, NCCL availability) that a generic launcher
   /// could not express. Default: no-op
@@ -100,7 +100,7 @@ public interface IPythonLauncher
   /// <c>accelerate</c> for <c>AccelerateLauncher</c>). Aggregated
   /// with every other declared
   /// <see cref="PythonPackageRequirement"/> across the live DI
-  /// container and enforced by the requirements algebra (ADR-0013).
+  /// container and enforced by the requirements algebra.
   /// Default: empty.
   /// </summary>
   IReadOnlyList<PythonPackageRequirement> Requirements =>

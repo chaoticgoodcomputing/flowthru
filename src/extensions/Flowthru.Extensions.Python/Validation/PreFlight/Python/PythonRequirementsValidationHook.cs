@@ -6,8 +6,8 @@ using Flowthru.Step.Python.Internal;
 namespace Flowthru.Validation.PreFlight.Python;
 
 /// <summary>
-/// Pre-flight enforcement of the Python requirements algebra
-/// (ADR-0013). Collects every <see cref="IPythonCapability"/>
+/// Pre-flight enforcement of the Python requirements algebra.
+/// Collects every <see cref="IPythonCapability"/>
 /// registered in the DI container plus the active
 /// <see cref="IPythonLauncher"/>'s declared requirements, folds them
 /// into per-package effective constraints, probes the configured venv

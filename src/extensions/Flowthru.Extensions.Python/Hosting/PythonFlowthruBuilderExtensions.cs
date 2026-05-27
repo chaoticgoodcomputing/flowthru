@@ -51,8 +51,8 @@ public static class PythonFlowthruBuilderExtensions
     // earlier in the pipeline take precedence.
     builder.Services.TryAddSingleton<IPythonConfigurationFlattener, PythonConfigurationFlattener>();
     builder.Services.TryAddSingleton<IPythonServiceInspectorRegistry, PythonServiceInspectorRegistry>();
-    // Shared "Flowthru"-category ILogger for the Python executor
-    // (ADR-0005). Mirrors AddFlowthru's fallback so UsePython() can
+    // Shared "Flowthru"-category ILogger for the Python executor.
+    // Mirrors AddFlowthru's fallback so UsePython() can
     // stand alone in tests that don't also call AddFlowthru. The
     // resolver lazily picks the host's ILoggerFactory if AddLogging
     // ran, otherwise falls back to NullLoggerFactory.Instance.
@@ -73,7 +73,7 @@ public static class PythonFlowthruBuilderExtensions
     // Registered via AddSingleton (NOT TryAddSingleton): the
     // requirements algebra folds *every* registered capability, so a
     // user who supplies an additional IPythonCapability shouldn't
-    // displace the base, they should compose with it. Per ADR-0013.
+    // displace the base, they should compose with it.
     builder.Services.AddSingleton<IPythonCapability, BasePythonExtensionCapability>();
 
     // Installed-package probe — default subprocess implementation
@@ -89,7 +89,7 @@ public static class PythonFlowthruBuilderExtensions
     // checks against every PythonStep<,> in the registered flows.
     builder.Services.AddSingleton<IFlowValidationHook, PythonStepValidationHook>();
 
-    // Pre-flight hook: requirements-algebra enforcement (ADR-0013).
+    // Pre-flight hook: requirements-algebra enforcement.
     // Folds every IPythonCapability + the active IPythonLauncher's
     // Requirements, probes the configured venv via `pip list`, and
     // surfaces typed PythonPreFlightError variants for missing or

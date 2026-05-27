@@ -43,3 +43,13 @@ The step author writes ordinary single-process Python: import the trainer, call 
 ## Why this matters for the ML pitch
 
 Single-box multi-GPU is the floor for ML to be a credible use case for Flowthru. Without the launcher seam, every multi-GPU training step is a fork of the Python extension. With the seam plus the requirements algebra plus the rank-aware worker, distributed training is a one-line opt-in (`new AccelerateLauncher { NumProcesses = 2 }`) with the *exact* fail-fast surface the framework is built on: missing `accelerate`, wrong GPU count, conflicting deps — all caught before the first batch loads.
+
+## Governed code
+
+- `src/extensions/Flowthru.Extensions.Python/Step/Python/IPythonLauncher.cs` — launcher strategy interface (Build, Identity, Probe, Requirements)
+- `src/extensions/Flowthru.Extensions.Python/Step/Python/AccelerateLauncher.cs` — HuggingFace Accelerate launcher
+- `src/extensions/Flowthru.Extensions.Python/Step/Python/TorchrunLauncher.cs` — PyTorch-native torchrun launcher
+- `src/extensions/Flowthru.Extensions.Python/build/flowthru_worker.py` — rank-aware distributed dispatch in the Python worker
+- `tests/extensions/Flowthru.Extensions.Python.Tests/AccelerateLauncherTests.cs` — AccelerateLauncher unit tests
+- `tests/extensions/Flowthru.Extensions.Python.Tests/TorchrunLauncherTests.cs` — TorchrunLauncher unit tests
+- `examples/advanced/MnistDistributed/Program.cs` — distributed training example using TorchrunLauncher

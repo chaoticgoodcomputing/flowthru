@@ -10,3 +10,14 @@ We considered four alternatives and rejected each:
 - `ILoggerFactory` instead of `ILogger` as the default — preserves the static-class step shape but adds two lines of `.CreateLogger(...)` boilerplate per step. Available as the opt-in escape hatch for hosts that *do* want per-step categorization: take `ILoggerFactory` in `Create()` and call `factory.CreateLogger<NonStaticMarker>()` or `factory.CreateLogger(typeof(MyStep).FullName!)`.
 
 The declared-`ILogger` approach reuses machinery that already exists, keeps step dependencies in the type signature per Flowthru's discipline, preserves `static class` as the canonical step shape, and satisfies the original ask literally: "a single `ILogger` available to both internals and Steps." The convention is documented in `examples/CONTRIBUTING.md` and demonstrated in the example projects rather than enforced by a Roslyn analyzer — code-as-documentation is the chosen surface.
+
+## Governed code
+
+- `src/core/Flowthru.Core/Hosting/ServiceCollectionExtensions.cs` — singleton `ILogger` registration with `NullLoggerFactory` fallback
+- `src/core/Flowthru.Core/Flow/ParallelFlowScheduler.cs` — scheduler accepts and logs through the shared `ILogger`
+- `src/extensions/Flowthru.Extensions.Python/Hosting/PythonFlowthruBuilderExtensions.cs` — mirrors the shared `ILogger` registration for standalone `UsePython()` usage
+- `src/extensions/Flowthru.Extensions.Python/Step/Python/Internal/SubprocessPythonExecutor.cs` — bridges worker stderr through the shared `ILogger`
+- `src/extensions/Flowthru.Extensions.Python/Step/Python/Internal/StderrLineClassifier.cs` — per-line decision point for the stderr-to-`ILogger` bridge
+- `src/extensions/Flowthru.Extensions.Python/build/flowthru_worker.py` — Python-side logging handler that emits JSON frames for the stderr bridge
+- `tests/core/Flowthru.Core.Tests/Step/StepLoggerInjectionTests.cs` — end-to-end coverage for `Create(ILogger)` convention and shared-category contract
+- `tests/extensions/Flowthru.Extensions.Python.Tests/SubprocessPythonExecutorBridgeTests.cs` — end-to-end coverage for the Python stderr bridge

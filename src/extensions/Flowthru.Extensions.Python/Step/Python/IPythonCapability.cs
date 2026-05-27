@@ -5,7 +5,7 @@ namespace Flowthru.Step.Python;
 /// Python-side package requirements. Folded into a single requirements
 /// closure at flow-construction time by
 /// <see cref="Flowthru.Validation.PreFlight.Python.PythonRequirementsValidationHook"/>,
-/// per the requirements algebra in ADR-0013.
+/// per the requirements algebra.
 /// </summary>
 /// <remarks>
 /// <para>

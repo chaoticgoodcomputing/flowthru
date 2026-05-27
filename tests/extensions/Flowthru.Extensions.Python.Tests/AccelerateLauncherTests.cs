@@ -6,7 +6,7 @@ namespace Flowthru.Extensions.Python.Tests;
 
 /// <summary>
 /// Tests for <see cref="AccelerateLauncher"/> — the HuggingFace
-/// meta-launcher per ADR-0014. Same probe strategy as
+/// meta-launcher. Same probe strategy as
 /// <see cref="TorchrunLauncherTests"/>: BinaryPath override against
 /// real filesystem paths rather than mocking the subprocess machinery.
 /// </summary>

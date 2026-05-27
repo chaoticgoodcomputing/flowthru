@@ -10,7 +10,7 @@ namespace Flowthru.Step.Python;
 /// <c>torchrun --nproc_per_node=N</c> so PyTorch DDP and any framework
 /// that builds on it (HuggingFace <c>Trainer</c>, Lightning, etc.) can
 /// fan out across multiple GPUs on a single box without forking the
-/// executor. Per ADR-0014.
+/// executor.
 /// </summary>
 /// <remarks>
 /// <para>

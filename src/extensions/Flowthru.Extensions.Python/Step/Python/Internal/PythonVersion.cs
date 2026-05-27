@@ -12,7 +12,7 @@ namespace Flowthru.Step.Python.Internal;
 /// (<c>1.0+local</c>), post / dev primary releases (<c>1.0.post1</c>,
 /// <c>1.0.dev1</c>) — these almost never appear in declared
 /// requirements, only in installed-package metadata, and we punt on
-/// them until a real case surfaces. Per ADR-0013.
+/// them until a real case surfaces.
 /// </summary>
 internal readonly record struct PythonVersion(
   ImmutableArray<int> Release,

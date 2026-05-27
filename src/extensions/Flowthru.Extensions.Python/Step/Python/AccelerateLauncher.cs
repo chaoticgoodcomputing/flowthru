@@ -11,8 +11,7 @@ namespace Flowthru.Step.Python;
 /// to torchrun, deepspeed, MPI, or whichever backend the user's
 /// <c>accelerate config</c> selects. The recommended distributed default
 /// when a project is already using HuggingFace tooling because
-/// Accelerate covers the launcher matrix HuggingFace maintains. Per
-/// ADR-0014.
+/// Accelerate covers the launcher matrix HuggingFace maintains.
 /// </summary>
 /// <remarks>
 /// <para>

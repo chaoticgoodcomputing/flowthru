@@ -11,7 +11,7 @@ using Microsoft.CodeAnalysis.Diagnostics;
 namespace Flowthru.Extensions.Python.SourceGenerators;
 
 /// <summary>
-/// Design-time half of the Python requirements algebra (ADR-0013).
+/// Design-time half of the Python requirements algebra.
 /// Reads <c>uv.lock</c> from the project's <c>AdditionalFiles</c>,
 /// folds the framework-level base requirements with any
 /// <see cref="PythonPackageRequirementAttribute"/>-decorated capability

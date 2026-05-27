@@ -88,7 +88,7 @@ public sealed class SubprocessPythonExecutor : IPythonExecutor, IFlowResourcePro
   /// <param name="logger">
   /// The engine's shared <see cref="ILogger"/> — registered as a
   /// singleton under category <c>"Flowthru"</c> by
-  /// <c>AddFlowthru</c> per ADR-0005. Worker stderr lines bridge
+  /// <c>AddFlowthru</c>. Worker stderr lines bridge
   /// through this logger via <see cref="StderrLineClassifier"/>, so
   /// Python step output appears alongside engine and C# step logs in
   /// the same stream.

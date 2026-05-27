@@ -8,7 +8,7 @@ namespace Flowthru.Step.Python.Internal;
 /// every other declarer (launchers, future service-registration
 /// requirements) by
 /// <see cref="Flowthru.Validation.PreFlight.Python.PythonRequirementsValidationHook"/>
-/// per ADR-0013.
+/// per the requirements algebra.
 /// </summary>
 /// <remarks>
 /// <para>

@@ -11,7 +11,7 @@ namespace Flowthru.Extensions.Python.Tests;
 
 /// <summary>
 /// Tests for <see cref="PythonRequirementsValidationHook"/> — the
-/// pre-flight enforcement of ADR-0013's requirements algebra. Uses
+/// pre-flight enforcement of the Python requirements algebra. Uses
 /// stub <see cref="IInstalledPackageProbe"/> + stub capabilities to
 /// exercise the hook's logic without spawning a real Python
 /// subprocess.

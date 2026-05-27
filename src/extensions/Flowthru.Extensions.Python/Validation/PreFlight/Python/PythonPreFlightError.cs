@@ -127,7 +127,7 @@ public abstract record PythonPreFlightError : IExtensionPreFlightError
   /// <see cref="Step.Python.IPythonCapability.Requirements"/> or
   /// <see cref="Step.Python.IPythonLauncher.Requirements"/>) but the
   /// package is absent from the configured venv. Surfaced by the
-  /// requirements algebra (ADR-0013) during pre-flight.
+  /// requirements algebra during pre-flight.
   /// </summary>
   /// <param name="Package">PyPI package name.</param>
   /// <param name="RequiredConstraint">
@@ -167,7 +167,7 @@ public abstract record PythonPreFlightError : IExtensionPreFlightError
   /// <summary>
   /// A capability-declared Python-side package is present in the venv
   /// but the installed version does not satisfy the folded constraint.
-  /// Per ADR-0013, this single variant covers both
+  /// This single variant covers both
   /// "installed-version-too-old" and conflicting-declarer cases —
   /// users see every contributing capability so internal
   /// inconsistencies are diagnosable from the error itself. Symbolic

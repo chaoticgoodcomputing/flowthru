@@ -4,7 +4,7 @@ namespace Flowthru.Extensions.Python.SourceGenerators.Tests;
 
 /// <summary>
 /// Tests for <see cref="PythonRequirementsAnalyzer"/> — the design-time
-/// half of ADR-0013's requirements algebra. Exercises:
+/// half of the Python requirements algebra. Exercises:
 /// <list type="bullet">
 ///   <item>The "no consumer references" / "no uv.lock" silent paths.</item>
 ///   <item>Base requirements satisfied / missing / wrong-version cases.</item>

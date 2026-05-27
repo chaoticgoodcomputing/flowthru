@@ -6,7 +6,7 @@ namespace Flowthru.Extensions.Python.Tests;
 
 /// <summary>
 /// Tests for <see cref="TorchrunLauncher"/> — the PyTorch-native
-/// distributed launcher per ADR-0014. Probe tests use real filesystem
+/// distributed launcher. Probe tests use real filesystem
 /// paths (existing /bin/sh vs a fabricated /nonexistent path) so the
 /// subprocess machinery is exercised end-to-end without needing a
 /// torch venv.

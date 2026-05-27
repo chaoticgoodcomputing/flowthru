@@ -12,7 +12,7 @@ namespace Flowthru.Step.Python.Internal;
 /// <c>python -m pip list --format=json</c>. Mirrors the short-lived
 /// <c>--version</c> probe in <see cref="SubprocessPythonExecutor"/> —
 /// the result feeds the requirements algebra's pre-flight check
-/// (ADR-0013) so the user sees missing or wrong-version Python deps
+/// so the user sees missing or wrong-version Python deps
 /// before any Step's logic runs.
 /// </summary>
 internal sealed class SubprocessInstalledPackageProbe : IInstalledPackageProbe

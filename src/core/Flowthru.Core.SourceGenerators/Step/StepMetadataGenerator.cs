@@ -63,7 +63,7 @@ public sealed class StepMetadataGenerator : IIncrementalGenerator
   /// entry here, the generator emits a <c>ServiceRef.ObservationOnly</c>
   /// instead of the default <c>ServiceRef.CSharp</c> — the cache
   /// planner skips observation-only refs when deciding step
-  /// cacheability (ADR-0010). Keep this set tiny; an
+  /// cacheability. Keep this set tiny; an
   /// <c>[ObservationOnly]</c> per-parameter attribute is the planned
   /// opt-in mechanism for user-defined observability services.
   /// </summary>

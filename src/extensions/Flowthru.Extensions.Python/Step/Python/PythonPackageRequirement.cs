@@ -4,7 +4,7 @@ namespace Flowthru.Step.Python;
 /// One Python-side package requirement declared by a Python-extension
 /// capability. Aggregated across all capabilities present in the DI
 /// container at flow-construction time and enforced via the design-time
-/// analyzer (FTPY1501) and pre-flight hook described in ADR-0013.
+/// analyzer (FTPY1501) and pre-flight validation hook.
 /// </summary>
 /// <param name="Package">
 /// PyPI package name (e.g. <c>"accelerate"</c>, <c>"pyarrow"</c>).

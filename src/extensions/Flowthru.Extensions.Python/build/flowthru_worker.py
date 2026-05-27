@@ -92,7 +92,7 @@ _LOG_FRAME_PREFIX = "__flowthru_log__:"
 _STDERR_WRITE_LOCK = threading.Lock()
 
 
-# ── Rank-aware distributed dispatch (ADR-0014, slice 5) ─────────────────────
+# ── Rank-aware distributed dispatch (slice 5) ───────────────────────────────
 #
 # When the launcher fans out N python workers (torchrun, accelerate, mpi…),
 # only rank 0 owns the parent's stdin/stdout pipe — the Flowthru protocol
@@ -185,8 +185,8 @@ class _FlowthruJsonLogHandler(logging.Handler):
 
     `print()` calls and direct `sys.stderr.write()` calls bypass this
     handler — they reach the C# reader as unprefixed lines and bridge
-    at LogInformation by default. See ADR-0005 (shared ILogger) and the
-    Python extension's stderr bridge for the full contract.
+    at LogInformation by default. See the Python extension's stderr
+    bridge (StderrLineClassifier) for the full contract.
     """
 
     def emit(self, record: logging.LogRecord) -> None:

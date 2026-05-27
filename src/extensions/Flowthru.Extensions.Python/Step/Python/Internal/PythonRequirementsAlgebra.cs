@@ -9,8 +9,8 @@ namespace Flowthru.Step.Python.Internal;
 /// Aggregates <see cref="PythonPackageRequirement"/> declarations
 /// from every contributing capability into a per-package effective
 /// constraint with declarer attribution. The algebra's core operation
-/// per ADR-0013 — the analyzer (slice 3) and pre-flight hook consume
-/// the same folded shape.
+/// — the analyzer (FTPY1501/FTPY1502) and pre-flight hook consume the
+/// same folded shape.
 /// </summary>
 internal static class PythonRequirementsAlgebra
 {

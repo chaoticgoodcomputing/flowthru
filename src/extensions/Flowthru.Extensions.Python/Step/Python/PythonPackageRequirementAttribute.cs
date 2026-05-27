@@ -11,7 +11,7 @@ namespace Flowthru.Step.Python;
 /// statically; the same declaration can also be returned from
 /// <see cref="IPythonCapability.Requirements"/> /
 /// <see cref="IPythonLauncher.Requirements"/> for pre-flight
-/// enforcement. Per ADR-0013.
+/// enforcement.
 /// </summary>
 /// <remarks>
 /// <para>

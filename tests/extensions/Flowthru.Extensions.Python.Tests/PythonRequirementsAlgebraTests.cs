@@ -6,7 +6,7 @@ namespace Flowthru.Extensions.Python.Tests;
 /// <summary>
 /// Unit tests for the PEP 440 subset (<see cref="PythonVersion"/>,
 /// <see cref="PythonVersionConstraint"/>) plus the fold algebra
-/// (<see cref="PythonRequirementsAlgebra"/>) per ADR-0013. All three
+/// (<see cref="PythonRequirementsAlgebra"/>). All three
 /// types are pure functions — tests cover parse, comparison,
 /// satisfaction, intersection, and folding without any subprocess
 /// or DI dependency.

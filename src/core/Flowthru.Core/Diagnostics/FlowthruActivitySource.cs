@@ -11,7 +11,7 @@ namespace Flowthru.Diagnostics;
 /// </summary>
 /// <remarks>
 /// <para>
-/// Per ADR-0006, human-readable logging is handled directly by
+/// Human-readable logging is handled directly by
 /// <c>ILogger&lt;TSelf&gt;</c> in engine components
 /// (<c>FlowthruService</c>, <c>ParallelFlowScheduler</c>); this
 /// <see cref="ActivitySource"/> emits trace spans for distributed-
@@ -51,7 +51,7 @@ public static class FlowthruActivitySource
   /// <summary>
   /// Reserved activity name for the cache-uncacheability decision.
   /// Engine no longer emits this — <c>FlowthruService</c> logs each
-  /// uncacheable-step decision directly via <c>ILogger</c> (ADR-0006).
+  /// uncacheable-step decision directly via <c>ILogger</c>.
   /// The constant remains for any external consumer that wired filters
   /// against this name in the activity-bridge era.
   /// </summary>

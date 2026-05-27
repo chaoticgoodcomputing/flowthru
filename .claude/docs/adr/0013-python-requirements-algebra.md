@@ -37,3 +37,32 @@ Same algebra, two backstops, errors caught at whichever phase has enough informa
 A three-hour fine-tune that crashes at minute 130 because `accelerate` is missing is the exact failure mode Flowthru exists to prevent. The algebra moves "missing Python dep" from runtime to design-time (when `uv.lock` is reachable) or pre-flight (when it isn't) — never runtime. Without it, every distributed-training launcher we ship is a runtime-error class we added to the framework and called an improvement.
 
 This mirrors the existing capability algebra over container kinds (`[StepExtensionCapabilities]` + `IContainerMarshaller<TExtension>` + `FT1301`/`FT1303`). Same shape — capabilities declare promises, the framework computes the closure, analyzers and pre-flight hooks enforce — applied to Python-side dependencies instead of container shapes.
+
+## Governed code
+
+### Requirement declaration and algebra
+
+- `src/extensions/Flowthru.Extensions.Python/Step/Python/PythonPackageRequirement.cs` — the `(Package, VersionConstraint, Reason)` record
+- `src/extensions/Flowthru.Extensions.Python/Step/Python/PythonPackageRequirementAttribute.cs` — declarative attribute form for static analysis
+- `src/extensions/Flowthru.Extensions.Python/Step/Python/IPythonCapability.cs` — marker interface; capabilities expose `Requirements` for folding
+- `src/extensions/Flowthru.Extensions.Python/Step/Python/IPythonLauncher.cs` — launcher contract; `Requirements` and `Probe` participate in the algebra
+- `src/extensions/Flowthru.Extensions.Python/Step/Python/Internal/PythonRequirementsAlgebra.cs` — fold/intersection core
+- `src/extensions/Flowthru.Extensions.Python/Step/Python/Internal/PythonVersion.cs` — PEP 440 version parser
+- `src/extensions/Flowthru.Extensions.Python/Step/Python/Internal/BasePythonExtensionCapability.cs` — floor capability (pyarrow, flowthru)
+
+### Enforcement
+
+- `src/extensions/Flowthru.Extensions.Python/Step/Python/Internal/InstalledPackageProbe.cs` — `pip list` subprocess probe feeding pre-flight
+- `src/extensions/Flowthru.Extensions.Python/Validation/PreFlight/Python/PythonRequirementsValidationHook.cs` — pre-flight hook (FTPY3011/FTPY3012)
+- `src/extensions/Flowthru.Extensions.Python/Validation/PreFlight/Python/PythonPreFlightError.cs` — `MissingRequirement` and `VersionConstraintNotSatisfied` error variants
+- `src/extensions/Flowthru.Extensions.Python.SourceGenerators/PythonRequirementsAnalyzer.cs` — design-time analyzer (FTPY1501/FTPY1502)
+
+### Registration
+
+- `src/extensions/Flowthru.Extensions.Python/Hosting/PythonFlowthruBuilderExtensions.cs` — `UsePython()` wires capabilities, probe, and validation hooks
+
+### Tests
+
+- `tests/extensions/Flowthru.Extensions.Python.Tests/PythonRequirementsAlgebraTests.cs` — algebra unit tests
+- `tests/extensions/Flowthru.Extensions.Python.Tests/PythonRequirementsValidationHookTests.cs` — pre-flight hook tests
+- `tests/extensions/Flowthru.Extensions.Python.SourceGenerators.Tests/PythonRequirementsAnalyzerTests.cs` — design-time analyzer tests

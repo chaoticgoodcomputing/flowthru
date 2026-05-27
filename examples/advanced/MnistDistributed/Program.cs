@@ -73,8 +73,8 @@ public class Program
 
     // Register the distributed launcher *before* AddFlowthru / UsePython
     // so the TryAddSingleton<IPythonLauncher> in PythonFlowthruBuilderExtensions
-    // sees an existing registration and yields. Per ADR-0014's per-step /
-    // per-executor selection convention.
+    // sees an existing registration and yields. Launcher selection is a
+    // per-executor concern — the executor owns its launcher instance.
     // RedirectsFlag set so non-rank-0 stdout/stderr go to per-rank
     // log files rather than the parent — necessary to avoid those
     // ranks corrupting the JSON protocol stream rank 0 owns. (Doesn't

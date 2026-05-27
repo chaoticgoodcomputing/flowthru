@@ -48,9 +48,9 @@ public sealed class ParallelFlowScheduler : IFlowScheduler
   private readonly ILogger _logger;
 
   /// <summary>
-  /// Construct with the engine's shared <see cref="ILogger"/>. Per
-  /// ADR-0005 / ADR-0006 the engine and every step share one
-  /// <c>"Flowthru"</c>-category logger; this scheduler logs per-step
+  /// Construct with the engine's shared <see cref="ILogger"/>. The
+  /// engine and every step share one <c>"Flowthru"</c>-category
+  /// logger; this scheduler logs per-step
   /// lifecycle boundaries directly through it. When no logger is
   /// supplied (the historical parameterless ctor path used by
   /// <see cref="BuiltFlow.RunAsync()"/>) the
