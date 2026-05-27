@@ -1,3 +1,13 @@
+## 0.22.0 (2026-05-27)
+
+### 🚀 Features
+
+- python optimizations for custom launchers & bulk marshalling ([#68](https://github.com/chaoticgoodcomputing/flowthru/pull/68))
+
+### ❤️ Thank You
+
+- Spencer Elkington
+
 ## 0.21.0 (2026-05-24)
 
 ### 🚀 Features

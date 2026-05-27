@@ -1,6 +1,6 @@
 {
   "name": "flowthru",
-  "version": "0.21.0",
+  "version": "0.22.0",
   "description": "A type-safe data engineering framework for .NET",
   "main": "index.js",
   "scripts": {

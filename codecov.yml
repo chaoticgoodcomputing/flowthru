@@ -14,6 +14,8 @@ comment:
   behavior: default
   require_changes: false
 flags:
+  flowthru-vscode:
+    carryforward: true
   Flowthru.Cli.Tests:
     carryforward: true
   Flowthru.Core.Architecture.Tests:
@@ -75,6 +77,8 @@ flags:
   IrisPython:
     carryforward: true
   Minimal:
+    carryforward: true
+  MnistDistributed:
     carryforward: true
   RetailDataSplitFlow:
     carryforward: true
