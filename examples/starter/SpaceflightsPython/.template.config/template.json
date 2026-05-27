@@ -22,7 +22,7 @@
     "FlowthruVersion": {
       "type": "parameter",
       "dataType": "string",
-      "defaultValue": "0.20.0",
+      "defaultValue": "0.21.0",
       "replaces": "FlowthruVersion",
       "description": "Flowthru package version (auto-injected at pack time)"
     }
