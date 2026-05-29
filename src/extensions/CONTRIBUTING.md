@@ -44,6 +44,7 @@ Roslyn analyzer and source-generator diagnostic IDs are namespaced by extension.
 | Extension | Prefix | Example |
 |-----------|--------|---------|
 | `Flowthru.Extensions.Python` | `FTPY` | `FTPY1501` |
+| `Flowthru.Extensions.Google.Sheets` | `FTGS` | `FTGS1501` |
 | (future) `Flowthru.Extensions.SQL` | `FTSQL` | `FTSQL1501` |
 | (future) `Flowthru.Extensions.Kafka` | `FTKFK` | `FTKFK1501` |
 
