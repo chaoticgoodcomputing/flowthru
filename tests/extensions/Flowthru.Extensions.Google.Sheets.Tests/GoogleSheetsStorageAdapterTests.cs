@@ -222,6 +222,9 @@ public sealed class GoogleSheetsStorageAdapterTests
   public async Task Load_FailsClearly_WhenTableMissing()
   {
     var gateway = new InMemorySheetsGateway();
+    // Spreadsheet present, table absent — the table-not-found path (distinct
+    // from a missing spreadsheet).
+    gateway.RegisterSpreadsheet(SpreadsheetId);
     var adapter = new GoogleSheetsStorageAdapter<Person>(SpreadsheetId, "Nope", gateway);
 
     var result = await adapter.Load().Run();
@@ -281,14 +284,59 @@ public sealed class GoogleSheetsStorageAdapterTests
   }
 
   [Test]
-  public async Task InspectShallow_FailsNotFound_WhenTableMissing()
+  public async Task InspectShallow_FailsNotFound_WhenTableMissing_ButSpreadsheetPresent()
   {
+    // Spreadsheet reachable, table absent → table-not-found (FTGS1603), distinct
+    // from a missing spreadsheet.
     var gateway = new InMemorySheetsGateway();
+    gateway.RegisterSpreadsheet(SpreadsheetId);
     var adapter = new GoogleSheetsStorageAdapter<Person>(SpreadsheetId, "Nope", gateway);
 
     var result = await Expect(adapter.InspectShallow(0));
 
     Assert.That(result.Errors[0].ErrorType, Is.EqualTo(ValidationErrorType.NotFound));
+    Assert.That(result.Errors[0].Message, Does.Contain("FTGS1603"));
+  }
+
+  [Test]
+  public async Task InspectShallow_FailsNotFound_WhenSpreadsheetMissing()
+  {
+    // Unregistered spreadsheet → spreadsheet-not-found (FTGS1601), the hard
+    // failure that #82 separates from table-not-found.
+    var gateway = new InMemorySheetsGateway();
+    var adapter = new GoogleSheetsStorageAdapter<Person>("ghost-sheet", TableName, gateway);
+
+    var result = await Expect(adapter.InspectShallow(0));
+
+    Assert.That(result.Errors[0].ErrorType, Is.EqualTo(ValidationErrorType.NotFound));
+    Assert.That(result.Errors[0].Message, Does.Contain("FTGS1601"));
+  }
+
+  [Test]
+  public async Task InspectShallow_FailsSchemaMismatch_WhenColumnTypeDisagreesWithRow()
+  {
+    // Live "Age" is Text, but Person.Age (int) maps to Number via the same
+    // SheetsSchemaBuilder mapping create-if-absent uses → column-type mismatch.
+    var schema = new TableSchema(new TableColumn[]
+    {
+      new("Name", ColumnType.Text),
+      new("Age", ColumnType.Text), // disagrees: int → Number
+      new("Score", ColumnType.Number),
+      new("Active", ColumnType.Bool),
+      new("JoinedOn", ColumnType.DateTime),
+      new("Plan", ColumnType.Text),
+      new("Nickname", ColumnType.Text),
+    });
+    var gateway = new InMemorySheetsGateway();
+    gateway.Seed(SpreadsheetId, TableName, schema);
+    var adapter = new GoogleSheetsStorageAdapter<Person>(SpreadsheetId, TableName, gateway);
+
+    var result = await Expect(adapter.InspectShallow(0));
+
+    Assert.That(result.HasErrors, Is.True);
+    Assert.That(result.Errors[0].ErrorType, Is.EqualTo(ValidationErrorType.SchemaMismatch));
+    Assert.That(result.Errors[0].Message, Does.Contain("FTGS1605"));
+    Assert.That(result.Errors[0].Message, Does.Contain("Age"));
   }
 
   [Test]
@@ -304,5 +352,57 @@ public sealed class GoogleSheetsStorageAdapterTests
     var result = await Expect(adapter.InspectDeep());
 
     Assert.That(result.IsValid, Is.True);
+  }
+
+  [Test]
+  public async Task InspectTarget_Passes_WhenTableAbsent_ForCreateIfAbsent()
+  {
+    // Write side: spreadsheet reachable, table absent → PASS, because Save's
+    // create-if-absent will create the table from Person.
+    var gateway = new InMemorySheetsGateway();
+    gateway.RegisterSpreadsheet(SpreadsheetId);
+    var adapter = new GoogleSheetsStorageAdapter<Person>(SpreadsheetId, "WillBeCreated", gateway);
+
+    var result = await Expect(adapter.InspectTarget());
+
+    Assert.That(result.IsValid, Is.True);
+  }
+
+  [Test]
+  public async Task InspectTarget_Validates_WhenTablePresent()
+  {
+    // Write side: an existing table must fit Person — a type mismatch fails.
+    var schema = new TableSchema(new TableColumn[]
+    {
+      new("Name", ColumnType.Text),
+      new("Age", ColumnType.Text), // disagrees: int → Number
+      new("Score", ColumnType.Number),
+      new("Active", ColumnType.Bool),
+      new("JoinedOn", ColumnType.DateTime),
+      new("Plan", ColumnType.Text),
+      new("Nickname", ColumnType.Text),
+    });
+    var gateway = new InMemorySheetsGateway();
+    gateway.Seed(SpreadsheetId, TableName, schema);
+    var adapter = new GoogleSheetsStorageAdapter<Person>(SpreadsheetId, TableName, gateway);
+
+    var result = await Expect(adapter.InspectTarget());
+
+    Assert.That(result.Errors[0].ErrorType, Is.EqualTo(ValidationErrorType.SchemaMismatch));
+    Assert.That(result.Errors[0].Message, Does.Contain("FTGS1605"));
+  }
+
+  [Test]
+  public async Task InspectTarget_FailsNotFound_WhenSpreadsheetMissing()
+  {
+    // Write side: a missing spreadsheet fails — Flowthru creates tables, not
+    // spreadsheets.
+    var gateway = new InMemorySheetsGateway();
+    var adapter = new GoogleSheetsStorageAdapter<Person>("ghost-sheet", TableName, gateway);
+
+    var result = await Expect(adapter.InspectTarget());
+
+    Assert.That(result.Errors[0].ErrorType, Is.EqualTo(ValidationErrorType.NotFound));
+    Assert.That(result.Errors[0].Message, Does.Contain("FTGS1601"));
   }
 }

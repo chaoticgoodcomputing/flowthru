@@ -19,6 +19,11 @@
   <ItemGroup>
     <!-- The translator returns Google SDK types; tests assert on them directly. -->
     <PackageReference Include="Google.Apis.Sheets.v4" />
+    <!-- DI hosting tests build a service provider and resolve the gateway. -->
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" />
+    <!-- Controllable TimeProvider (FakeTimeProvider) for clock-driven backoff tests. -->
+    <PackageReference Include="Microsoft.Extensions.TimeProvider.Testing" />
   </ItemGroup>
 
   <ItemGroup>

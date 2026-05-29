@@ -32,7 +32,15 @@ internal static class SheetsSchemaBuilder
     return new TableSchema(columns);
   }
 
-  private static ColumnType ColumnTypeFor(PropertyBinding binding, Type rowType)
+  /// <summary>
+  /// The canonical <see cref="PropertyBinding"/> → <see cref="ColumnType"/>
+  /// mapping. Create-if-absent (<see cref="BuildFromRow{TRow}"/>) and pre-flight
+  /// column-type validation both go through here, so the type a Flowthru-created
+  /// column gets and the type pre-flight expects can never disagree. Throws
+  /// <see cref="SchemaMismatchException"/> for a <c>byte[]</c> column, which has
+  /// no faithful table type.
+  /// </summary>
+  public static ColumnType ColumnTypeFor(PropertyBinding binding, Type rowType)
   {
     // An IScalar surfaces as its backing primitive's column type, so the created
     // column matches what FieldValueEncoder actually writes (a Number-backed

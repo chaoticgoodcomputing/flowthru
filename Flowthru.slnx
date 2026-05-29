@@ -71,6 +71,7 @@
   <Project Path="examples/starter/Iris/Iris.csproj" />
   <Project Path="examples/starter/IrisFUnit/IrisFUnit.csproj" />
   <Project Path="examples/starter/IrisPython/IrisPython.csproj" />
+  <Project Path="examples/starter/GoogleSheets/GoogleSheets.csproj" />
   <Project Path="examples/starter/Minimal/Minimal.csproj" />
   <Project Path="examples/starter/SimpleEffectsExample/SimpleEffectsExample.csproj" />
 </Solution>

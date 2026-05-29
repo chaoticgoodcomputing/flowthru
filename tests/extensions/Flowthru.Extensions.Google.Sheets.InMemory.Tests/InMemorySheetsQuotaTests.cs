@@ -28,6 +28,7 @@ public sealed class InMemorySheetsQuotaTests
   public void QuotaOff_ByDefault_ManyWritesNeverThrow()
   {
     var gateway = new InMemorySheetsGateway();
+    gateway.RegisterSpreadsheet(SpreadsheetId);
     var created = gateway.AddTable(SpreadsheetId, TableName, Schema(), default).Result;
 
     Assert.DoesNotThrowAsync(async () =>
@@ -45,6 +46,7 @@ public sealed class InMemorySheetsQuotaTests
     var clock = new FakeTimeProvider(DateTimeOffset.UnixEpoch);
     var gateway = new InMemorySheetsGateway(
       new InMemorySheetsOptions { WritesPerMinute = 3, Clock = clock });
+    gateway.RegisterSpreadsheet(SpreadsheetId);
 
     // AddTable counts as a write (#1).
     var created = await gateway.AddTable(SpreadsheetId, TableName, Schema(), default);
@@ -65,6 +67,7 @@ public sealed class InMemorySheetsQuotaTests
     var clock = new FakeTimeProvider(DateTimeOffset.UnixEpoch);
     var gateway = new InMemorySheetsGateway(
       new InMemorySheetsOptions { WritesPerMinute = 1, Clock = clock });
+    gateway.RegisterSpreadsheet(SpreadsheetId);
 
     // AddTable is write #1; it exhausts the quota for the window.
     var created = await gateway.AddTable(SpreadsheetId, TableName, Schema(), default);
@@ -83,6 +86,7 @@ public sealed class InMemorySheetsQuotaTests
     var clock = new FakeTimeProvider(DateTimeOffset.UnixEpoch);
     var gateway = new InMemorySheetsGateway(
       new InMemorySheetsOptions { WritesPerMinute = 2, Clock = clock });
+    gateway.RegisterSpreadsheet(SpreadsheetId);
 
     var created = await gateway.AddTable(SpreadsheetId, TableName, Schema(), default); // #1
     await gateway.ReplaceRows(SpreadsheetId, created, OneRow(created.Schema), default); // #2
@@ -103,6 +107,7 @@ public sealed class InMemorySheetsQuotaTests
     var clock = new FakeTimeProvider(DateTimeOffset.UnixEpoch);
     var gateway = new InMemorySheetsGateway(
       new InMemorySheetsOptions { WritesPerMinute = 2, Clock = clock });
+    gateway.RegisterSpreadsheet(SpreadsheetId);
 
     var created = await gateway.AddTable(SpreadsheetId, TableName, Schema(), default); // #1 @ t=0
     clock.Advance(TimeSpan.FromSeconds(40));

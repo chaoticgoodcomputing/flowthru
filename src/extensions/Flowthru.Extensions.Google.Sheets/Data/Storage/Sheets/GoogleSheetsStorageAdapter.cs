@@ -196,31 +196,41 @@ public sealed class GoogleSheetsStorageAdapter<TRow>
   public FlowIO<ValidationResult> InspectShallow(int sampleSize) =>
     FlowIO.LiftAsync(async ct =>
     {
-      var table = await _gateway.ResolveTable(_spreadsheetId, _tableName, ct).ConfigureAwait(false);
+      // Read-side pre-flight: spreadsheet reachable → table present → required
+      // columns present → column types fit. Each gate is the actionable root
+      // cause for the next, so a failure short-circuits rather than piling on
+      // downstream noise.
+      ResolvedTable? table;
+      try
+      {
+        table = await _gateway.ResolveTable(_spreadsheetId, _tableName, ct).ConfigureAwait(false);
+      }
+      catch (SheetsSpreadsheetAccessException ex)
+      {
+        return SpreadsheetUnreachable(ex);
+      }
+
       if (table is null)
       {
         return TableNotFound();
       }
 
-      // Field-presence check (data ⊇ schema): every required property must have
-      // a matching column by name. Extra columns are tolerated. Column-type
-      // validation is the fuller pre-flight pass's job, not this one.
-      var plan = PropertyMappingPlanner.Build<TRow>();
-      var columnNames = new HashSet<string>(
-        table.Schema.Columns.Select(c => c.Name), StringComparer.OrdinalIgnoreCase);
+      var shape = ValidateShape(table);
+      if (shape.HasErrors) return shape;
 
-      var missing = plan.RequiredFieldNames
-        .Where(name => !columnNames.Contains(name))
-        .ToList();
-
-      if (missing.Count > 0)
+      // Optional sample-decode: a column-type fit can still hide a value that
+      // won't coerce (a malformed serial date, say). Probe sampleSize rows.
+      if (sampleSize > 0)
       {
-        return ValidationResult.Failure(
-          catalogKey: _tableName,
-          errorType: ValidationErrorType.SchemaMismatch,
-          message: $"Table '{_tableName}' is missing required column(s) for schema "
-            + $"'{typeof(TRow).Name}'.",
-          details: $"Absent: {string.Join(", ", missing.Select(m => $"'{m}'"))}.");
+        try
+        {
+          var data = await _gateway.ReadRows(_spreadsheetId, table, ct).ConfigureAwait(false);
+          _ = DecodeRows(Take(data, sampleSize));
+        }
+        catch (Exception ex)
+        {
+          return DeserializationFailure("sample", ex);
+        }
       }
 
       return ValidationResult.Success();
@@ -230,14 +240,27 @@ public sealed class GoogleSheetsStorageAdapter<TRow>
   public FlowIO<ValidationResult> InspectDeep() =>
     FlowIO.LiftAsync(async ct =>
     {
-      var table = await _gateway.ResolveTable(_spreadsheetId, _tableName, ct).ConfigureAwait(false);
+      ResolvedTable? table;
+      try
+      {
+        table = await _gateway.ResolveTable(_spreadsheetId, _tableName, ct).ConfigureAwait(false);
+      }
+      catch (SheetsSpreadsheetAccessException ex)
+      {
+        return SpreadsheetUnreachable(ex);
+      }
+
       if (table is null)
       {
         return TableNotFound();
       }
 
-      // Full-decode probe: every row must coerce into TRow. The fuller
-      // column-type pre-flight pass deepens this later.
+      // Shape gates the full-decode probe: a column-type mismatch is the root
+      // cause, and a decode failure underneath one is noise.
+      var shape = ValidateShape(table);
+      if (shape.HasErrors) return shape;
+
+      // Full-decode probe: every row must coerce into TRow.
       try
       {
         var data = await _gateway.ReadRows(_spreadsheetId, table, ct).ConfigureAwait(false);
@@ -245,7 +268,7 @@ public sealed class GoogleSheetsStorageAdapter<TRow>
       }
       catch (Exception ex)
       {
-        return ValidationResult.FromException(_tableName, ex);
+        return DeserializationFailure("all", ex);
       }
 
       return ValidationResult.Success();
@@ -255,13 +278,132 @@ public sealed class GoogleSheetsStorageAdapter<TRow>
   public FlowIO<ValidationResult> InspectTarget() =>
     FlowIO.LiftAsync(async ct =>
     {
-      var table = await _gateway.ResolveTable(_spreadsheetId, _tableName, ct).ConfigureAwait(false);
-      // Minimal: the table is reachable. Rich write-target validation (create-
-      // if-absent, column-type fit) is the fuller pre-flight pass's job.
-      return table is null ? TableNotFound() : ValidationResult.Success();
+      // Write-side pre-flight. The spreadsheet must be reachable — Flowthru
+      // creates tables, not spreadsheets. If the table is absent, that PASSES:
+      // create-if-absent (DefaultSave) will create it from TRow via the same
+      // SheetsSchemaBuilder mapping, so a Flowthru-created table always fits. If
+      // the table already exists (externally created/edited), its column types
+      // must be compatible with TRow.
+      ResolvedTable? table;
+      try
+      {
+        table = await _gateway.ResolveTable(_spreadsheetId, _tableName, ct).ConfigureAwait(false);
+      }
+      catch (SheetsSpreadsheetAccessException ex)
+      {
+        return SpreadsheetUnreachable(ex);
+      }
+
+      if (table is null)
+      {
+        // Absent table is fine on the write side — Save will create it.
+        return ValidationResult.Success();
+      }
+
+      return ValidateShape(table);
     }, source: Source("InspectTarget"));
 
   // ── Internals ─────────────────────────────────────────────────────────────
+
+  // FTGS pre-flight provenance codes. Embedded in the failure message/details
+  // (the ValidationError taxonomy stays the EFCore-consistent ValidationErrorType
+  // set; these tag the specific Sheets failure for grep-ability in build output).
+  private const string FtgsSpreadsheetNotFound = "FTGS1601";
+  private const string FtgsSpreadsheetAccessDenied = "FTGS1602";
+  private const string FtgsTableNotFound = "FTGS1603";
+  private const string FtgsMissingColumn = "FTGS1604";
+  private const string FtgsColumnTypeMismatch = "FTGS1605";
+  private const string FtgsDeserialization = "FTGS1606";
+
+  // Shape validation, shared by every Inspect path: required columns present
+  // (data ⊇ schema, by name) then per-column type fit against TRow's expected
+  // ColumnType — the SAME SheetsSchemaBuilder mapping create-if-absent uses, so
+  // a Flowthru-created table always passes; a type mismatch only fires for an
+  // externally-created or hand-edited table, the intended fail-fast catch.
+  private static ValidationResult ValidateShape(ResolvedTable table)
+  {
+    var plan = PropertyMappingPlanner.Build<TRow>();
+
+    // Live column lookup by name (case-insensitive, the load/save rule).
+    var liveByName = new Dictionary<string, TableColumn>(StringComparer.OrdinalIgnoreCase);
+    foreach (var column in table.Schema.Columns)
+    {
+      liveByName[column.Name] = column;
+    }
+
+    // 1) Required-column presence. Extra live columns are tolerated.
+    var missing = plan.RequiredFieldNames
+      .Where(name => !liveByName.ContainsKey(name))
+      .ToList();
+    if (missing.Count > 0)
+    {
+      return ValidationResult.Failure(
+        catalogKey: table.Name,
+        errorType: ValidationErrorType.SchemaMismatch,
+        message: $"[{FtgsMissingColumn}] Table '{table.Name}' is missing required "
+          + $"column(s) for schema '{typeof(TRow).Name}'.",
+        details: $"{FtgsMissingColumn}: absent column(s) "
+          + $"{string.Join(", ", missing.Select(m => $"'{m}'"))}.");
+    }
+
+    // 2) Column-type fit. For every binding whose column is present, the live
+    //    neutral type must equal the type TRow's column would be created with.
+    foreach (var binding in plan.Bindings)
+    {
+      if (!liveByName.TryGetValue(binding.FieldName, out var liveColumn))
+      {
+        // Absent + nullable: optional, already cleared by the presence gate.
+        continue;
+      }
+
+      var expected = SheetsSchemaBuilder.ColumnTypeFor(binding, typeof(TRow));
+      if (liveColumn.Type != expected)
+      {
+        return ValidationResult.Failure(
+          catalogKey: table.Name,
+          errorType: ValidationErrorType.SchemaMismatch,
+          message: $"[{FtgsColumnTypeMismatch}] Column '{binding.FieldName}' in table "
+            + $"'{table.Name}' has type {liveColumn.Type}, but schema "
+            + $"'{typeof(TRow).Name}' expects {expected}.",
+          details: $"{FtgsColumnTypeMismatch}: column '{binding.FieldName}' expected "
+            + $"{expected}, found {liveColumn.Type}. A Flowthru-created table always "
+            + "matches; a mismatch means the table was created or edited outside "
+            + "Flowthru.");
+      }
+    }
+
+    return ValidationResult.Success();
+  }
+
+  private ValidationResult SpreadsheetUnreachable(SheetsSpreadsheetAccessException ex)
+  {
+    var (errorType, code) = ex.Failure switch
+    {
+      SheetsSpreadsheetAccessFailure.AccessDenied =>
+        (ValidationErrorType.WriteAccessDenied, FtgsSpreadsheetAccessDenied),
+      _ => (ValidationErrorType.NotFound, FtgsSpreadsheetNotFound),
+    };
+
+    return ValidationResult.Failure(
+      catalogKey: _tableName,
+      errorType: errorType,
+      message: $"[{code}] {ex.Message}",
+      details: $"{code}: spreadsheet '{_spreadsheetId}' is unreachable "
+        + $"({ex.Failure}). The spreadsheet must exist and be accessible to the "
+        + "configured credentials; Flowthru creates tables, not spreadsheets.");
+  }
+
+  private ValidationResult DeserializationFailure(string scope, Exception ex) =>
+    ValidationResult.Failure(
+      catalogKey: _tableName,
+      errorType: ValidationErrorType.DeserializationError,
+      message: $"[{FtgsDeserialization}] Failed to decode {scope} rows from table "
+        + $"'{_tableName}' into '{typeof(TRow).Name}'.",
+      details: $"{FtgsDeserialization}: {ex.Message}");
+
+  // Shallow copy of the first n rows under the same schema, for the sample probe.
+  private static TableData Take(TableData data, int n) =>
+    new(data.Schema, data.Rows.Take(n).ToList());
 
   private async Task<ResolvedTable> ResolveOrThrow(CancellationToken ct)
   {
@@ -320,8 +462,10 @@ public sealed class GoogleSheetsStorageAdapter<TRow>
     ValidationResult.Failure(
       catalogKey: _tableName,
       errorType: ValidationErrorType.NotFound,
-      message: $"Table '{_tableName}' not found in spreadsheet '{_spreadsheetId}'.",
-      details: "Resolve the table name and spreadsheet id, or create the table first.");
+      message: $"[{FtgsTableNotFound}] Table '{_tableName}' not found in spreadsheet "
+        + $"'{_spreadsheetId}'.",
+      details: $"{FtgsTableNotFound}: the spreadsheet is reachable but has no table "
+        + $"named '{_tableName}'. Resolve the table name, or create the table first.");
 
   private string Source(string operation) =>
     $"GoogleSheetsStorageAdapter.{operation}[{typeof(TRow).Name}]";

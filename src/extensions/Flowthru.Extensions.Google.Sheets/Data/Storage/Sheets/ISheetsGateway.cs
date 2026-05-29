@@ -31,9 +31,16 @@ public interface ISheetsGateway
   /// <summary>
   /// Resolve the table named <paramref name="tableName"/> in
   /// <paramref name="spreadsheetId"/> to its live schema (column names + types)
-  /// and grid range. Returns <see langword="null"/> when no table by that name
-  /// exists, so pre-flight (#82) and create-if-absent (#84) can branch.
+  /// and grid range. Returns <see langword="null"/> <strong>only</strong> when
+  /// the spreadsheet is reachable but no table by that name exists, so pre-flight
+  /// and create-if-absent can branch on a missing table.
   /// </summary>
+  /// <exception cref="SheetsSpreadsheetAccessException">
+  /// The spreadsheet itself is unreachable — missing or access-denied. This is
+  /// distinct from a missing table (a <see langword="null"/> return): Flowthru
+  /// creates tables, not spreadsheets, so a missing spreadsheet is a hard
+  /// failure rather than a create-if-absent opportunity.
+  /// </exception>
   Task<ResolvedTable?> ResolveTable(string spreadsheetId, string tableName, CancellationToken ct);
 
   /// <summary>

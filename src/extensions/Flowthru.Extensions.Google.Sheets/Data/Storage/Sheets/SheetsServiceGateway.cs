@@ -1,5 +1,7 @@
+using System.Net;
 using Flowthru.Data.Storage.Sheets.Internal;
 using Flowthru.Prelude;
+using Google;
 using Google.Apis.Sheets.v4;
 using Google.Apis.Sheets.v4.Data;
 
@@ -98,9 +100,11 @@ public sealed class SheetsServiceGateway : ISheetsGateway, IFlowResourceProvider
   public async Task<ResolvedTable?> ResolveTable(string spreadsheetId, string tableName, CancellationToken ct)
   {
     var service = ActiveService();
-    var request = service.Spreadsheets.Get(spreadsheetId);
-    request.Fields = TablesFieldMask;
-    var spreadsheet = await request.ExecuteAsync(ct).ConfigureAwait(false);
+    // The spreadsheet-level Get is where reachability is decided: a 404/403 here
+    // means the spreadsheet is missing/forbidden (a hard failure), not that the
+    // table is absent. A reachable spreadsheet with no matching table yields a
+    // null ResolvedTable, the create-if-absent / pre-flight branch point.
+    var spreadsheet = await SpreadsheetTables(service, spreadsheetId, ct).ConfigureAwait(false);
 
     var table = FindTable(spreadsheet, tableName);
     return SheetsTranslator.ToResolvedTable(table);
@@ -160,7 +164,9 @@ public sealed class SheetsServiceGateway : ISheetsGateway, IFlowResourceProvider
     // Nothing to clear and nothing to write — skip the round-trip.
     if (batch.Requests is null || batch.Requests.Count == 0) return;
 
-    await service.Spreadsheets.BatchUpdate(batch, spreadsheetId).ExecuteAsync(ct).ConfigureAwait(false);
+    await ExecuteWrite(
+      () => service.Spreadsheets.BatchUpdate(batch, spreadsheetId).ExecuteAsync(ct),
+      spreadsheetId).ConfigureAwait(false);
   }
 
   /// <inheritdoc/>
@@ -177,7 +183,9 @@ public sealed class SheetsServiceGateway : ISheetsGateway, IFlowResourceProvider
         $"Spreadsheet '{spreadsheetId}' has no sheet to create table '{tableName}' on.");
 
     var batch = SheetsTranslator.BuildAddTableBatch(tableName, schema, sheetId);
-    await service.Spreadsheets.BatchUpdate(batch, spreadsheetId).ExecuteAsync(ct).ConfigureAwait(false);
+    await ExecuteWrite(
+      () => service.Spreadsheets.BatchUpdate(batch, spreadsheetId).ExecuteAsync(ct),
+      spreadsheetId).ConfigureAwait(false);
 
     // Re-resolve so the caller gets the table's authoritative range and schema
     // (incl. the column-index-0 coalesce applied on read-back).
@@ -199,12 +207,86 @@ public sealed class SheetsServiceGateway : ISheetsGateway, IFlowResourceProvider
       + "outside a flow run is unsupported.");
   }
 
+  // The single spreadsheet-level fetch. Google's 404/403 here are spreadsheet
+  // reachability failures, translated to the neutral access exception so the
+  // adapter can tell "spreadsheet gone" apart from "table absent".
   private static async Task<Spreadsheet> SpreadsheetTables(
     SheetsService service, string spreadsheetId, CancellationToken ct)
   {
     var request = service.Spreadsheets.Get(spreadsheetId);
     request.Fields = TablesFieldMask;
-    return await request.ExecuteAsync(ct).ConfigureAwait(false);
+    try
+    {
+      return await request.ExecuteAsync(ct).ConfigureAwait(false);
+    }
+    catch (GoogleApiException ex) when (
+      ex.HttpStatusCode is HttpStatusCode.NotFound or HttpStatusCode.Forbidden)
+    {
+      var failure = ex.HttpStatusCode == HttpStatusCode.NotFound
+        ? SheetsSpreadsheetAccessFailure.NotFound
+        : SheetsSpreadsheetAccessFailure.AccessDenied;
+      var reason = failure == SheetsSpreadsheetAccessFailure.NotFound
+        ? "does not exist"
+        : "is not accessible to the configured credentials";
+      throw new SheetsSpreadsheetAccessException(
+        spreadsheetId,
+        failure,
+        $"Spreadsheet '{spreadsheetId}' {reason}.",
+        ex);
+    }
+  }
+
+  // Run a write (batchUpdate) and translate Google's runtime failures into the
+  // neutral gateway taxonomy the retry layer and the adapter understand:
+  //   429 → SheetsRateLimitException  (transient; the retry layer backs off)
+  //   413 → SheetsWriteCeilingException(PayloadTooLarge)   (permanent ceiling)
+  //   timeout (504, or a 4xx/5xx whose status reads "deadline exceeded")
+  //       → SheetsWriteCeilingException(ProcessingTimeout) (permanent ceiling)
+  // Anything else propagates unchanged.
+  private static async Task ExecuteWrite(
+    Func<Task<BatchUpdateSpreadsheetResponse>> execute, string spreadsheetId)
+  {
+    try
+    {
+      await execute().ConfigureAwait(false);
+    }
+    catch (GoogleApiException ex) when (IsRateLimited(ex))
+    {
+      // No structured Retry-After is exposed on GoogleApiException, so the
+      // transient failure carries no hint and the retry layer falls back to its
+      // capped exponential backoff. Chain the cause for diagnostics.
+      throw new SheetsRateLimitException(
+        "The Sheets write quota was exceeded; the request is retryable after a "
+        + "short wait.",
+        ex);
+    }
+    catch (GoogleApiException ex) when (ex.HttpStatusCode == HttpStatusCode.RequestEntityTooLarge)
+    {
+      throw new SheetsWriteCeilingException(
+        spreadsheetId, SheetsWriteCeiling.PayloadTooLarge, ex);
+    }
+    catch (GoogleApiException ex) when (IsProcessingTimeout(ex))
+    {
+      throw new SheetsWriteCeilingException(
+        spreadsheetId, SheetsWriteCeiling.ProcessingTimeout, ex);
+    }
+  }
+
+  // 429 Too Many Requests. The enum member is .NET 6+; compare on the int so the
+  // mapping is robust regardless of the surfacing path.
+  private static bool IsRateLimited(GoogleApiException ex) =>
+    (int?)ex.HttpStatusCode == 429;
+
+  // Google surfaces the ~180 s single-batch processing-timeout as a 504 Gateway
+  // Timeout, or occasionally as a 400/500 whose status text reads "deadline
+  // exceeded" / "timeout". Match both shapes.
+  private static bool IsProcessingTimeout(GoogleApiException ex)
+  {
+    if (ex.HttpStatusCode == HttpStatusCode.GatewayTimeout) return true;
+
+    var status = ex.Error?.Message ?? ex.Message ?? string.Empty;
+    return status.Contains("deadline exceeded", StringComparison.OrdinalIgnoreCase)
+      || status.Contains("timeout", StringComparison.OrdinalIgnoreCase);
   }
 
   private static Table? FindTable(Spreadsheet spreadsheet, string tableName)

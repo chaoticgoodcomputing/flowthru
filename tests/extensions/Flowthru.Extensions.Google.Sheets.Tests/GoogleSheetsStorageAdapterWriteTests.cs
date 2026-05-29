@@ -98,7 +98,9 @@ public sealed class GoogleSheetsStorageAdapterWriteTests
   public async Task Save_CreatesTable_FromRowSchema_WhenAbsent()
   {
     var gateway = new InMemorySheetsGateway();
-    // No Seed: the table does not yet exist.
+    // The spreadsheet exists but holds no table yet — create-if-absent (Save)
+    // creates the table, but Flowthru never creates the spreadsheet.
+    gateway.RegisterSpreadsheet(SpreadsheetId);
     var adapter = new GoogleSheetsStorageAdapter<Person>(SpreadsheetId, TableName, gateway);
 
     Assert.That(await Expect(adapter.Exists()), Is.False, "precondition: table absent");

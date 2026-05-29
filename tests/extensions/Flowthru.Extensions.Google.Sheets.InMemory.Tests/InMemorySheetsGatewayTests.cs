@@ -29,6 +29,7 @@ public sealed class InMemorySheetsGatewayTests
   public async Task AddTable_ReplaceRows_ReadRows_RoundTrips()
   {
     var gateway = new InMemorySheetsGateway();
+    gateway.RegisterSpreadsheet(SpreadsheetId);
 
     var created = await gateway.AddTable(SpreadsheetId, TableName, Schema(), default);
     Assert.That(created.Name, Is.EqualTo(TableName));
@@ -60,6 +61,7 @@ public sealed class InMemorySheetsGatewayTests
   public async Task ReplaceRows_IsAtomicReplace_PreservingSchema()
   {
     var gateway = new InMemorySheetsGateway();
+    gateway.RegisterSpreadsheet(SpreadsheetId);
     var created = await gateway.AddTable(SpreadsheetId, TableName, Schema(), default);
 
     await gateway.ReplaceRows(
@@ -79,6 +81,7 @@ public sealed class InMemorySheetsGatewayTests
   public async Task ReplaceRows_ToEmpty_ClearsAllDataRows()
   {
     var gateway = new InMemorySheetsGateway();
+    gateway.RegisterSpreadsheet(SpreadsheetId);
     var created = await gateway.AddTable(SpreadsheetId, TableName, Schema(), default);
     await gateway.ReplaceRows(
       SpreadsheetId, created, new TableData(created.Schema, new[] { Row("a", 1, true) }), default);
@@ -90,17 +93,23 @@ public sealed class InMemorySheetsGatewayTests
   }
 
   [Test]
-  public async Task ResolveTable_ReturnsNull_WhenSpreadsheetAbsent()
+  public void ResolveTable_Throws_WhenSpreadsheetUnregistered()
   {
+    // Spreadsheet-not-found is now distinct from table-not-found: an
+    // unregistered spreadsheet is "missing", surfacing the access exception
+    // (the offline analogue of Google's 404), not a null.
     var gateway = new InMemorySheetsGateway();
-    var resolved = await gateway.ResolveTable("never-seen", "nope", default);
-    Assert.That(resolved, Is.Null);
+    var ex = Assert.ThrowsAsync<SheetsSpreadsheetAccessException>(
+      async () => await gateway.ResolveTable("never-seen", "nope", default));
+    Assert.That(ex!.SpreadsheetId, Is.EqualTo("never-seen"));
+    Assert.That(ex.Failure, Is.EqualTo(SheetsSpreadsheetAccessFailure.NotFound));
   }
 
   [Test]
-  public async Task ResolveTable_ReturnsNull_WhenTableAbsent()
+  public async Task ResolveTable_ReturnsNull_WhenTableAbsent_ButSpreadsheetPresent()
   {
     var gateway = new InMemorySheetsGateway();
+    gateway.RegisterSpreadsheet(SpreadsheetId);
     await gateway.AddTable(SpreadsheetId, TableName, Schema(), default);
 
     var resolved = await gateway.ResolveTable(SpreadsheetId, "OtherTable", default);
@@ -108,9 +117,21 @@ public sealed class InMemorySheetsGatewayTests
   }
 
   [Test]
+  public void AddTable_Throws_WhenSpreadsheetUnregistered()
+  {
+    // Flowthru creates tables, not spreadsheets: AddTable against an
+    // unregistered spreadsheet is a missing-spreadsheet failure, not an
+    // implicit create.
+    var gateway = new InMemorySheetsGateway();
+    Assert.ThrowsAsync<SheetsSpreadsheetAccessException>(
+      async () => await gateway.AddTable(SpreadsheetId, TableName, Schema(), default));
+  }
+
+  [Test]
   public async Task AddTable_OnExistingName_Throws()
   {
     var gateway = new InMemorySheetsGateway();
+    gateway.RegisterSpreadsheet(SpreadsheetId);
     await gateway.AddTable(SpreadsheetId, TableName, Schema(), default);
 
     Assert.That(
@@ -159,8 +180,11 @@ public sealed class InMemorySheetsGatewayTests
   }
 
   [Test]
-  public async Task TemporalField_SeededAndDumped_RoundTrips()
+  public async Task TemporalField_SeededIntoDateColumn_ReadsBackAsSerialNumber()
   {
+    // A Temporal cell in a Date/DateTime/Time column reads back as the serial
+    // Number the live API returns (UNFORMATTED_VALUE + SERIAL_NUMBER) — the
+    // gateway normalizes on read so the double is faithful to production.
     var schema = new TableSchema(new[] { new TableColumn("When", ColumnType.DateTime) });
     var when = new DateTime(2024, 6, 1, 12, 0, 0);
     var gateway = new InMemorySheetsGateway();
@@ -173,6 +197,11 @@ public sealed class InMemorySheetsGatewayTests
     var resolved = await loaded.ResolveTable(SpreadsheetId, "Events", default);
     var read = await loaded.ReadRows(SpreadsheetId, resolved!, default);
 
-    Assert.That(read.Rows[0][0], Is.EqualTo(FieldValue.Temporal(when, TemporalKind.DateTime)));
+    var expectedSerial = (when - new DateTime(1899, 12, 30)).TotalDays;
+    Assert.That(read.Rows[0][0], Is.EqualTo(FieldValue.Number(expectedSerial)));
+
+    // Storage stays verbatim: the JSON dump still carries the seeded Temporal.
+    // Only the read path normalizes to the live representation.
+    Assert.That(loaded.ToJson(), Does.Contain("Temporal"));
   }
 }

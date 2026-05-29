@@ -68,6 +68,24 @@ public sealed class InMemorySheetsGateway : ISheetsGateway
   // ── Seeding / inspection ────────────────────────────────────────────────
 
   /// <summary>
+  /// Register an empty spreadsheet under <paramref name="spreadsheetId"/> so it
+  /// becomes reachable — the offline analogue of a spreadsheet existing in
+  /// Drive. A gateway no longer creates a spreadsheet implicitly on first write;
+  /// an unregistered spreadsheet is "missing" and surfaces as a
+  /// <see cref="SheetsSpreadsheetAccessException"/>, faithfully simulating a
+  /// 404. Idempotent: registering an already-registered id is a no-op (the
+  /// spreadsheet and its tables are left intact).
+  /// </summary>
+  public void RegisterSpreadsheet(string spreadsheetId)
+  {
+    ArgumentNullException.ThrowIfNull(spreadsheetId);
+    lock (_gate)
+    {
+      _ = GetOrCreateSpreadsheet(spreadsheetId);
+    }
+  }
+
+  /// <summary>
   /// Register a table with <paramref name="schema"/> and optional
   /// <paramref name="rows"/> directly in the store, bypassing quota — the
   /// programmatic fixture entry point for the example and tests. Throws if a
@@ -117,11 +135,15 @@ public sealed class InMemorySheetsGateway : ISheetsGateway
     ct.ThrowIfCancellationRequested();
     lock (_gate)
     {
-      if (!_store.Spreadsheets.TryGetValue(spreadsheetId, out var spreadsheet)
-          || !spreadsheet.Tables.TryGetValue(tableName, out var table))
+      // An unregistered spreadsheet is "missing" — a hard failure, distinct from
+      // a table being absent. This is what lets pre-flight tell 404 apart from
+      // table-not-found.
+      var spreadsheet = RequireSpreadsheet(spreadsheetId);
+
+      if (!spreadsheet.Tables.TryGetValue(tableName, out var table))
       {
-        // Null-when-absent is load-bearing: pre-flight and create-if-absent
-        // branch on it.
+        // Null-when-absent is load-bearing for a present spreadsheet: pre-flight
+        // and create-if-absent branch on it.
         return Task.FromResult<ResolvedTable?>(null);
       }
 
@@ -141,9 +163,13 @@ public sealed class InMemorySheetsGateway : ISheetsGateway
           $"Table '{table.Name}' does not exist in spreadsheet '{spreadsheetId}'.");
 
       // Read back under the resolved schema, copying rows so the caller cannot
-      // mutate the store through the returned data.
+      // mutate the store through the returned data. Date/DateTime/Time columns
+      // are normalized to serial Numbers to mirror the live gateway, which reads
+      // with UNFORMATTED_VALUE + SERIAL_NUMBER and so never returns a Temporal —
+      // a column seeded either way round-trips identically through Load.
+      var columns = table.Schema.Columns;
       var rows = stored.Rows
-        .Select(r => (IReadOnlyList<FieldValue>)r.ToList())
+        .Select(r => (IReadOnlyList<FieldValue>)NormalizeRow(r, columns))
         .ToList();
       return Task.FromResult(new TableData(table.Schema, rows));
     }
@@ -185,7 +211,10 @@ public sealed class InMemorySheetsGateway : ISheetsGateway
     ct.ThrowIfCancellationRequested();
     lock (_gate)
     {
-      var spreadsheet = GetOrCreateSpreadsheet(spreadsheetId);
+      // Flowthru creates tables, not spreadsheets: the spreadsheet must already
+      // exist (the live AddTable needs a sheet to anchor on). An unregistered id
+      // is a missing spreadsheet, not an implicit create.
+      var spreadsheet = RequireSpreadsheet(spreadsheetId);
       if (spreadsheet.Tables.ContainsKey(tableName))
       {
         // Mirror the real API's unique-name rule: creating a duplicate is an
@@ -210,11 +239,60 @@ public sealed class InMemorySheetsGateway : ISheetsGateway
 
   // ── Internals ───────────────────────────────────────────────────────────
 
-  private InMemoryTable? Find(string spreadsheetId, string tableName) =>
-    _store.Spreadsheets.TryGetValue(spreadsheetId, out var spreadsheet)
-      && spreadsheet.Tables.TryGetValue(tableName, out var table)
-        ? table
-        : null;
+  // Normalize a stored row to the live read representation: any cell in a
+  // Date/DateTime/Time column becomes a serial Number, regardless of whether it
+  // was seeded as Temporal (convert via ToSerial) or already as a Number/serial
+  // (passed through). Non-temporal columns are copied verbatim.
+  private static List<FieldValue> NormalizeRow(
+    IReadOnlyList<FieldValue> row, IReadOnlyList<TableColumn> columns)
+  {
+    var normalized = new List<FieldValue>(row.Count);
+    for (var c = 0; c < row.Count; c++)
+    {
+      var field = row[c];
+      var isTemporalColumn = c < columns.Count && IsTemporalColumn(columns[c].Type);
+      normalized.Add(isTemporalColumn ? ToSerialNumber(field) : field);
+    }
+    return normalized;
+  }
+
+  private static bool IsTemporalColumn(ColumnType type) =>
+    type is ColumnType.Date or ColumnType.DateTime or ColumnType.Time;
+
+  // Coerce a temporal-column cell into the serial Number the live gateway emits.
+  // A Temporal is converted to its serial; a Number is already a serial and
+  // passes through; anything else (Empty, or a mis-typed cell) is left as-is so
+  // the schema-driven decoder reports it the same way it would for live data.
+  private static FieldValue ToSerialNumber(FieldValue field) => field.Kind switch
+  {
+    FieldKind.Temporal => FieldValue.Number(Internal.SheetsTranslator.ToSerial(field.TemporalValue)),
+    _ => field,
+  };
+
+  private InMemoryTable? Find(string spreadsheetId, string tableName)
+  {
+    // Unregistered spreadsheet → hard failure, the same 404-shape ResolveTable
+    // surfaces; a registered spreadsheet missing the table → null.
+    var spreadsheet = RequireSpreadsheet(spreadsheetId);
+    return spreadsheet.Tables.TryGetValue(tableName, out var table) ? table : null;
+  }
+
+  // Look up a spreadsheet that must already be registered; an unknown id is a
+  // missing spreadsheet (the offline analogue of Google's 404), distinct from a
+  // table being absent within it.
+  private InMemorySpreadsheet RequireSpreadsheet(string spreadsheetId)
+  {
+    if (_store.Spreadsheets.TryGetValue(spreadsheetId, out var spreadsheet))
+    {
+      return spreadsheet;
+    }
+
+    throw new SheetsSpreadsheetAccessException(
+      spreadsheetId,
+      SheetsSpreadsheetAccessFailure.NotFound,
+      $"Spreadsheet '{spreadsheetId}' does not exist. Register it with "
+      + $"{nameof(RegisterSpreadsheet)} or {nameof(Seed)} before using it.");
+  }
 
   private InMemorySpreadsheet GetOrCreateSpreadsheet(string spreadsheetId)
   {

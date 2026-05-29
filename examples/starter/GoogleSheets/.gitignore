@@ -1,0 +1,5 @@
+# Flowthru-owned local state (Inspector snapshots, cache manifests, etc.)
+.flowthru/
+
+# Generated metadata
+Metadata/
