@@ -27,6 +27,8 @@
 
   <ItemGroup>
     <ProjectReference Include="$(RepoRoot)src/extensions/Flowthru.Extensions.Google.Sheets/Flowthru.Extensions.Google.Sheets.csproj" />
+    <!-- Drives the adapter's read path against the offline gateway (no live API). -->
+    <ProjectReference Include="$(RepoRoot)src/extensions/Flowthru.Extensions.Google.Sheets.InMemory/Flowthru.Extensions.Google.Sheets.InMemory.csproj" />
   </ItemGroup>
 
 </Project>
