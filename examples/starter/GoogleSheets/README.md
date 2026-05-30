@@ -20,7 +20,10 @@ Assumes you've worked through [Minimal](https://github.com/chaoticgoodcomputing/
 dotnet run
 ```
 
-The flow reads the seeded `RawSales` table, totals each day's sales, and writes a `DailyTotals` table back to the spreadsheet — created from the schema on first write. No Google account or network required. The whole spreadsheet is a local file, `sheet.json` (gitignored), written in the project directory; open it after a run to see `RawSales` alongside the created `DailyTotals`.
+The flow reads the `RawSales` table, totals each day's sales, and writes a `DailyTotals` table back to the spreadsheet — created from the schema on first write. No Google account or network required. The whole spreadsheet is a local file under `Data/.local-sheets/`:
+
+- **`raw.json`** — the checked-in input, the spreadsheet's starting contents. Open or edit it to change what the flow reads.
+- **`working.json`** — generated, gitignored. Each run copies `raw.json` over it and points the gateway there, so a run always starts from the pristine raw input. After a run, open it to see `RawSales` alongside the created `DailyTotals`.
 
 To point the example at a real spreadsheet, see [Connecting to a real spreadsheet](#connecting-to-a-real-spreadsheet) below.
 
@@ -61,7 +64,7 @@ services.AddFlowthru(flowthru =>
 });
 ```
 
-Set `<your-spreadsheet-id>` to the id from the sheet's URL (`docs.google.com/spreadsheets/d/<id>/edit`) and drop `SeedFixture` — the real sheet already holds the `RawSales` data (add a header row + rows on a tab, or let an upstream Flow write it). `DailyTotals` is still created-if-absent on the first write.
+Set `<your-spreadsheet-id>` to the id from the sheet's URL (`docs.google.com/spreadsheets/d/<id>/edit`) and drop the `raw.json` → `working.json` copy — the real sheet already holds the `RawSales` data (add a header row + rows on a tab, or let an upstream Flow write it). `DailyTotals` is still created-if-absent on the first write.
 
 > **Other credential sources.** Because the extension just consumes a `SheetsService`, anything that builds one works: OAuth user credentials (`GoogleWebAuthorizationBroker`) for an individual without a service account, or Application Default Credentials on GCP infrastructure (no key file). `GoogleCredential.FromFile` is being deprecated in newer SDKs in favor of `CredentialFactory` — use whichever your SDK version exposes.
 
@@ -75,7 +78,7 @@ Apps Script can't *run* this .NET example — the example authenticates through 
 - **[The "Raw Data" output table](./Data/_03_Primary/Catalog.Primary.cs):** Flowthru owns one table, created from the schema if absent and atomically replaced every run, scoped to its own tab so sibling formula tabs are never clobbered. Replace is the upsert.
 - **[`ISheetsGateway` by injection](./Data/Catalog.cs):** the catalog takes the gateway through its constructor — auth lives in DI, never in the catalog or the DAG.
 - **[`AddGoogleSheets(gateway)` — the swap point](./Program.cs):** registers the gateway (retry-on-429 wrapped by default). The same call site takes a live `SheetsService` in production or the offline file-backed gateway here.
-- **[`JsonFileSheetsGateway` seeding](./Program.cs):** a local JSON file stands in for the spreadsheet; `RegisterSpreadsheet` makes it reachable and `Seed` populates a table, so the example is deterministic with no live API and leaves an inspectable `sheet.json` behind.
+- **[`JsonFileSheetsGateway` over raw → working](./Program.cs):** a local JSON file stands in for the spreadsheet. The checked-in `Data/.local-sheets/raw.json` (built by `RegisterSpreadsheet` + `Seed`) holds the input; each run copies it to a gitignored `working.json` and points the gateway there, so the example is deterministic with no live API and leaves an inspectable working file behind.
 - **[Typed flat columns](./Data/_01_Raw/Schemas/RawSaleSchema.cs):** a `[FlowthruSchema]` flat record maps each property to one typed column — text, date, and number columns round-trip through the gateway.
 
 ## Structure
@@ -107,6 +110,8 @@ flowchart LR
 GoogleSheets/
 ├── Program.cs  # entry point
 ├── Data/
+│   ├── .local-sheets/
+│   │   └── raw.json  # checked-in offline input (working.json is generated)
 │   ├── _01_Raw/
 │   │   └── Schemas/
 │   │       └── RawSaleSchema.cs

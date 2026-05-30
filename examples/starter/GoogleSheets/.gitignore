@@ -4,5 +4,6 @@
 # Generated metadata
 Metadata/
 
-# Offline JSON-backed Sheets store written by JsonFileSheetsGateway on run
-sheet.json
+# Offline JSON-backed Sheets store: raw.json is the checked-in input; the
+# working copy each run derives from it (and the flow mutates) is generated.
+Data/.local-sheets/working.json

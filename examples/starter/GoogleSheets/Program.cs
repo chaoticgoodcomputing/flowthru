@@ -1,5 +1,4 @@
 using Flowthru.Cli;
-using Flowthru.Data.Storage.Sheets;
 using Flowthru.Data.Storage.Sheets.Local;
 using Flowthru.Diagnostics;
 using Flowthru.Diagnostics.Json;
@@ -29,9 +28,12 @@ namespace GoogleSheets;
 /// Default Credentials) — the catalog, the flow, and the steps do not change.
 /// </para>
 /// <para>
-/// Interactively (<c>dotnet run</c>) the gateway writes to <c>./sheet.json</c> in
-/// the project directory (gitignored). After a run, open it to see the seeded
-/// <c>RawSales</c> table plus the <c>DailyTotals</c> table the flow created.
+/// Data lives under <c>Data/.local-sheets/</c>. <c>raw.json</c> is the
+/// checked-in input — the spreadsheet's starting contents, which you can open
+/// and edit. Each run copies it over <c>working.json</c> (gitignored) and points
+/// the gateway there, so a run always starts from the pristine raw input. After
+/// a run, open <c>working.json</c> to see the <c>RawSales</c> table plus the
+/// <c>DailyTotals</c> table the flow created.
 /// </para>
 /// </remarks>
 public class Program
@@ -40,16 +42,28 @@ public class Program
   // the JSON store; against the live API it is the id from the sheet's URL.
   private const string SpreadsheetId = "example-spreadsheet";
 
-  // The local file the offline gateway reads from and flushes to on each run.
-  private const string SheetFileName = "sheet.json";
+  // The checked-in raw input sheet (the spreadsheet's starting contents) and the
+  // derived working copy the gateway reads from and flushes to on each run.
+  private static readonly string LocalSheetsDir =
+    Path.Combine("Data", ".local-sheets");
+  private const string RawFileName = "raw.json";
+  private const string WorkingFileName = "working.json";
 
   public static Task<int> Main(string[] args)
   {
     var basePath = Directory.GetCurrentDirectory();
-    var sheetPath = Path.Combine(basePath, SheetFileName);
+    var sheetsDir = Path.Combine(basePath, LocalSheetsDir);
+    Directory.CreateDirectory(sheetsDir);
+
+    // raw.json is the source of truth; working.json is the derived, mutated copy
+    // you inspect. Start every interactive run from the pristine raw input.
+    var rawPath = RequireRawPath(basePath);
+    var workingPath = Path.Combine(sheetsDir, WorkingFileName);
+    File.Copy(rawPath, workingPath, overwrite: true);
+
     return FlowthruCli.RunStandaloneAsync(
       args,
-      services => ConfigureServices(services, basePath, sheetPath)
+      services => ConfigureServices(services, basePath, workingPath)
     );
   }
 
@@ -57,25 +71,45 @@ public class Program
   /// Build a configured service provider for tests / external hosts.
   /// </summary>
   /// <remarks>
-  /// Each call points the gateway at a <strong>fresh temp file</strong>, seeded
-  /// from scratch, so the auto-discovered example test is deterministic and never
-  /// touches (or depends on) the interactive <c>./sheet.json</c>.
+  /// Each call copies the checked-in <c>raw.json</c> to a <strong>fresh temp
+  /// working file</strong>, so the auto-discovered example test is deterministic,
+  /// runs from the same pristine input the interactive path does, and never
+  /// touches (or depends on) <c>Data/.local-sheets/working.json</c>.
   /// </remarks>
   public static IServiceProvider ConfigureServices(string? basePath = null)
   {
     var resolvedBase = basePath ?? Directory.GetCurrentDirectory();
-    // A unique temp file per call keeps parallel test runs disjoint and avoids
-    // polluting the project's inspectable ./sheet.json.
-    var sheetPath = Path.Combine(
+    // A unique temp working file per call keeps parallel test runs disjoint and
+    // avoids polluting the project's inspectable working.json.
+    var rawPath = RequireRawPath(resolvedBase);
+    var workingPath = Path.Combine(
       Path.GetTempPath(), $"flowthru-sheets-{Guid.NewGuid():N}.json");
+    File.Copy(rawPath, workingPath, overwrite: true);
 
     var services = new ServiceCollection();
-    ConfigureServices(services, resolvedBase, sheetPath);
+    ConfigureServices(services, resolvedBase, workingPath);
     return services.BuildServiceProvider();
   }
 
+  // Resolve the checked-in raw input sheet, failing clearly if it is missing.
+  // It is committed, so a miss means the project layout is wrong, not a normal
+  // state to recover from.
+  private static string RequireRawPath(string basePath)
+  {
+    var rawPath = Path.Combine(basePath, LocalSheetsDir, RawFileName);
+    if (!File.Exists(rawPath))
+    {
+      throw new FileNotFoundException(
+        $"Raw input sheet not found at '{rawPath}'. It is checked in under "
+        + $"{LocalSheetsDir}/{RawFileName}; the example cannot run without it.",
+        rawPath);
+    }
+
+    return rawPath;
+  }
+
   private static void ConfigureServices(
-    IServiceCollection services, string basePath, string sheetPath)
+    IServiceCollection services, string basePath, string workingPath)
   {
     var configuration = new ConfigurationBuilder()
       .SetBasePath(basePath)
@@ -85,11 +119,10 @@ public class Program
     services.AddSingleton<IConfiguration>(configuration);
 
     // ── The swap point ────────────────────────────────────────────────────
-    // An offline, file-backed gateway, seeded with the input the flow reads.
-    // Swap this whole block for `builder.AddGoogleSheets(sheetsService)` to talk
-    // to a real sheet.
-    var gateway = new JsonFileSheetsGateway(sheetPath);
-    SeedFixture(gateway);
+    // An offline, file-backed gateway over the working copy of the raw input
+    // sheet (RawSales already lives in the JSON). Swap this whole block for
+    // `builder.AddGoogleSheets(sheetsService)` to talk to a real sheet.
+    var gateway = new JsonFileSheetsGateway(workingPath);
 
     services.AddFlowthru(flowthru =>
     {
@@ -117,57 +150,4 @@ public class Program
       logging.SetMinimumLevel(LogLevel.Information);
     });
   }
-
-  /// <summary>
-  /// Stand in for the spreadsheet's existing contents. Offline, the input table
-  /// has to exist before the flow reads it — Flowthru creates tables, not
-  /// spreadsheets, so the spreadsheet must be registered first. The output table
-  /// is left absent on purpose: the flow's write creates it from the schema,
-  /// demonstrating the create-if-absent "Raw Data" pattern.
-  /// </summary>
-  /// <remarks>
-  /// Idempotent: if the gateway's file already holds <c>RawSales</c> (a prior
-  /// interactive run), seeding is skipped so a re-run reads the existing input
-  /// rather than throwing on the duplicate table.
-  /// </remarks>
-  private static void SeedFixture(JsonFileSheetsGateway gateway)
-  {
-    // Reachable spreadsheet — the offline analogue of a sheet existing in Drive.
-    gateway.RegisterSpreadsheet(SpreadsheetId);
-
-    // Already seeded (e.g. a prior run flushed it to disk)? Leave it alone.
-    if (gateway.ResolveTable(SpreadsheetId, "RawSales", default).GetAwaiter().GetResult() is not null)
-    {
-      return;
-    }
-
-    // The input table's column names match RawSaleSchema's serialized labels;
-    // the date column is seeded as a natural Temporal field. The gateway
-    // normalizes Date/DateTime/Time columns to the serial Number the live API
-    // returns on read, so the schema-driven decoder coerces it back to a
-    // DateOnly either way.
-    var schema = new TableSchema(new[]
-    {
-      new TableColumn("Product", ColumnType.Text),
-      new TableColumn("SoldOn", ColumnType.Date),
-      new TableColumn("Amount", ColumnType.Number),
-    });
-
-    var rows = new[]
-    {
-      Row("Widget", new DateOnly(2026, 5, 1), 10.00),
-      Row("Gadget", new DateOnly(2026, 5, 1), 5.50),
-      Row("Widget", new DateOnly(2026, 5, 2), 12.25),
-    };
-
-    gateway.Seed(SpreadsheetId, "RawSales", schema, rows);
-  }
-
-  private static IReadOnlyList<FieldValue> Row(string product, DateOnly soldOn, double amount) =>
-    new[]
-    {
-      FieldValue.Text(product),
-      FieldValue.Temporal(soldOn.ToDateTime(TimeOnly.MinValue), TemporalKind.Date),
-      FieldValue.Number(amount),
-    };
 }
