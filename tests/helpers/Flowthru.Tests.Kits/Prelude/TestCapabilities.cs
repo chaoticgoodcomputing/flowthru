@@ -43,6 +43,58 @@ public static class TestCapabilities
       "Install: https://docs.docker.com/get-docker/"
   );
 
+  private static readonly Lazy<bool> _hasGoogleSheetsCredentials = new(
+    HasGoogleSheetsCredentials,
+    LazyThreadSafetyMode.ExecutionAndPublication
+  );
+
+  /// <summary>
+  /// A test spreadsheet id plus a usable Google credential, supplied via the
+  /// environment. Required by any backend that drives a real
+  /// <c>SheetsService</c> against Google. The probe is env-and-file only — it
+  /// never builds a client or triggers an OAuth browser consent (that happens
+  /// in the backend's setup, after this gate clears). It is satisfied when
+  /// <c>FLOWTHRU_SHEETS_TEST_SPREADSHEET_ID</c> is set <em>and</em> exactly one
+  /// of the two credential paths resolves to an existing file:
+  /// <list type="bullet">
+  ///   <item><c>FLOWTHRU_SHEETS_SA_KEY</c> — a service-account JSON key.</item>
+  ///   <item><c>FLOWTHRU_SHEETS_OAUTH_CLIENT_SECRET</c> — an OAuth desktop
+  ///     client secret.</item>
+  /// </list>
+  /// The credential <em>type</em> (SA vs OAuth) is auto-detected by the
+  /// consuming backend; the same law suite runs under either.
+  /// </summary>
+  public static TestCapability GoogleSheetsCredentials { get; } = new(
+    Name: "google-sheets-credentials",
+    IsAvailable: () => _hasGoogleSheetsCredentials.Value,
+    MissingMessage:
+      "A test spreadsheet id and a Google credential are required for the live " +
+      "Sheets backend. Set FLOWTHRU_SHEETS_TEST_SPREADSHEET_ID plus one of " +
+      "FLOWTHRU_SHEETS_SA_KEY (service-account JSON path) or " +
+      "FLOWTHRU_SHEETS_OAUTH_CLIENT_SECRET (OAuth desktop client-secret path). " +
+      "See tests/extensions/Flowthru.Extensions.Google.Sheets.Tests/README.md."
+  );
+
+  /// <summary>
+  /// Env-and-file-only probe for <see cref="GoogleSheetsCredentials"/>. A
+  /// spreadsheet id must be present, and a credential file path (SA preferred
+  /// when both are set) must point at an existing file. Never opens a stream,
+  /// builds a client, or consents — keeping the gate cheap and browser-free.
+  /// </summary>
+  private static bool HasGoogleSheetsCredentials()
+  {
+    var spreadsheetId = Environment.GetEnvironmentVariable("FLOWTHRU_SHEETS_TEST_SPREADSHEET_ID");
+    if (string.IsNullOrWhiteSpace(spreadsheetId)) return false;
+
+    var saKey = Environment.GetEnvironmentVariable("FLOWTHRU_SHEETS_SA_KEY");
+    if (!string.IsNullOrWhiteSpace(saKey) && File.Exists(saKey)) return true;
+
+    var oauthSecret = Environment.GetEnvironmentVariable("FLOWTHRU_SHEETS_OAUTH_CLIENT_SECRET");
+    if (!string.IsNullOrWhiteSpace(oauthSecret) && File.Exists(oauthSecret)) return true;
+
+    return false;
+  }
+
   /// <summary>
   /// Probes whether <paramref name="command"/> resolves on the current
   /// <c>PATH</c> by running <c>which</c> (POSIX) or <c>where</c>
