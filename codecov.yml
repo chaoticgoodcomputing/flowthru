@@ -34,6 +34,8 @@ flags:
     carryforward: true
   Flowthru.Extensions.Excel.Tests:
     carryforward: true
+  Flowthru.Extensions.Google.Sheets.Tests:
+    carryforward: true
   Flowthru.Extensions.GQL.Tests:
     carryforward: true
   Flowthru.Extensions.Http.Tests:
@@ -69,6 +71,8 @@ flags:
   Flowthru.Tests.Packaging:
     carryforward: true
   FlowthruCoverage:
+    carryforward: true
+  GoogleSheets:
     carryforward: true
   Iris:
     carryforward: true
@@ -144,6 +148,10 @@ component_management:
       name: Flowthru.Extensions.Excel
       paths:
         - src/extensions/Flowthru.Extensions.Excel/**
+    - component_id: flowthru_extensions_google_sheets
+      name: Flowthru.Extensions.Google.Sheets
+      paths:
+        - src/extensions/Flowthru.Extensions.Google.Sheets/**
     - component_id: flowthru_extensions_gql
       name: Flowthru.Extensions.GQL
       paths:

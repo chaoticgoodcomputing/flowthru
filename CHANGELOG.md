@@ -1,3 +1,13 @@
+## 0.23.0 (2026-05-30)
+
+### 🚀 Features
+
+- google sheets extension ([#97](https://github.com/chaoticgoodcomputing/flowthru/pull/97))
+
+### ❤️ Thank You
+
+- Spencer Elkington
+
 ## 0.22.0 (2026-05-27)
 
 ### 🚀 Features
