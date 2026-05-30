@@ -1,0 +1,105 @@
+{
+  "Spreadsheets": {
+    "example-spreadsheet": {
+      "SheetId": 0,
+      "Tables": {
+        "RawSales": {
+          "Columns": [
+            {
+              "Name": "Product",
+              "Type": "Text"
+            },
+            {
+              "Name": "SoldOn",
+              "Type": "Date"
+            },
+            {
+              "Name": "Amount",
+              "Type": "Number"
+            }
+          ],
+          "Rows": [
+            [
+              {
+                "Kind": "Text",
+                "NumberValue": 0,
+                "BoolValue": false,
+                "TextValue": "Widget",
+                "TemporalValue": "0001-01-01T00:00:00",
+                "TemporalKind": "Date"
+              },
+              {
+                "Kind": "Temporal",
+                "NumberValue": 0,
+                "BoolValue": false,
+                "TextValue": null,
+                "TemporalValue": "2026-05-01T00:00:00",
+                "TemporalKind": "Date"
+              },
+              {
+                "Kind": "Number",
+                "NumberValue": 10,
+                "BoolValue": false,
+                "TextValue": null,
+                "TemporalValue": "0001-01-01T00:00:00",
+                "TemporalKind": "Date"
+              }
+            ],
+            [
+              {
+                "Kind": "Text",
+                "NumberValue": 0,
+                "BoolValue": false,
+                "TextValue": "Gadget",
+                "TemporalValue": "0001-01-01T00:00:00",
+                "TemporalKind": "Date"
+              },
+              {
+                "Kind": "Temporal",
+                "NumberValue": 0,
+                "BoolValue": false,
+                "TextValue": null,
+                "TemporalValue": "2026-05-01T00:00:00",
+                "TemporalKind": "Date"
+              },
+              {
+                "Kind": "Number",
+                "NumberValue": 5.5,
+                "BoolValue": false,
+                "TextValue": null,
+                "TemporalValue": "0001-01-01T00:00:00",
+                "TemporalKind": "Date"
+              }
+            ],
+            [
+              {
+                "Kind": "Text",
+                "NumberValue": 0,
+                "BoolValue": false,
+                "TextValue": "Widget",
+                "TemporalValue": "0001-01-01T00:00:00",
+                "TemporalKind": "Date"
+              },
+              {
+                "Kind": "Temporal",
+                "NumberValue": 0,
+                "BoolValue": false,
+                "TextValue": null,
+                "TemporalValue": "2026-05-02T00:00:00",
+                "TemporalKind": "Date"
+              },
+              {
+                "Kind": "Number",
+                "NumberValue": 12.25,
+                "BoolValue": false,
+                "TextValue": null,
+                "TemporalValue": "0001-01-01T00:00:00",
+                "TemporalKind": "Date"
+              }
+            ]
+          ]
+        }
+      }
+    }
+  }
+}

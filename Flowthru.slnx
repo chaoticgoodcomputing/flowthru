@@ -13,6 +13,7 @@
   <Project Path="src/extensions/Flowthru.Extensions.EFCore/Flowthru.Extensions.EFCore.csproj" />
   <Project Path="src/extensions/Flowthru.Extensions.EFCore.Bulk/Flowthru.Extensions.EFCore.Bulk.csproj" />
   <Project Path="src/extensions/Flowthru.Extensions.GQL/Flowthru.Extensions.GQL.csproj" />
+  <Project Path="src/extensions/Flowthru.Extensions.Google.Sheets/Flowthru.Extensions.Google.Sheets.csproj" />
   <Project Path="src/extensions/Flowthru.Extensions.Http/Flowthru.Extensions.Http.csproj" />
   <Project Path="src/extensions/Flowthru.Extensions.Parquet/Flowthru.Extensions.Parquet.csproj" />
   <Project Path="src/extensions/Flowthru.Extensions.Python/Flowthru.Extensions.Python.csproj" />
@@ -39,6 +40,7 @@
   <Project Path="tests/extensions/Flowthru.Extensions.EFCore.Bulk.Tests/Flowthru.Extensions.EFCore.Bulk.Tests.csproj" />
   <Project Path="tests/extensions/Flowthru.Extensions.Excel.Tests/Flowthru.Extensions.Excel.Tests.csproj" />
   <Project Path="tests/extensions/Flowthru.Extensions.GQL.Tests/Flowthru.Extensions.GQL.Tests.csproj" />
+  <Project Path="tests/extensions/Flowthru.Extensions.Google.Sheets.Tests/Flowthru.Extensions.Google.Sheets.Tests.csproj" />
   <Project Path="tests/extensions/Flowthru.Extensions.Http.Tests/Flowthru.Extensions.Http.Tests.csproj" />
   <Project Path="tests/extensions/Flowthru.Extensions.Metadata.Json.Tests/Flowthru.Extensions.Metadata.Json.Tests.csproj" />
   <Project Path="tests/extensions/Flowthru.Extensions.Metadata.Mermaid.Tests/Flowthru.Extensions.Metadata.Mermaid.Tests.csproj" />
@@ -67,6 +69,7 @@
   <Project Path="examples/starter/Iris/Iris.csproj" />
   <Project Path="examples/starter/IrisFUnit/IrisFUnit.csproj" />
   <Project Path="examples/starter/IrisPython/IrisPython.csproj" />
+  <Project Path="examples/starter/GoogleSheets/GoogleSheets.csproj" />
   <Project Path="examples/starter/Minimal/Minimal.csproj" />
   <Project Path="examples/starter/SimpleEffectsExample/SimpleEffectsExample.csproj" />
 </Solution>

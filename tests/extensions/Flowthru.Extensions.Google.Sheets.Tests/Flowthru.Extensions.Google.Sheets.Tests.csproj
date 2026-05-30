@@ -1,0 +1,41 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="coverlet.collector" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="NUnit" />
+    <PackageReference Include="NUnit.Analyzers" />
+    <PackageReference Include="NUnit3TestAdapter" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- The translator returns Google SDK types; tests assert on them directly. -->
+    <PackageReference Include="Google.Apis.Sheets.v4" />
+    <!-- Live backend builds an authenticated SheetsService (SA / OAuth). -->
+    <PackageReference Include="Google.Apis.Auth" />
+    <!-- DI hosting tests build a service provider and resolve the gateway. -->
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" />
+    <!-- Controllable TimeProvider (FakeTimeProvider) for clock-driven backoff tests. -->
+    <PackageReference Include="Microsoft.Extensions.TimeProvider.Testing" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="NUnit.Framework" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="$(RepoRoot)src/extensions/Flowthru.Extensions.Google.Sheets/Flowthru.Extensions.Google.Sheets.csproj" />
+    <!-- Backend-matrix shape + TestCapability/TestCapabilities capability gate. -->
+    <ProjectReference Include="$(RepoRoot)tests/helpers/Flowthru.Tests.Kits/Flowthru.Tests.Kits.csproj" />
+  </ItemGroup>
+
+</Project>

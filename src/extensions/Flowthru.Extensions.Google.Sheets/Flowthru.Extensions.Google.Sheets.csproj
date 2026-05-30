@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <Description>Google Sheets integration for Flowthru data catalogs via the official Google.Apis.Sheets.v4 client</Description>
+
+    <!-- NuGet Package Configuration -->
+    <PackageId>Flowthru.Extensions.Google.Sheets</PackageId>
+    <PackageTags>data-engineering;pipeline;google-sheets;sheets;spreadsheet</PackageTags>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="$(RepoRoot)src/core/Flowthru.Core/Flowthru.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Official Google client: confined entirely to SheetsServiceGateway. -->
+    <PackageReference Include="Google.Apis.Sheets.v4" />
+    <PackageReference Include="Google.Apis.Auth" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Flowthru.Extensions.Google.Sheets.Tests" />
+  </ItemGroup>
+
+</Project>
