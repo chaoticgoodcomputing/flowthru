@@ -2,7 +2,7 @@ using Flowthru.Data.Storage.Sheets;
 using Flowthru.Data.Storage.Sheets.InMemory;
 using Microsoft.Extensions.Time.Testing;
 
-namespace Flowthru.Extensions.Google.Sheets.InMemory.Tests;
+namespace Flowthru.Extensions.Google.Sheets.Tests;
 
 /// <summary>
 /// Quota-ON / fault-injection behavior of <see cref="InMemorySheetsGateway"/>.

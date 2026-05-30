@@ -383,6 +383,8 @@
   - name: Interfaces
   - name: IFlowResource
     href: Flowthru.Prelude.IFlowResource.md
+  - name: IFlowResourceProvider
+    href: Flowthru.Prelude.IFlowResourceProvider.md
 - name: Flowthru.Step
   href: Flowthru.Step.md
   items:

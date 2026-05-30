@@ -8,7 +8,7 @@ namespace GoogleSheets.Data;
 /// <see cref="ISheetsGateway"/> by injection — the same way the EF Core example's
 /// catalog takes an injected <c>DbContext</c> factory — so it never sees a
 /// credential and never references the Google SDK. The host decides which gateway
-/// to hand it: the offline <c>InMemorySheetsGateway</c> here, or a live
+/// to hand it: the offline <c>JsonFileSheetsGateway</c> here, or a live
 /// <c>SheetsService</c>-backed one in production, with no change to the catalog.
 /// </summary>
 public partial class Catalog : CatalogAbstract

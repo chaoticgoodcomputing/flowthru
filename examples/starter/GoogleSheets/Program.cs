@@ -1,6 +1,6 @@
 using Flowthru.Cli;
 using Flowthru.Data.Storage.Sheets;
-using Flowthru.Data.Storage.Sheets.InMemory;
+using Flowthru.Data.Storage.Sheets.Local;
 using Flowthru.Diagnostics;
 using Flowthru.Diagnostics.Json;
 using Flowthru.Diagnostics.Mermaid;
@@ -20,35 +20,62 @@ namespace GoogleSheets;
 /// </summary>
 /// <remarks>
 /// <para>
-/// The whole example runs against an <see cref="InMemorySheetsGateway"/>: no
-/// Google account, no credentials, no network. The gateway is the swap point.
-/// In production you replace the two seeding-and-registration lines with a single
+/// The whole example runs against a <see cref="JsonFileSheetsGateway"/>: no
+/// Google account, no credentials, no network — just a local JSON file standing
+/// in for the spreadsheet. The gateway is the swap point. In production you
+/// replace the gateway-construction-and-seeding lines with a single
 /// <c>builder.AddGoogleSheets(sheetsService)</c> over an authenticated
 /// <c>SheetsService</c> (built from a service account, OAuth, or Application
 /// Default Credentials) — the catalog, the flow, and the steps do not change.
+/// </para>
+/// <para>
+/// Interactively (<c>dotnet run</c>) the gateway writes to <c>./sheet.json</c> in
+/// the project directory (gitignored). After a run, open it to see the seeded
+/// <c>RawSales</c> table plus the <c>DailyTotals</c> table the flow created.
 /// </para>
 /// </remarks>
 public class Program
 {
   // The id of the spreadsheet the tables live in. Offline this is just a key in
-  // the in-memory store; against the live API it is the id from the sheet's URL.
+  // the JSON store; against the live API it is the id from the sheet's URL.
   private const string SpreadsheetId = "example-spreadsheet";
 
-  public static Task<int> Main(string[] args) =>
-    FlowthruCli.RunStandaloneAsync(
-      args,
-      services => ConfigureServices(services, Directory.GetCurrentDirectory())
-    );
+  // The local file the offline gateway reads from and flushes to on each run.
+  private const string SheetFileName = "sheet.json";
 
-  /// <summary>Build a configured service provider for tests / external hosts.</summary>
+  public static Task<int> Main(string[] args)
+  {
+    var basePath = Directory.GetCurrentDirectory();
+    var sheetPath = Path.Combine(basePath, SheetFileName);
+    return FlowthruCli.RunStandaloneAsync(
+      args,
+      services => ConfigureServices(services, basePath, sheetPath)
+    );
+  }
+
+  /// <summary>
+  /// Build a configured service provider for tests / external hosts.
+  /// </summary>
+  /// <remarks>
+  /// Each call points the gateway at a <strong>fresh temp file</strong>, seeded
+  /// from scratch, so the auto-discovered example test is deterministic and never
+  /// touches (or depends on) the interactive <c>./sheet.json</c>.
+  /// </remarks>
   public static IServiceProvider ConfigureServices(string? basePath = null)
   {
+    var resolvedBase = basePath ?? Directory.GetCurrentDirectory();
+    // A unique temp file per call keeps parallel test runs disjoint and avoids
+    // polluting the project's inspectable ./sheet.json.
+    var sheetPath = Path.Combine(
+      Path.GetTempPath(), $"flowthru-sheets-{Guid.NewGuid():N}.json");
+
     var services = new ServiceCollection();
-    ConfigureServices(services, basePath ?? Directory.GetCurrentDirectory());
+    ConfigureServices(services, resolvedBase, sheetPath);
     return services.BuildServiceProvider();
   }
 
-  private static void ConfigureServices(IServiceCollection services, string basePath)
+  private static void ConfigureServices(
+    IServiceCollection services, string basePath, string sheetPath)
   {
     var configuration = new ConfigurationBuilder()
       .SetBasePath(basePath)
@@ -58,9 +85,10 @@ public class Program
     services.AddSingleton<IConfiguration>(configuration);
 
     // ── The swap point ────────────────────────────────────────────────────
-    // An offline gateway, seeded with the input the flow reads. Swap this whole
-    // block for `builder.AddGoogleSheets(sheetsService)` to talk to a real sheet.
-    var gateway = new InMemorySheetsGateway();
+    // An offline, file-backed gateway, seeded with the input the flow reads.
+    // Swap this whole block for `builder.AddGoogleSheets(sheetsService)` to talk
+    // to a real sheet.
+    var gateway = new JsonFileSheetsGateway(sheetPath);
     SeedFixture(gateway);
 
     services.AddFlowthru(flowthru =>
@@ -97,10 +125,21 @@ public class Program
   /// is left absent on purpose: the flow's write creates it from the schema,
   /// demonstrating the create-if-absent "Raw Data" pattern.
   /// </summary>
-  private static void SeedFixture(InMemorySheetsGateway gateway)
+  /// <remarks>
+  /// Idempotent: if the gateway's file already holds <c>RawSales</c> (a prior
+  /// interactive run), seeding is skipped so a re-run reads the existing input
+  /// rather than throwing on the duplicate table.
+  /// </remarks>
+  private static void SeedFixture(JsonFileSheetsGateway gateway)
   {
     // Reachable spreadsheet — the offline analogue of a sheet existing in Drive.
     gateway.RegisterSpreadsheet(SpreadsheetId);
+
+    // Already seeded (e.g. a prior run flushed it to disk)? Leave it alone.
+    if (gateway.ResolveTable(SpreadsheetId, "RawSales", default).GetAwaiter().GetResult() is not null)
+    {
+      return;
+    }
 
     // The input table's column names match RawSaleSchema's serialized labels;
     // the date column is seeded as a natural Temporal field. The gateway

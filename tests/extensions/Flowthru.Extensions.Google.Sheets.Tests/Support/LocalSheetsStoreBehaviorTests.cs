@@ -1,16 +1,17 @@
 using Flowthru.Data.Storage.Sheets;
 using Flowthru.Data.Storage.Sheets.InMemory;
+using Flowthru.Data.Storage.Sheets.Local;
 
-namespace Flowthru.Extensions.Google.Sheets.InMemory.Tests;
+namespace Flowthru.Extensions.Google.Sheets.Tests;
 
 /// <summary>
-/// Quota-OFF behavior of <see cref="InMemorySheetsGateway"/> — the deterministic
-/// default the starter example relies on: the four seam ops round-trip, absent
-/// tables resolve to null, duplicate creation throws, and the store seeds/dumps
-/// as JSON.
+/// Quota-OFF behavior of the <see cref="LocalSheetsStore"/> exercised through the
+/// in-memory double — the deterministic default both shipped local gateways rely
+/// on: the four seam ops round-trip, absent tables resolve to null, duplicate
+/// creation throws, and the store seeds/dumps as JSON.
 /// </summary>
 [TestFixture]
-public sealed class InMemorySheetsGatewayTests
+public sealed class LocalSheetsStoreBehaviorTests
 {
   private const string SpreadsheetId = "sheet-1";
   private const string TableName = "RawData";
@@ -166,7 +167,7 @@ public sealed class InMemorySheetsGatewayTests
     var json = source.ToJson();
 
     // Rehydrate a fresh gateway from the JSON dump and read it back.
-    var loaded = new InMemorySheetsGateway(InMemorySheetsStore.FromJson(json));
+    var loaded = new InMemorySheetsGateway(LocalSheetsStore.FromJson(json));
     var resolved = await loaded.ResolveTable(SpreadsheetId, TableName, default);
     Assert.That(resolved, Is.Not.Null);
     Assert.That(resolved!.Schema.Columns[1].Type, Is.EqualTo(ColumnType.Number));
@@ -193,7 +194,7 @@ public sealed class InMemorySheetsGatewayTests
       new[] { FieldValue.Temporal(when, TemporalKind.DateTime) },
     });
 
-    var loaded = new InMemorySheetsGateway(InMemorySheetsStore.FromJson(gateway.ToJson()));
+    var loaded = new InMemorySheetsGateway(LocalSheetsStore.FromJson(gateway.ToJson()));
     var resolved = await loaded.ResolveTable(SpreadsheetId, "Events", default);
     var read = await loaded.ReadRows(SpreadsheetId, resolved!, default);
 

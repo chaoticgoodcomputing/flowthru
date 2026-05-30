@@ -23,9 +23,6 @@
 
   <ItemGroup>
     <InternalsVisibleTo Include="Flowthru.Extensions.Google.Sheets.Tests" />
-    <!-- The InMemory double reuses SheetsTranslator.ToSerial so the serial-date
-         epoch has one source of truth across the live and offline gateways. -->
-    <InternalsVisibleTo Include="Flowthru.Extensions.Google.Sheets.InMemory" />
   </ItemGroup>
 
 </Project>

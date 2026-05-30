@@ -1,17 +1,17 @@
 namespace Flowthru.Data.Storage.Sheets.InMemory;
 
 /// <summary>
-/// Configuration for an <see cref="InMemorySheetsGateway"/> — chiefly the
-/// optional write-quota fault injection used to exercise retry/backoff against
-/// an offline gateway.
+/// Configuration for the test-only <see cref="InMemorySheetsGateway"/> — chiefly
+/// the optional write-quota fault injection used to exercise retry/backoff
+/// against an offline gateway.
 /// </summary>
 /// <remarks>
 /// <para>
 /// <strong>OFF by default.</strong> A default-constructed
 /// <see cref="InMemorySheetsOptions"/> imposes no quota and uses
 /// <see cref="System.TimeProvider.System"/> as a clock, so the gateway is fully
-/// deterministic and never throws on volume — this is what the starter example
-/// uses. Quota enforcement is opt-in by setting <see cref="WritesPerMinute"/>.
+/// deterministic and never throws on volume. Quota enforcement is opt-in by
+/// setting <see cref="WritesPerMinute"/>.
 /// </para>
 /// <para>
 /// Fault injection is deterministic and clock-driven: supply a controllable
@@ -25,9 +25,9 @@ public sealed class InMemorySheetsOptions
   /// The maximum number of write operations permitted within any rolling
   /// 60-second window, measured against <see cref="Clock"/>. A write that would
   /// exceed this throws a transient <see cref="SheetsRateLimitException"/>,
-  /// emulating Google's <c>429</c> quota response.
-  /// <see langword="null"/> (the default) disables quota enforcement entirely —
-  /// no timestamps are tracked and writes never throw on volume.
+  /// emulating Google's <c>429</c> quota response. <see langword="null"/> (the
+  /// default) disables quota enforcement entirely — no timestamps are tracked and
+  /// writes never throw on volume.
   /// </summary>
   /// <remarks>
   /// A "write" is one <see cref="ISheetsGateway.ReplaceRows"/> or
@@ -37,8 +37,8 @@ public sealed class InMemorySheetsOptions
 
   /// <summary>
   /// The clock the quota window is measured against. Defaults to
-  /// <see cref="System.TimeProvider.System"/>. Inject a controllable provider
-  /// to drive the quota window deterministically in tests.
+  /// <see cref="System.TimeProvider.System"/>. Inject a controllable provider to
+  /// drive the quota window deterministically in tests.
   /// </summary>
   public TimeProvider Clock { get; init; } = TimeProvider.System;
 }

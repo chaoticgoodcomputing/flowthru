@@ -1,7 +1,7 @@
 using Flowthru.Data.Storage.Sheets;
 using Flowthru.Data.Storage.Sheets.InMemory;
 
-namespace Flowthru.Extensions.Google.Sheets.InMemory.Tests;
+namespace Flowthru.Extensions.Google.Sheets.Tests;
 
 /// <summary>
 /// Read-side date fidelity of <see cref="InMemorySheetsGateway"/>: the live

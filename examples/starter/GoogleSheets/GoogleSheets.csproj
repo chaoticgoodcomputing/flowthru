@@ -20,7 +20,6 @@
     <PackageReference Include="Flowthru.Core" />
     <PackageReference Include="Flowthru.Cli" />
     <PackageReference Include="Flowthru.Extensions.Google.Sheets" />
-    <PackageReference Include="Flowthru.Extensions.Google.Sheets.InMemory" />
     <PackageReference Include="Flowthru.Extensions.Metadata.Json" />
     <PackageReference Include="Flowthru.Extensions.Metadata.Mermaid" />
   </ItemGroup>

@@ -3,3 +3,6 @@
 
 # Generated metadata
 Metadata/
+
+# Offline JSON-backed Sheets store written by JsonFileSheetsGateway on run
+sheet.json
