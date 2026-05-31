@@ -3,6 +3,8 @@
   "$schema": "../node_modules/nx/schemas/project-schema.json",
   "projectType": "library",
   "sourceRoot": "./docs",
+  "//": "implicitDependencies on `examples` makes `nx affected` reach docs when example source changes — the doc-snippet freshness check (docs:_test:snippet-freshness) depends on `#region docs:*` ranges in examples/**, so an example edit must mark `docs` affected even though no docs/ file changed.",
+  "implicitDependencies": [ "examples" ],
   "targets": {
     "_build-reference": {
       "//": "Generates markdown API reference from C# docstrings into docs/reference/src/. Inputs are scoped to the C# source + the docfx script — hand-written docs (tutorials/, guides/, explanation/) do NOT invalidate this cache, since docfx doesn't read them. Private subtarget; composed into docs:build.",
@@ -54,13 +56,62 @@
       }
     },
     "sync-snippets": {
-      "//": "The `docs` half of the doc-snippet pipeline. Consumes dist/examples/docs/snippets/ (produced by examples:generate-snippets) and splices each snippet into managed marker blocks in docs/{tutorials,guides,explanation}. NOT cached — it mutates source docs in place (same as examples:sync-readmes); caching a source mutation would be wrong, and freshness is enforced by `git diff --exit-code docs/` in CI. Hard-fails on a sentinel referencing a missing snippet or an orphan snippet.",
+      "//": "The `docs` half of the doc-snippet pipeline. Consumes dist/examples/docs/snippets/ (produced by examples:generate-snippets) and splices each snippet into managed marker blocks in docs/{tutorials,guides,explanation}. NOT cached — it mutates source docs in place (same as examples:sync-readmes); caching a source mutation would be wrong. The non-mutating freshness check lives in docs:_test:snippet-freshness (runs in `nx affected -t test`). Hard-fails on a sentinel referencing a missing snippet or an orphan snippet.",
       "executor": "nx:run-commands",
       "dependsOn": [ "examples:generate-snippets" ],
       "options": {
         "commands": [
           "node scripts/sync-doc-snippets.mjs"
         ],
+        "cwd": "{workspaceRoot}",
+        "parallel": false
+      }
+    },
+    "test": {
+      "//": "Public docs meta-test barrel — mirrors tests:test. Composes the doc-integrity subtargets via dependsOn; run by `nx affected -t test`. _test:snippet-freshness gates (drift/orphan/missing → fail); _test:doc-warnings is advisory (terminology + review-state, never fails) until the corpus is cleaned and terminology promotes to a gate.",
+      "executor": "nx:noop",
+      "dependsOn": [
+        "_test:snippet-freshness",
+        "_test:doc-warnings"
+      ]
+    },
+    "_test:snippet-freshness": {
+      "//": "GATING. Regenerates the snippet artifacts (via examples:generate-snippets) and asserts every committed doc is in sync — fails if a `#region docs:*` changed without a re-sync, if a sentinel references a missing snippet, or if a region is orphaned. Non-mutating (`--check`): writes nothing, so it leaves no working-tree side effects. Private subtarget; composed into docs:test.",
+      "executor": "nx:run-commands",
+      "cache": true,
+      "dependsOn": [ "examples:generate-snippets" ],
+      "inputs": [
+        "{workspaceRoot}/examples/starter/**/*.cs",
+        "{workspaceRoot}/examples/starter/**/*.py",
+        "{workspaceRoot}/examples/advanced/**/*.cs",
+        "{workspaceRoot}/examples/advanced/**/*.py",
+        "{workspaceRoot}/docs/tutorials/**/*.md",
+        "{workspaceRoot}/docs/guides/**/*.md",
+        "{workspaceRoot}/docs/explanation/**/*.md",
+        "{workspaceRoot}/scripts/generate-doc-snippets.mjs",
+        "{workspaceRoot}/scripts/sync-doc-snippets.mjs"
+      ],
+      "outputs": [],
+      "options": {
+        "commands": [ "node scripts/sync-doc-snippets.mjs --check" ],
+        "cwd": "{workspaceRoot}",
+        "parallel": false
+      }
+    },
+    "_test:doc-warnings": {
+      "//": "ADVISORY (exits 0). Emits terminology (`_Avoid_:` glossary terms) and review-state (`review:` frontmatter not `reviewed`) warnings to the GitHub step summary. Non-gating per the docs-honesty model until the corpus is cleaned; flipping it to a gate is removing the exit-0 in the script. Private subtarget; composed into docs:test.",
+      "executor": "nx:run-commands",
+      "cache": true,
+      "inputs": [
+        "{workspaceRoot}/docs/tutorials/**/*.md",
+        "{workspaceRoot}/docs/guides/**/*.md",
+        "{workspaceRoot}/docs/explanation/**/*.md",
+        "{workspaceRoot}/examples/CONTRIBUTING.md",
+        "{workspaceRoot}/scripts/lint-docs-warnings.mjs"
+      ],
+      "outputs": [],
+      "options": {
+        "commands": [ "node scripts/lint-docs-warnings.mjs" ],
         "cwd": "{workspaceRoot}",
         "parallel": false
       }

@@ -122,6 +122,11 @@ function expandSentinels(content, snippets) {
 }
 
 function main() {
+  // --check: non-mutating freshness mode for the docs:_test:snippet-freshness
+  // target. Computes what each doc WOULD become and fails if any differs from
+  // its committed state, writing nothing — so it leaves no working-tree side
+  // effects and never false-positives on a dev's unrelated local edits.
+  const check = process.argv.includes('--check');
   const snippets = loadSnippets();
   const docFiles = [];
   for (const section of DOC_SECTIONS) walk(join(ROOT, section), docFiles);
@@ -158,23 +163,35 @@ function main() {
     process.exit(1);
   }
 
-  // ── Write pass ──
+  // ── Write / check pass ──
+  const stale = [];
   let changed = 0;
   for (const file of docFiles) {
     const original = readFileSync(file, 'utf8');
     const next = expandSentinels(refreshBlocks(original, snippets), snippets);
-    if (next !== original) {
+    if (next === original) continue;
+    if (check) {
+      stale.push(relative(ROOT, file));
+    } else {
       writeFileSync(file, next, 'utf8');
       changed++;
       console.log(`  updated ${relative(ROOT, file)}`);
     }
   }
 
+  if (check) {
+    if (stale.length) {
+      console.error('[sync-doc-snippets] stale doc snippets — re-run `nx run docs:sync-snippets`:');
+      for (const f of stale) console.error(`  ${f}`);
+      process.exit(1);
+    }
+    console.log(`[sync-doc-snippets] ${snippets.size} snippet(s) in sync. ✓`);
+    return;
+  }
+
   console.log(
     `[sync-doc-snippets] ${snippets.size} snippet(s), ${referenced.size} referenced, ${changed} file(s) updated`,
   );
-  // Freshness (un-synced C# edits) is enforced by `git diff --exit-code docs/`
-  // in CI, not here — a clean local run still leaves drift detectable there.
 }
 
 main();
