@@ -4,6 +4,26 @@
   "projectType": "library",
   "sourceRoot": "examples",
   "targets": {
+    "generate-snippets": {
+      "//": "Extracts `#region docs:<label>` ranges from example source into fenced snippet files under dist/examples/docs/snippets/. The `examples` half of the doc-snippet pipeline; docs:sync-snippets consumes the dist output. Inputs scoped to example source so unrelated changes don't invalidate; cached.",
+      "executor": "nx:run-commands",
+      "cache": true,
+      "inputs": [
+        "{workspaceRoot}/examples/starter/**/*.cs",
+        "{workspaceRoot}/examples/starter/**/*.py",
+        "{workspaceRoot}/examples/advanced/**/*.cs",
+        "{workspaceRoot}/examples/advanced/**/*.py",
+        "{workspaceRoot}/scripts/generate-doc-snippets.mjs"
+      ],
+      "outputs": [ "{workspaceRoot}/dist/examples/docs/snippets" ],
+      "options": {
+        "commands": [
+          "node scripts/generate-doc-snippets.mjs"
+        ],
+        "cwd": "{workspaceRoot}",
+        "parallel": false
+      }
+    },
     "sync-readmes": {
       "//": "Per example under starter/ and advanced/: runs `dotnet run --dry-run` to emit Metadata/dag-merged.md via the Mermaid extension, then splices it into the example's README between the <!-- flowthru:mermaid:start --> / <!-- flowthru:mermaid:end --> markers. Missing READMEs are scaffolded; missing markers are appended at EOF; examples whose dry-run fails (e.g. live-infra dependencies) are skipped with a warning.",
       "executor": "nx:run-commands",

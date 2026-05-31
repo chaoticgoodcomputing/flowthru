@@ -53,6 +53,18 @@
         "parallel": false
       }
     },
+    "sync-snippets": {
+      "//": "The `docs` half of the doc-snippet pipeline. Consumes dist/examples/docs/snippets/ (produced by examples:generate-snippets) and splices each snippet into managed marker blocks in docs/{tutorials,guides,explanation}. NOT cached — it mutates source docs in place (same as examples:sync-readmes); caching a source mutation would be wrong, and freshness is enforced by `git diff --exit-code docs/` in CI. Hard-fails on a sentinel referencing a missing snippet or an orphan snippet.",
+      "executor": "nx:run-commands",
+      "dependsOn": [ "examples:generate-snippets" ],
+      "options": {
+        "commands": [
+          "node scripts/sync-doc-snippets.mjs"
+        ],
+        "cwd": "{workspaceRoot}",
+        "parallel": false
+      }
+    },
     "build": {
       "//": "Public docs build barrel. Composes private _build-* subtargets via dependsOn — each subtarget owns its own input/output footprint and caches independently. Adding a new MD generator (e.g., a future schema-gallery or diagnostic-id catalog) is a new _build-<name> private subtarget plus one line here. Mirrors the tests:test pattern.",
       "executor": "nx:noop",

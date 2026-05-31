@@ -1,0 +1,79 @@
+name: Docs Checks
+
+# Design-time / pre-flight docs integrity, gating PRs (per the documentation
+# honesty model):
+#   - snippet-freshness: the tutorial code single-sourced from examples/ is in
+#     sync. Re-runs the snippet pipeline and fails if it would change any
+#     committed doc — i.e. a C# region changed but docs weren't re-synced.
+#   - spaceflights-smoke: the flagship tutorial example still runs end-to-end
+#     (light validation — exit 0 + non-empty reporting output, no content diff).
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+    paths:
+      - "examples/**/*.cs"
+      - "examples/**/*.py"
+      - "docs/**/*.md"
+      - "src/core/**"
+      - "scripts/generate-doc-snippets.mjs"
+      - "scripts/sync-doc-snippets.mjs"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  snippet-freshness:
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.draft == false
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup CI environment
+        uses: ./.github/actions/setup
+
+      - name: Re-sync doc snippets
+        run: pnpm nx run docs:sync-snippets --output-style=stream
+
+      - name: Fail if snippets are stale
+        run: |
+          if ! git diff --exit-code docs/; then
+            echo "::error::Doc snippets are out of sync with example source." \
+              "Run 'pnpm nx run docs:sync-snippets' and commit the result."
+            exit 1
+          fi
+
+  spaceflights-smoke:
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.draft == false
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup CI environment
+        uses: ./.github/actions/setup
+
+      - name: Run the Spaceflights tutorial example
+        env:
+          CI: "true"
+        run: pnpm nx run Spaceflights:run --output-style=stream
+
+      - name: Assert reporting output was produced
+        run: |
+          # Target the Datasets/ subdir specifically: it is gitignored, so any
+          # non-empty file there was produced by THIS run. Asserting on
+          # _08_Reporting/ as a whole would false-pass on the committed .cs
+          # source (Catalog/schema files) even if the run produced nothing.
+          out=examples/starter/Spaceflights/Data/_08_Reporting/Datasets
+          if [ -z "$(find "$out" -type f -not -name '.gitkeep' -not -name 'NOTICE' -size +0c 2>/dev/null)" ]; then
+            echo "::error::Spaceflights produced no non-empty output under $out"
+            exit 1
+          fi
+          echo "Reporting output present:"
+          find "$out" -type f -not -name '.gitkeep' -not -name 'NOTICE' -size +0c

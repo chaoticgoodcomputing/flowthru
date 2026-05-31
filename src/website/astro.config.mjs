@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { defineConfig } from "astro/config";
 import starlight from "@astrojs/starlight";
+import starlightLinksValidator from "starlight-links-validator";
 
 // https://astro.build/config
 //
@@ -34,6 +35,12 @@ export default defineConfig({
       title: "Flowthru",
       description:
         "A type-safe, fail-fast data engineering framework for .NET.",
+      // Fail the build on broken internal links / anchors — design-time
+      // documentation honesty. External link rot is handled out-of-band by
+      // the scheduled docs-external-links workflow, so it's not checked here.
+      // errorOnRelativeLinks:false allows relative links (which the tutorial
+      // chapters and section landings use) while still validating they resolve.
+      plugins: [starlightLinksValidator({ errorOnRelativeLinks: false })],
       logo: {
         src: "./src/assets/flowthru-mark.svg",
         replacesTitle: false,

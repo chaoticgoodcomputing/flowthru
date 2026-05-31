@@ -1,3 +1,4 @@
+#region docs:schema-company
 using Flowthru.Data.Schema;
 
 namespace Spaceflights.Data._01_Raw.Schemas;
@@ -33,3 +34,4 @@ public partial record CompanySchema
   [SerializedLabel("company_location")]
   public string CompanyLocation { get; init; } = null!;
 }
+#endregion

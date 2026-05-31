@@ -1,6 +1,7 @@
 ---
 title: Set Up Data
 description: Add the Spaceflights datasets to your project, define a schema for each, and register catalog items that connect those schemas to the physical CSV and Excel files.
+review: draft
 ---
 
 This page explains how to add datasets to your project and register them in Flowthru's Catalog. You'll define schemas for each dataset and create catalog items that connect schemas to physical files.
@@ -92,33 +93,51 @@ Spaceflights
 
 Now that we have the file, we'll fill it in with the schema. For companies, the schema will look like:
 
+<!-- flowthru:snippet:docs:schema-company:start -->
 ```csharp
-using Flowthru.Abstractions;
+using Flowthru.Data.Schema;
 
 namespace Spaceflights.Data._01_Raw.Schemas;
 
+/// <summary>
+/// Represents raw company data as imported from text files.
+/// All fields are stored as strings pending parsing.
+/// </summary>
 [FlowthruSchema]
 public partial record CompanySchema
 {
+  /// <summary>
+  /// Unique identifier for the company.
+  /// </summary>
   [SerializedLabel("id")]
-  public required string Id { get; init; }
+  public string Id { get; init; } = null!;
 
+  /// <summary>
+  /// Company rating as a percentage string (e.g., "90%").
+  /// </summary>
   [SerializedLabel("company_rating")]
-  public required string CompanyRating { get; init; }
+  public string CompanyRating { get; init; } = null!;
 
+  /// <summary>
+  /// IATA approval status as a string flag ("t" for true, "f" for false).
+  /// </summary>
   [SerializedLabel("iata_approved")]
-  public required string IataApproved { get; init; }
+  public string IataApproved { get; init; } = null!;
 
+  /// <summary>
+  /// Geographic location of the company.
+  /// </summary>
   [SerializedLabel("company_location")]
-  public required string CompanyLocation { get; init; }
+  public string CompanyLocation { get; init; } = null!;
 }
 ```
+<!-- flowthru:snippet:docs:schema-company:end -->
 
 Let's go through what we've done here, step by step.
 
 1. `record CompanySchema` defines how we reference data that has this shape in other places in the application. Whenever you're working with any data that has these columns, and these data types, we can say that data is a piece of `CompanySchema` data.
-2. In your code, you may not always want to reference a column by its name in the file. After all, you're not working with CSVs by hand — you're using C#! The `[SerializedLabel]` lets us define what column we're referencing in the original file.
-3. For each column, we define the **type** of that column, as well as how we'll reference the column in our code later. `string CompanyRating` C#, and our future selves writing nodes, that CompanyRating will be a string.
+2. In your code, you may not always want to reference a column by its name in the file. After all, you're not working with CSVs by hand — you're using C#! The `[SerializedLabel]` attribute lets us define which column in the original file each property maps to.
+3. For each column, we declare its **type** and the name we'll use to reference it in our code later. `public string CompanyRating` tells C#, and our future selves writing Steps, that `CompanyRating` is a string. (The `= null!` initializer tells the compiler these required fields are populated during deserialization.)
 
 ### Review & Shuttles Schemas
 
@@ -161,13 +180,10 @@ public partial class Catalog
   /// ...
 
   public IItem<IEnumerable<__SCHEMA__>> __NAME__ =>
-    GetOrCreateEntry(
-      () =>
-        Items.Enumerable.__FORMAT__<__SCHEMA__>(
-          label: "__NAME__",
-          path: "__PATH__"
-        )
-    );
+    CreateItem(() => Item.Of<IEnumerable<__SCHEMA__>>("__NAME__")
+      .__FORMAT__()
+      .AtPath("__PATH__")
+      .Build());
   
   /// ...
 }
@@ -189,59 +205,52 @@ For our CompanySchema then:
 
 Our entry for Companies, then, will look like:
 
-```cs
-  public IItem<IEnumerable<CompanySchema>> Companies =>
-    GetOrCreateEntry(
-      () =>
-        Items.Enumerable.Csv<CompanySchema>(
-          label: "Companies",
-          path: $"{basePath}/Data/_01_Raw/Datasets/companies.csv"
-        )
-    );
+<!-- flowthru:snippet:docs:catalog-raw-companies:start -->
+```csharp
+/// <summary>Raw company data imported from external sources.</summary>
+public IItem<IEnumerable<CompanySchema>> Companies =>
+  CreateItem(() => Item.Of<IEnumerable<CompanySchema>>("Companies")
+    .Csv()
+    .AtPath($"{_basePath}/_01_Raw/Datasets/companies.csv")
+    .Build());
 ```
+<!-- flowthru:snippet:docs:catalog-raw-companies:end -->
 
-We can use this pattern to add the three new entries for our three input tables:
+We use the same pattern to add all three entries for our input tables. Note that the Excel item adds one extra call, `.WithSheet("Sheet1")`, to pick the worksheet:
 
-```cs
-using Flowthru.Data;
+<!-- flowthru:snippet:docs:catalog-raw-all:start -->
+```csharp
+using Flowthru.Data.Catalog;
 using Spaceflights.Data._01_Raw.Schemas;
 
 namespace Spaceflights.Data;
 
 public partial class Catalog
 {
-
-  // Minimal "Names" Entry — keep it for now, to keep the project building.
-
+  /// <summary>Raw company data imported from external sources.</summary>
   public IItem<IEnumerable<CompanySchema>> Companies =>
-    GetOrCreateEntry(
-      () =>
-        Items.Enumerable.Csv<CompanySchema>(
-          label: "Companies",
-          filePath: $"{_basePath}/_01_Raw/Datasets/companies.csv"
-        )
-    );
+    CreateItem(() => Item.Of<IEnumerable<CompanySchema>>("Companies")
+      .Csv()
+      .AtPath($"{_basePath}/_01_Raw/Datasets/companies.csv")
+      .Build());
 
+  /// <summary>Raw review data imported from external sources.</summary>
   public IItem<IEnumerable<ReviewSchema>> Reviews =>
-    GetOrCreateEntry(
-      () =>
-        Items.Enumerable.Csv<ReviewSchema>(
-          label: "Reviews",
-          filePath: $"{_basePath}/_01_Raw/Datasets/reviews.csv"
-        )
-    );
+    CreateItem(() => Item.Of<IEnumerable<ReviewSchema>>("Reviews")
+      .Csv()
+      .AtPath($"{_basePath}/_01_Raw/Datasets/reviews.csv")
+      .Build());
 
+  /// <summary>Raw shuttle data imported from external sources (Excel).</summary>
   public IItem<IEnumerable<ShuttleSchema>> Shuttles =>
-    GetOrCreateEntry(
-      () =>
-        Items.Enumerable.Excel<ShuttleSchema>(
-          label: "Shuttles",
-          filePath: $"{_basePath}/_01_Raw/Datasets/shuttles.xlsx",
-          sheetName: "Sheet1"
-        )
-    );
+    CreateItem(() => Item.Of<IEnumerable<ShuttleSchema>>("Shuttles")
+      .Excel()
+      .AtPath($"{_basePath}/_01_Raw/Datasets/shuttles.xlsx")
+      .WithSheet("Sheet1")
+      .Build());
 }
 ```
+<!-- flowthru:snippet:docs:catalog-raw-all:end -->
 
 
 ## What's Next?
@@ -256,8 +265,8 @@ At this point, your schemas and Catalog Entries should be correctly set up. You 
 dotnet build
 ```
 
-If you have zero build issues: congratulations! We're ready to move onto our next steps: Defining new nodes!
+If you have zero build issues: congratulations! We're ready to move onto our next step: defining the Steps that process this data.
 
-You've defined schemas and registered raw datasets in the catalog. Next, you'll create a pipeline that processes this data into a format ready for data science!
+You've defined schemas and registered raw datasets in the catalog. Next, you'll create a Flow that processes this data into a format ready for data science!
 
-**Continue to: [Create a Pipeline](03-create-a-pipeline.md)**
+**Continue to: [Create a Flow](03-create-a-pipeline.md)**

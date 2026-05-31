@@ -1,0 +1,34 @@
+name: Docs Warnings
+
+# Non-blocking pre-flight documentation warnings: terminology (uses of
+# glossary `_Avoid_:` terms) and review state (`review:` frontmatter not yet
+# `reviewed`). Surfaced in the PR Checks step summary; never fails the check.
+# See scripts/lint-docs-warnings.mjs.
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+    paths:
+      - "docs/**/*.md"
+      - "examples/CONTRIBUTING.md"
+      - "scripts/lint-docs-warnings.mjs"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  warnings:
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.draft == false
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup CI environment
+        uses: ./.github/actions/setup
+
+      - name: Emit documentation warnings
+        run: node scripts/lint-docs-warnings.mjs
