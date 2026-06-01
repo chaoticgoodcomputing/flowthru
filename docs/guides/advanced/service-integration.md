@@ -9,7 +9,7 @@ Register `IFlowthruService` into an existing .NET application and invoke pipelin
 
 - An existing .NET application with dependency injection (ASP.NET Core, worker service, etc.)
 - A Flowthru pipeline project referenced as a project dependency or NuGet package
-- Familiarity with [pipeline slicing](../slicing-pipelines.md)
+- Familiarity with [pipeline slicing](/docs/guides/slicing-pipelines.md)
 
 ## Registration
 
@@ -214,5 +214,5 @@ For most applications — one set of pipelines, invoked by various triggers — 
 
 ## See Also
 
-- [Pipeline slicing](../slicing-pipelines.md) — all slice strategies and how they compose
+- [Pipeline slicing](/docs/guides/slicing-pipelines.md) — all slice strategies and how they compose
 - [Container deployment](container-deployment.md) — deploying a pipeline as a standalone container instead of embedding it

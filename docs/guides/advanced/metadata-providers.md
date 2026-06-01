@@ -8,7 +8,7 @@ This guide shows how to create custom metadata providers that receive pipeline m
 ## Prerequisites
 
 You should already understand:
-- Basic Flowthru pipeline structure (see [Anatomy of a Pipeline](../../explanation/anatomy-of-a-pipeline.md))
+- Basic Flowthru Flow structure (see [Anatomy of a Flow](/docs/explanation/anatomy-of-a-flow.md))
 - Dependency injection with `AddFlowthru()`
 
 ## Creating a Provider

@@ -55,7 +55,7 @@
       }
     },
     "build": {
-      "//": "Inputs include the *source* docs (not the ingested copy at src/content/docs/docs/) — Nx hashes inputs at the start of a run, before the upstream ingest produces the new copy on disk, so listing the originals is what actually invalidates this cache when docs change.",
+      "//": "Inputs include the *source* docs (not the ingested copy at src/content/docs/docs/) — Nx hashes inputs at the start of a run, before the upstream ingest produces the new copy on disk, so listing the originals is what actually invalidates this cache when docs change. Runs `astro build --force` to clear Astro's content-layer cache (node_modules/.astro) every build: that cache is hidden state Nx can't see, and the Starlight link validator runs as a build hook — incremental renders skip pages and the validator skips them too, so a cached build could pass broken links Nx then memoizes. --force makes the build a pure function of its inputs (deterministic; cache-safe). Dev uses the serve target, which keeps incremental rendering.",
       "executor": "nx:run-commands",
       "cache": true,
       "inputs": [
@@ -78,7 +78,7 @@
       "outputs": [ "{projectRoot}/dist" ],
       "dependsOn": [ "site:_lint-docs" ],
       "options": {
-        "command": "astro build",
+        "command": "astro build --force",
         "cwd": "src/website"
       }
     },

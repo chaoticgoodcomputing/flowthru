@@ -13,6 +13,7 @@
   },
   "devDependencies": {
     "@types/node": "^22.10.2",
+    "starlight-links-validator": "^0.13",
     "yaml": "^2.8.0"
   },
   "engines": {

@@ -26,7 +26,8 @@
 // `<repo>/docs` when run from `src/website`.
 
 import { mkdir, readdir, readFile, rm, writeFile } from "node:fs/promises";
-import { dirname, join, relative, resolve, sep } from "node:path";
+import { existsSync, readFileSync, statSync } from "node:fs";
+import { dirname, join, posix, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -55,6 +56,86 @@ function isExcluded(absPath) {
 const FRONTMATTER_RE = /^---\r?\n([\s\S]*?)\r?\n---\r?\n?/;
 const DOCFX_ANCHOR_RE = /<a\s+id="[^"]*"\s*><\/a>\s*/gi;
 
+// ── Internal-link interceptor ────────────────────────────────────────
+// Rewrites markdown links on their way into the Starlight content tree so they
+// resolve on the deployed site regardless of how an author wrote them:
+//   - resolves INSIDE docs/ → site-internal. Root-anchored `/docs/...` links
+//     get the Astro base prefix + slug normalisation; file-relative links are
+//     left untouched for Astro to resolve.
+//   - ESCAPES docs/ (repo source: src/, examples/, CONTRIBUTING.md, …) →
+//     rewritten to an absolute GitHub URL (blob for files, tree for dirs), so a
+//     contributor page can reference source with a natural relative path and
+//     still render correctly both on GitHub and on the deployed site.
+// Links inside fenced or inline code are never touched. The companion lint
+// (docs:_test:link-audit) enforces the authoring *style*; this makes any style
+// resolve correctly, so site-correctness doesn't depend on the migration.
+const REPO_ROOT = resolve(DOCS_SRC, "..");
+const GH = "https://github.com/chaoticgoodcomputing/flowthru";
+const GH_BRANCH = "main"; // docs deploy ref; mirrors the released docs
+const SITE_BASE = (() => {
+  try {
+    const cfg = readFileSync(resolve(PROJECT_ROOT, "astro.config.mjs"), "utf8");
+    const m = /base:\s*["']([^"']+)["']/.exec(cfg);
+    return (m ? m[1] : "/flowthru").replace(/\/+$/, "");
+  } catch {
+    return "/flowthru";
+  }
+})();
+
+function rewriteOneLink(url, relPath) {
+  if (/^(?:[a-z][a-z0-9+.-]*:|#|\/\/)/i.test(url)) return url; // external / anchor-only / protocol-relative
+  const hash = url.indexOf("#");
+  const path = hash >= 0 ? url.slice(0, hash) : url;
+  const anchor = hash >= 0 ? url.slice(hash) : "";
+  if (!path) return url;
+
+  let repoRel;
+  if (path.startsWith("/")) {
+    repoRel = posix.normalize(path.slice(1)); // repo-root-anchored
+  } else {
+    const fileDir = posix.dirname(relPath.split(sep).join("/"));
+    repoRel = posix.normalize(posix.join("docs", fileDir, path));
+  }
+  const clean = repoRel.replace(/\/+$/, "");
+  const inDocs = clean === "docs" || clean.startsWith("docs/");
+
+  if (inDocs) {
+    if (!path.startsWith("/")) return url; // relative in-docs link — Astro resolves it
+    const slug = clean.replace(/\.md$/, "").replace(/\/index$/, "");
+    return `${SITE_BASE}/${slug}/${anchor}`;
+  }
+
+  // Escapes docs/ → GitHub source URL.
+  let isDir = false;
+  try {
+    isDir = existsSync(resolve(REPO_ROOT, clean)) && statSync(resolve(REPO_ROOT, clean)).isDirectory();
+  } catch {
+    /* unresolved on disk — default to blob */
+  }
+  return `${GH}/${isDir ? "tree" : "blob"}/${GH_BRANCH}/${clean}${anchor}`;
+}
+
+function rewriteLinks(body, relPath) {
+  const fences = [];
+  let s = body.replace(/```[\s\S]*?```/g, (m) => {
+    fences.push(m);
+    return `@@FTSNIP_F${fences.length - 1}@@`;
+  });
+  const inlines = [];
+  s = s.replace(/`[^`\n]*`/g, (m) => {
+    inlines.push(m);
+    return `@@FTSNIP_I${inlines.length - 1}@@`;
+  });
+  s = s.replace(/\]\(([^)]+)\)/g, (full, inner) => {
+    const sp = inner.match(/^(\S+)(\s.*)?$/);
+    if (!sp) return full;
+    return `](${rewriteOneLink(sp[1], relPath)}${sp[2] || ""})`;
+  });
+  s = s.replace(/@@FTSNIP_I(\d+)@@/g, (_m, i) => inlines[+i]);
+  s = s.replace(/@@FTSNIP_F(\d+)@@/g, (_m, i) => fences[+i]);
+  return s;
+}
+
 async function walk(dir) {
   const out = [];
   let entries;
@@ -76,10 +157,11 @@ async function walk(dir) {
   return out;
 }
 
-function passthrough(raw) {
+function passthrough(raw, relPath) {
   const match = FRONTMATTER_RE.exec(raw);
   if (!match) return null;
-  const body = raw.slice(match[0].length).replace(DOCFX_ANCHOR_RE, "");
+  let body = raw.slice(match[0].length).replace(DOCFX_ANCHOR_RE, "");
+  body = rewriteLinks(body, relPath);
   return `---\n${match[1]}\n---\n${body}`;
 }
 
@@ -143,7 +225,7 @@ async function ingest() {
       await mkdir(dirname(dest), { recursive: true });
       const raw = await readFile(file, "utf8");
 
-      const passed = passthrough(raw);
+      const passed = passthrough(raw, rel);
       if (passed) {
         await writeFile(dest, passed, "utf8");
         stats.passthrough++;

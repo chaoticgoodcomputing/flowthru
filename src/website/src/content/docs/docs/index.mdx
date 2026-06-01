@@ -1,0 +1,50 @@
+---
+title: Flowthru documentation
+description: Tutorials, guides, explanation, and reference for Flowthru — the type-safe, fail-fast data engineering framework for .NET.
+review: draft
+---
+
+import { CardGrid, LinkCard } from "@astrojs/starlight/components";
+
+Flowthru is a type-safe, fail-fast data engineering framework for .NET. You
+describe your data as typed **schemas**, register where each dataset lives in a
+**catalog**, and compose your transformations into **Steps** and **Flows**. In
+return, the compiler and a pre-flight validation pass catch broken wiring —
+a renamed column, a missing dataset, two Steps writing to the same output —
+*before* any data moves.
+
+That guarantee comes from sorting every possible failure into one of three
+moments, and pulling each one as early as it can go:
+
+- **Design-time** — your editor and the build flag the mistake as you type. This is the goal for as much as possible.
+- **Pre-flight** — after the build, before the first Step runs, a validation pass rejects a misconfigured run instead of failing halfway through.
+- **Runtime** — while data is actually moving. This is the moment Flowthru works hardest to keep empty.
+
+**New to Flowthru? Start with the [Spaceflights tutorial](tutorials/spaceflights/).**
+
+The rest of the site is organized along the
+[Diátaxis](https://diataxis.fr) framework — pick the quadrant that matches
+what you're trying to do.
+
+<CardGrid>
+  <LinkCard
+    title="Tutorials"
+    description="Learning-oriented walkthroughs. Start here if you're new to Flowthru."
+    href="tutorials/spaceflights/"
+  />
+  <LinkCard
+    title="Guides"
+    description="Goal-oriented recipes for getting unstuck on a specific task."
+    href="guides/slicing-pipelines/"
+  />
+  <LinkCard
+    title="Explanation"
+    description="The 'why' — design philosophy, primitives, and tradeoffs."
+    href="explanation/anatomy-of-a-flow/"
+  />
+  <LinkCard
+    title="Reference"
+    description="Auto-generated API reference for every public type."
+    href="reference/"
+  />
+</CardGrid>

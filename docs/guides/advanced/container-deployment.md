@@ -7,9 +7,9 @@ Deploy a Flowthru pipeline as a standalone container image for execution in envi
 
 ## Prerequisites
 
-- A working Flowthru pipeline project (see the [starter tutorial](../../tutorials/) if you need one)
+- A working Flowthru pipeline project (see the [starter tutorial](/docs/tutorials/) if you need one)
 - Docker or a compatible container runtime
-- Familiarity with [pipeline slicing](../slicing-pipelines.md)
+- Familiarity with [pipeline slicing](/docs/guides/slicing-pipelines.md)
 
 ## The Entry Point
 
@@ -175,5 +175,5 @@ if (!result.Success)
 
 ## See Also
 
-- [Pipeline slicing](../slicing-pipelines.md) — all slice strategies and how they compose
+- [Pipeline slicing](/docs/guides/slicing-pipelines.md) — all slice strategies and how they compose
 - [Service integration](service-integration.md) — embedding Flowthru in an existing .NET host instead of a standalone container

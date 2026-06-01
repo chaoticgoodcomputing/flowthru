@@ -1,0 +1,64 @@
+name: Docs External Links
+
+# Out-of-band external link checking. External link rot is third-party reality
+# changing, not a Flowthru contract violation, so it must NOT gate PRs — it is
+# surfaced on a schedule and filed as an issue for human triage.
+#
+# Internal links are already gated at site-build time by Starlight; in-source
+# snippet references are gated by docs:sync-snippets. This workflow only checks
+# external (http/https) links under docs/.
+
+on:
+  schedule:
+    # Mondays 09:00 UTC
+    - cron: "0 9 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: docs-external-links
+  cancel-in-progress: false
+
+jobs:
+  link-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check external links
+        id: lychee
+        uses: lycheeverse/lychee-action@v2
+        with:
+          # Scope to external links only; internal/relative links are gated at
+          # build time. `--no-progress` keeps the log readable in CI.
+          args: >-
+            --no-progress
+            --scheme https --scheme http
+            --exclude-loopback
+            "docs/**/*.md"
+          output: ./lychee-report.md
+          fail: false
+
+      - name: File or update broken-links issue
+        if: steps.lychee.outputs.exit_code != 0
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # Dedupe: append to the existing open issue if one is already filed,
+          # otherwise create a fresh one. Keeps the tracker from accumulating a
+          # duplicate every Monday.
+          existing=$(gh issue list --state open --label documentation \
+            --search 'Broken external links in docs/ in:title' \
+            --json number --jq '.[0].number // empty')
+          if [ -n "$existing" ]; then
+            gh issue comment "$existing" --body-file lychee-report.md
+          else
+            gh issue create \
+              --title 'Broken external links in docs/' \
+              --body-file lychee-report.md \
+              --label documentation --label needs-triage
+          fi
