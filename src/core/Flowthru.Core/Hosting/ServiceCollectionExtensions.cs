@@ -53,6 +53,17 @@ public static class ServiceCollectionExtensions
     // way TryAddSingleton works for any DI default.
     services.TryAddSingleton<IFlowScheduler, ParallelFlowScheduler>();
 
+    // Execution defaults (Parallelism, …) flow through the standard
+    // Options pipeline so they can be set via ConfigureExecution(...)
+    // or bound from appsettings. The validator turns a nonsensical
+    // value into a pre-flight failure (when the options are first
+    // resolved, before any flow logic runs) instead of the scheduler
+    // silently clamping it at runtime. ValidateOnStart upgrades that to
+    // host-startup time under a generic host.
+    services.AddOptions<ExecutionDefaults>()
+      .Validate(d => d.Parallelism >= 1, "Flowthru: ExecutionDefaults.Parallelism must be >= 1.")
+      .ValidateOnStart();
+
     // Storage-medium resolver — composes any IStorageMediumProvider
     // registered by extensions (UseHttp, UseS3, …) into a single
     // dispatcher that format extensions consume. Bare paths and

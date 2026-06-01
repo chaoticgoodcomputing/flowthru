@@ -174,4 +174,19 @@ public interface IFlowthruBuilder
   /// will use to orchestrate metadata providers.
   /// </summary>
   IFlowthruBuilder ConfigureMetadata(Action<FlowthruMetadataBuilder> configure);
+
+  /// <summary>
+  /// Set host-level <see cref="ExecutionDefaults"/> — the stable-policy
+  /// knobs (e.g. <see cref="ExecutionDefaults.Parallelism"/>) used to
+  /// seed a run's <see cref="ExecutionOptions"/> when it does not supply
+  /// its own. Sugar over <c>services.Configure&lt;ExecutionDefaults&gt;</c>;
+  /// equivalent to binding the <c>Flowthru:Execution</c> section from
+  /// <c>appsettings.json</c>. Multiple calls compose in registration
+  /// order. The framework validates the result during pre-flight
+  /// (<see cref="ExecutionDefaults.Parallelism"/> ≥ 1).
+  /// </summary>
+  /// <example>
+  /// <code>flowthru.ConfigureExecution(o =&gt; o.Parallelism = 4);</code>
+  /// </example>
+  IFlowthruBuilder ConfigureExecution(Action<ExecutionDefaults> configure);
 }

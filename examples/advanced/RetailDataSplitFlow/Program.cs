@@ -71,6 +71,14 @@ public class Program
 
     services.AddFlowthru(flowthru =>
     {
+      // Each country is an independent, CPU-bound analysis branch that
+      // scans the full transaction set — exactly the fan-out parallelism
+      // is built for. Run up to N at once; the degree is config-driven
+      // (Analysis:Parallelism) alongside the country list. Steps with
+      // cross-dependencies still respect topological order.
+      flowthru.ConfigureExecution(o =>
+        o.Parallelism = configuration.GetValue("Analysis:Parallelism", 8));
+
       // HTTP storage medium — routes https:// catalog item paths through
       // a cached HTTP client. Conditional GET avoids re-downloading the
       // 43MB CSV on every run.

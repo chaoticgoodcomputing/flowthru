@@ -1,4 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 namespace Flowthru.Cli;
 
@@ -92,9 +93,20 @@ public static class FlowthruCli
     //     legacy "slice to flow's declared outputs" path.
     //   • neither            → service.RunAsync((string?)null, …) —
     //     full merged DAG.
+    // The parser has no --parallelism flag, so parsed.Options always
+    // carries the record default (1). Seed it from the host's
+    // ExecutionDefaults so a ConfigureExecution(...) / appsettings value
+    // takes effect on the CLI path; the other flags (dry-run, depth, …)
+    // pass through untouched. Resolving IOptions here also triggers the
+    // Parallelism validator before the run starts.
+    var defaults = provider.GetService<IOptions<ExecutionDefaults>>()?.Value;
+    var options = defaults is null
+      ? parsed.Options
+      : parsed.Options with { Parallelism = defaults.Parallelism };
+
     var result = parsed.Slice is not null
-      ? await flowthru.RunAsync(parsed.Slice, parsed.Options, cancellationToken).ConfigureAwait(false)
-      : await flowthru.RunAsync(parsed.FlowLabel, parsed.Options, cancellationToken).ConfigureAwait(false);
+      ? await flowthru.RunAsync(parsed.Slice, options, cancellationToken).ConfigureAwait(false)
+      : await flowthru.RunAsync(parsed.FlowLabel, options, cancellationToken).ConfigureAwait(false);
 
     return await RenderResult(result).ConfigureAwait(false);
   }

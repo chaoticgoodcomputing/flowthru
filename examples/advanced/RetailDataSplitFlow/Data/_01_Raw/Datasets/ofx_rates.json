@@ -1,4 +1,10 @@
 [
   { "Currency": "GBP", "ofxRate": 1.000000, "inverseOfxRate": 1.000000, "convertedAmount": 1000.0 },
-  { "Currency": "EUR", "ofxRate": 0.870400, "inverseOfxRate": 1.148897, "convertedAmount": 870.4 }
+  { "Currency": "EUR", "ofxRate": 0.870400, "inverseOfxRate": 1.148897, "convertedAmount": 870.4 },
+  { "Currency": "CHF", "ofxRate": 0.880000, "inverseOfxRate": 1.136364, "convertedAmount": 880.0 },
+  { "Currency": "AUD", "ofxRate": 0.520000, "inverseOfxRate": 1.923077, "convertedAmount": 520.0 },
+  { "Currency": "NOK", "ofxRate": 0.074000, "inverseOfxRate": 13.513514, "convertedAmount": 74.0 },
+  { "Currency": "SEK", "ofxRate": 0.075000, "inverseOfxRate": 13.333333, "convertedAmount": 75.0 },
+  { "Currency": "DKK", "ofxRate": 0.117000, "inverseOfxRate": 8.547009, "convertedAmount": 117.0 },
+  { "Currency": "JPY", "ofxRate": 0.005300, "inverseOfxRate": 188.679245, "convertedAmount": 5.3 }
 ]

@@ -8,6 +8,7 @@ using Flowthru.Prelude;
 using Flowthru.Step;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace Flowthru.Hosting;
 
@@ -67,6 +68,21 @@ public sealed class FlowthruService : IFlowthruService
   public IReadOnlyList<string> RegisteredFlowLabels =>
     _merged.Value.OutputsByLabel.Keys.ToList();
 
+  /// <summary>
+  /// Build the base <see cref="ExecutionOptions"/> for a run that did
+  /// not supply its own, seeding from the host's
+  /// <see cref="ExecutionDefaults"/>. Falls back to
+  /// <see cref="ExecutionOptions.Default"/> when the Options pipeline is
+  /// absent (e.g. a hand-built service without AddFlowthru).
+  /// </summary>
+  private ExecutionOptions BuildDefaultOptions()
+  {
+    var defaults = _services.GetService<IOptions<ExecutionDefaults>>()?.Value;
+    return defaults is null
+      ? ExecutionOptions.Default
+      : ExecutionOptions.Default with { Parallelism = defaults.Parallelism };
+  }
+
   /// <inheritdoc/>
   public Task<FlowResult> RunAsync(
     string? flowLabel = null,
@@ -99,7 +115,13 @@ public sealed class FlowthruService : IFlowthruService
     CancellationToken cancellationToken
   )
   {
-    options ??= ExecutionOptions.Default;
+    // No per-call options → seed the base from the host's
+    // ExecutionDefaults (set via ConfigureExecution or bound from
+    // config). A caller that supplies its own ExecutionOptions owns it
+    // fully; we never merge over an explicit instance. Resolving
+    // IOptions here also triggers the Parallelism validator before any
+    // flow logic runs.
+    options ??= BuildDefaultOptions();
 
     // Registration validation runs once per process before any flow
     // touches data. Successful runs cache the result so subsequent

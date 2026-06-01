@@ -316,6 +316,18 @@ public sealed class FlowthruServiceBuilder : IFlowthruBuilder
     return this;
   }
 
+  /// <inheritdoc/>
+  public IFlowthruBuilder ConfigureExecution(Action<ExecutionDefaults> configure)
+  {
+    if (configure is null) throw new ArgumentNullException(nameof(configure));
+    // Defer to the standard Options pipeline so this composes with any
+    // appsettings binding and with the validator registered in
+    // AddFlowthru. Multiple ConfigureExecution calls stack as ordered
+    // IConfigureOptions<ExecutionDefaults>.
+    Services.Configure(configure);
+    return this;
+  }
+
   // ── Internal accessors used by FlowthruService ─────────────────────────
 
   internal IReadOnlyList<FlowRegistration> Flows => _flows;

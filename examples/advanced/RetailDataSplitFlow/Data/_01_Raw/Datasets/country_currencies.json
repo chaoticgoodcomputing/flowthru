@@ -4,5 +4,16 @@
   { "Country": "France", "Currency": "EUR" },
   { "Country": "EIRE", "Currency": "EUR" },
   { "Country": "Spain", "Currency": "EUR" },
-  { "Country": "Netherlands", "Currency": "EUR" }
+  { "Country": "Netherlands", "Currency": "EUR" },
+  { "Country": "Belgium", "Currency": "EUR" },
+  { "Country": "Switzerland", "Currency": "CHF" },
+  { "Country": "Portugal", "Currency": "EUR" },
+  { "Country": "Australia", "Currency": "AUD" },
+  { "Country": "Norway", "Currency": "NOK" },
+  { "Country": "Italy", "Currency": "EUR" },
+  { "Country": "Channel Islands", "Currency": "GBP" },
+  { "Country": "Finland", "Currency": "EUR" },
+  { "Country": "Sweden", "Currency": "SEK" },
+  { "Country": "Denmark", "Currency": "DKK" },
+  { "Country": "Japan", "Currency": "JPY" }
 ]
