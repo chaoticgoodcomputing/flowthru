@@ -68,12 +68,30 @@
       }
     },
     "test": {
-      "//": "Public docs meta-test barrel — mirrors tests:test. Composes the doc-integrity subtargets via dependsOn; run by `nx affected -t test`. _test:snippet-freshness gates (drift/orphan/missing → fail); _test:doc-warnings is advisory (terminology + review-state, never fails) until the corpus is cleaned and terminology promotes to a gate.",
+      "//": "Public docs meta-test barrel — mirrors tests:test. Composes the doc-integrity subtargets via dependsOn; run by `nx affected -t test`. _test:link-audit and _test:snippet-freshness gate (broken link / drift → fail); _test:doc-warnings is advisory (terminology + review-state, never fails) until the corpus is cleaned and terminology promotes to a gate.",
       "executor": "nx:noop",
       "dependsOn": [
+        "_test:link-audit",
         "_test:snippet-freshness",
         "_test:doc-warnings"
       ]
+    },
+    "_test:link-audit": {
+      "//": "GATING. Deterministic filesystem audit of internal links in hand-authored docs: flags root-absolute links (404 under base) and relative links whose target page doesn't exist. Pure function of the docs source — NX caches it honestly and it returns the same result locally and in CI, unlike the Starlight build validator (which is incremental-cache-sensitive and skips relative links). Private subtarget; composed into docs:test.",
+      "executor": "nx:run-commands",
+      "cache": true,
+      "inputs": [
+        "{workspaceRoot}/docs/tutorials/**/*.md",
+        "{workspaceRoot}/docs/guides/**/*.md",
+        "{workspaceRoot}/docs/explanation/**/*.md",
+        "{workspaceRoot}/scripts/lint-doc-links.mjs"
+      ],
+      "outputs": [],
+      "options": {
+        "commands": [ "node scripts/lint-doc-links.mjs" ],
+        "cwd": "{workspaceRoot}",
+        "parallel": false
+      }
     },
     "_test:snippet-freshness": {
       "//": "GATING. Regenerates the snippet artifacts (via examples:generate-snippets) and asserts every committed doc is in sync — fails if a `#region docs:*` changed without a re-sync, if a sentinel references a missing snippet, or if a region is orphaned. Non-mutating (`--check`): writes nothing, so it leaves no working-tree side effects. Private subtarget; composed into docs:test.",

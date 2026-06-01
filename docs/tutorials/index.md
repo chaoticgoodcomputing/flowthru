@@ -12,4 +12,4 @@ Tutorials are **learning-oriented**: hands-on walkthroughs that take you from an
 
 ## Where to start
 
-Begin with the [Spaceflights tutorial](spaceflights/) and work through the chapters in order. Once you're comfortable, the [Guides](../guides/) cover specific tasks and the [Explanation](../explanation/) pages cover the *why* behind the design.
+Begin with the [Spaceflights tutorial](spaceflights/) and work through the chapters in order. Once you're comfortable, the [Guides](/docs/guides/) cover specific tasks and the [Explanation](/docs/explanation/) pages cover the *why* behind the design.

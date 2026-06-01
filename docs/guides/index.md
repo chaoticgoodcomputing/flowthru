@@ -21,4 +21,4 @@ Guides are **task-oriented**: focused recipes for getting a specific job done. U
 
 ## Where to start
 
-If you're new, work through the [Spaceflights tutorial](../tutorials/spaceflights/) first — the guides assume that grounding. For the reasoning behind these tasks, see the [Explanation](../explanation/) section.
+If you're new, work through the [Spaceflights tutorial](/docs/tutorials/spaceflights/) first — the guides assume that grounding. For the reasoning behind these tasks, see the [Explanation](/docs/explanation/) section.

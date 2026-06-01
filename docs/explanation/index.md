@@ -17,4 +17,4 @@ Explanation pages are **understanding-oriented**: they step back from any single
 
 ## Where to start
 
-[Anatomy of a Flowthru Flow](anatomy-of-a-flow/) is the best entry point. To put these concepts into practice, see the [Tutorials](../tutorials/) and [Guides](../guides/).
+[Anatomy of a Flowthru Flow](anatomy-of-a-flow/) is the best entry point. To put these concepts into practice, see the [Tutorials](/docs/tutorials/) and [Guides](/docs/guides/).
