@@ -224,5 +224,5 @@ Use `RawData` as output in ingestion pipelines, `RawDataReadOnly` as input in tr
 
 ## See Also
 
-- **[Storage Adapter Architecture](/docs/explanation/advanced/storage-composition.md)** — How traits propagate through storage layers (contributor documentation)
-- **[Slicing Pipelines](/docs/guides/slicing-pipelines.md)** — Execute subsets of your pipeline for testing
+- **[Storage Adapter Architecture](../explanation/advanced/storage-composition.md)** — How traits propagate through storage layers (contributor documentation)
+- **[Slicing Flows](slicing-pipelines.md)** — Execute subsets of your Flow for testing
