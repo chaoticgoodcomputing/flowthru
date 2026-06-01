@@ -474,6 +474,22 @@ def _handle_invoke(msg: dict) -> dict:
             else:
                 result = func(decoded)
 
+        # Distributed contract: only rank 0 owns the output channel —
+        # both the stdout response *and* the transit-file side channel.
+        # Every rank receives the same broadcast invoke message, hence
+        # the same `transit_dir`, so a non-rank-0 `_encode` here writes
+        # the *same* output path as rank 0 and races it — file-backed
+        # encodings (bytes/tabular/multi/directory) `open(..., "wb")`
+        # truncate-on-open, so a non-rank-0 write can clobber rank 0's
+        # real result with that rank's return value (e.g. the b"" most
+        # rank-aware steps return). The user function still ran above —
+        # that's required for collective coordination (DDP grad sync,
+        # barriers) — we only suppress the side-effecting encode. The
+        # response itself is discarded by the non-rank-0 dispatch loop
+        # regardless; skipping the encode is what protects the file.
+        if _DIST_ENABLED and _DIST_RANK != 0:
+            return {"status": "ok", "output": None}
+
         encoded = _encode(
             msg["output_type"],
             result,
