@@ -1,0 +1,19 @@
+# Per-package documentation: colocated, committed, self-contained; scope-primary site IA
+
+Flowthru documents each [[Shippable package]] as a self-contained unit. Generated API reference (docfx markdown) colocates under `<project>/docs/reference/` and is committed and freshness-gated, mirroring the existing snippet and capability-matrix generated artifacts (`docs/project.json`, `scripts/docfx-metadata.sh`). Each package carries a hand-authored `README.md` — a uniform skeleton (title/blurb, coverage badge, "What it is", install/getting-started, reference link), with extensions adding a "stack + mental model" section — that serves as both the NuGet/GitHub landing and the package's reference index on the site. The site's information architecture is **scope-primary** — `Docs` (Flowthru-wide), `Packages`, `Examples` — with Diátaxis nested inside each scope, so a package's API reference lives under its package rather than in a single flat Reference quadrant.
+
+Because a package's namespace need not match its assembly (`Flowthru.Extensions.Csv` declares types in the `Flowthru.Core.Data` namespace), cross-package type references in the generated reference cannot be resolved by namespace inference. They are resolved at build time against an assembly-keyed **global symbol index** and rewritten to canonical published-site URLs (`https://chaoticgoodcomputing.github.io/flowthru/...`); intra-package references become relative `.md` links. This makes each package's committed reference coherent in three places at once: browsed in-tree on GitHub, served on the site, and carried with the package if it is ever extracted from the monorepo.
+
+## Considered Options
+
+- **Reference output location** — central `docs/reference/src/**` (status quo) vs. per-package colocated. Chose colocated for ownership and extraction-readiness, accepting per-package committed-artifact churn and a consolidation step at site build. Note the cheaper alternative that was *not* taken: keeping central output while splitting `docs:_build-reference` into per-project targets would have bought the same cache granularity without the churn — colocation was chosen for ownership/extraction, not for caching.
+- **Cross-package xref rewriting** — repo-relative links (break on extraction), plain text (no navigation), or canonical site URLs. Chose canonical URLs as the only option satisfying in-tree + on-site + post-extraction navigation simultaneously.
+- **Site IA** — flat Diátaxis (status quo) vs. scope-primary. Chose scope-primary so a package's overview and its API sit together; the old top-level Reference quadrant is carved into cross-cutting reference (under `Docs`) and per-package reference (under `Packages`).
+
+## Consequences
+
+- The build **re-centralizes despite colocated output**: the global symbol index is a barrier, so a public-surface change in a widely-referenced package (Core) re-resolves every package that links to it. This is correct invalidation, not cheap. The natural index source is docfx's own `xrefmap.yml` (per-project isolation is what broke cross-references; a unified metadata pass — or merged per-project xrefmaps — rebuilds the global map).
+- Committed canonical URLs **couple the reference to the published site location**; relocating the site is a mass rewrite of committed markdown.
+- `src/website/scripts/ingest-docs.mjs` becomes a scope router (`docs/**` → `Docs`; `src/**/docs/**` → `Packages/<pkg>`; `examples/**` → `Examples/<example>`), and `codecov.yml` `component_management` becomes generated from the shippable-package set (closing the existing flags-generated / components-hand-maintained drift seam).
+
+Code this decision governs: `scripts/docfx-metadata.sh`, `docs/project.json` (`_build-reference`), `src/website/scripts/ingest-docs.mjs`, `src/website/astro.config.mjs` (sidebar), `codecov.yml`, `scripts/sync-codecov-flags.mjs`.
