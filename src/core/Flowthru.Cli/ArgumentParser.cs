@@ -19,7 +19,9 @@ namespace Flowthru.Cli;
 ///   <item><c>--exclude &lt;labels&gt;</c> — drop matching steps from the slice
 ///     (comma-separated; repeatable; supports the <c>flows:</c> prefix).</item>
 ///   <item><c>--dry-run</c> — pass <see cref="DryRunOption.On"/>.</item>
-///   <item><c>--validation-depth &lt;none|shallow|deep&gt;</c> — pass through.</item>
+///   <item><c>--validation-depth &lt;none|hermetic|shallow|deep&gt;</c> — pass through.
+///     Pair <c>--dry-run --validation-depth hermetic</c> for an offline smoke test
+///     (validate structure + wiring with zero I/O, run nothing).</item>
 ///   <item><c>--continue-on-error</c> — set <see cref="ExecutionOptions.StopOnFirstError"/> = false.</item>
 ///   <item><c>--no-cache</c> — set <see cref="ExecutionOptions.BypassCacheReads"/> = true; skip the
 ///     pre-flight cache plan (every cacheable step runs) but still record post-run composites
@@ -134,14 +136,17 @@ public static class ArgumentParser
           break;
         case "--validation-depth":
           if (i + 1 >= args.Count)
-            throw new ArgumentException("--validation-depth requires a value (none|shallow|deep).");
+            throw new ArgumentException(
+              "--validation-depth requires a value (none|hermetic|shallow|deep)."
+            );
           depth = args[++i].ToLowerInvariant() switch
           {
             "none" => ValidationDepth.None,
+            "hermetic" => ValidationDepth.Hermetic,
             "shallow" => ValidationDepth.Shallow,
             "deep" => ValidationDepth.Deep,
             var other => throw new ArgumentException(
-              $"Unknown validation depth '{other}'. Expected one of: none, shallow, deep."
+              $"Unknown validation depth '{other}'. Expected one of: none, hermetic, shallow, deep."
             ),
           };
           break;
@@ -288,7 +293,9 @@ public static class ArgumentParser
     + "                                   label, e.g. --exclude flows:Ingest\n"
     + "  --list                           List every registered flow and exit\n"
     + "  --dry-run                        Skip transform execution; validate only\n"
-    + "  --validation-depth <level>       none | shallow (default) | deep\n"
+    + "  --validation-depth <level>       none | hermetic | shallow (default) | deep\n"
+    + "                                   hermetic = validate structure + wiring, zero I/O;\n"
+    + "                                   pair with --dry-run for an offline smoke test\n"
     + "  --continue-on-error              Run independent steps after a failure\n"
     + "  --no-cache                       Skip the cache plan (every cacheable step runs);\n"
     + "                                   the manifest is still updated post-run\n"

@@ -231,13 +231,14 @@ public sealed class FlowthruServiceBuilder : IFlowthruBuilder
   /// <inheritdoc/>
   public IFlowthruBuilder RegisterValidationHook(
     string hookId,
-    Func<IServiceProvider, FlowIO<Validated<PreFlightError, FlowUnit>>> validate
+    Func<IServiceProvider, FlowIO<Validated<PreFlightError, FlowUnit>>> validate,
+    ValidationDepth minimumDepth = ValidationDepth.Shallow
   )
   {
     if (string.IsNullOrWhiteSpace(hookId))
       throw new ArgumentException("Hook id required.", nameof(hookId));
     if (validate is null) throw new ArgumentNullException(nameof(validate));
-    _registrationHooks.Add(new FunctionRegistrationValidationHook(hookId, validate));
+    _registrationHooks.Add(new FunctionRegistrationValidationHook(hookId, validate, minimumDepth));
     return this;
   }
 
@@ -246,13 +247,16 @@ public sealed class FlowthruServiceBuilder : IFlowthruBuilder
     private readonly Func<IServiceProvider, FlowIO<Validated<PreFlightError, FlowUnit>>> _validate;
     public FunctionRegistrationValidationHook(
       string hookId,
-      Func<IServiceProvider, FlowIO<Validated<PreFlightError, FlowUnit>>> validate
+      Func<IServiceProvider, FlowIO<Validated<PreFlightError, FlowUnit>>> validate,
+      ValidationDepth minimumDepth = ValidationDepth.Shallow
     )
     {
       HookId = hookId;
       _validate = validate;
+      MinimumDepth = minimumDepth;
     }
     public string HookId { get; }
+    public ValidationDepth MinimumDepth { get; }
     public FlowIO<Validated<PreFlightError, FlowUnit>> Validate(IServiceProvider services) =>
       _validate(services);
   }

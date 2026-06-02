@@ -1,4 +1,5 @@
 using Flowthru.Data.Storage.EFCore.Internal;
+using Flowthru.Flow;
 using Flowthru.Prelude;
 using Flowthru.Validation.PreFlight;
 using Flowthru.Validation.Runtime;
@@ -23,7 +24,9 @@ public static class EFCoreFlowthruBuilderExtensions
   /// Register a hook that opens a connection probe for
   /// <typeparamref name="TContext"/> at host startup. Catches
   /// "connection string is malformed" and "the database engine is
-  /// unreachable" before any flow runs.
+  /// unreachable" before any flow runs. This is a live probe, so it runs
+  /// at <see cref="ValidationDepth.Shallow"/> and above — an offline
+  /// (Hermetic) smoke test skips it.
   /// </summary>
   /// <typeparam name="TContext">The configured EF Core context type.</typeparam>
   /// <param name="builder">The Flowthru builder.</param>
@@ -94,7 +97,10 @@ public static class EFCoreFlowthruBuilderExtensions
   /// configuration — every <c>DbSet</c> has a key, no array keys, no
   /// orphaned mappings. Catches model-build errors at startup rather
   /// than at first adapter construction, which can be deep inside
-  /// catalog wire-up.
+  /// catalog wire-up. The model is built from in-memory metadata (no DB
+  /// connection), so this hook is classified
+  /// <see cref="ValidationDepth.Hermetic"/> and participates in an offline
+  /// smoke test.
   /// </summary>
   public static IFlowthruBuilder VerifyEFCoreConfiguration<TContext>(
     this IFlowthruBuilder builder,
@@ -173,7 +179,11 @@ public static class EFCoreFlowthruBuilderExtensions
             )
           );
         }
-      }, source: id)
+      }, source: id),
+      // Hermetic: building the model is in-memory metadata work — no DB
+      // connection is opened — so this check participates in a zero-I/O
+      // smoke test (DryRun.On + ValidationDepth.Hermetic).
+      ValidationDepth.Hermetic
     );
   }
 

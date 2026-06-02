@@ -195,6 +195,45 @@ public class EFCoreFlowthruBuilderExtensionsTests
     Assert.That(hookIds, Does.Contain($"EFCore.Schema[{nameof(TestDbContext)}]"));
   }
 
+  // ── Hermetic depth: live probe skipped, in-memory check kept ─────────
+
+  [Test]
+  public async Task Hermetic_SkipsLiveConnectionProbe_ButRunsInMemoryConfigurationCheck()
+  {
+    // The factory points at an unreachable database (its parent directory
+    // does not exist). At Hermetic the live connection probe — classified
+    // Shallow — is skipped, while the in-memory model/configuration check —
+    // classified Hermetic — still runs. This is the offline smoke-test
+    // contract: validate structure + wiring with no reachable database. At
+    // Shallow the probe runs and fails, proving the skip is depth-specific.
+    var unreachable = Path.Combine(
+      Path.GetTempPath(), $"flowthru-missing-{Guid.NewGuid():N}", "x.db");
+    var services = new ServiceCollection();
+    services.AddDbContextFactory<TestDbContext>(opts =>
+      opts.UseSqlite($"Data Source={unreachable}"));
+    services.AddFlowthru(b =>
+    {
+      b.RegisterCatalog(_ => new EmptyCatalog());
+      b.RegisterFlow("noop", () => FlowBuilder.CreateFlow("noop", _ => { }));
+      b.VerifyEFCoreConnection<TestDbContext>();
+      b.VerifyEFCoreConfiguration<TestDbContext>();
+    });
+    var service = services.BuildServiceProvider().GetRequiredService<IFlowthruService>();
+
+    var hermetic = await service.RunAsync(
+      flowLabel: null,
+      new ExecutionOptions { ValidationDepth = ValidationDepth.Hermetic, DryRun = DryRunOption.On });
+    Assert.That(hermetic.HasFailures, Is.False,
+      "Hermetic skips the live EFCore connection probe; the in-memory configuration "
+      + "check passes even with no reachable database.");
+
+    var shallow = await service.RunAsync(
+      flowLabel: null,
+      new ExecutionOptions { ValidationDepth = ValidationDepth.Shallow, DryRun = DryRunOption.On });
+    Assert.That(shallow.HasFailures, Is.True,
+      "Shallow runs the connection probe, which fails against an unreachable database.");
+  }
+
   // ── Helpers ─────────────────────────────────────────────────────────
 
   private static DbContextOptions<TestDbContext> BuildOptions(string dbPath) =>

@@ -49,6 +49,27 @@ public class PreFlightPipelineTests
   }
 
   [Test]
+  public async Task HermeticScope_SkipsAdapterInspection_SoMissingInputIsNotProbed()
+  {
+    // Same setup as MissingInput_FromAdapterInspection above (no Save, so
+    // Full scope reports MissingInput) — but at Hermetic scope adapter
+    // inspection (Layer 1, I/O) is skipped, so nothing is probed and the
+    // flow validates clean. This pins the zero-I/O contract at the pipeline.
+    var input = ItemFactory.Singleton.Memory<int>("input");
+    var output = ItemFactory.Singleton.Memory<int>("output");
+
+    var flow = FlowBuilder.CreateFlow("missing", b =>
+      b.AddStep<int, int>("noop", x => x, input, output)
+    );
+
+    var result = await PreFlightPipeline.Run(flow, scope: PreFlightScope.Hermetic).Run();
+    var inner = ((EffResult<Validated<PreFlightError, FlowUnit>>.Success)result).Value;
+    Assert.That(inner.IsValid, Is.True,
+      "Hermetic scope must skip adapter inspection — a missing external input is I/O, not "
+      + "structure, so it is not probed offline.");
+  }
+
+  [Test]
   public async Task IndependentHooks_BothFail_AggregateBothErrors()
   {
     var input = ItemFactory.Singleton.Memory<int>("input");

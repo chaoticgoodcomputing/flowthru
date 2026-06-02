@@ -55,6 +55,24 @@ public abstract record PreFlightError
   }
 
   /// <summary>
+  /// Two registered flows share a flow label, or two steps across the
+  /// merged DAG share a step label. Flowthru requires both to be unique:
+  /// flow labels key the per-flow slice, step labels key the merged DAG
+  /// node set (§2.4). Detected while assembling the merged flow — a
+  /// plan-build precondition, surfaced as data so a smoke test reports it
+  /// rather than crashing. <see cref="Scope"/> distinguishes the two
+  /// namespaces (<c>"flow"</c> / <c>"step"</c>).
+  /// </summary>
+  public sealed record DuplicateLabel(string Label, string Scope) : PreFlightError
+  {
+    public override string Message =>
+      $"Duplicate {Scope} label '{Label}': {Scope} labels must be unique "
+      + (Scope == "flow"
+        ? "within a single FlowthruService."
+        : "across the merged DAG (§2.4).");
+  }
+
+  /// <summary>
   /// A required external input is not accessible. Detected by inspecting
   /// each external input's storage medium before any step runs — even if
   /// the input is consumed only by the last step in the flow.

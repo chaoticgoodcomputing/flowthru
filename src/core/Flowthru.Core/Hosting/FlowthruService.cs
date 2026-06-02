@@ -43,14 +43,24 @@ public sealed class FlowthruService : IFlowthruService
   private readonly IServiceProvider _services;
   private readonly FlowthruServiceBuilder _registry;
   private readonly ILogger _logger;
-  private readonly Lazy<MergedFlow> _merged;
 
-  // Registration-validation cache. Holds Valid (success) once every
-  // hook has reported success — re-running becomes a no-op. Failed
-  // hooks re-run on every call so transient failures eventually clear
-  // without requiring a process restart.
+  // The merged DAG, validated once. Assembling it and checking acyclicity,
+  // the single-producer law, and label uniqueness is a plan-build
+  // precondition — a cyclic graph is physically un-runnable — so a
+  // structural violation is surfaced as Invalid (PreFlightError data),
+  // routed to a FlowResult at every ValidationDepth rather than thrown.
+  // (FlowBuilder.Build() still throws for eager single-flow construction;
+  // only this merged/invocation path accumulates.)
+  private readonly Lazy<Validated<PreFlightError, MergedFlow>> _merged;
+
+  // Registration-validation cache, depth-aware. Records the highest depth
+  // at which every admitted hook reported success, so a repeat call at that
+  // depth or lower is a no-op while a deeper call still re-runs the hooks
+  // its depth newly admits (a Hermetic pass must never mask the Shallow+
+  // probes). Failed passes are not cached — they re-run every call so
+  // transient failures eventually clear without a process restart.
   private readonly SemaphoreSlim _registrationGate = new(1, 1);
-  private Validated<PreFlightError, FlowUnit>? _registrationCache;
+  private ValidationDepth? _registrationCacheDepth;
 
   public FlowthruService(
     IServiceProvider services,
@@ -61,12 +71,24 @@ public sealed class FlowthruService : IFlowthruService
     _services = services ?? throw new ArgumentNullException(nameof(services));
     _registry = registry ?? throw new ArgumentNullException(nameof(registry));
     _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-    _merged = new Lazy<MergedFlow>(BuildMergedFlow);
+    _merged = new Lazy<Validated<PreFlightError, MergedFlow>>(BuildMergedFlow);
   }
 
   /// <inheritdoc/>
+  /// <remarks>
+  /// Materialising the labels forces the merged-DAG build. A structurally
+  /// invalid service (cycle, duplicate producer, duplicate label) has no
+  /// well-defined flow set, so this throws <see cref="FlowBuildException"/>
+  /// summarising the violations — the run paths surface the same problems
+  /// as <c>FlowResult</c> data instead.
+  /// </remarks>
   public IReadOnlyList<string> RegisteredFlowLabels =>
-    _merged.Value.OutputsByLabel.Keys.ToList();
+    _merged.Value.Match(
+      onValid: merged => (IReadOnlyList<string>)merged.OutputsByLabel.Keys.ToList(),
+      onInvalid: errors => throw new FlowBuildException(
+        string.Join("; ", errors.Select(e => e.Message))
+      )
+    );
 
   /// <summary>
   /// Build the base <see cref="ExecutionOptions"/> for a run that did
@@ -123,10 +145,14 @@ public sealed class FlowthruService : IFlowthruService
     // flow logic runs.
     options ??= BuildDefaultOptions();
 
-    // Registration validation runs once per process before any flow
-    // touches data. Successful runs cache the result so subsequent
-    // RunAsync calls are no-ops here; failures re-run every call.
-    var registrationOutcome = await ValidateRegistrationAsync(cancellationToken).ConfigureAwait(false);
+    // Registration validation runs before any flow touches data, gated by
+    // the run's depth: None skips it (no validation requested), Hermetic
+    // runs only the zero-I/O wiring hooks, Shallow+ runs every hook. The
+    // result is cached per highest-succeeded depth so repeat runs are
+    // no-ops without masking deeper probes.
+    var registrationOutcome = options.ValidationDepth == ValidationDepth.None
+      ? Validated<PreFlightError, FlowUnit>.Pure(FlowUnit.Default)
+      : await ValidateRegistrationAsync(options.ValidationDepth, cancellationToken).ConfigureAwait(false);
     if (registrationOutcome is Validated<PreFlightError, FlowUnit>.Invalid registrationInvalid)
     {
       // Surface every hook failure as its own synthetic step result so
@@ -149,7 +175,15 @@ public sealed class FlowthruService : IFlowthruService
       return new FlowResult(registrationFailures);
     }
 
-    var merged = _merged.Value;
+    // Plan-build precondition: a structurally invalid merged DAG (cycle,
+    // duplicate producer, duplicate label) is un-runnable at any depth, so
+    // surface it as a FlowResult rather than throwing — uniform with every
+    // other pre-flight failure, and inspectable by a Hermetic smoke test.
+    if (_merged.Value is Validated<PreFlightError, MergedFlow>.Invalid mergedInvalid)
+    {
+      return PreFlightFailuresToFlowResult(mergedInvalid.Errors);
+    }
+    var merged = ((Validated<PreFlightError, MergedFlow>.Valid)_merged.Value).Value;
 
     // Three slicing modes:
     //   • flowLabel non-null → legacy "slice to flow's declared outputs" path
@@ -228,8 +262,22 @@ public sealed class FlowthruService : IFlowthruService
     //     additional StepResult.Failed entries in the FlowResult;
     //   • body fail + release fail → release errors are suppressed
     //     (the body's diagnostic wins; release was best-effort cleanup).
+    //
+    // Acquisition itself is I/O (e.g. EFCore's DbScope opens a connection),
+    // so it is skipped when nothing will use the handle: a dry run that is
+    // also below Shallow (None / Hermetic) neither executes transforms nor
+    // probes live resources. This is what lets a Hermetic smoke test
+    // (DryRun.On + Hermetic) run with no live environment. Any non-dry run
+    // executes for real and acquires; Shallow+ acquires so probes have a
+    // live handle.
+    var acquireResources =
+      options.DryRun != DryRunOption.On
+      || options.ValidationDepth >= ValidationDepth.Shallow;
     var acquired = new List<(IFlowResource Resource, object? Scope)>();
-    foreach (var catalogType in _registry.CatalogTypes)
+    var catalogTypesToAcquire = acquireResources
+      ? _registry.CatalogTypes
+      : Enumerable.Empty<Type>();
+    foreach (var catalogType in catalogTypesToAcquire)
     {
       if (_services.GetService(catalogType) is CatalogAbstract catalog
           && catalog.Resource is { } resource)
@@ -252,8 +300,12 @@ public sealed class FlowthruService : IFlowthruService
     }
 
     // Acquire FlowResources declared by IFlowResourceProvider services.
-    // Same bracket contract as catalog resources above.
-    foreach (var provider in _services.GetServices<IFlowResourceProvider>())
+    // Same bracket contract — and same acquisition gate — as catalog
+    // resources above.
+    var resourceProvidersToAcquire = acquireResources
+      ? _services.GetServices<IFlowResourceProvider>()
+      : Enumerable.Empty<IFlowResourceProvider>();
+    foreach (var provider in resourceProvidersToAcquire)
     {
       if (provider.FlowResource is { } resource)
       {
@@ -350,14 +402,17 @@ public sealed class FlowthruService : IFlowthruService
 
   /// <inheritdoc/>
   public async Task<Validated<PreFlightError, FlowUnit>> ValidateRegistrationAsync(
+    ValidationDepth depth = ValidationDepth.Shallow,
     CancellationToken cancellationToken = default
   )
   {
-    // Fast-path: a previous successful pass cached the result. Re-running
-    // is a no-op; failed hooks bypass the cache and re-run every call.
-    if (_registrationCache is Validated<PreFlightError, FlowUnit>.Valid cachedSuccess)
+    // Fast-path: a prior pass already succeeded at this depth or deeper, so
+    // every hook this call would admit has been validated. A deeper request
+    // than the cache falls through and re-runs (the cache can't vouch for
+    // hooks it never ran).
+    if (_registrationCacheDepth is { } cached && cached >= depth)
     {
-      return cachedSuccess;
+      return Validated<PreFlightError, FlowUnit>.Pure(FlowUnit.Default);
     }
 
     await _registrationGate.WaitAsync(cancellationToken).ConfigureAwait(false);
@@ -365,21 +420,25 @@ public sealed class FlowthruService : IFlowthruService
     {
       // Re-check inside the gate — another caller may have populated the
       // cache while we were waiting.
-      if (_registrationCache is Validated<PreFlightError, FlowUnit>.Valid alreadyCached)
+      if (_registrationCacheDepth is { } alreadyCached && alreadyCached >= depth)
       {
-        return alreadyCached;
+        return Validated<PreFlightError, FlowUnit>.Pure(FlowUnit.Default);
       }
 
-      var hooks = _registry.RegistrationHooks;
+      // Admit only hooks whose MinimumDepth is at or below the requested
+      // depth — a Hermetic run skips the live probes (default Shallow) and
+      // runs only the zero-I/O wiring checks.
+      var hooks = _registry.RegistrationHooks
+        .Where(h => h.MinimumDepth <= depth)
+        .ToList();
       if (hooks.Count == 0)
       {
-        var empty = Validated<PreFlightError, FlowUnit>.Pure(FlowUnit.Default);
-        _registrationCache = empty;
-        return empty;
+        _registrationCacheDepth = depth;
+        return Validated<PreFlightError, FlowUnit>.Pure(FlowUnit.Default);
       }
 
-      // Run every hook independently — one hook's failure does not skip
-      // subsequent hooks. Aggregating Validateds via Combine accumulates
+      // Run every admitted hook independently — one hook's failure does not
+      // skip subsequent hooks. Aggregating Validateds via Combine accumulates
       // findings so the user sees the full set in one pass.
       var aggregate = Validated<PreFlightError, FlowUnit>.Pure(FlowUnit.Default);
       foreach (var hook in hooks)
@@ -402,10 +461,10 @@ public sealed class FlowthruService : IFlowthruService
         aggregate = Combine(aggregate, hookOutcome);
       }
 
-      // Cache only on success. Failed hooks re-run next call.
+      // Cache the depth only on success. Failed hooks re-run next call.
       if (aggregate is Validated<PreFlightError, FlowUnit>.Valid)
       {
-        _registrationCache = aggregate;
+        _registrationCacheDepth = depth;
       }
       return aggregate;
     }
@@ -470,27 +529,57 @@ public sealed class FlowthruService : IFlowthruService
   {
     if (options.ValidationDepth != ValidationDepth.None)
     {
-      var inspectionLevel = options.ValidationDepth == ValidationDepth.Deep
-        ? InspectionLevel.Deep
-        : InspectionLevel.Shallow;
+      // Map the depth rung onto the pipeline's I/O boundary. Shallow/Deep
+      // run every layer (Full scope) at the matching adapter inspection
+      // level; Hermetic runs only the zero-I/O checks (C# DI-presence +
+      // dispatcher presence) and skips adapter inspection, hooks, and
+      // service probes — the inspection level is then moot, so None.
+      var fullScope = options.ValidationDepth >= ValidationDepth.Shallow;
+      var scope = fullScope
+        ? Flowthru.Validation.PreFlight.PreFlightScope.Full
+        : Flowthru.Validation.PreFlight.PreFlightScope.Hermetic;
+      var inspectionLevel = options.ValidationDepth switch
+      {
+        ValidationDepth.Deep => InspectionLevel.Deep,
+        ValidationDepth.Shallow => InspectionLevel.Shallow,
+        _ => InspectionLevel.None,
+      };
 
-      var probes = _registry.Inspectors
-        .Select(reg => reg.Probe(_services))
-        .ToList();
+      // Caller-supplied hooks/probes are skipped at Hermetic scope (they
+      // may do I/O); pass null there so the intent is explicit at the call
+      // site rather than relying on the pipeline's scope guard alone.
+      var hooks = fullScope ? _registry.ValidationHooks : null;
+      var probes = fullScope
+        ? _registry.Inspectors.Select(reg => reg.Probe(_services)).ToList()
+        : null;
 
       // Extension-supplied service-ref dispatchers — resolved from DI as
       // a plural surface so multiple extensions (Python + SQL + ...) can
       // coexist. Layer 4 inside PreFlightPipeline matches each step's
       // ServiceRef.External by Category to find its dispatcher; an
-      // unregistered category surfaces as PreFlightError.RegistrationCheckFailed.
+      // unregistered category surfaces as PreFlightError.RegistrationCheckFailed
+      // at every scope (presence is hermetic; only the Inspect probe is I/O).
       var dispatchers = _services
         .GetServices<Flowthru.Validation.Runtime.IServiceRefDispatcher>()
         .ToList();
 
+      // DI-registration query for the hermetic C# service-dependency check.
+      // Null when the container doesn't expose it — the check is then skipped.
+      var serviceProviderIsService = _services.GetService<IServiceProviderIsService>();
+
       _logger.LogInformation("→ Pre-flight checks…");
       var preFlightStopwatch = Stopwatch.StartNew();
       var preFlightResult = await PreFlightPipeline
-        .Run(effectiveFlow, _registry.ValidationHooks, probes, dispatchers, inspectionLevel)
+        .Run(
+          effectiveFlow,
+          hooks,
+          probes,
+          dispatchers,
+          inspectionLevel,
+          maxDegreeOfParallelism: 1,
+          scope: scope,
+          serviceProviderIsService: serviceProviderIsService
+        )
         .Run(cancellationToken)
         .ConfigureAwait(false);
       preFlightStopwatch.Stop();
@@ -511,33 +600,7 @@ public sealed class FlowthruService : IFlowthruService
           "  ✗ Pre-flight failed with {ErrorCount} error(s) in {Duration:F2} ms",
           invalid.Errors.Count, preFlightStopwatch.Elapsed.TotalMilliseconds
         );
-        // Surface every pre-flight error as its own synthetic StepResult so
-        // the FlowResult preserves per-error granularity (and per-cause
-        // FT3xxx codes via PreFlightFailed → classifier delegation). Labels
-        // identify the source: input items, registration hooks, services,
-        // etc. — matching the cause's natural addressee.
-        var preFlightFailures = invalid.Errors
-          .Select((err, i) =>
-          {
-            var label = err switch
-            {
-              PreFlightError.MissingInput mi => $"preflight:input:{mi.ItemId}",
-              PreFlightError.SchemaDrift sd => $"preflight:input:{sd.ItemId}",
-              PreFlightError.InspectionFailed iff => $"preflight:input:{iff.ItemId}",
-              PreFlightError.DuplicateProducer dp => $"preflight:dag:{dp.ItemId}",
-              PreFlightError.CircularDependency => $"preflight:dag:cycle[{i}]",
-              PreFlightError.RegistrationCheckFailed rcf => $"preflight:registration:{rcf.HookId}",
-              PreFlightError.External ext => $"preflight:external:{ext.Cause.Category}",
-              _ => $"preflight:[{i}]",
-            };
-            return (StepResult)new StepResult.Failed(
-              label,
-              new RuntimeError.PreFlightFailed(err),
-              TimeSpan.Zero
-            );
-          })
-          .ToList();
-        return new FlowResult(preFlightFailures);
+        return PreFlightFailuresToFlowResult(invalid.Errors);
       }
 
       _logger.LogInformation(
@@ -717,37 +780,83 @@ public sealed class FlowthruService : IFlowthruService
   }
 
   /// <summary>
+  /// Turn accumulated <see cref="PreFlightError"/>s into a
+  /// <see cref="FlowResult"/> whose <see cref="StepResult.Failed"/> entries
+  /// preserve per-error granularity (and per-cause FT3xxx codes via
+  /// <see cref="RuntimeError.PreFlightFailed"/> → classifier delegation).
+  /// Labels identify each error's source — DAG/structure, input items,
+  /// registration hooks, services — matching the cause's natural addressee.
+  /// Shared by the plan-build (structural) and per-flow pre-flight paths.
+  /// </summary>
+  private static FlowResult PreFlightFailuresToFlowResult(IReadOnlyList<PreFlightError> errors)
+  {
+    var failures = errors
+      .Select((err, i) =>
+      {
+        var label = err switch
+        {
+          PreFlightError.MissingInput mi => $"preflight:input:{mi.ItemId}",
+          PreFlightError.SchemaDrift sd => $"preflight:input:{sd.ItemId}",
+          PreFlightError.InspectionFailed iff => $"preflight:input:{iff.ItemId}",
+          PreFlightError.DuplicateProducer dp => $"preflight:dag:{dp.ItemId}",
+          PreFlightError.CircularDependency => $"preflight:dag:cycle[{i}]",
+          PreFlightError.DuplicateLabel dl => $"preflight:dag:label:{dl.Scope}:{dl.Label}",
+          PreFlightError.RegistrationCheckFailed rcf => $"preflight:registration:{rcf.HookId}",
+          PreFlightError.External ext => $"preflight:external:{ext.Cause.Category}",
+          _ => $"preflight:[{i}]",
+        };
+        return (StepResult)new StepResult.Failed(
+          label,
+          new RuntimeError.PreFlightFailed(err),
+          TimeSpan.Zero
+        );
+      })
+      .ToList();
+    return new FlowResult(failures);
+  }
+
+  /// <summary>
   /// Materialise every registered flow's <see cref="BuiltFlow"/>,
   /// then merge the union of their steps into a single
   /// <see cref="BuiltFlow"/>. Each registration's output items are
   /// stored under its label so <c>RunAsync</c> can slice
   /// when called with that label.
   /// </summary>
-  private MergedFlow BuildMergedFlow()
+  /// <remarks>
+  /// Returns the structural violations as <see cref="PreFlightError"/>
+  /// data rather than throwing — assembling the merged DAG is a plan-build
+  /// precondition (a cyclic / duplicate-producer / duplicate-label graph is
+  /// un-runnable), so the caller surfaces it uniformly through
+  /// <c>FlowResult</c>. Label-uniqueness violations accumulate across all
+  /// registrations and short-circuit the dependency analysis (a duplicate
+  /// label makes the analyzer's output unreliable).
+  /// </remarks>
+  private Validated<PreFlightError, MergedFlow> BuildMergedFlow()
   {
     var allSteps = new List<IStepNode>();
     var outputsByLabel = new Dictionary<string, IReadOnlyList<string>>(StringComparer.Ordinal);
     var stepLabelsSeen = new HashSet<string>(StringComparer.Ordinal);
+    var labelErrors = new List<PreFlightError>();
 
     foreach (var registration in _registry.Flows)
     {
       var perFlow = registration.Resolver(_services);
-      if (outputsByLabel.ContainsKey(registration.Label))
+      if (!outputsByLabel.TryAdd(registration.Label, Array.Empty<string>()))
       {
-        throw new InvalidOperationException(
-          $"Two flows registered with the same label '{registration.Label}'. "
-          + "Flow labels must be unique within a single FlowthruService."
-        );
+        // Duplicate flow label — skip the whole registration so its steps
+        // don't pollute the merged set under an ambiguous label.
+        labelErrors.Add(new PreFlightError.DuplicateLabel(registration.Label, "flow"));
+        continue;
       }
 
       foreach (var step in perFlow.Steps)
       {
         if (!stepLabelsSeen.Add(step.Label))
         {
-          throw new InvalidOperationException(
-            $"Step label '{step.Label}' appears in more than one registered flow. "
-            + "Step labels must be unique across the merged DAG (§2.4)."
-          );
+          // Duplicate step label across the merged DAG — record and skip
+          // this step; keep scanning so every collision is reported at once.
+          labelErrors.Add(new PreFlightError.DuplicateLabel(step.Label, "step"));
+          continue;
         }
         allSteps.Add(step);
       }
@@ -756,26 +865,38 @@ public sealed class FlowthruService : IFlowthruService
         perFlow.Steps.SelectMany(s => s.Outputs.Select(o => o.Label)).Distinct().ToList();
     }
 
+    // Label uniqueness is a prerequisite for meaningful dependency
+    // analysis — bail with the accumulated label errors before analysing.
+    if (labelErrors.Count > 0)
+    {
+      return Validated<PreFlightError, MergedFlow>.Fail(labelErrors);
+    }
+
     // Run DependencyAnalyzer over the union — surfaces cycles and
     // duplicate-producer violations across registered flows, not
     // just within one of them.
     var analysis = DependencyAnalyzer.Analyse(allSteps);
-    var mergedBuiltFlow = analysis switch
+    return analysis switch
     {
-      DependencyAnalyzer.Result.Ok ok =>
-        new BuiltFlow("__merged__", ok.Order, ok.ProducerByItemLabel),
-      DependencyAnalyzer.Result.CycleDetected c => throw new FlowBuildException(c.Message),
-      DependencyAnalyzer.Result.DuplicateProducer d => throw new FlowBuildException(d.Message),
+      DependencyAnalyzer.Result.Ok ok => Validated<PreFlightError, MergedFlow>.Pure(
+        new MergedFlow(
+          new BuiltFlow("__merged__", ok.Order, ok.ProducerByItemLabel),
+          ok.ProducerByItemLabel,
+          outputsByLabel
+        )
+      ),
+      DependencyAnalyzer.Result.CycleDetected c =>
+        Validated<PreFlightError, MergedFlow>.Fail(
+          new PreFlightError.CircularDependency(c.Cycle)
+        ),
+      DependencyAnalyzer.Result.DuplicateProducer d =>
+        Validated<PreFlightError, MergedFlow>.Fail(
+          new PreFlightError.DuplicateProducer(d.ItemLabel, d.StepLabels)
+        ),
       _ => throw new InvalidOperationException(
         "Unreachable: DependencyAnalyzer.Result is a closed sum"
       ),
     };
-
-    return new MergedFlow(
-      mergedBuiltFlow,
-      ((DependencyAnalyzer.Result.Ok)analysis).ProducerByItemLabel,
-      outputsByLabel
-    );
   }
 
   /// <summary>

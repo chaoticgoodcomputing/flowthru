@@ -54,17 +54,26 @@ public interface IFlowthruService
   );
 
   /// <summary>
-  /// Run every registered <see cref="IRegistrationValidationHook"/>.
-  /// The first <c>RunAsync</c> call invokes this internally;
-  /// callers can also invoke it during <c>Main</c> for fail-fast-at-
-  /// startup behaviour.
+  /// Run every registered <see cref="IRegistrationValidationHook"/> whose
+  /// <see cref="IRegistrationValidationHook.MinimumDepth"/> is at or below
+  /// <paramref name="depth"/>. The first <c>RunAsync</c> call invokes this
+  /// internally at the run's depth; callers can also invoke it during
+  /// <c>Main</c> for fail-fast-at-startup behaviour.
   /// </summary>
+  /// <param name="depth">
+  /// The depth to validate at — hooks above it are skipped. Defaults to
+  /// <see cref="ValidationDepth.Shallow"/> (run every hook). Pass
+  /// <see cref="ValidationDepth.Hermetic"/> to run only the zero-I/O wiring
+  /// hooks, e.g. an offline startup check.
+  /// </param>
   /// <remarks>
-  /// Successful hooks are cached after the first pass — re-running is
-  /// a no-op. Failed hooks re-run on each call so transient failures
-  /// eventually clear without requiring a process restart.
+  /// The result is cached per the highest depth that has succeeded — a
+  /// repeat call at that depth or lower is a no-op; a deeper call re-runs
+  /// the hooks its depth newly admits. Failed hooks re-run on each call so
+  /// transient failures eventually clear without requiring a process restart.
   /// </remarks>
   Task<Validated<PreFlightError, FlowUnit>> ValidateRegistrationAsync(
+    ValidationDepth depth = ValidationDepth.Shallow,
     CancellationToken cancellationToken = default
   );
 

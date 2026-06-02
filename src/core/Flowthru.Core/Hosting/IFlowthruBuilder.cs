@@ -142,9 +142,17 @@ public interface IFlowthruBuilder
   /// receives the configured DI provider and returns an
   /// aggregating <see cref="Validated{TError, TValue}"/>.
   /// </summary>
+  /// <param name="minimumDepth">
+  /// The lightest <see cref="ValidationDepth"/> at which the hook runs (see
+  /// <see cref="IRegistrationValidationHook.MinimumDepth"/>). Defaults to
+  /// <see cref="ValidationDepth.Shallow"/>; pass
+  /// <see cref="ValidationDepth.Hermetic"/> for a zero-I/O wiring check that
+  /// should run even in an offline smoke test.
+  /// </param>
   IFlowthruBuilder RegisterValidationHook(
     string hookId,
-    Func<IServiceProvider, FlowIO<Validated<PreFlightError, FlowUnit>>> validate
+    Func<IServiceProvider, FlowIO<Validated<PreFlightError, FlowUnit>>> validate,
+    ValidationDepth minimumDepth = ValidationDepth.Shallow
   );
 
   /// <summary>

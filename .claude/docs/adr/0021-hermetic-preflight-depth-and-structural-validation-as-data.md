@@ -1,0 +1,44 @@
+---
+status: accepted
+---
+
+# Pre-flight introspection is an I/O-boundary ladder, and structural validity is a plan-build precondition surfaced as data
+
+A downstream user smoke-testing a `FlowthruService` locally wants to confirm it is sound and fully wired — DAG connected, single-producer law held, every dependency registered — **without a live environment** (no reachable database). The core rewrite lost this: `ValidationDepth` ([ValidationDepth.cs](/src/core/Flowthru.Core/Flow/ValidationDepth.cs)) graded only how many *rows* of external inputs to probe (`None`/`Shallow`/`Deep`), and several I/O touches happened regardless of the level — registration validation ran unconditionally at the top of `RunAsyncCore` ([FlowthruService.cs](/src/core/Flowthru.Core/Hosting/FlowthruService.cs)), `IFlowResource`s were acquired unconditionally before pre-flight, and a structural violation threw `FlowBuildException` out of the lazy merged-DAG build rather than flowing through the accumulating `FlowResult` surface. EFCore's `VerifyEFCoreConnection` registers as an `IRegistrationValidationHook` that calls `ctx.Database.CanConnectAsync` ([EFCoreFlowthruBuilderExtensions.cs](/src/extensions/Flowthru.Extensions.EFCore/Hosting/EFCoreFlowthruBuilderExtensions.cs)), so even `ValidationDepth.None` required a reachable DB. The capability was structurally impossible.
+
+## Decided
+
+- **The introspection ladder grades one axis: whether pre-flight performs I/O.** `ValidationDepth` becomes `{ None, Hermetic, Shallow, Deep }`. `Hermetic` is the maximal validation that touches nothing external; `Shallow`/`Deep` add live-resource probes at the matching adapter inspection depth. This is a single linear enum rather than an orthogonal `scope × depth` pair because the reachable states are exactly these four — the cross-product has nonsense cells (`Hermetic × Deep`, `None × anything`), so the linear enum encodes the constraint in the type instead of validating it at runtime.
+- **`DryRun` stays orthogonal.** It governs whether transforms execute *after* pre-flight; introspection depth governs *how far pre-flight reaches*. An offline smoke test is the composition `DryRunOption.On + ValidationDepth.Hermetic`. The old design's mistake — fusing dry-run-enable, structure-vs-data, and a default into one `DryRunOption` struct — is not repeated.
+- **Plan-build is a precondition, not a rung.** Assembling the merged DAG and checking acyclicity, the single-producer law, and label uniqueness is required to produce *any* runnable plan — a cyclic graph is physically un-runnable — so it runs at every level and its failures surface as `FlowResult` data at every level. `_merged` becomes `Lazy<Validated<PreFlightError, MergedFlow>>`; `BuildMergedFlow` accumulates `CircularDependency` / `DuplicateProducer` / `DuplicateLabel` (a new closed-sum case, [PreFlightError.cs](/src/core/Flowthru.Core/Validation/PreFlight/PreFlightError.cs)) instead of throwing.
+- **Design-time construction still throws; invocation-time validation returns data.** Only the merged/invocation path (`BuildMergedFlow`) was converted. `FlowBuilder.Build()` ([FlowBuilder.cs](/src/core/Flowthru.Core/Flow/FlowBuilder.cs)) — the eager single-flow authoring path — keeps throwing `FlowBuildException` at the author's call site. This splits the two phases cleanly and leaves the existing throw-based construction tests untouched.
+- **The pipeline carries the boundary as `PreFlightScope`** ([PreFlightScope.cs](/src/core/Flowthru.Core/Validation/PreFlight/PreFlightScope.cs)). At `Hermetic` scope `PreFlightPipeline.Run` runs only the zero-I/O checks: a new C# service-dependency DI-registration check (via `IServiceProviderIsService.IsService`, which queries registration without instantiating) and the dispatcher *presence* check for `ServiceRef.External` categories. It skips adapter inspection, flow validation hooks, service-inspector probes, and `dispatcher.Inspect` — everything that touches a live resource.
+- **Registration hooks self-classify via `MinimumDepth`** ([IRegistrationValidationHook.cs](/src/core/Flowthru.Core/Validation/PreFlight/IRegistrationValidationHook.cs)), a defaulted interface member on the same ladder (default `Shallow`). A wiring/DI-presence check declares `Hermetic` and survives an offline smoke test; a live probe keeps `Shallow`. EFCore's model/configuration check is reclassified `Hermetic` (model build is in-memory metadata); its connection and schema checks stay `Shallow`.
+- **The registration cache is depth-aware.** It records the highest depth that has fully succeeded, fast-pathing only a request at or below it. A `Hermetic` pass (which skips the `Shallow` probes) therefore cannot poison the cache into short-circuiting a later `Shallow` run.
+- **Resource acquisition is gated by use, not run unconditionally.** Acquisition is I/O (EFCore's `DbScope` opens a connection), so it is skipped when nothing will use the handle: a dry run below `Shallow` (`None`/`Hermetic`) neither executes transforms nor probes. A non-dry run acquires for real; `Shallow`+ acquires so probes have a live handle.
+
+## Considered options
+
+- **Orthogonal `PreFlightScope` + row-depth `ValidationDepth`.** Rejected: the cross-product has systematically dead cells, the signature that a concept is one-dimensional; a single ladder is the honest encoding and keeps one vocabulary across the pipeline and the hook `MinimumDepth`.
+- **Treat the whole registration tier as external (skip at `Hermetic`).** Rejected: one `if` is simpler, but it discards the ability to catch a genuine wiring error (a forgotten `AddDbContextFactory`) in an offline smoke test — exactly the fail-fast this framework exists to deliver. Hooks self-classifying keeps wiring checks hermetic.
+- **Lift `FlowBuilder.Build()` structural validation into data too.** Rejected: eager single-flow construction is closer to design-time; throwing at the author's call site is the right ergonomic there, and converting it would churn a dozen passing tests for no smoke-test benefit (the smoke test exercises the merged path).
+- **Reuse `RegistrationCheckFailed` for duplicate labels.** Rejected in favor of a dedicated `DuplicateLabel` closed-sum case, keeping the `BuildMergedFlow` surface uniformly data (not half-throw/half-`RegistrationCheckFailed`) and matching Core's closed-sum discipline. The C# DI-presence failure *does* reuse `RegistrationCheckFailed`, since it is genuinely host wire-up state.
+
+## Consequences
+
+Per-role impact:
+
+- **Flow / Catalog developer** — gains `--validation-depth hermetic` (and the `DryRun.On + Hermetic` pairing) for an offline CI smoke check. A structurally broken merged DAG now returns a `FlowResult` with `preflight:dag:*` failures instead of throwing, uniform with every other pre-flight error.
+- **Extension developer** — registration hooks now declare `MinimumDepth`; a wiring check should opt into `Hermetic`. The `RegisterValidationHook(id, func)` overload takes an optional `minimumDepth`. Live probes need no change (default `Shallow`).
+- **Core developer** — `PreFlightPipeline.Run` takes a `PreFlightScope` and an `IServiceProviderIsService`; the registration cache is keyed by depth; `_merged` is a `Validated`. Adding a new pre-flight check still means a closed `PreFlightError` case plus a `FlowthruDiagnosticCodes` FT3xxx allocation (`DuplicateLabel` → FT3007).
+
+The C# DI-presence check is closed-type-only (keyed/open-generic services are a known limitation) and is skipped when the container does not expose `IServiceProviderIsService`. Flow validation hooks (`IFlowValidationHook`) default to non-hermetic; giving them the same `MinimumDepth` self-classification is a symmetric follow-up if a hermetic flow-hook use case appears.
+
+## Anchor code
+
+- [src/core/Flowthru.Core/Flow/ValidationDepth.cs](/src/core/Flowthru.Core/Flow/ValidationDepth.cs) — the four-rung I/O ladder
+- [src/core/Flowthru.Core/Validation/PreFlight/PreFlightScope.cs](/src/core/Flowthru.Core/Validation/PreFlight/PreFlightScope.cs) — the pipeline's hermetic/full boundary
+- [src/core/Flowthru.Core/Validation/PreFlight/PreFlightPipeline.cs](/src/core/Flowthru.Core/Validation/PreFlight/PreFlightPipeline.cs) — scope-gated layers + hermetic DI-presence check
+- [src/core/Flowthru.Core/Validation/PreFlight/IRegistrationValidationHook.cs](/src/core/Flowthru.Core/Validation/PreFlight/IRegistrationValidationHook.cs) — `MinimumDepth` self-classification
+- [src/core/Flowthru.Core/Hosting/FlowthruService.cs](/src/core/Flowthru.Core/Hosting/FlowthruService.cs) — depth dispatch, depth-aware registration cache, gated acquisition, structural-as-data
+- [src/extensions/Flowthru.Extensions.EFCore/Hosting/EFCoreFlowthruBuilderExtensions.cs](/src/extensions/Flowthru.Extensions.EFCore/Hosting/EFCoreFlowthruBuilderExtensions.cs) — configuration check reclassified `Hermetic`

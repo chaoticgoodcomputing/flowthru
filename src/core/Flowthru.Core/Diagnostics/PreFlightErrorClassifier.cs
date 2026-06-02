@@ -40,6 +40,12 @@ public static class PreFlightErrorClassifier
         c.Message,
         c
       ),
+      PreFlightError.DuplicateLabel l => new PreFlightErrorReport(
+        FlowthruDiagnosticCodes.PreFlightDuplicateLabel,
+        "DuplicateLabel",
+        l.Message,
+        l
+      ),
       PreFlightError.MissingInput m => new PreFlightErrorReport(
         FlowthruDiagnosticCodes.PreFlightMissingInput,
         "MissingInput",

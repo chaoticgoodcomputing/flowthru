@@ -4,17 +4,24 @@ using Flowthru.Data.Storage;
 using Flowthru.Diagnostics;
 using Flowthru.Flow;
 using Flowthru.Validation.Runtime;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Flowthru.Validation.PreFlight;
 
 /// <summary>
-/// Runs the three pre-flight contribution layers against a built
-/// flow and combines their outcomes via
-/// <see cref="Validated.ZipAll{TError, TValue}"/>: adapter-internal
-/// inspections of every input item, registered
-/// <see cref="IFlowValidationHook"/>s, and any caller-supplied
-/// service inspections. The user sees every problem at once, not
-/// one error per re-run.
+/// Runs the pre-flight contribution layers against a built flow and
+/// combines their outcomes via
+/// <see cref="Validated.ZipAll{TError, TValue}"/> so the user sees every
+/// problem at once, not one error per re-run. The layers split across the
+/// I/O boundary (see <see cref="PreFlightScope"/>):
+/// <list type="bullet">
+///   <item><b>Hermetic</b> (run at every scope): C# service-dependency DI
+///   registration presence, and dispatcher presence for
+///   <see cref="ServiceRef.External"/> refs.</item>
+///   <item><b>Full only</b>: adapter-internal inspections of every input
+///   item, registered <see cref="IFlowValidationHook"/>s, caller-supplied
+///   service inspections, and <c>dispatcher.Inspect</c> probes.</item>
+/// </list>
 /// </summary>
 /// <remarks>
 /// <para>
@@ -54,13 +61,26 @@ public static class PreFlightPipeline
   /// dispatch up to N inspections in flight at once. Errors aggregate
   /// regardless of concurrency — none are dropped.
   /// </param>
+  /// <param name="scope">
+  /// The I/O boundary. <see cref="PreFlightScope.Full"/> (default) runs
+  /// every layer; <see cref="PreFlightScope.Hermetic"/> runs only the
+  /// zero-I/O checks (C# DI-presence and dispatcher presence) and skips
+  /// adapter inspection, hooks, service probes, and <c>dispatcher.Inspect</c>.
+  /// </param>
+  /// <param name="serviceProviderIsService">
+  /// DI-registration query used by the hermetic C# service-dependency
+  /// check. When null the check is skipped (e.g. a container that doesn't
+  /// expose <see cref="IServiceProviderIsService"/>).
+  /// </param>
   public static FlowIO<Validated<PreFlightError, FlowUnit>> Run(
     BuiltFlow flow,
     IReadOnlyList<IFlowValidationHook>? hooks = null,
     IReadOnlyList<FlowIO<Validated<PreFlightError, FlowUnit>>>? serviceProbes = null,
     IReadOnlyList<IServiceRefDispatcher>? serviceRefDispatchers = null,
     InspectionLevel inspectionLevel = InspectionLevel.Shallow,
-    int maxDegreeOfParallelism = 1
+    int maxDegreeOfParallelism = 1,
+    PreFlightScope scope = PreFlightScope.Full,
+    IServiceProviderIsService? serviceProviderIsService = null
   )
   {
     if (flow is null) throw new ArgumentNullException(nameof(flow));
@@ -82,9 +102,48 @@ public static class PreFlightPipeline
 
       var aggregated = new List<Validated<PreFlightError, FlowUnit>>();
 
-      // Layer 1 — adapter-internal inspection of every external input. An
-      // "external" input is one whose label is NOT produced by any step in
-      // this flow — intermediate items that some upstream step writes
+      // Layer 0 (hermetic — runs at every scope) — C# service-dependency DI
+      // registration presence. Walk every step's ServiceDependencies, filter
+      // to the C# variants (CSharp / ObservationOnly carry a ServiceType),
+      // dedupe by type, and check the type is registered in DI without
+      // resolving it (IServiceProviderIsService.IsService is registration-
+      // only — no factory runs, no I/O). Catches "StepX injects IFoo but
+      // nothing registered IFoo" offline, before any live probe. Skipped
+      // when the container doesn't expose IServiceProviderIsService.
+      if (serviceProviderIsService is not null)
+      {
+        var seenServiceTypes = new HashSet<Type>();
+        foreach (var step in flow.Steps)
+        {
+          foreach (var dependency in step.ServiceDependencies)
+          {
+            var serviceType = dependency switch
+            {
+              ServiceRef.CSharp cs => cs.ServiceType,
+              ServiceRef.ObservationOnly oo => oo.ServiceType,
+              _ => null,
+            };
+            if (serviceType is null) continue;
+            if (!seenServiceTypes.Add(serviceType)) continue;
+            if (serviceProviderIsService.IsService(serviceType)) continue;
+
+            aggregated.Add(Validated<PreFlightError, FlowUnit>.Fail(
+              new PreFlightError.RegistrationCheckFailed(
+                HookId: $"service-dep:{serviceType.FullName ?? serviceType.Name}",
+                CheckMessage: $"C# service dependency '{serviceType.Name}' "
+                  + $"(referenced by step '{step.Label}') is not registered in DI.",
+                Details: $"Register {serviceType.FullName ?? serviceType.Name} on the "
+                  + "host's service collection before AddFlowthru, or remove the dependency."
+              )
+            ));
+          }
+        }
+      }
+
+      // Layer 1 (Full scope only — reads each external input's storage
+      // medium, which is I/O) — adapter-internal inspection of every external
+      // input. An "external" input is one whose label is NOT produced by any
+      // step in this flow — intermediate items that some upstream step writes
       // won't exist until the flow runs, so inspecting them at pre-flight
       // time is a category error.
       var producedItemLabels = new HashSet<string>(
@@ -94,15 +153,19 @@ public static class PreFlightPipeline
 
       // Collect every distinct external input so each adapter is
       // inspected at most once even if more than one step consumes it.
+      // Left empty under Hermetic scope so the execution below is a no-op.
       var externalInputs = new List<IItem>();
-      var seenInputLabels = new HashSet<string>(StringComparer.Ordinal);
-      foreach (var step in flow.Steps)
+      if (scope == PreFlightScope.Full)
       {
-        foreach (var input in step.Inputs)
+        var seenInputLabels = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var step in flow.Steps)
         {
-          if (producedItemLabels.Contains(input.Label)) continue;
-          if (!seenInputLabels.Add(input.Label)) continue;
-          externalInputs.Add(input);
+          foreach (var input in step.Inputs)
+          {
+            if (producedItemLabels.Contains(input.Label)) continue;
+            if (!seenInputLabels.Add(input.Label)) continue;
+            externalInputs.Add(input);
+          }
         }
       }
 
@@ -182,8 +245,9 @@ public static class PreFlightPipeline
         aggregated.AddRange(perInput);
       }
 
-      // Layer 2 — caller-supplied flow validation hooks.
-      if (hooks is not null)
+      // Layer 2 (Full scope only — hooks are caller black boxes that may
+      // probe files/endpoints) — caller-supplied flow validation hooks.
+      if (scope == PreFlightScope.Full && hooks is not null)
       {
         foreach (var hook in hooks)
         {
@@ -200,8 +264,9 @@ public static class PreFlightPipeline
         }
       }
 
-      // Layer 3 — caller-supplied service-inspector probes.
-      if (serviceProbes is not null)
+      // Layer 3 (Full scope only — reachability probes against live
+      // resources) — caller-supplied service-inspector probes.
+      if (scope == PreFlightScope.Full && serviceProbes is not null)
       {
         foreach (var probe in serviceProbes)
         {
@@ -252,6 +317,9 @@ public static class PreFlightPipeline
             if (dependency is not ServiceRef.External external) continue;
             if (!seenServiceRefIds.Add(external.Cause.DagId)) continue;
 
+            // Presence check (hermetic — pure dictionary lookup, no I/O):
+            // a referenced category with no registered dispatcher is a
+            // wiring error surfaced at every scope.
             if (!dispatchersByCategory.TryGetValue(external.Cause.Category, out var dispatcher))
             {
               aggregated.Add(Validated<PreFlightError, FlowUnit>.Fail(
@@ -266,6 +334,10 @@ public static class PreFlightPipeline
               ));
               continue;
             }
+
+            // Inspect probe (Full scope only — the dispatcher reaches the
+            // live resource, e.g. probing the Python interpreter).
+            if (scope != PreFlightScope.Full) continue;
 
             var result = await dispatcher.Inspect(external.Cause).Run(ct).ConfigureAwait(false);
             aggregated.Add(result switch

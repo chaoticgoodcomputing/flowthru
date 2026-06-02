@@ -184,9 +184,12 @@ public class RegistrationValidationHookTests
     });
 
     var service = services.GetRequiredService<IFlowthruService>();
+    // Shallow: registration hooks default to MinimumDepth = Shallow, so this
+    // is the lightest depth at which the blocker hook participates. (None
+    // skips registration entirely; Hermetic runs only zero-I/O wiring hooks.)
     var result = await service.RunAsync(
       "blocked",
-      new ExecutionOptions { ValidationDepth = ValidationDepth.None }
+      new ExecutionOptions { ValidationDepth = ValidationDepth.Shallow }
     );
 
     Assert.That(result.HasFailures, Is.True);

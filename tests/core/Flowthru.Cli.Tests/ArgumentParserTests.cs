@@ -36,14 +36,30 @@ public class ArgumentParserTests
   }
 
   [Test]
-  public void ValidationDepthFlag_AcceptsAllThreeLevels()
+  public void ValidationDepthFlag_AcceptsAllFourLevels()
   {
     Assert.That(ArgumentParser.Parse(new[] { "--validation-depth", "none" }).Options.ValidationDepth,
       Is.EqualTo(ValidationDepth.None));
+    Assert.That(ArgumentParser.Parse(new[] { "--validation-depth", "hermetic" }).Options.ValidationDepth,
+      Is.EqualTo(ValidationDepth.Hermetic));
     Assert.That(ArgumentParser.Parse(new[] { "--validation-depth", "shallow" }).Options.ValidationDepth,
       Is.EqualTo(ValidationDepth.Shallow));
     Assert.That(ArgumentParser.Parse(new[] { "--validation-depth", "deep" }).Options.ValidationDepth,
       Is.EqualTo(ValidationDepth.Deep));
+  }
+
+  [Test]
+  public void SmokeTestPairing_DryRunPlusHermetic()
+  {
+    // The canonical offline smoke test: validate structure + wiring with
+    // zero I/O (Hermetic) and run nothing (DryRun.On). The two knobs are
+    // orthogonal and compose at the call site.
+    var parsed = ArgumentParser.Parse(new[] { "--dry-run", "--validation-depth", "hermetic" });
+    Assert.Multiple(() =>
+    {
+      Assert.That(parsed.Options.DryRun, Is.EqualTo(DryRunOption.On));
+      Assert.That(parsed.Options.ValidationDepth, Is.EqualTo(ValidationDepth.Hermetic));
+    });
   }
 
   [Test]
