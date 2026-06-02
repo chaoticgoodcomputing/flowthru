@@ -8,8 +8,8 @@ namespace Flowthru.Extensions.Python.Tests;
 /// <summary>
 /// Smoke tests for the migrated Python-extension public surface.
 /// Verifies that the boundary types compose as designed — closed-sum
-/// errors carry diagnostic codes, ServiceRef wraps correctly through
-/// Core's <see cref="Validation.Runtime.ServiceRef.External"/> envelope,
+/// errors carry diagnostic codes, ServiceDependency wraps correctly through
+/// Core's <see cref="Validation.Runtime.ServiceDependency.External"/> envelope,
 /// and PythonStep construction is pure (no executor calls).
 /// </summary>
 [TestFixture]
@@ -61,26 +61,26 @@ public class PublicSurfaceTests
         "PythonPreFlightError codes live in the FTPY30xx range (pre-flight).");
   }
 
-  // ── ServiceRef wrapping ───────────────────────────────────────────────
+  // ── ServiceDependency wrapping ───────────────────────────────────────────────
 
   [Test]
-  public void PythonServiceRef_WrapsAsServiceRefExternal_WithCategoryPython()
+  public void PythonServiceDependency_WrapsAsServiceDependencyExternal_WithCategoryPython()
   {
-    var pyRef = new PythonServiceRef("Services.PyannoteDiarizer");
+    var pyRef = new PythonServiceDependency("Services.PyannoteDiarizer");
     Assert.That(pyRef.Category, Is.EqualTo("python"));
     Assert.That(pyRef.ServiceModule, Is.EqualTo("Services"));
     Assert.That(pyRef.ServiceClass, Is.EqualTo("PyannoteDiarizer"));
 
-    var coreRef = pyRef.AsServiceRef();
-    Assert.That(coreRef, Is.InstanceOf<Validation.Runtime.ServiceRef.External>());
-    var ext = (Validation.Runtime.ServiceRef.External)coreRef;
+    var coreRef = pyRef.AsServiceDependency();
+    Assert.That(coreRef, Is.InstanceOf<Validation.Runtime.ServiceDependency.External>());
+    var ext = (Validation.Runtime.ServiceDependency.External)coreRef;
     Assert.That(ext.Cause, Is.SameAs(pyRef));
   }
 
   [Test]
-  public void PythonServiceRef_DagId_IsCategoryPrefixedClassPath()
+  public void PythonServiceDependency_DagId_IsCategoryPrefixedClassPath()
   {
-    var pyRef = new PythonServiceRef("Services.PyannoteDiarizer");
+    var pyRef = new PythonServiceDependency("Services.PyannoteDiarizer");
     Assert.That(pyRef.DagId, Is.EqualTo("python:Services.PyannoteDiarizer"));
   }
 

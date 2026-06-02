@@ -161,7 +161,7 @@ internal sealed class HandRolledNoCodeVersionStep : IStepNode
   public NodeTraits Traits { get; } = new NodeTraits();
   public IReadOnlyList<IItem> Inputs { get; } = Array.Empty<IItem>();
   public IReadOnlyList<IItem> Outputs { get; } = Array.Empty<IItem>();
-  public IReadOnlyList<ServiceRef> ServiceDependencies { get; } = Array.Empty<ServiceRef>();
+  public IReadOnlyList<ServiceDependency> ServiceDependencies { get; } = Array.Empty<ServiceDependency>();
   public FlowIO<ValidationResult> Validate() => FlowIO.Pure(ValidationResult.Success());
   public FlowIO<FlowUnit> Execute() => FlowIO.Pure(FlowUnit.Default);
   // Intentionally does NOT override CodeVersion — default null applies.

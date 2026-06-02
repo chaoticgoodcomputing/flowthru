@@ -116,7 +116,7 @@ public static class CachePlanBuilder
         uncacheableReasons[step.Label] = new StepUncacheableReason.NoCodeVersion();
         continue;
       }
-      // Cache-affecting deps only. ServiceRef.ObservationOnly variants
+      // Cache-affecting deps only. ServiceDependency.ObservationOnly variants
       // (e.g., ILogger) are skipped — observation surfaces can't change
       // a step's output values, so their presence or
       // identity doesn't invalidate a cached result. Without this
@@ -124,7 +124,7 @@ public static class CachePlanBuilder
       // uncacheabilise the step and cascade through every downstream
       // consumer.
       var cacheAffectingDeps = step.ServiceDependencies
-        .Count(r => r is not ServiceRef.ObservationOnly);
+        .Count(r => r is not ServiceDependency.ObservationOnly);
       if (cacheAffectingDeps > 0)
       {
         uncacheable.Add(step.Label);

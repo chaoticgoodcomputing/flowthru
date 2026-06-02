@@ -11,22 +11,22 @@ namespace Flowthru.Core.Tests.Validation;
 
 /// <summary>
 /// End-to-end integration tests for the
-/// <see cref="IServiceRefDispatcher"/> pre-flight layer
+/// <see cref="IServiceDependencyDispatcher"/> pre-flight layer
 /// (<see cref="PreFlightPipeline.Run"/>'s Layer 4). The contract-level
-/// tests in <c>Runtime/ServiceRefDispatcherTests.cs</c> pin the
+/// tests in <c>Runtime/ServiceDependencyDispatcherTests.cs</c> pin the
 /// dispatcher's per-call behavior in isolation; these exercise the
 /// integration site — DI resolution, dedup, category routing, and the
 /// no-dispatcher-registered failure mode.
 /// </summary>
 [TestFixture]
-public class ServiceRefDispatcherIntegrationTests
+public class ServiceDependencyDispatcherIntegrationTests
 {
-  // ── Test-only extension types (parallel to ServiceRefDispatcherTests) ─
+  // ── Test-only extension types (parallel to ServiceDependencyDispatcherTests) ─
 
-  private sealed record FakeExtensionServiceRef(string DagId, string DisplayName, string Category)
-    : IExtensionServiceRef;
+  private sealed record FakeExtensionServiceDependency(string DagId, string DisplayName, string Category)
+    : IExtensionServiceDependency;
 
-  private sealed class RecordingDispatcher : IServiceRefDispatcher
+  private sealed class RecordingDispatcher : IServiceDependencyDispatcher
   {
     private readonly bool _fail;
     public RecordingDispatcher(string category, bool fail = false)
@@ -38,7 +38,7 @@ public class ServiceRefDispatcherIntegrationTests
     public int InvokeCount { get; private set; }
     public List<string> InvokedDagIds { get; } = new();
 
-    public FlowIO<Validated<PreFlightError, FlowUnit>> Inspect(IExtensionServiceRef serviceRef)
+    public FlowIO<Validated<PreFlightError, FlowUnit>> Inspect(IExtensionServiceDependency serviceRef)
     {
       InvokeCount++;
       InvokedDagIds.Add(serviceRef.DagId);
@@ -55,7 +55,7 @@ public class ServiceRefDispatcherIntegrationTests
 
   private static BuiltFlow FlowWithStepCarryingRef(
     string stepLabel,
-    IExtensionServiceRef extRef,
+    IExtensionServiceDependency extRef,
     string flowLabel = "test"
   )
   {
@@ -71,7 +71,7 @@ public class ServiceRefDispatcherIntegrationTests
         outputs: new IItem[] { output },
         loadInputs: () => FlowIO.Pure(FlowUnit.Default),
         saveOutputs: value => output.Save(value),
-        serviceDependencies: new[] { (ServiceRef)new ServiceRef.External(extRef) }
+        serviceDependencies: new[] { (ServiceDependency)new ServiceDependency.External(extRef) }
       );
       b.Add(step);
     });
@@ -83,12 +83,12 @@ public class ServiceRefDispatcherIntegrationTests
   public async Task PreFlight_StepCarriesExternalRef_DispatcherInvoked()
   {
     var dispatcher = new RecordingDispatcher(category: "python");
-    var extRef = new FakeExtensionServiceRef("ext.python.MyService", "MyService", "python");
+    var extRef = new FakeExtensionServiceDependency("ext.python.MyService", "MyService", "python");
     var flow = FlowWithStepCarryingRef("step.A", extRef);
 
     var result = await PreFlightPipeline.Run(
       flow,
-      serviceRefDispatchers: new IServiceRefDispatcher[] { dispatcher }
+      serviceRefDispatchers: new IServiceDependencyDispatcher[] { dispatcher }
     ).Run();
 
     var validated = ((EffResult<Validated<PreFlightError, FlowUnit>>.Success)result).Value;
@@ -103,12 +103,12 @@ public class ServiceRefDispatcherIntegrationTests
   public async Task PreFlight_DispatcherFails_PreFlightCarriesInspectionFailed()
   {
     var dispatcher = new RecordingDispatcher(category: "python", fail: true);
-    var extRef = new FakeExtensionServiceRef("ext.python.BadService", "BadService", "python");
+    var extRef = new FakeExtensionServiceDependency("ext.python.BadService", "BadService", "python");
     var flow = FlowWithStepCarryingRef("step.B", extRef);
 
     var result = await PreFlightPipeline.Run(
       flow,
-      serviceRefDispatchers: new IServiceRefDispatcher[] { dispatcher }
+      serviceRefDispatchers: new IServiceDependencyDispatcher[] { dispatcher }
     ).Run();
 
     var validated = ((EffResult<Validated<PreFlightError, FlowUnit>>.Success)result).Value;
@@ -126,12 +126,12 @@ public class ServiceRefDispatcherIntegrationTests
     // unregistered category surfaces as RegistrationCheckFailed — a
     // user-actionable error pointing at the missing DI registration.
     var sqlDispatcher = new RecordingDispatcher(category: "sql");
-    var extRef = new FakeExtensionServiceRef("ext.python.Svc", "Svc", "python");
+    var extRef = new FakeExtensionServiceDependency("ext.python.Svc", "Svc", "python");
     var flow = FlowWithStepCarryingRef("step.C", extRef);
 
     var result = await PreFlightPipeline.Run(
       flow,
-      serviceRefDispatchers: new IServiceRefDispatcher[] { sqlDispatcher }
+      serviceRefDispatchers: new IServiceDependencyDispatcher[] { sqlDispatcher }
     ).Run();
 
     var validated = ((EffResult<Validated<PreFlightError, FlowUnit>>.Success)result).Value;
@@ -156,7 +156,7 @@ public class ServiceRefDispatcherIntegrationTests
     // Mirrors the "called once across N steps sharing a dep" invariant
     // from the CSharp-side inspector path.
     var dispatcher = new RecordingDispatcher(category: "ext");
-    var sharedRef = new FakeExtensionServiceRef("ext.shared.Svc", "Svc", "ext");
+    var sharedRef = new FakeExtensionServiceDependency("ext.shared.Svc", "Svc", "ext");
 
     var flow = FlowBuilder.CreateFlow("test", b =>
     {
@@ -167,7 +167,7 @@ public class ServiceRefDispatcherIntegrationTests
         outputs: System.Array.Empty<IItem>(),
         loadInputs: () => FlowIO.Pure(FlowUnit.Default),
         saveOutputs: _ => FlowIO.Pure(FlowUnit.Default),
-        serviceDependencies: new[] { (ServiceRef)new ServiceRef.External(sharedRef) }
+        serviceDependencies: new[] { (ServiceDependency)new ServiceDependency.External(sharedRef) }
       );
       var stepB = new Step<FlowUnit, FlowUnit>(
         label: "B",
@@ -176,7 +176,7 @@ public class ServiceRefDispatcherIntegrationTests
         outputs: System.Array.Empty<IItem>(),
         loadInputs: () => FlowIO.Pure(FlowUnit.Default),
         saveOutputs: _ => FlowIO.Pure(FlowUnit.Default),
-        serviceDependencies: new[] { (ServiceRef)new ServiceRef.External(sharedRef) }
+        serviceDependencies: new[] { (ServiceDependency)new ServiceDependency.External(sharedRef) }
       );
       b.Add(stepA);
       b.Add(stepB);
@@ -184,7 +184,7 @@ public class ServiceRefDispatcherIntegrationTests
 
     await PreFlightPipeline.Run(
       flow,
-      serviceRefDispatchers: new IServiceRefDispatcher[] { dispatcher }
+      serviceRefDispatchers: new IServiceDependencyDispatcher[] { dispatcher }
     ).Run();
 
     Assert.That(dispatcher.InvokeCount, Is.EqualTo(1),
@@ -194,7 +194,7 @@ public class ServiceRefDispatcherIntegrationTests
   [Test]
   public async Task PreFlight_NoDispatchersAtAll_NoOpForCSharpRefs()
   {
-    // A flow with only ServiceRef.CSharp (no Externals) and no
+    // A flow with only ServiceDependency.CSharp (no Externals) and no
     // dispatchers registered must pre-flight successfully — the
     // dispatcher layer is opt-in via External refs.
     var flow = FlowBuilder.CreateFlow("test", b =>
@@ -206,7 +206,7 @@ public class ServiceRefDispatcherIntegrationTests
         outputs: System.Array.Empty<IItem>(),
         loadInputs: () => FlowIO.Pure(FlowUnit.Default),
         saveOutputs: _ => FlowIO.Pure(FlowUnit.Default),
-        serviceDependencies: new[] { ServiceRef.Of<EmptyCatalog>() }
+        serviceDependencies: new[] { ServiceDependency.Of<EmptyCatalog>() }
       );
       b.Add(step);
     });
@@ -223,15 +223,15 @@ public class ServiceRefDispatcherIntegrationTests
   [Test]
   public async Task FlowthruService_DispatcherFromDI_InvokedDuringRunAsync()
   {
-    // The hosting layer must resolve IServiceRefDispatcher implementations
+    // The hosting layer must resolve IServiceDependencyDispatcher implementations
     // from DI and forward them to PreFlightPipeline. Without this wiring,
-    // dispatchers registered via services.AddSingleton<IServiceRefDispatcher>
+    // dispatchers registered via services.AddSingleton<IServiceDependencyDispatcher>
     // would never run.
     var dispatcher = new RecordingDispatcher(category: "ext");
-    var sharedRef = new FakeExtensionServiceRef("ext.MyDi.Svc", "Svc", "ext");
+    var sharedRef = new FakeExtensionServiceDependency("ext.MyDi.Svc", "Svc", "ext");
 
     var services = new ServiceCollection();
-    services.AddSingleton<IServiceRefDispatcher>(dispatcher);
+    services.AddSingleton<IServiceDependencyDispatcher>(dispatcher);
     services.AddFlowthru(b =>
     {
       b.RegisterFlow("ext-flow", () => FlowWithStepCarryingRef("step.X", sharedRef));
@@ -244,7 +244,7 @@ public class ServiceRefDispatcherIntegrationTests
     Assert.That(result.IsSuccess, Is.True,
       "Dispatcher returned Pass; flow should run successfully end-to-end.");
     Assert.That(dispatcher.InvokeCount, Is.EqualTo(1),
-      "FlowthruService must resolve IServiceRefDispatcher from DI and pass to pre-flight.");
+      "FlowthruService must resolve IServiceDependencyDispatcher from DI and pass to pre-flight.");
   }
 
   [Test]
@@ -253,7 +253,7 @@ public class ServiceRefDispatcherIntegrationTests
     // No dispatcher registered for the "ext" category → pre-flight fails
     // with RegistrationCheckFailed. End-to-end this should surface as
     // a StepResult.Failed wrapping RuntimeError.PreFlightFailed → FT3006.
-    var orphanedRef = new FakeExtensionServiceRef("ext.orphan", "Orphan", "ext");
+    var orphanedRef = new FakeExtensionServiceDependency("ext.orphan", "Orphan", "ext");
 
     var services = new ServiceCollection();
     services.AddFlowthru(b =>

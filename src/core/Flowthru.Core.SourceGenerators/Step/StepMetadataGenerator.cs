@@ -60,8 +60,8 @@ public sealed class StepMetadataGenerator : IIncrementalGenerator
   /// <summary>
   /// Fully-qualified type names of framework-recognised observation-
   /// only services. When a <c>Create()</c> parameter's FQN matches an
-  /// entry here, the generator emits a <c>ServiceRef.ObservationOnly</c>
-  /// instead of the default <c>ServiceRef.CSharp</c> — the cache
+  /// entry here, the generator emits a <c>ServiceDependency.ObservationOnly</c>
+  /// instead of the default <c>ServiceDependency.CSharp</c> — the cache
   /// planner skips observation-only refs when deciding step
   /// cacheability. Keep this set tiny; an
   /// <c>[ObservationOnly]</c> per-parameter attribute is the planned
@@ -157,7 +157,7 @@ public sealed class StepMetadataGenerator : IIncrementalGenerator
   /// Collect fully-qualified type names of interface-typed parameters
   /// across every public static <c>Create</c> overload on the step
   /// class. The union (deduped, ordered) becomes the
-  /// <c>ServiceRefs</c> array emitted on the <c>_Metadata</c>
+  /// <c>ServiceDependencies</c> array emitted on the <c>_Metadata</c>
   /// companion. Filters to <see cref="TypeKind.Interface"/> only —
   /// class- and value-typed Create params are treated as
   /// configuration closures, not services.
@@ -252,12 +252,12 @@ public sealed class StepMetadataGenerator : IIncrementalGenerator
     // this array to populate IStepNode.ServiceDependencies at
     // FlowBuilder.AddStep time.
     sb.AppendLine(
-      "  public static readonly global::Flowthru.Validation.Runtime.ServiceRef[] ServiceRefs = new global::Flowthru.Validation.Runtime.ServiceRef[]");
+      "  public static readonly global::Flowthru.Validation.Runtime.ServiceDependency[] ServiceDependencies = new global::Flowthru.Validation.Runtime.ServiceDependency[]");
     sb.AppendLine("  {");
     foreach (var fqn in info.ServiceTypeFqns)
     {
       var variant = _observationOnlyFqns.Contains(fqn) ? "ObservationOnly" : "CSharp";
-      sb.AppendLine($"    new global::Flowthru.Validation.Runtime.ServiceRef.{variant}(typeof({fqn})),");
+      sb.AppendLine($"    new global::Flowthru.Validation.Runtime.ServiceDependency.{variant}(typeof({fqn})),");
     }
     sb.AppendLine("  };");
     sb.AppendLine("}");
@@ -281,7 +281,7 @@ public sealed class StepMetadataGenerator : IIncrementalGenerator
     sb.AppendLine("{");
     sb.AppendLine("  [global::System.Runtime.CompilerServices.ModuleInitializer]");
     sb.AppendLine("  internal static void Register() =>");
-    sb.AppendLine($"    global::Flowthru.Step.StepMetadataRegistry.Register(typeof({typeofExpr}), {info.ClassName}_Metadata.CodeVersion, {info.ClassName}_Metadata.ServiceRefs);");
+    sb.AppendLine($"    global::Flowthru.Step.StepMetadataRegistry.Register(typeof({typeofExpr}), {info.ClassName}_Metadata.CodeVersion, {info.ClassName}_Metadata.ServiceDependencies);");
     sb.AppendLine("}");
 
     var fileName = string.IsNullOrEmpty(info.Namespace)

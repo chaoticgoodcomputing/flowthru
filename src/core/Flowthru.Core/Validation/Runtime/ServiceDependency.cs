@@ -6,21 +6,21 @@ namespace Flowthru.Validation.Runtime;
 /// and the carrier through which the pre-flight inspector pipeline
 /// resolves and probes services. Core ships the <see cref="CSharp"/>
 /// variant; extensions add their own variants via the open
-/// <see cref="External"/> case (see <see cref="IExtensionServiceRef"/>).
+/// <see cref="External"/> case (see <see cref="IExtensionServiceDependency"/>).
 /// </summary>
 /// <remarks>
 /// <para>
 /// Following the §2.5 pattern: closed sum at Core (private constructor —
 /// no derived case can be added outside this file) plus a single
 /// <see cref="External"/> variant carrying an
-/// <see cref="IExtensionServiceRef"/>. The closed cases get exhaustive
+/// <see cref="IExtensionServiceDependency"/>. The closed cases get exhaustive
 /// pattern matching; the extension case routes to a registered
-/// dispatcher by <see cref="IExtensionServiceRef.Category"/>.
+/// dispatcher by <see cref="IExtensionServiceDependency.Category"/>.
 /// </para>
 /// </remarks>
-public abstract record ServiceRef
+public abstract record ServiceDependency
 {
-  private ServiceRef() { }
+  private ServiceDependency() { }
 
   /// <summary>Stable identity used as the DAG-node key for this service.</summary>
   public abstract string DagId { get; }
@@ -34,7 +34,7 @@ public abstract record ServiceRef
   /// <see cref="System.IServiceProvider"/> when resolving the service at
   /// runtime.
   /// </summary>
-  public sealed record CSharp(Type ServiceType) : ServiceRef
+  public sealed record CSharp(Type ServiceType) : ServiceDependency
   {
     /// <inheritdoc/>
     public override string DagId => ServiceType.FullName ?? ServiceType.Name;
@@ -45,12 +45,12 @@ public abstract record ServiceRef
 
   /// <summary>
   /// An extension-defined service reference. The wrapped
-  /// <see cref="IExtensionServiceRef"/> carries the extension's
+  /// <see cref="IExtensionServiceDependency"/> carries the extension's
   /// rendering and routing data; Core's dispatcher resolution uses
-  /// <see cref="IExtensionServiceRef.Category"/> to find the matching
-  /// <see cref="IServiceRefDispatcher"/> registered with the host.
+  /// <see cref="IExtensionServiceDependency.Category"/> to find the matching
+  /// <see cref="IServiceDependencyDispatcher"/> registered with the host.
   /// </summary>
-  public sealed record External(IExtensionServiceRef Cause) : ServiceRef
+  public sealed record External(IExtensionServiceDependency Cause) : ServiceDependency
   {
     /// <inheritdoc/>
     public override string DagId => Cause.DagId;
@@ -84,7 +84,7 @@ public abstract record ServiceRef
   /// uncacheabilises every Flow in the workspace.
   /// </para>
   /// </remarks>
-  public sealed record ObservationOnly(Type ServiceType) : ServiceRef
+  public sealed record ObservationOnly(Type ServiceType) : ServiceDependency
   {
     /// <inheritdoc/>
     public override string DagId => ServiceType.FullName ?? ServiceType.Name;
@@ -94,11 +94,11 @@ public abstract record ServiceRef
   }
 
   /// <summary>Build a <see cref="CSharp"/> ref from a generic type parameter.</summary>
-  public static ServiceRef Of<TService>() where TService : class =>
+  public static ServiceDependency Of<TService>() where TService : class =>
     new CSharp(typeof(TService));
 
   /// <summary>Build a <see cref="CSharp"/> ref from a runtime <see cref="Type"/>.</summary>
-  public static ServiceRef Of(Type serviceType) => new CSharp(serviceType);
+  public static ServiceDependency Of(Type serviceType) => new CSharp(serviceType);
 }
 
 /// <summary>
@@ -115,7 +115,7 @@ public abstract record ServiceRef
 /// the concrete extension type.
 /// </para>
 /// </remarks>
-public interface IExtensionServiceRef
+public interface IExtensionServiceDependency
 {
   /// <summary>Stable identity for graph keying — must be unique across all extensions.</summary>
   string DagId { get; }
@@ -125,7 +125,7 @@ public interface IExtensionServiceRef
 
   /// <summary>
   /// Category discriminator used by Core to find the registered
-  /// <see cref="IServiceRefDispatcher"/> capable of resolving this kind
+  /// <see cref="IServiceDependencyDispatcher"/> capable of resolving this kind
   /// of reference (e.g., <c>"python"</c> for Python services).
   /// </summary>
   string Category { get; }

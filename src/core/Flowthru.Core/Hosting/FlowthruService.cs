@@ -556,11 +556,11 @@ public sealed class FlowthruService : IFlowthruService
       // Extension-supplied service-ref dispatchers — resolved from DI as
       // a plural surface so multiple extensions (Python + SQL + ...) can
       // coexist. Layer 4 inside PreFlightPipeline matches each step's
-      // ServiceRef.External by Category to find its dispatcher; an
+      // ServiceDependency.External by Category to find its dispatcher; an
       // unregistered category surfaces as PreFlightError.RegistrationCheckFailed
       // at every scope (presence is hermetic; only the Inspect probe is I/O).
       var dispatchers = _services
-        .GetServices<Flowthru.Validation.Runtime.IServiceRefDispatcher>()
+        .GetServices<Flowthru.Validation.Runtime.IServiceDependencyDispatcher>()
         .ToList();
 
       // DI-registration query for the hermetic C# service-dependency check.

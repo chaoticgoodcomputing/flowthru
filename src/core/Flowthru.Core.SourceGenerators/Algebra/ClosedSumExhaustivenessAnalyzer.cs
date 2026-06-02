@@ -12,7 +12,7 @@ namespace Flowthru.Core.SourceGenerators.Algebra;
 /// FT0001 — closed-sum exhaustiveness. Flags <c>switch</c>
 /// expressions over a Flowthru closed-sum type
 /// (<c>PreFlightError</c>, <c>RuntimeError</c>,
-/// <c>ServiceRef</c>, <c>Validated&lt;TError, TValue&gt;</c>,
+/// <c>ServiceDependency</c>, <c>Validated&lt;TError, TValue&gt;</c>,
 /// <c>EffResult&lt;A&gt;</c>, <c>StepResult</c>,
 /// <c>DependencyAnalyzer.Result</c>) that don't include every
 /// nested-record case as an arm. The closed-sum invariant — "every
@@ -54,7 +54,7 @@ public sealed class ClosedSumExhaustivenessAnalyzer : DiagnosticAnalyzer
     defaultSeverity: DiagnosticSeverity.Warning,
     isEnabledByDefault: true,
     description:
-      "Flowthru's closed sums (PreFlightError, RuntimeError, ServiceRef, etc.) define every "
+      "Flowthru's closed sums (PreFlightError, RuntimeError, ServiceDependency, etc.) define every "
         + "valid case at the algebra boundary. Non-exhaustive matches defeat the design's "
         + "intent: that adding a new variant surfaces as a compile diagnostic everywhere it "
         + "must be handled."

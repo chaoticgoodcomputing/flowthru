@@ -5,7 +5,7 @@ namespace Flowthru.Step.Python;
 /// time. Surfaces the <c>@step</c> decorator's contract — declared
 /// input schemas, declared output schemas, and the service classes the
 /// step depends on — for downstream consumption by the registration
-/// flow (<see cref="Flowthru.Validation.Runtime.ServiceRef"/> wiring) and the pre-flight validation
+/// flow (<see cref="Flowthru.Validation.Runtime.ServiceDependency"/> wiring) and the pre-flight validation
 /// hook (schema-name agreement check).
 /// </summary>
 /// <param name="Inputs">

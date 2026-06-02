@@ -22,7 +22,7 @@ public class ClosedSumStructureTests
   {
     typeof(PreFlightError),
     typeof(RuntimeError),
-    typeof(ServiceRef),
+    typeof(ServiceDependency),
     typeof(StepResult),
     typeof(EffResult<>),
     typeof(Validated<,>),

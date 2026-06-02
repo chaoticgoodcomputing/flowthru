@@ -102,12 +102,12 @@ public interface IStepNode : INode
 
   /// <summary>
   /// Runtime services this step depends on. Each
-  /// <see cref="ServiceRef"/> is resolved by the host's DI container
-  /// (for the <see cref="ServiceRef.CSharp"/> variant) or by a
-  /// registered <see cref="IServiceRefDispatcher"/> (for the
-  /// <see cref="ServiceRef.External"/> variant) before the step runs.
+  /// <see cref="ServiceDependency"/> is resolved by the host's DI container
+  /// (for the <see cref="ServiceDependency.CSharp"/> variant) or by a
+  /// registered <see cref="IServiceDependencyDispatcher"/> (for the
+  /// <see cref="ServiceDependency.External"/> variant) before the step runs.
   /// </summary>
-  IReadOnlyList<ServiceRef> ServiceDependencies { get; }
+  IReadOnlyList<ServiceDependency> ServiceDependencies { get; }
 
   /// <summary>
   /// Canonical lowercase identifier for the language a step's transform

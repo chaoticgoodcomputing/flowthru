@@ -17,8 +17,8 @@ namespace Flowthru.Hosting;
 /// Registers Python step support — runtime options (bound from
 /// <c>Flowthru:Python</c>), the subprocess <see cref="IPythonExecutor"/>,
 /// the <see cref="IPythonServiceInspectorRegistry"/>, the
-/// <see cref="IServiceRefDispatcher"/> for
-/// <see cref="Flowthru.Validation.Runtime.Python.PythonServiceRef"/>,
+/// <see cref="IServiceDependencyDispatcher"/> for
+/// <see cref="Flowthru.Validation.Runtime.Python.PythonServiceDependency"/>,
 /// and the pre-flight <see cref="IFlowValidationHook"/> that audits
 /// every Python step's decorator-vs-typed-shape agreement.
 /// </summary>
@@ -82,7 +82,7 @@ public static class PythonFlowthruBuilderExtensions
     builder.Services.TryAddSingleton<IInstalledPackageProbe, SubprocessInstalledPackageProbe>();
 
     // Service-ref dispatch: matches Category="python".
-    builder.Services.AddSingleton<IServiceRefDispatcher, PythonServiceRefDispatcher>();
+    builder.Services.AddSingleton<IServiceDependencyDispatcher, PythonServiceDependencyDispatcher>();
 
     // Pre-flight hook: the single authoritative site for
     // module-import / decorator-presence / schema-agreement / arity

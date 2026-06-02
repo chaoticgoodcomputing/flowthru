@@ -204,7 +204,7 @@ public class ExtensionNamespaceMirrorTests
           "Flowthru.Flow",
           // UsePython() extension method on IFlowthruBuilder.
           "Flowthru.Hosting",
-          // PythonRuntimeError + PythonServiceRef live alongside
+          // PythonRuntimeError + PythonServiceDependency live alongside
           // Core's Validation.Runtime closed sums.
           "Flowthru.Validation.Runtime.Python",
           // PythonPreFlightError + PythonStepValidationHook.

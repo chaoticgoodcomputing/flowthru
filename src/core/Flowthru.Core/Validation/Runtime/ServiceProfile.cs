@@ -1,9 +1,9 @@
 namespace Flowthru.Validation.Runtime;
 
 /// <summary>
-/// The resolved behavioural profile of a <see cref="ServiceRef"/> — how
+/// The resolved behavioural profile of a <see cref="ServiceDependency"/> — how
 /// Flowthru must treat the service across its mechanisms, on two
-/// independent axes. Distinct from the <see cref="ServiceRef"/> itself,
+/// independent axes. Distinct from the <see cref="ServiceDependency"/> itself,
 /// which is pure identity; the profile is <em>resolved</em> per host
 /// (capacity is contextual) by an <see cref="IServiceProfileProvider"/>.
 /// </summary>

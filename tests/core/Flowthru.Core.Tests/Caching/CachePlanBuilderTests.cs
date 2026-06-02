@@ -156,7 +156,7 @@ public class CachePlanBuilderTests
       codeVersion: "code-v1",
       input: input,
       output: output,
-      serviceDependencies: new[] { ServiceRef.Of<object>() });
+      serviceDependencies: new[] { ServiceDependency.Of<object>() });
     var flow = BuildFlow(step);
 
     var plan = await CachePlanBuilder.BuildAsync(flow, CacheManifest.Empty);
@@ -341,7 +341,7 @@ public class CachePlanBuilderTests
     var step = MakeStep(
       label: "transform", codeVersion: "code-v1",
       input: input, output: output,
-      serviceDependencies: new[] { ServiceRef.Of<object>(), ServiceRef.Of<string>() });
+      serviceDependencies: new[] { ServiceDependency.Of<object>(), ServiceDependency.Of<string>() });
 
     var plan = await CachePlanBuilder.BuildAsync(BuildFlow(step), CacheManifest.Empty);
 
@@ -355,7 +355,7 @@ public class CachePlanBuilderTests
   [Test]
   public async Task ObservationOnlyDeps_DoNotMarkStepUncacheable()
   {
-    // ServiceRef.ObservationOnly variants (e.g., ILogger) are skipped
+    // ServiceDependency.ObservationOnly variants (e.g., ILogger) are skipped
     // when computing cache eligibility — observation
     // surfaces don't affect step output values, so their presence
     // can't invalidate a cached result.
@@ -364,9 +364,9 @@ public class CachePlanBuilderTests
     var step = MakeStep(
       label: "transform", codeVersion: "code-v1",
       input: input, output: output,
-      serviceDependencies: new ServiceRef[]
+      serviceDependencies: new ServiceDependency[]
       {
-        new ServiceRef.ObservationOnly(typeof(Microsoft.Extensions.Logging.ILogger)),
+        new ServiceDependency.ObservationOnly(typeof(Microsoft.Extensions.Logging.ILogger)),
       });
 
     var composite = CachePlanBuilder.ComposeStepFingerprint(
@@ -396,10 +396,10 @@ public class CachePlanBuilderTests
     var step = MakeStep(
       label: "transform", codeVersion: "code-v1",
       input: input, output: output,
-      serviceDependencies: new ServiceRef[]
+      serviceDependencies: new ServiceDependency[]
       {
-        new ServiceRef.ObservationOnly(typeof(Microsoft.Extensions.Logging.ILogger)),
-        ServiceRef.Of<object>(),
+        new ServiceDependency.ObservationOnly(typeof(Microsoft.Extensions.Logging.ILogger)),
+        ServiceDependency.Of<object>(),
       });
 
     var plan = await CachePlanBuilder.BuildAsync(BuildFlow(step), CacheManifest.Empty);
@@ -424,9 +424,9 @@ public class CachePlanBuilderTests
     var stepA = MakeStep(
       label: "A", codeVersion: "code-A-v1",
       input: seedInput, output: mid,
-      serviceDependencies: new ServiceRef[]
+      serviceDependencies: new ServiceDependency[]
       {
-        new ServiceRef.ObservationOnly(typeof(Microsoft.Extensions.Logging.ILogger)),
+        new ServiceDependency.ObservationOnly(typeof(Microsoft.Extensions.Logging.ILogger)),
       });
     var stepB = MakeStep("B", "code-B-v1", mid, output);
 
@@ -497,7 +497,7 @@ public class CachePlanBuilderTests
     string? codeVersion,
     IItem<int> input,
     IItem<int> output,
-    IReadOnlyList<ServiceRef>? serviceDependencies = null
+    IReadOnlyList<ServiceDependency>? serviceDependencies = null
   ) => new Step<int, int>(
     label: label,
     transform: x => FlowIO.Pure(x),

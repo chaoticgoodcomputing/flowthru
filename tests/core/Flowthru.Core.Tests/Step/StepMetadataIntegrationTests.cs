@@ -94,9 +94,9 @@ public class StepMetadataIntegrationTests
     var input = ItemFactory.Singleton.Memory<int>("svc-input");
     var output = ItemFactory.Singleton.Memory<int>("svc-output");
 
-    var serviceDeps = new ServiceRef[]
+    var serviceDeps = new ServiceDependency[]
     {
-      ServiceRef.Of<IIntegrationFakeService>(),
+      ServiceDependency.Of<IIntegrationFakeService>(),
     };
 
     var step = new Step<int, int>(
@@ -114,7 +114,7 @@ public class StepMetadataIntegrationTests
 
     var built = flow.Steps.Single();
     Assert.That(built.ServiceDependencies,
-      Is.EquivalentTo(new[] { ServiceRef.Of<IIntegrationFakeService>() }),
+      Is.EquivalentTo(new[] { ServiceDependency.Of<IIntegrationFakeService>() }),
       "Explicit ServiceDependencies on the constructed Step must survive FlowBuilder.Add.");
   }
 
@@ -310,7 +310,7 @@ internal sealed class HandRolledStepNode : IStepNode
   public NodeTraits Traits { get; } = new NodeTraits();
   public IReadOnlyList<IItem> Inputs { get; } = Array.Empty<IItem>();
   public IReadOnlyList<IItem> Outputs { get; } = Array.Empty<IItem>();
-  public IReadOnlyList<ServiceRef> ServiceDependencies { get; } = Array.Empty<ServiceRef>();
+  public IReadOnlyList<ServiceDependency> ServiceDependencies { get; } = Array.Empty<ServiceDependency>();
   public FlowIO<ValidationResult> Validate() => FlowIO.Pure(ValidationResult.Success());
   public FlowIO<FlowUnit> Execute() => FlowIO.Pure(FlowUnit.Default);
   // Intentionally does NOT override OnAddedToFlow — default no-op applies.

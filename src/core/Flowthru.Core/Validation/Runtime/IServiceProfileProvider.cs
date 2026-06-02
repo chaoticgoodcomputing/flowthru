@@ -1,8 +1,8 @@
 namespace Flowthru.Validation.Runtime;
 
 /// <summary>
-/// Resolves a <see cref="ServiceRef"/> to its <see cref="ServiceProfile"/>.
-/// The resolution seam mirrors <c>IServiceRefDispatcher</c>: Core ships a
+/// Resolves a <see cref="ServiceDependency"/> to its <see cref="ServiceProfile"/>.
+/// The resolution seam mirrors <c>IServiceDependencyDispatcher</c>: Core ships a
 /// permissive default, and extensions / host registrations contribute
 /// capacity declarations by composing over it. Resolution happens at
 /// pre-flight, before any step is dispatched.
@@ -18,7 +18,7 @@ namespace Flowthru.Validation.Runtime;
 public interface IServiceProfileProvider
 {
   /// <summary>Resolve the profile for <paramref name="dependency"/>.</summary>
-  ServiceProfile Resolve(ServiceRef dependency);
+  ServiceProfile Resolve(ServiceDependency dependency);
 }
 
 /// <summary>
@@ -30,5 +30,5 @@ public interface IServiceProfileProvider
 public sealed class DefaultServiceProfileProvider : IServiceProfileProvider
 {
   /// <inheritdoc/>
-  public ServiceProfile Resolve(ServiceRef dependency) => ServiceProfile.Unbounded;
+  public ServiceProfile Resolve(ServiceDependency dependency) => ServiceProfile.Unbounded;
 }

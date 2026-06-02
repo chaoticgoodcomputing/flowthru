@@ -35,12 +35,12 @@ public class ExtensionPointStructureTests
   }
 
   [Test]
-  public void ServiceRef_HasExternalVariantWrappingIExtensionServiceRef()
+  public void ServiceDependency_HasExternalVariantWrappingIExtensionServiceDependency()
   {
     AssertExtensionVariantShape(
-      umbrella: typeof(ServiceRef),
-      caseTypeName: nameof(ServiceRef.External),
-      expectedPayloadInterface: typeof(IExtensionServiceRef)
+      umbrella: typeof(ServiceDependency),
+      caseTypeName: nameof(ServiceDependency.External),
+      expectedPayloadInterface: typeof(IExtensionServiceDependency)
     );
   }
 

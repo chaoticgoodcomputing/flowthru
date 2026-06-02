@@ -6,7 +6,7 @@ namespace Flowthru.Step;
 /// Maps a <see cref="Delegate"/> (typically the <c>transform:</c>
 /// argument passed to <c>FlowBuilder.AddStep</c>) back to its enclosing
 /// <c>[FlowthruStep]</c> class's recorded identity — <c>CodeVersion</c>
-/// for the cache plan and the declared <see cref="ServiceRef"/> list
+/// for the cache plan and the declared <see cref="ServiceDependency"/> list
 /// for the engine — by walking up the lambda's compiler-generated
 /// declaring chain.
 /// </summary>
@@ -37,7 +37,7 @@ namespace Flowthru.Step;
 /// </remarks>
 public static class StepMetadataResolver
 {
-  private static readonly IReadOnlyList<ServiceRef> _noServices = Array.Empty<ServiceRef>();
+  private static readonly IReadOnlyList<ServiceDependency> _noServices = Array.Empty<ServiceDependency>();
 
   /// <summary>
   /// Walk the delegate's declaring-type chain looking for a registered
@@ -49,11 +49,11 @@ public static class StepMetadataResolver
 
   /// <summary>
   /// Walk the delegate's declaring-type chain looking for a registered
-  /// step type. Returns the recorded <see cref="ServiceRef"/> list on
+  /// step type. Returns the recorded <see cref="ServiceDependency"/> list on
   /// the first match, or the empty array if no ancestor type is in the
   /// registry.
   /// </summary>
-  public static IReadOnlyList<ServiceRef> ResolveServicesFromDelegate(Delegate? transform) =>
+  public static IReadOnlyList<ServiceDependency> ResolveServicesFromDelegate(Delegate? transform) =>
     WalkForEntry(transform)?.Services ?? _noServices;
 
   private static StepMetadataRegistry.Entry? WalkForEntry(Delegate? transform)

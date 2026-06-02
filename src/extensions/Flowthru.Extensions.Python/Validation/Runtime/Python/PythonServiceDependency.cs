@@ -6,17 +6,17 @@ namespace Flowthru.Validation.Runtime.Python;
 /// (e.g. <c>"Services.PyannoteDiarizer"</c>) emitted by the
 /// <c>@step(services=[...])</c> decorator's
 /// <c>__flowthru_services__</c> attribute. Pre-flight resolves it
-/// through Core's <see cref="IServiceRefDispatcher"/> pipeline by
+/// through Core's <see cref="IServiceDependencyDispatcher"/> pipeline by
 /// matching <see cref="Category"/> to <c>"python"</c> and dispatching
-/// to <c>PythonServiceRefDispatcher</c>.
+/// to <c>PythonServiceDependencyDispatcher</c>.
 /// </summary>
 /// <remarks>
 /// Per §4.8 / §2.5, language-agnostic services live behind the
-/// <see cref="ServiceRef.External"/> open-extension variant — Core
-/// has no <c>ServiceRef.Python</c> case, and the extension supplies
-/// its own identity via <see cref="IExtensionServiceRef"/>.
+/// <see cref="ServiceDependency.External"/> open-extension variant — Core
+/// has no <c>ServiceDependency.Python</c> case, and the extension supplies
+/// its own identity via <see cref="IExtensionServiceDependency"/>.
 /// </remarks>
-public sealed record PythonServiceRef(string ClassPath) : IExtensionServiceRef
+public sealed record PythonServiceDependency(string ClassPath) : IExtensionServiceDependency
 {
   /// <inheritdoc/>
   public string DagId => $"python:{ClassPath}";
@@ -54,10 +54,10 @@ public sealed record PythonServiceRef(string ClassPath) : IExtensionServiceRef
   public string ServiceClass => DisplayName;
 
   /// <summary>
-  /// Convenience: wrap this <see cref="PythonServiceRef"/> in the
-  /// Core-side <see cref="ServiceRef.External"/> envelope so it can be
+  /// Convenience: wrap this <see cref="PythonServiceDependency"/> in the
+  /// Core-side <see cref="ServiceDependency.External"/> envelope so it can be
   /// passed to <c>FlowBuilder.Add(IStepNode)</c> step constructors that
-  /// accept <c>IReadOnlyList&lt;ServiceRef&gt;</c>.
+  /// accept <c>IReadOnlyList&lt;ServiceDependency&gt;</c>.
   /// </summary>
-  public ServiceRef AsServiceRef() => new ServiceRef.External(this);
+  public ServiceDependency AsServiceDependency() => new ServiceDependency.External(this);
 }

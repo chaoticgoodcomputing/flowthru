@@ -28,7 +28,7 @@ namespace Flowthru.Step.Python;
 /// </para>
 /// <para>
 /// <strong>Service dependencies.</strong> Pass any
-/// <see cref="ServiceRef"/>s explicitly via the
+/// <see cref="ServiceDependency"/>s explicitly via the
 /// <c>serviceDependencies</c> constructor argument. The build-time
 /// source generator (Q2 path) bakes them in from
 /// <c>@step(services=[…])</c>; the string-based <c>AddPythonStep</c>
@@ -61,7 +61,7 @@ public sealed class PythonStep<TIn, TOut> : IStepNode<TIn, TOut>
     Func<FlowIO<TIn>> loadInputs,
     Func<TOut, FlowIO<FlowUnit>> saveOutputs,
     NodeTraits? traits = null,
-    IReadOnlyList<ServiceRef>? serviceDependencies = null,
+    IReadOnlyList<ServiceDependency>? serviceDependencies = null,
     string? flowLabel = null,
     string? codeVersion = null
   )
@@ -75,7 +75,7 @@ public sealed class PythonStep<TIn, TOut> : IStepNode<TIn, TOut>
     _loadInputs = loadInputs ?? throw new ArgumentNullException(nameof(loadInputs));
     _saveOutputs = saveOutputs ?? throw new ArgumentNullException(nameof(saveOutputs));
     Traits = traits ?? new NodeTraits();
-    ServiceDependencies = serviceDependencies ?? Array.Empty<ServiceRef>();
+    ServiceDependencies = serviceDependencies ?? Array.Empty<ServiceDependency>();
     FlowLabel = flowLabel ?? string.Empty;
     CodeVersion = codeVersion;
   }
@@ -115,7 +115,7 @@ public sealed class PythonStep<TIn, TOut> : IStepNode<TIn, TOut>
   public IReadOnlyList<IItem> Outputs { get; }
 
   /// <inheritdoc/>
-  public IReadOnlyList<ServiceRef> ServiceDependencies { get; }
+  public IReadOnlyList<ServiceDependency> ServiceDependencies { get; }
 
   /// <inheritdoc/>
   public string? CodeVersion { get; }

@@ -133,19 +133,19 @@ public class PythonFlowthruBuilderExtensionsTests
   }
 
   [Test]
-  public void UsePython_RegistersPythonServiceRefDispatcher()
+  public void UsePython_RegistersPythonServiceDependencyDispatcher()
   {
     var (builder, _) = MakeBuilder();
     builder.UsePython();
     using var sp = builder.Services.BuildServiceProvider();
 
-    var dispatchers = sp.GetServices<IServiceRefDispatcher>().ToArray();
+    var dispatchers = sp.GetServices<IServiceDependencyDispatcher>().ToArray();
     Assert.That(dispatchers, Is.Not.Empty,
-      "UsePython() must contribute an IServiceRefDispatcher so PythonServiceRef can be routed.");
+      "UsePython() must contribute an IServiceDependencyDispatcher so PythonServiceDependency can be routed.");
     Assert.That(
-      dispatchers.Any(d => d is PythonServiceRefDispatcher),
+      dispatchers.Any(d => d is PythonServiceDependencyDispatcher),
       Is.True,
-      "At least one dispatcher must be the PythonServiceRefDispatcher matching Category=\"python\"."
+      "At least one dispatcher must be the PythonServiceDependencyDispatcher matching Category=\"python\"."
     );
   }
 
@@ -272,7 +272,7 @@ public class PythonFlowthruBuilderExtensionsTests
       Assert.That(sp.GetService<IPythonServiceInspectorRegistry>(), Is.Not.Null);
       Assert.That(sp.GetService<IPythonExecutor>(), Is.Not.Null);
       Assert.That(
-        sp.GetServices<IServiceRefDispatcher>().Any(d => d is PythonServiceRefDispatcher),
+        sp.GetServices<IServiceDependencyDispatcher>().Any(d => d is PythonServiceDependencyDispatcher),
         Is.True
       );
       Assert.That(

@@ -24,9 +24,9 @@ public class SchedulerConflictGatingTests
   /// <summary>Returns capacity 1 for <see cref="ISerialResource"/>; unbounded otherwise.</summary>
   private sealed class SerialResourceProvider : IServiceProfileProvider
   {
-    private static readonly string SerialId = ServiceRef.Of<ISerialResource>().DagId;
+    private static readonly string SerialId = ServiceDependency.Of<ISerialResource>().DagId;
 
-    public ServiceProfile Resolve(ServiceRef dependency) =>
+    public ServiceProfile Resolve(ServiceDependency dependency) =>
       dependency.DagId == SerialId ? new ServiceProfile { Capacity = 1 } : ServiceProfile.Unbounded;
   }
 
@@ -56,7 +56,7 @@ public class SchedulerConflictGatingTests
       source: "cg:track"
     );
 
-    var deps = declareSerialDep ? new[] { ServiceRef.Of<ISerialResource>() } : null;
+    var deps = declareSerialDep ? new[] { ServiceDependency.Of<ISerialResource>() } : null;
 
     IStepNode Step(string label, IItem<int> output) =>
       new Step<int, int>(
