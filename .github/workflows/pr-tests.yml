@@ -27,11 +27,26 @@ jobs:
       - name: Setup CI environment
         uses: ./.github/actions/setup
 
-      - name: Run affected builds and tests
+      # `build` and `test` are run as two invocations, not `-t build test`, because
+      # `--logger "console;verbosity=minimal"` is a `dotnet test` logger spec — valid
+      # for the test executor but rejected by MSBuild (`MSB1007`) if it reaches a
+      # `dotnet build`. nx forwards passthrough flags to every task of a requested
+      # target, so `-t build test --logger …` fans the flag onto build tasks and any
+      # cache-miss `:build` fails. Keeping `--logger` on the test-only run scopes it
+      # to `dotnet test`; the build dependencies of those tests never receive it.
+      - name: Run affected builds
         env:
           CI: "true"
         run: |
-          pnpm nx affected -t build test \
+          pnpm nx affected -t build \
+            --base=${{ github.event.pull_request.base.sha }} --head=HEAD \
+            --output-style=stream
+
+      - name: Run affected tests
+        env:
+          CI: "true"
+        run: |
+          pnpm nx affected -t test \
             --base=${{ github.event.pull_request.base.sha }} --head=HEAD \
             --output-style=stream \
             --logger "console;verbosity=minimal"
