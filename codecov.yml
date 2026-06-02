@@ -14,6 +14,8 @@ comment:
   behavior: default
   require_changes: false
 flags:
+  docs:
+    carryforward: true
   flowthru-vscode:
     carryforward: true
   Flowthru.Cli.Tests:
@@ -25,6 +27,8 @@ flags:
   Flowthru.Core.SourceGenerators.Tests:
     carryforward: true
   Flowthru.Core.Tests:
+    carryforward: true
+  Flowthru.Extensions.AWS.S3.Tests:
     carryforward: true
   Flowthru.Extensions.Csv.Tests:
     carryforward: true
@@ -132,6 +136,10 @@ component_management:
       name: Flowthru.Core.SourceGenerators
       paths:
         - src/core/Flowthru.Core.SourceGenerators/**
+    - component_id: flowthru_extensions_aws_s3
+      name: Flowthru.Extensions.AWS.S3
+      paths:
+        - src/extensions/Flowthru.Extensions.AWS.S3/**
     - component_id: flowthru_extensions_csv
       name: Flowthru.Extensions.Csv
       paths:

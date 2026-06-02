@@ -1,3 +1,21 @@
+## 0.24.0 (2026-06-02)
+
+### 🚀 Features
+
+- python optimizations for custom launchers & bulk marshalling ([#68](https://github.com/chaoticgoodcomputing/flowthru/pull/68))
+- google sheets extension ([#97](https://github.com/chaoticgoodcomputing/flowthru/pull/97))
+- aws s3 storage medium ([#69](https://github.com/chaoticgoodcomputing/flowthru/pull/69), [#99](https://github.com/chaoticgoodcomputing/flowthru/pull/99), [#70](https://github.com/chaoticgoodcomputing/flowthru/issues/70), [#71](https://github.com/chaoticgoodcomputing/flowthru/issues/71), [#73](https://github.com/chaoticgoodcomputing/flowthru/issues/73))
+
+### 🩹 Fixes
+
+- restore service config for threading ([51751d8d](https://github.com/chaoticgoodcomputing/flowthru/commit/51751d8d))
+- resolve logging race condition on multiworker python ([125e11cc](https://github.com/chaoticgoodcomputing/flowthru/commit/125e11cc))
+- trigger S3 build ([e935393c](https://github.com/chaoticgoodcomputing/flowthru/commit/e935393c))
+
+### ❤️ Thank You
+
+- Spencer Elkington
+
 ## 0.23.0 (2026-05-30)
 
 ### 🚀 Features
