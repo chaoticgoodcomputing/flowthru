@@ -100,6 +100,15 @@ public class Program
         python.VenvPath = outputPath;
       });
 
+      flowthru.ConfigureMetadata(meta =>
+      {
+        var metadataPath = Path.Combine(basePath, "Metadata");
+        meta.AddJsonMetadata(opt => opt.WithOutputDirectory(metadataPath));
+        meta.AddMermaidMetadata(opt => opt
+          .WithOutputDirectory(metadataPath)
+          .WithShowFullDag(false));
+      });
+
       flowthru
         .RegisterFlow<Catalog, IPythonExecutor>("Train", TrainFlow.Create)
         .WithDescription("Distributed CNN training via TorchrunLauncher.");
