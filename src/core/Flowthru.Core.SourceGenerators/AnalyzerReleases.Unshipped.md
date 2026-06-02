@@ -23,6 +23,7 @@
 | FT3004  | Flowthru.Validation | Error    | Pre-flight: schema drift                                           |
 | FT3005  | Flowthru.Validation | Error    | Pre-flight: inspection failed                                      |
 | FT3006  | Flowthru.Validation | Error    | Pre-flight: registration check failed                              |
+| FT3007  | Flowthru.Validation | Error    | Pre-flight: registration check failed                              |
 | FT4001  | Flowthru.Runtime    | Error    | Runtime: external failure                                          |
 | FT4002  | Flowthru.Runtime    | Error    | Runtime: step failed                                               |
 | FT4003  | Flowthru.Runtime    | Error    | Runtime: cancelled                                                 |
