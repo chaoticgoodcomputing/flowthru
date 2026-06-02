@@ -86,6 +86,18 @@ _Avoid_: framework maintainer (Core Developer is the specific Flowthru role)
 _Avoid_: pipeline, workflow graph
 *Note*: "category" here is the formal mathematical sense (objects + morphisms); the Catalog Developer entry for [[Data category]] uses "category" in the classification sense. Context disambiguates.
 
+**Precedence**: The data-flow ordering relation over the [[DAG]] — a producer step before the consumer of its output item, the partial order `DependencyAnalyzer` topologically sorts. It is the *only* relation the graph's structure encodes; the scheduler may run any precedence-incomparable steps in either order or concurrently.
+_Avoid_: dependency (overloaded — name the data-flow axis "precedence" specifically; see [[Conflict]]), happens-before
+
+**Conflict**: A second relation over the [[DAG]], orthogonal to [[Precedence]] and enforced by the scheduler rather than the graph: two precedence-incomparable steps that share a non-shareable side-effecting resource must not co-run. Derived from each node's [[Service dependency|service dependencies]] and their resolved capacities, keyed by `(operation, resource)` — so `read:X` and `write:X` are distinct (concurrent readers don't conflict with one writer). The scheduler admits at most a resource's declared capacity of concurrent holders; modelling conflict is what makes raising `ExecutionOptions.Parallelism` sound. See ADR-0019.
+_Avoid_: dependency (that is [[Precedence]]), mutex / lock (mechanisms; conflict is the relation they enforce)
+
+**Service dependency**: The identity of a runtime service or external resource a node depends on — `ServiceDependency`, a closed sum of `CSharp` / `External` / `ObservationOnly`, carried by both archetypes through `INode.ServiceDependencies`. A step declares the services injected into its transform; an item declares the shared resource it is backed by, so a step inherits the [[Conflict]] keys of the items it reads and writes. Drives caching (an output-affecting dep makes a step uncacheable) and conflict (a capacity-constrained dep serializes co-touching steps).
+_Avoid_: ServiceRef (the pre-0.x name this replaced), ServiceReference (carries the WCF "Add Service Reference" / SOAP-proxy connotation), service handle
+
+**Service profile**: The resolved behavioural metadata of a [[Service dependency]], on two orthogonal axes: `AffectsOutputs` (the cache axis) and `Capacity` / `ReadCapacity` (the [[Conflict]] axis). Resolved per host by an `IServiceProfileProvider` — capacity is contextual, so it is computed, not stored on the dependency. The orthogonality is load-bearing: the Python worker is cache-*neutral* (`AffectsOutputs=false` — its determinism is captured by code version) yet concurrency-*constrained* (`Capacity=1`), which no single subtype flag could express.
+_Avoid_: capacity (one field of the profile, not the whole), service metadata
+
 **Kleisli arrow**: A function of shape `A → M<B>` for some monad `M`. In Flowthru, `IStepNode<TIn, TOut>.Transform` is `Func<TIn, FlowIO<TOut>>` — a Kleisli arrow of the `FlowIO` monad. The user-supplied pure `A → B` from a `[FlowthruStep]`-attributed `Create()` is lifted into this shape at flow-construction time, which is why composition through the engine has clean monadic semantics rather than ad-hoc plumbing.
 _Avoid_: transform (correct at the user surface; in Core the precise term is Kleisli arrow), callback, handler
 
