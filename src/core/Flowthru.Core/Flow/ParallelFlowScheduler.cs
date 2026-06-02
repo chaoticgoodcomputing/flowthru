@@ -133,16 +133,19 @@ public sealed class ParallelFlowScheduler : IFlowScheduler
     for (var i = 0; i < orderedSteps.Count; i++)
     {
       List<string>? keys = null;
-      foreach (var dep in ConflictDependenciesOf(orderedSteps[i]))
+      foreach (var (dep, op) in ConflictDependenciesOf(orderedSteps[i]))
       {
-        var profile = _profiles.Resolve(dep);
-        if (!profile.IsConcurrencyConstrained) continue;
-        (keys ??= new List<string>()).Add(dep.DagId);
-        // A key identifies one shared resource, so its capacity is global;
-        // if sources disagree, the most restrictive wins.
-        capacityByKey[dep.DagId] = capacityByKey.TryGetValue(dep.DagId, out var existing)
-          ? Math.Min(existing, profile.Capacity)
-          : profile.Capacity;
+        var capacity = _profiles.Resolve(dep).CapacityFor(op);
+        if (capacity >= int.MaxValue) continue; // unbounded for this op — no conflict
+        // The op-class is part of the key, so read:X and write:X are
+        // distinct (concurrent readers don't conflict with one writer).
+        var key = $"{op}:{dep.DagId}";
+        (keys ??= new List<string>()).Add(key);
+        // A key identifies one shared resource+op, so its capacity is
+        // global; if sources disagree, the most restrictive wins.
+        capacityByKey[key] = capacityByKey.TryGetValue(key, out var existing)
+          ? Math.Min(existing, capacity)
+          : capacity;
       }
       keysByStep[i] = keys is null ? Array.Empty<string>() : keys.Distinct().ToArray();
     }
@@ -250,13 +253,13 @@ public sealed class ParallelFlowScheduler : IFlowScheduler
   /// database-backed item), so the step touching it inherits the
   /// resource's conflict key.
   /// </summary>
-  private static IEnumerable<ServiceDependency> ConflictDependenciesOf(IStepNode step)
+  private static IEnumerable<(ServiceDependency Dep, ConflictOp Op)> ConflictDependenciesOf(IStepNode step)
   {
-    foreach (var dep in step.ServiceDependencies) yield return dep;
+    foreach (var dep in step.ServiceDependencies) yield return (dep, ConflictOp.Use);
     foreach (var input in step.Inputs)
-      foreach (var dep in input.ServiceDependencies) yield return dep;
+      foreach (var dep in input.ServiceDependencies) yield return (dep, ConflictOp.Read);
     foreach (var output in step.Outputs)
-      foreach (var dep in output.ServiceDependencies) yield return dep;
+      foreach (var dep in output.ServiceDependencies) yield return (dep, ConflictOp.Write);
   }
 
   /// <summary>

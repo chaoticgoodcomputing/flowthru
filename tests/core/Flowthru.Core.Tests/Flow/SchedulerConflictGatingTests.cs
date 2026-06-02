@@ -102,17 +102,10 @@ public class SchedulerConflictGatingTests
     );
   }
 
-  [Test]
-  public async Task ItemDeclaredCapacityOne_SerializesStepsTouchingIt()
+  // running/maxRunning tracker — each step bumps a shared counter on entry,
+  // records the peak, delays so overlap is observable, decrements on exit.
+  private static (Func<int, FlowIO<int>> Track, Func<int> Max) MakeTracker(string source)
   {
-    // Neither step declares a service dependency; the conflict comes from
-    // the shared INPUT item, which declares a capacity-1 resource. Proves
-    // a step inherits the conflict keys of the items it touches — the
-    // INode lift, and how EFCore/SQLite contention will reach the scheduler.
-    var shared = new DepItem("cg-shared-item", ServiceDependency.Of<ISerialResource>());
-    var outA = ItemFactory.Singleton.Memory<int>("cg-item-out-a");
-    var outB = ItemFactory.Singleton.Memory<int>("cg-item-out-b");
-
     var running = 0;
     var maxRunning = 0;
     var gate = new object();
@@ -125,32 +118,59 @@ public class SchedulerConflictGatingTests
         Interlocked.Decrement(ref running);
         return x;
       },
-      source: "cg:item-track"
+      source: source
     );
+    return (track, () => maxRunning);
+  }
 
+  [Test]
+  public async Task WritesToSharedResource_Serialize()
+  {
+    // Two steps each WRITE a distinct item backed by the same serial
+    // resource (write capacity 1) → they must serialize. Models concurrent
+    // SQLite writes to one database reaching the scheduler via the items.
+    var root = ItemFactory.Singleton.Memory<int>("cg-w-root");
+    await root.Save(0).Run();
+    var outA = new DepItem("cg-w-a", ServiceDependency.Of<ISerialResource>());
+    var outB = new DepItem("cg-w-b", ServiceDependency.Of<ISerialResource>());
+
+    var (track, max) = MakeTracker("cg:w");
     IStepNode Step(string label, IItem<int> output) =>
-      new Step<int, int>(
-        label: label,
-        transform: track,
-        inputs: new IItem[] { shared },
-        outputs: new IItem[] { output },
-        loadInputs: () => shared.Load(),
-        saveOutputs: v => output.Save(v)
-      );
+      new Step<int, int>(label, track, new IItem[] { root }, new IItem[] { output },
+        loadInputs: () => root.Load(), saveOutputs: v => output.Save(v));
 
-    var flow = FlowBuilder.CreateFlow("cg-item-flow", b =>
-    {
-      b.Add(Step("reader-a", outA));
-      b.Add(Step("reader-b", outB));
-    });
-
-    var scheduler = new ParallelFlowScheduler(profiles: new SerialResourceProvider());
-    var result = await scheduler.ExecuteAsync(flow, new ExecutionOptions { Parallelism = 4 });
+    var flow = FlowBuilder.CreateFlow("cg-write", b => { b.Add(Step("w-a", outA)); b.Add(Step("w-b", outB)); });
+    var result = await new ParallelFlowScheduler(profiles: new SerialResourceProvider())
+      .ExecuteAsync(flow, new ExecutionOptions { Parallelism = 4 });
 
     Assert.That(result.IsSuccess, Is.True);
-    Assert.That(maxRunning, Is.EqualTo(1),
-      "Two steps reading a shared capacity-1 item must serialize — proves item-declared "
-      + "conflict keys are inherited by the steps that touch the item."
+    Assert.That(max(), Is.EqualTo(1),
+      "Two steps writing items backed by the same capacity-1 resource must serialize."
+    );
+  }
+
+  [Test]
+  public async Task ReadsFromSharedResource_RunConcurrently()
+  {
+    // Two steps READ the same item backed by the serial resource. Reads are
+    // unbounded (SQLite allows many readers), so they parallelize — proving
+    // read/write asymmetry: the write key gates, the read key does not.
+    var shared = new DepItem("cg-r-shared", ServiceDependency.Of<ISerialResource>());
+    var outA = ItemFactory.Singleton.Memory<int>("cg-r-a");
+    var outB = ItemFactory.Singleton.Memory<int>("cg-r-b");
+
+    var (track, max) = MakeTracker("cg:r");
+    IStepNode Step(string label, IItem<int> output) =>
+      new Step<int, int>(label, track, new IItem[] { shared }, new IItem[] { output },
+        loadInputs: () => shared.Load(), saveOutputs: v => output.Save(v));
+
+    var flow = FlowBuilder.CreateFlow("cg-read", b => { b.Add(Step("r-a", outA)); b.Add(Step("r-b", outB)); });
+    var result = await new ParallelFlowScheduler(profiles: new SerialResourceProvider())
+      .ExecuteAsync(flow, new ExecutionOptions { Parallelism = 4 });
+
+    Assert.That(result.IsSuccess, Is.True);
+    Assert.That(max(), Is.EqualTo(2),
+      "Concurrent reads of a shared resource must parallelize — reads aren't gated by the write capacity."
     );
   }
 
