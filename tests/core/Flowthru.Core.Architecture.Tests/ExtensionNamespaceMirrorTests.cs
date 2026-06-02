@@ -131,10 +131,14 @@ public class ExtensionNamespaceMirrorTests
           "Flowthru.Data.Catalog",
           // EFCore contributes registration-validation hooks
           // (VerifyEFCoreConnection / VerifyEFCoreConfiguration /
-          // VerifyEFCoreSchema) as extension methods on
+          // VerifyEFCoreSchema) plus UseEFCore() as extension methods on
           // IFlowthruBuilder, declared in the Hosting algebra root
           // per §3.2 / §4.8.0.5.
           "Flowthru.Hosting",
+          // The DbScope conflict dependency + its profile contributor
+          // (ADR-0019) live alongside Core's Validation.Runtime closed
+          // sums — same placement as Python's PythonServiceDependency.
+          "Flowthru.Validation.Runtime.EFCore",
         },
         ForbiddenAlgebraRoots: new[]
         {
