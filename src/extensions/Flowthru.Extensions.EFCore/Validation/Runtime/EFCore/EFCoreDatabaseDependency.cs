@@ -25,7 +25,7 @@ internal sealed record EFCoreDatabaseDependency(
   string Display,
   int WriteCapacity,
   int ReadCapacity
-) : IExtensionServiceDependency
+) : IExtensionServiceDependency, ICapacityConstrainable
 {
   /// <inheritdoc/>
   public string DagId => $"efcore:{Identity}";
@@ -35,4 +35,12 @@ internal sealed record EFCoreDatabaseDependency(
 
   /// <inheritdoc/>
   public string Category => "efcore";
+
+  /// <inheritdoc/>
+  public IExtensionServiceDependency ClampTo(int writeCapacity, int readCapacity) =>
+    this with
+    {
+      WriteCapacity = Math.Min(WriteCapacity, writeCapacity),
+      ReadCapacity = Math.Min(ReadCapacity, readCapacity),
+    };
 }

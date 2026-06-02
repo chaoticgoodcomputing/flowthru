@@ -73,6 +73,59 @@ public class EFCoreConflictGatingTests
     );
   }
 
+  // ── Constrain tightens the read capacity (one-way ratchet flows to gating) ──
+
+  [Test]
+  public async Task ConstrainReadCapacityToOne_SerializesReads()
+  {
+    // Tighten each read item's capacity to 1 via Constrain. Unconstrained
+    // these reads parallelize (the test above); constrained, the lowered
+    // capacity flows through ConstrainedStorageAdapter to the scheduler
+    // and they serialize — proving the ratchet reaches the conflict gate.
+    var maxConcurrent = await RunTwoReadsAsync(
+      Gated,
+      constrain: item => item.Constrain(t => t with { ReadCapacity = 1 }));
+    Assert.That(maxConcurrent, Is.EqualTo(1),
+      "Constraining read capacity to 1 must serialize reads that would otherwise parallelize."
+    );
+  }
+
+  [Test]
+  public void Constrain_RaisingCapacityAboveProviderDeclaration_IsRejected()
+  {
+    var (factory, dbPath) = TestDbContextFactoryBuilder.Build();
+    try
+    {
+      var item = ItemFactory.Enumerable.EFCore<TestEntity, TestDbContext>("items", factory);
+
+      // SQLite declares write capacity 1; trying to widen it is a
+      // constraint-loosening attempt and must fail at the wire-up site.
+      Assert.That(
+        () => item.Constrain(t => t with { WriteCapacity = 8 }),
+        Throws.TypeOf<ArgumentException>(),
+        "Capacity is a one-way ratchet — a constraint can only lower concurrency, never raise it."
+      );
+    }
+    finally
+    {
+      TryDelete(dbPath);
+    }
+  }
+
+  [Test]
+  public void Dependency_ClampTo_LowersOnly_NeverRaises()
+  {
+    var dep = new EFCoreDatabaseDependency("id", "disp", WriteCapacity: 8, ReadCapacity: int.MaxValue);
+
+    var lowered = (EFCoreDatabaseDependency)dep.ClampTo(writeCapacity: 2, readCapacity: 4);
+    Assert.That(lowered.WriteCapacity, Is.EqualTo(2), "Write capacity lowers to the clamp.");
+    Assert.That(lowered.ReadCapacity, Is.EqualTo(4), "Read capacity lowers to the clamp.");
+
+    var unraised = (EFCoreDatabaseDependency)dep.ClampTo(writeCapacity: 16, readCapacity: int.MaxValue);
+    Assert.That(unraised.WriteCapacity, Is.EqualTo(8),
+      "A clamp above the declared capacity keeps the lower declared value — clamping never raises.");
+  }
+
   // ── Contributor translation ─────────────────────────────────────────────
 
   [Test]
@@ -221,8 +274,11 @@ public class EFCoreConflictGatingTests
     }
   }
 
-  private static async Task<int> RunTwoReadsAsync(IServiceProfileProvider provider)
+  private static async Task<int> RunTwoReadsAsync(
+    IServiceProfileProvider provider,
+    Func<IItem<IEnumerable<TestEntity>>, IItem<IEnumerable<TestEntity>>>? constrain = null)
   {
+    constrain ??= item => item;
     var (factory, dbPath) = TestDbContextFactoryBuilder.Build();
     try
     {
@@ -230,8 +286,8 @@ public class EFCoreConflictGatingTests
       var outB = ItemFactory.Singleton.Memory<int>($"efr-b-{Guid.NewGuid():N}");
 
       // Two input items backed by the same SQLite file → same read key.
-      var inA = ItemFactory.Enumerable.EFCore<TestEntity, TestDbContext>("efr-in-a", factory, allowEmptyData: true);
-      var inB = ItemFactory.Enumerable.EFCore<TestEntity, TestDbContext>("efr-in-b", factory, allowEmptyData: true);
+      var inA = constrain(ItemFactory.Enumerable.EFCore<TestEntity, TestDbContext>("efr-in-a", factory, allowEmptyData: true));
+      var inB = constrain(ItemFactory.Enumerable.EFCore<TestEntity, TestDbContext>("efr-in-b", factory, allowEmptyData: true));
 
       var (recordEntry, recordExit, max) = MakeConcurrencyMeter();
       Func<IEnumerable<TestEntity>, FlowIO<int>> transform = _ => FlowIO.LiftAsync(

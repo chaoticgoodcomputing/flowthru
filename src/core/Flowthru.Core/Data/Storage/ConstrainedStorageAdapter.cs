@@ -94,17 +94,24 @@ public sealed class ConstrainedStorageAdapter<T>
 
   /// <inheritdoc/>
   /// <remarks>
-  /// Delegates to the inner adapter so a constrained item keeps the
-  /// conflict resources it inherited — constraining (e.g. to read-only)
-  /// must not silently drop the scheduler's gating. Tightening the
-  /// inherited <em>capacity</em> through the constraint is layered on in a
-  /// follow-up; here the inner adapter's declared capacity flows through
-  /// unchanged.
+  /// Surfaces the inner adapter's conflict resources so a constrained item
+  /// keeps the gating it inherited — constraining (e.g. to read-only) must
+  /// not silently drop it. Each dependency that opts into
+  /// <see cref="ICapacityConstrainable"/> is also ratcheted down to this
+  /// item's constrained <see cref="StorageTraits.WriteCapacity"/> /
+  /// <see cref="StorageTraits.ReadCapacity"/>, so tightening an item's
+  /// capacity flows through to the scheduler.
   /// </remarks>
   public IReadOnlyList<ServiceDependency> ServiceDependencies =>
     _inner is IHasServiceDependencies declarer
-      ? declarer.ServiceDependencies
+      ? declarer.ServiceDependencies.Select(ClampToConstrainedCapacity).ToArray()
       : Array.Empty<ServiceDependency>();
+
+  private ServiceDependency ClampToConstrainedCapacity(ServiceDependency dependency) =>
+    dependency is ServiceDependency.External { Cause: ICapacityConstrainable constrainable }
+      ? new ServiceDependency.External(
+          constrainable.ClampTo(Traits.WriteCapacity, Traits.ReadCapacity))
+      : dependency;
 
   // ── One-way-ratchet enforcement ──────────────────────────────────────
 
