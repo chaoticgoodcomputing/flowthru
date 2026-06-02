@@ -95,6 +95,32 @@ public static class TestCapabilities
     return false;
   }
 
+  private static readonly Lazy<bool> _hasAwsS3 = new(
+    () => !string.IsNullOrWhiteSpace(
+      Environment.GetEnvironmentVariable("FLOWTHRU_S3_TEST_BUCKET")),
+    LazyThreadSafetyMode.ExecutionAndPublication
+  );
+
+  /// <summary>
+  /// A reachable, writable S3 (or S3-compatible) test bucket, supplied via the
+  /// environment. Required by any backend that drives a real <c>IAmazonS3</c>
+  /// client. The probe is env-only — it never builds a client or makes a request
+  /// (that happens in the backend's setup, after this gate clears). It is
+  /// satisfied when <c>FLOWTHRU_S3_TEST_BUCKET</c> is set; the backend reads the
+  /// optional <c>FLOWTHRU_S3_TEST_SERVICE_URL</c> (for LocalStack/MinIO) and
+  /// <c>FLOWTHRU_S3_TEST_REGION</c>, and resolves credentials through the standard
+  /// AWS chain.
+  /// </summary>
+  public static TestCapability AwsS3 { get; } = new(
+    Name: "aws-s3",
+    IsAvailable: () => _hasAwsS3.Value,
+    MissingMessage:
+      "A writable S3 test bucket is required for the live S3 backend. Set " +
+      "FLOWTHRU_S3_TEST_BUCKET (and optionally FLOWTHRU_S3_TEST_SERVICE_URL + " +
+      "FLOWTHRU_S3_TEST_REGION for an S3-compatible endpoint). Credentials resolve " +
+      "via the standard AWS chain (env, profile, instance role)."
+  );
+
   /// <summary>
   /// Probes whether <paramref name="command"/> resolves on the current
   /// <c>PATH</c> by running <c>which</c> (POSIX) or <c>where</c>
