@@ -9,12 +9,30 @@
       "executor": "nx:noop",
       "dependsOn": [
         "_test:project-mirror",
+        "_test:solution-membership",
         "_test:dead-schemas",
         "_test:dead-fixtures",
         "_test:diagnostic-id-registration",
         "_test:package-versions",
         "_test:starter-shape"
       ]
+    },
+    "_test:solution-membership": {
+      "//": "Every first-party C# project under src/, tests/, and examples/ is registered in Flowthru.slnx, and every solution entry resolves to a project on disk. Guards the restore-critical invariant: flowthru:restore and docs:_build-reference (docfx --noRestore) restore the solution, not the nx graph, so a project missing from the slnx fails the docs reference build on a fresh CI checkout. Private subtarget.",
+      "executor": "nx:run-commands",
+      "inputs": [
+        "{workspaceRoot}/Flowthru.slnx",
+        "{workspaceRoot}/src/**/*.csproj",
+        "{workspaceRoot}/tests/**/*.csproj",
+        "{workspaceRoot}/examples/**/*.csproj",
+        "{workspaceRoot}/scripts/_test/_lib.mjs",
+        "{workspaceRoot}/scripts/_test/solution-membership.mjs"
+      ],
+      "options": {
+        "commands": [ "node scripts/_test/solution-membership.mjs" ],
+        "cwd": "{workspaceRoot}",
+        "parallel": false
+      }
     },
     "_test:project-mirror": {
       "//": "Every src/{domain}/{Project} has a corresponding tests/{domain}/{Project}.Tests at the mirrored path. Private subtarget: invoked only by the tests:test barrel.",
