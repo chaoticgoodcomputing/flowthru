@@ -1,3 +1,18 @@
+## 0.25.0 (2026-06-02)
+
+### 🚀 Features
+
+- restore ability to configure pre-flight depth on invocation ([1a56279f](https://github.com/chaoticgoodcomputing/flowthru/commit/1a56279f))
+
+### 🩹 Fixes
+
+- update analyzer releases ([d10219c2](https://github.com/chaoticgoodcomputing/flowthru/commit/d10219c2))
+- separate build and test in CI ([0dc50622](https://github.com/chaoticgoodcomputing/flowthru/commit/0dc50622))
+
+### ❤️ Thank You
+
+- Spencer Elkington
+
 ## 0.24.0 (2026-06-02)
 
 ### 🚀 Features
