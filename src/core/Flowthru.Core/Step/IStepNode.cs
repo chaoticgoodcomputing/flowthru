@@ -101,15 +101,6 @@ public interface IStepNode : INode
   IReadOnlyList<IItem> Outputs { get; }
 
   /// <summary>
-  /// Runtime services this step depends on. Each
-  /// <see cref="ServiceDependency"/> is resolved by the host's DI container
-  /// (for the <see cref="ServiceDependency.CSharp"/> variant) or by a
-  /// registered <see cref="IServiceDependencyDispatcher"/> (for the
-  /// <see cref="ServiceDependency.External"/> variant) before the step runs.
-  /// </summary>
-  IReadOnlyList<ServiceDependency> ServiceDependencies { get; }
-
-  /// <summary>
   /// Canonical lowercase identifier for the language a step's transform
   /// was authored in. <c>null</c> or empty signals the host runtime's
   /// primary language (i.e., .NET / C#) — metadata providers should

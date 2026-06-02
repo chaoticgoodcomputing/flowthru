@@ -133,7 +133,7 @@ public sealed class ParallelFlowScheduler : IFlowScheduler
     for (var i = 0; i < orderedSteps.Count; i++)
     {
       List<string>? keys = null;
-      foreach (var dep in orderedSteps[i].ServiceDependencies)
+      foreach (var dep in ConflictDependenciesOf(orderedSteps[i]))
       {
         var profile = _profiles.Resolve(dep);
         if (!profile.IsConcurrencyConstrained) continue;
@@ -241,6 +241,22 @@ public sealed class ParallelFlowScheduler : IFlowScheduler
 
     runStopwatch.Stop();
     return new FlowResult(resultsByIndex.Cast<StepResult>().ToList(), runStopwatch.Elapsed);
+  }
+
+  /// <summary>
+  /// A step's conflict-relevant dependencies: its own service deps plus
+  /// those declared by the items it reads (<c>Inputs</c>) and writes
+  /// (<c>Outputs</c>). An item can surface a shared resource (e.g. a
+  /// database-backed item), so the step touching it inherits the
+  /// resource's conflict key.
+  /// </summary>
+  private static IEnumerable<ServiceDependency> ConflictDependenciesOf(IStepNode step)
+  {
+    foreach (var dep in step.ServiceDependencies) yield return dep;
+    foreach (var input in step.Inputs)
+      foreach (var dep in input.ServiceDependencies) yield return dep;
+    foreach (var output in step.Outputs)
+      foreach (var dep in output.ServiceDependencies) yield return dep;
   }
 
   /// <summary>

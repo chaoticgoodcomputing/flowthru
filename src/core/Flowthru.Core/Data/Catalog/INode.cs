@@ -32,4 +32,20 @@ public interface INode
   /// via tests).
   /// </summary>
   FlowIO<ValidationResult> Validate();
+
+  /// <summary>
+  /// Runtime services / external resources this node depends on. Drives
+  /// two analyses: the cache planner (an output-affecting dep makes a
+  /// step uncacheable) and the scheduler's conflict relation (a
+  /// capacity-constrained dep serializes co-touching steps). Default
+  /// empty — pure nodes declare nothing. A step populates it from its
+  /// transform's injected services (resolved by DI for
+  /// <see cref="ServiceDependency.CSharp"/>, or by a registered
+  /// <c>IServiceDependencyDispatcher</c> for
+  /// <see cref="ServiceDependency.External"/>); an item (e.g. a
+  /// database-backed one) overrides it to surface the shared resource it
+  /// touches, so a step inherits the conflict keys of the items it reads
+  /// and writes.
+  /// </summary>
+  IReadOnlyList<ServiceDependency> ServiceDependencies => Array.Empty<ServiceDependency>();
 }

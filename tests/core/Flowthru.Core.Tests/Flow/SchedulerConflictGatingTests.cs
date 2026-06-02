@@ -1,4 +1,5 @@
 using Flowthru.Data.Catalog;
+using Flowthru.Data.Storage;
 using Flowthru.Flow;
 using Flowthru.Prelude;
 using Flowthru.Step;
@@ -99,5 +100,74 @@ public class SchedulerConflictGatingTests
       "With no constrained dependency, two independent steps run concurrently at Parallelism=4 — "
       + "proves the harness observes overlap, so the serialized case above is meaningful."
     );
+  }
+
+  [Test]
+  public async Task ItemDeclaredCapacityOne_SerializesStepsTouchingIt()
+  {
+    // Neither step declares a service dependency; the conflict comes from
+    // the shared INPUT item, which declares a capacity-1 resource. Proves
+    // a step inherits the conflict keys of the items it touches — the
+    // INode lift, and how EFCore/SQLite contention will reach the scheduler.
+    var shared = new DepItem("cg-shared-item", ServiceDependency.Of<ISerialResource>());
+    var outA = ItemFactory.Singleton.Memory<int>("cg-item-out-a");
+    var outB = ItemFactory.Singleton.Memory<int>("cg-item-out-b");
+
+    var running = 0;
+    var maxRunning = 0;
+    var gate = new object();
+    Func<int, FlowIO<int>> track = x => FlowIO.LiftAsync(
+      async ct =>
+      {
+        var now = Interlocked.Increment(ref running);
+        lock (gate) maxRunning = Math.Max(maxRunning, now);
+        await Task.Delay(60, ct).ConfigureAwait(false);
+        Interlocked.Decrement(ref running);
+        return x;
+      },
+      source: "cg:item-track"
+    );
+
+    IStepNode Step(string label, IItem<int> output) =>
+      new Step<int, int>(
+        label: label,
+        transform: track,
+        inputs: new IItem[] { shared },
+        outputs: new IItem[] { output },
+        loadInputs: () => shared.Load(),
+        saveOutputs: v => output.Save(v)
+      );
+
+    var flow = FlowBuilder.CreateFlow("cg-item-flow", b =>
+    {
+      b.Add(Step("reader-a", outA));
+      b.Add(Step("reader-b", outB));
+    });
+
+    var scheduler = new ParallelFlowScheduler(profiles: new SerialResourceProvider());
+    var result = await scheduler.ExecuteAsync(flow, new ExecutionOptions { Parallelism = 4 });
+
+    Assert.That(result.IsSuccess, Is.True);
+    Assert.That(maxRunning, Is.EqualTo(1),
+      "Two steps reading a shared capacity-1 item must serialize — proves item-declared "
+      + "conflict keys are inherited by the steps that touch the item."
+    );
+  }
+
+  /// <summary>Minimal test item that declares service dependencies (for item-derived gating).</summary>
+  private sealed class DepItem : IItem<int>
+  {
+    private readonly IReadOnlyList<ServiceDependency> _deps;
+    public DepItem(string label, params ServiceDependency[] deps) { Label = label; _deps = deps; }
+    public string Label { get; }
+    public NodeTraits Traits { get; } = new();
+    public IReadOnlyList<ServiceDependency> ServiceDependencies => _deps;
+    public FlowIO<ValidationResult> Validate() => FlowIO.Pure(ValidationResult.Success());
+    public FlowIO<int> Load() => FlowIO.Pure(0);
+    public FlowIO<FlowUnit> Save(int data) => FlowIO.Pure(FlowUnit.Default);
+    public FlowIO<bool> Exists() => FlowIO.Pure(true);
+    public FlowIO<ValidationResult> InspectShallow(int sampleSize = 100) => FlowIO.Pure(ValidationResult.Success());
+    public FlowIO<ValidationResult> InspectDeep() => FlowIO.Pure(ValidationResult.Success());
+    public FlowIO<ValidationResult> InspectTarget() => FlowIO.Pure(ValidationResult.Success());
   }
 }
