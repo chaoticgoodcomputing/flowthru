@@ -53,6 +53,12 @@ public static class ServiceCollectionExtensions
     // way TryAddSingleton works for any DI default.
     services.TryAddSingleton<IFlowScheduler, ParallelFlowScheduler>();
 
+    // Default service-profile provider — permissive (every service is
+    // unbounded + cache-affecting), so the scheduler's conflict gating is
+    // a no-op until a resource declares a capacity. TryAdd lets an
+    // extension or host register a composing provider ahead of it.
+    services.TryAddSingleton<IServiceProfileProvider, DefaultServiceProfileProvider>();
+
     // Execution defaults (Parallelism, …) flow through the standard
     // Options pipeline so they can be set via ConfigureExecution(...)
     // or bound from appsettings. The validator turns a nonsensical
