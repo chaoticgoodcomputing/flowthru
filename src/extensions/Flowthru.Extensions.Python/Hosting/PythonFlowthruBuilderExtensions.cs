@@ -4,6 +4,7 @@ using Flowthru.Step.Python.Internal;
 using Flowthru.Validation.PreFlight;
 using Flowthru.Validation.PreFlight.Python;
 using Flowthru.Validation.Runtime;
+using Flowthru.Validation.Runtime.Python;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -83,6 +84,15 @@ public static class PythonFlowthruBuilderExtensions
 
     // Service-ref dispatch: matches Category="python".
     builder.Services.AddSingleton<IServiceDependencyDispatcher, PythonServiceDependencyDispatcher>();
+
+    // Conflict profile: every Python step depends on the shared
+    // IPythonExecutor, and the subprocess worker is a single
+    // lock-serialized process. This contributor reports the executor's
+    // MaxConcurrency as the capacity of the executor's conflict key, so
+    // the ParallelFlowScheduler serializes concurrent Python steps. It's
+    // cache-neutral (AffectsOutputs=false) — Python determinism is
+    // captured by each step's CodeVersion, not the executor's identity.
+    builder.Services.AddSingleton<IServiceProfileContributor, PythonExecutorProfileContributor>();
 
     // Pre-flight hook: the single authoritative site for
     // module-import / decorator-presence / schema-agreement / arity

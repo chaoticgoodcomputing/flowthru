@@ -5,6 +5,7 @@ using Flowthru.Step.Python.Internal;
 using Flowthru.Validation.PreFlight;
 using Flowthru.Validation.PreFlight.Python;
 using Flowthru.Validation.Runtime;
+using Flowthru.Validation.Runtime.Python;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -146,6 +147,23 @@ public class PythonFlowthruBuilderExtensionsTests
       dispatchers.Any(d => d is PythonServiceDependencyDispatcher),
       Is.True,
       "At least one dispatcher must be the PythonServiceDependencyDispatcher matching Category=\"python\"."
+    );
+  }
+
+  [Test]
+  public void UsePython_RegistersPythonExecutorProfileContributor()
+  {
+    var (builder, _) = MakeBuilder();
+    builder.UsePython();
+    using var sp = builder.Services.BuildServiceProvider();
+
+    var contributors = sp.GetServices<IServiceProfileContributor>().ToArray();
+    Assert.That(contributors, Is.Not.Empty,
+      "UsePython() must contribute an IServiceProfileContributor so the scheduler can gate Python steps.");
+    Assert.That(
+      contributors.Any(c => c is PythonExecutorProfileContributor),
+      Is.True,
+      "At least one contributor must be the PythonExecutorProfileContributor declaring the executor's capacity."
     );
   }
 
