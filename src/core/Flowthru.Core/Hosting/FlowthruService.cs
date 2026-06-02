@@ -624,7 +624,11 @@ public sealed class FlowthruService : IFlowthruService
             .LoadAsync(cacheItem, cancellationToken)
             .ConfigureAwait(false);
           var cachePlan = await CachePlanBuilder
-            .BuildAsync(effectiveFlow, manifest, cancellationToken)
+            .BuildAsync(
+              effectiveFlow,
+              manifest,
+              _services.GetService<IServiceProfileProvider>(),
+              cancellationToken)
             .ConfigureAwait(false);
           options = options with { CachePlan = cachePlan };
           metadataContext = metadataContext with { CachePlan = cachePlan };
@@ -702,7 +706,11 @@ public sealed class FlowthruService : IFlowthruService
         );
 
         var postRunFingerprints = await CacheManifestStore
-          .ComputePostRunFingerprintsAsync(effectiveFlow, ranSuccessfully, cancellationToken)
+          .ComputePostRunFingerprintsAsync(
+            effectiveFlow,
+            ranSuccessfully,
+            _services.GetService<IServiceProfileProvider>(),
+            cancellationToken)
           .ConfigureAwait(false);
 
         // Build the combined Steps + Items maps. Phase 8: items get their
