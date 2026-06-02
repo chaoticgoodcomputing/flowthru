@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <Description>S3 storage medium for Flowthru — registers an IStorageMediumProvider so format extensions resolve s3:// URIs through the catalog smart constructors. Ships a local file-backed stub for offline development; production wraps the AWS SDK and resolves credentials via the standard chain.</Description>
+
+    <PackageId>Flowthru.Extensions.AWS.S3</PackageId>
+    <PackageTags>data-engineering;pipeline;aws;s3;object-storage;remote</PackageTags>
+
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="$(RepoRoot)src/core/Flowthru.Core/Flowthru.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AWSSDK.S3" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
+    <PackageReference Include="Microsoft.Extensions.Options" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="$(RepoRoot)LICENSE" Pack="true" PackagePath="/" />
+  </ItemGroup>
+
+</Project>
