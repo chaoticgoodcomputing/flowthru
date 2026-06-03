@@ -168,6 +168,10 @@ public class ExtensionNamespaceMirrorTests
           // IFlowthruBuilder, declared in the Hosting algebra root
           // — same shape as EFCore's VerifyEFCoreXxx hooks.
           "Flowthru.Hosting",
+          // The opt-in endpoint-throttle dependency + its profile
+          // contributor (ADR-0019 #104) live alongside Core's
+          // Validation.Runtime closed sums.
+          "Flowthru.Validation.Runtime.Http",
         },
         ForbiddenAlgebraRoots: new[]
         {

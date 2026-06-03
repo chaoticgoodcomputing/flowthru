@@ -29,6 +29,17 @@ public sealed class HttpOptions
   public HttpCacheOptions? Cache { get; set; }
 
   /// <summary>
+  /// Opt-in cap on concurrent requests to any one host (ADR-0019, #104).
+  /// <see cref="int.MaxValue"/> (the default) leaves HTTP unbounded —
+  /// network reads are idempotent and parallel-safe, so no gating is
+  /// needed for correctness. Lower it to throttle a rate-limited endpoint:
+  /// items reading from the same scheme/host/port then serialize to this
+  /// many concurrent calls, enforced once <c>UseHttp()</c> has registered
+  /// the resolving contributor. Must be ≥ 1.
+  /// </summary>
+  public int MaxConcurrentRequestsPerHost { get; set; } = int.MaxValue;
+
+  /// <summary>
   /// Construct the underlying <see cref="HttpClient"/> with the
   /// configured timeout and User-Agent header. Internal — exposed for
   /// the provider's use.

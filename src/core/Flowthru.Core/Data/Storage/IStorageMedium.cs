@@ -52,4 +52,14 @@ public interface IStorageMedium
   /// </summary>
   FlowIO<ValidationResult> InspectTarget() =>
     FlowIO<ValidationResult>.Pure(ValidationResult.Success());
+
+  /// <summary>
+  /// Conflict resources this medium's reads and writes contend on
+  /// (ADR-0019). Default: none — a filesystem file has no shared-resource
+  /// contention. A networked medium (HTTP, S3) backed by a rate-limited or
+  /// single-writer endpoint declares it here; <see cref="ComposedStorageAdapter{TContainer, TRow}"/>
+  /// surfaces these up to the item so the scheduler can gate concurrent
+  /// steps that share the endpoint.
+  /// </summary>
+  IReadOnlyList<ServiceDependency> ServiceDependencies => Array.Empty<ServiceDependency>();
 }

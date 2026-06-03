@@ -1,7 +1,10 @@
 using Flowthru.Data.Storage;
 using Flowthru.Data.Storage.Http;
+using Flowthru.Validation.Runtime;
+using Flowthru.Validation.Runtime.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Flowthru.Hosting;
 
@@ -45,6 +48,13 @@ public static class HttpFlowthruBuilderExtensions
       .ValidateOnStart();
 
     builder.Services.AddSingleton<IStorageMediumProvider, HttpStorageMediumProvider>();
+
+    // Conflict gating (ADR-0019, #104): resolves the opt-in per-host
+    // concurrency cap (HttpOptions.MaxConcurrentRequestsPerHost) into an
+    // enforced capacity. A no-op unless a cap is set — HTTP is unbounded
+    // and parallel-safe by default. TryAddEnumerable keeps it idempotent.
+    builder.Services.TryAddEnumerable(
+      ServiceDescriptor.Singleton<IServiceProfileContributor, HttpEndpointProfileContributor>());
 
     return builder;
   }

@@ -21,6 +21,7 @@ public sealed class HttpStorageMediumProvider : IStorageMediumProvider
 {
   private readonly HttpClient _httpClient;
   private readonly HttpCacheOptions? _cache;
+  private readonly int _maxConcurrentRequestsPerHost;
 
   public HttpStorageMediumProvider(IOptions<HttpOptions> options)
   {
@@ -28,17 +29,23 @@ public sealed class HttpStorageMediumProvider : IStorageMediumProvider
     var opts = options.Value;
     _httpClient = opts.CreateClient();
     _cache = opts.Cache;
+    _maxConcurrentRequestsPerHost = opts.MaxConcurrentRequestsPerHost;
   }
 
   /// <summary>
-  /// Construct a provider with the supplied <see cref="HttpClient"/>
-  /// and (optional) cache configuration. Used by tests; production
-  /// code goes through the <see cref="IOptions{TOptions}"/> ctor.
+  /// Construct a provider with the supplied <see cref="HttpClient"/>,
+  /// (optional) cache configuration, and an optional per-host concurrency
+  /// cap. Used by tests; production code goes through the
+  /// <see cref="IOptions{TOptions}"/> ctor.
   /// </summary>
-  public HttpStorageMediumProvider(HttpClient httpClient, HttpCacheOptions? cache = null)
+  public HttpStorageMediumProvider(
+    HttpClient httpClient,
+    HttpCacheOptions? cache = null,
+    int maxConcurrentRequestsPerHost = int.MaxValue)
   {
     _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
     _cache = cache;
+    _maxConcurrentRequestsPerHost = maxConcurrentRequestsPerHost;
   }
 
   /// <inheritdoc/>
@@ -48,6 +55,6 @@ public sealed class HttpStorageMediumProvider : IStorageMediumProvider
   /// <inheritdoc/>
   public IStorageMedium Create(Uri uri) =>
     _cache is not null
-      ? new CachedHttpStorageMedium(uri, _httpClient, _cache.Directory, _cache.MaxAge)
-      : new HttpStorageMedium(uri, _httpClient);
+      ? new CachedHttpStorageMedium(uri, _httpClient, _cache.Directory, _cache.MaxAge, _maxConcurrentRequestsPerHost)
+      : new HttpStorageMedium(uri, _httpClient, _maxConcurrentRequestsPerHost);
 }

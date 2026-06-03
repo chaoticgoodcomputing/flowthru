@@ -1,5 +1,6 @@
 using System.Security.Cryptography;
 using System.Text;
+using Flowthru.Data.Storage.Http.Internal;
 using Flowthru.Prelude;
 using Flowthru.Validation.Runtime;
 
@@ -31,11 +32,13 @@ public sealed class HttpStorageMedium : IStorageMedium, ISupportsFingerprint
 {
   private readonly Uri _uri;
   private readonly HttpClient _httpClient;
+  private readonly IReadOnlyList<ServiceDependency> _serviceDependencies;
 
-  public HttpStorageMedium(Uri uri, HttpClient httpClient)
+  public HttpStorageMedium(Uri uri, HttpClient httpClient, int maxConcurrentRequestsPerHost = int.MaxValue)
   {
     _uri = uri ?? throw new ArgumentNullException(nameof(uri));
     _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
+    _serviceDependencies = HttpEndpointConflict.For(_uri, maxConcurrentRequestsPerHost);
   }
 
   /// <inheritdoc/>
@@ -44,6 +47,13 @@ public sealed class HttpStorageMedium : IStorageMedium, ISupportsFingerprint
     CanWrite = false,
     CanStream = true,
   };
+
+  /// <inheritdoc/>
+  /// <remarks>
+  /// Empty unless an opt-in per-host cap was configured — HTTP is
+  /// unbounded and parallel-safe by default (ADR-0019, #104).
+  /// </remarks>
+  public IReadOnlyList<ServiceDependency> ServiceDependencies => _serviceDependencies;
 
   /// <inheritdoc/>
   public FlowIO<Stream> ReadStream() =>

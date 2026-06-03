@@ -49,12 +49,14 @@ public sealed class CachedHttpStorageMedium : IStorageMedium, ISupportsFingerpri
 
   private readonly string _datPath;
   private readonly string _metaPath;
+  private readonly IReadOnlyList<ServiceDependency> _serviceDependencies;
 
   public CachedHttpStorageMedium(
     Uri uri,
     HttpClient httpClient,
     string cacheDirectory,
-    TimeSpan maxAge
+    TimeSpan maxAge,
+    int maxConcurrentRequestsPerHost = int.MaxValue
   )
   {
     _uri = uri ?? throw new ArgumentNullException(nameof(uri));
@@ -65,6 +67,7 @@ public sealed class CachedHttpStorageMedium : IStorageMedium, ISupportsFingerpri
     var key = ComputeCacheKey(uri);
     _datPath = SysIO.Path.Combine(cacheDirectory, $"{key}.dat");
     _metaPath = SysIO.Path.Combine(cacheDirectory, $"{key}.meta.json");
+    _serviceDependencies = Internal.HttpEndpointConflict.For(_uri, maxConcurrentRequestsPerHost);
   }
 
   /// <inheritdoc/>
@@ -73,6 +76,13 @@ public sealed class CachedHttpStorageMedium : IStorageMedium, ISupportsFingerpri
     CanWrite = false,
     CanStream = true,
   };
+
+  /// <inheritdoc/>
+  /// <remarks>
+  /// Empty unless an opt-in per-host cap was configured — HTTP is
+  /// unbounded and parallel-safe by default (ADR-0019, #104).
+  /// </remarks>
+  public IReadOnlyList<ServiceDependency> ServiceDependencies => _serviceDependencies;
 
   /// <inheritdoc/>
   public FlowIO<bool> Exists() =>

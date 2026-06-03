@@ -27,4 +27,8 @@
     <None Include="$(RepoRoot)LICENSE" Pack="true" PackagePath="/" />
   </ItemGroup>
 
+  <ItemGroup>
+    <InternalsVisibleTo Include="Flowthru.Extensions.Http.Tests" />
+  </ItemGroup>
+
 </Project>

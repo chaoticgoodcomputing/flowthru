@@ -20,7 +20,7 @@ namespace Flowthru.Data.Storage;
 /// </para>
 /// </remarks>
 public sealed class ComposedStorageAdapter<TContainer, TRow>
-  : IStorageAdapter<TContainer>, ISupportsFingerprint
+  : IStorageAdapter<TContainer>, ISupportsFingerprint, IHasServiceDependencies
   where TRow : notnull
 {
   private readonly IStorageMedium _medium;
@@ -71,7 +71,20 @@ public sealed class ComposedStorageAdapter<TContainer, TRow>
       CanStream = _medium.Traits.CanStream && _reader.Traits.CanStream,
       CanAppend = _medium.Traits.CanAppend,
       IsTransactional = _medium.Traits.IsTransactional,
+      // Concurrency capacity is a medium-level property (the endpoint, not
+      // the format, is the contended resource); carry it through honestly.
+      WriteCapacity = _medium.Traits.WriteCapacity,
+      ReadCapacity = _medium.Traits.ReadCapacity,
     };
+
+  /// <inheritdoc/>
+  /// <remarks>
+  /// Surfaces the underlying medium's conflict resources (ADR-0019) so a
+  /// composed item — e.g. JSON over a rate-limited HTTP endpoint — gates
+  /// the same way a direct adapter does. File-backed mediums declare none,
+  /// so file-format items stay ungated.
+  /// </remarks>
+  public IReadOnlyList<ServiceDependency> ServiceDependencies => _medium.ServiceDependencies;
 
   /// <inheritdoc/>
   /// <remarks>
