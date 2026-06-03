@@ -191,6 +191,12 @@ public class ExtensionNamespaceMirrorTests
         {
           "Flowthru.Data.Storage.Gql",
           "Flowthru.Data.Catalog",
+          // UseGql() registers the opt-in endpoint-throttle contributor
+          // (ADR-0019 #104) in the Hosting algebra root.
+          "Flowthru.Hosting",
+          // The endpoint throttle dependency + its profile contributor
+          // live alongside Core's Validation.Runtime closed sums.
+          "Flowthru.Validation.Runtime.Gql",
         },
         ForbiddenAlgebraRoots: new[]
         {
