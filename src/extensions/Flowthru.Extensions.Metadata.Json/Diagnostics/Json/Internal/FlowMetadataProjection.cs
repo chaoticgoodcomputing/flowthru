@@ -176,12 +176,20 @@ internal sealed record ServiceProjection
   [JsonPropertyOrder(5)]
   public required bool? Cacheable { get; init; }
 
-  /// <summary>True when a finite capacity is exceeded by its users — the scheduler serializes them.</summary>
+  /// <summary>
+  /// True for an observation-only surface (e.g. ILogger) — it can't change
+  /// outputs or gate concurrency. The Mermaid diagram filters these out;
+  /// JSON consumers can do the same.
+  /// </summary>
   [JsonPropertyOrder(6)]
+  public required bool Observation { get; init; }
+
+  /// <summary>True when a finite capacity is exceeded by its users — the scheduler serializes them.</summary>
+  [JsonPropertyOrder(7)]
   public required bool Serializes { get; init; }
 
   /// <summary>The steps that touch this service, with the op each uses.</summary>
-  [JsonPropertyOrder(7)]
+  [JsonPropertyOrder(8)]
   public required IReadOnlyList<ServiceMemberProjection> UsedBy { get; init; }
 
   public static ServiceProjection From(ServiceUsage usage) => new()
@@ -192,6 +200,7 @@ internal sealed record ServiceProjection
     WriteCapacity = usage.WriteCapacity,
     ReadCapacity = usage.ReadCapacity,
     Cacheable = usage.Cacheable,
+    Observation = usage.IsObservationOnly,
     Serializes = usage.Serializes,
     UsedBy = usage.UsedBy
       .Select(m => new ServiceMemberProjection { Step = m.StepLabel, Op = m.Op.ToString() })

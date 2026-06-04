@@ -43,6 +43,14 @@ public sealed record ServiceUsage
   public required IReadOnlyList<ServiceUsageMember> UsedBy { get; init; }
 
   /// <summary>
+  /// True when this service is an <see cref="ServiceDependency.ObservationOnly"/>
+  /// surface (e.g. <c>ILogger</c>) — it can't change outputs or contend on
+  /// concurrency, so it's pure observation. Consumers that render a
+  /// readability-first view (the Mermaid diagram) filter these out.
+  /// </summary>
+  public required bool IsObservationOnly { get; init; }
+
+  /// <summary>
   /// True when a finite capacity is exceeded by the steps using this service
   /// under that op — the scheduler will serialize them. The
   /// declared-but-uncontended case (members within capacity) is false.
@@ -109,6 +117,7 @@ public static class ServiceUsageAnalyzer
         }
         b.Ops.Add(op);
         b.Members.Add(new ServiceUsageMember(step.Label, op));
+        if (dep is ServiceDependency.ObservationOnly) b.IsObservationOnly = true;
         if (op == ConflictOp.Use)
         {
           // Cacheability only applies to step-injected services. Cache-
@@ -130,6 +139,7 @@ public static class ServiceUsageAnalyzer
         WriteCapacity = b.WriteCapacity,
         ReadCapacity = b.ReadCapacity,
         Cacheable = b.Cacheable,
+        IsObservationOnly = b.IsObservationOnly,
         UsedBy = b.Members
           .OrderBy(m => m.StepLabel, StringComparer.Ordinal)
           .ThenBy(m => m.Op)
@@ -145,6 +155,7 @@ public static class ServiceUsageAnalyzer
     public int WriteCapacity { get; set; } = writeCapacity;
     public int ReadCapacity { get; set; } = readCapacity;
     public bool? Cacheable { get; set; }
+    public bool IsObservationOnly { get; set; }
     public HashSet<ConflictOp> Ops { get; } = new();
     public HashSet<ServiceUsageMember> Members { get; } = new();
   }

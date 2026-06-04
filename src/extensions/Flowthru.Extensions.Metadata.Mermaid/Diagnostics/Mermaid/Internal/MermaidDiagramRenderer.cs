@@ -863,10 +863,17 @@ internal static class MermaidDiagramRenderer
   /// item cylinders so the annotation is node-generic (ADR-0019 #100 s7);
   /// returns <paramref name="baseLabel"/> unchanged when there are none.
   /// </summary>
-  private static string AppendServices(string baseLabel, IReadOnlyList<ServiceDependency> deps) =>
-    deps.Count > 0
-      ? baseLabel + "<br>──<br>" + string.Join("<br>", deps.Select(d => d.DisplayName))
+  private static string AppendServices(string baseLabel, IReadOnlyList<ServiceDependency> deps)
+  {
+    // Observation-only surfaces (e.g. ILogger) are diagram noise — they
+    // can't change outputs or gate concurrency. Exclude them from the
+    // inline compartment (and the legend, below) so the diagram shows only
+    // meaningful data / conflict services.
+    var shown = deps.Where(d => d is not ServiceDependency.ObservationOnly).ToList();
+    return shown.Count > 0
+      ? baseLabel + "<br>──<br>" + string.Join("<br>", shown.Select(d => d.DisplayName))
       : baseLabel;
+  }
 
   /// <summary>
   /// Emit the service-legend subgraph: one node per distinct service, each
@@ -878,12 +885,16 @@ internal static class MermaidDiagramRenderer
   private static void RenderServiceLegend(
     StringBuilder sb, IReadOnlyList<ServiceUsage> services, Theme theme)
   {
-    if (services.Count == 0) return;
+    // Observation-only surfaces (e.g. ILogger) are excluded — see
+    // AppendServices. They never appear inline, so the legend mustn't list
+    // them either.
+    var shown = services.Where(s => !s.IsObservationOnly).ToList();
+    if (shown.Count == 0) return;
 
     sb.AppendLine("    %% Service legend");
     sb.AppendLine("    subgraph service_legend[\"services\"]");
-    var ids = new List<string>(services.Count);
-    foreach (var svc in services)
+    var ids = new List<string>(shown.Count);
+    foreach (var svc in shown)
     {
       var id = "svc_" + SanitizeId(svc.DagId);
       ids.Add(id);

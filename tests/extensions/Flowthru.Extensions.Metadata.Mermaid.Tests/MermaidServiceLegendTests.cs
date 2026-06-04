@@ -22,6 +22,7 @@ namespace Flowthru.Extensions.Metadata.Mermaid.Tests;
 public class MermaidServiceLegendTests
 {
   private interface IExecutorMarker { }
+  private interface ILoggerMarker { }
 
   /// <summary>Capacity 1, cache-neutral for <see cref="IExecutorMarker"/>.</summary>
   private sealed class ExecutorProfileProvider : IServiceProfileProvider
@@ -71,6 +72,35 @@ public class MermaidServiceLegendTests
     });
 
     TestContext.Out.WriteLine(diagram);
+  }
+
+  [Test]
+  public void RenderDag_ObservationOnlyService_ExcludedFromInlineAndLegend()
+  {
+    var root = ItemFactory.Singleton.Memory<int>("obs-root");
+    var output = ItemFactory.Singleton.Memory<int>("obs-out");
+    // Step uses a real service plus an observation-only one (the ILogger
+    // shape). Only the real service should show inline and in the legend.
+    var step = new PythonishStep("transform", root, output, new ServiceDependency[]
+    {
+      ServiceDependency.Of<IExecutorMarker>(),
+      new ServiceDependency.ObservationOnly(typeof(ILoggerMarker)),
+    });
+
+    var flow = FlowBuilder.CreateFlow("obs-demo", b => b.Add(step));
+    var ctx = FlowMetadataContext.Unsliced(flow) with { ServiceProfiles = new ExecutorProfileProvider() };
+
+    var diagram = MermaidDiagramRenderer.RenderDag(
+      ctx, showFullDag: true,
+      direction: MermaidFlowchartDirection.TopToBottom,
+      theme: MermaidDiagramRenderer.Theme.Default);
+
+    Assert.Multiple(() =>
+    {
+      Assert.That(diagram, Does.Contain("IExecutorMarker"), "The real service still renders.");
+      Assert.That(diagram, Does.Not.Contain("ILoggerMarker"),
+        "Observation-only services (loggers) are excluded from both the inline compartment and the legend.");
+    });
   }
 
   [Test]
