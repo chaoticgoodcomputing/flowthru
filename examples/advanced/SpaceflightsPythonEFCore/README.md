@@ -48,35 +48,44 @@ flowchart TB
 
     subgraph DataProcessing["DataProcessing"]
         PreprocessCompanies["PreprocessCompanies"]
-        PreprocessedCompanies[("PreprocessedCompanies")]
+        PreprocessedCompanies[("PreprocessedCompanies<br>──<br>db:/home/spelkington/Repos/cgc/flowthru/examples/advanced/SpaceflightsPythonEFCore/Data/spaceflights.db/main")]
         PreprocessShuttles["PreprocessShuttles"]
-        PreprocessedShuttles[("PreprocessedShuttles")]
+        PreprocessedShuttles[("PreprocessedShuttles<br>──<br>db:/home/spelkington/Repos/cgc/flowthru/examples/advanced/SpaceflightsPythonEFCore/Data/spaceflights.db/main")]
         CreateModelInputTable["CreateModelInputTable"]
-        ModelInputTable[("ModelInputTable")]
+        ModelInputTable[("ModelInputTable<br>──<br>db:/home/spelkington/Repos/cgc/flowthru/examples/advanced/SpaceflightsPythonEFCore/Data/spaceflights.db/main")]
     end
 
     subgraph DataScience["DataScience"]
-        SplitData["SplitData (python)"]
+        SplitData["SplitData<br>──<br>IPythonExecutor"]
         XTrain[("XTrain")]
         XTest[("XTest")]
         YTrain[("YTrain")]
         YTest[("YTest")]
-        TrainModel["TrainModel (python)"]
+        TrainModel["TrainModel<br>──<br>IPythonExecutor"]
         Regressor[("Regressor")]
-        EvaluateModel["EvaluateModel (python)"]
+        EvaluateModel["EvaluateModel<br>──<br>IPythonExecutor"]
         ModelMetrics[("ModelMetrics")]
-        GeneratePredictions["GeneratePredictions (python)"]
-        ModelPredictions[("ModelPredictions")]
+        GeneratePredictions["GeneratePredictions<br>──<br>IPythonExecutor"]
+        ModelPredictions[("ModelPredictions<br>──<br>db:/home/spelkington/Repos/cgc/flowthru/examples/advanced/SpaceflightsPythonEFCore/Data/spaceflights.db/main")]
     end
 
     subgraph Reporting["Reporting"]
-        ComparePassengerCapacityExpress["ComparePassengerCapacityExpress (python)"]
+        ComparePassengerCapacityExpress["ComparePassengerCapacityExpress<br>──<br>IPythonExecutor"]
         CapacityPlotExpress[("CapacityPlotExpress")]
-        ComparePassengerCapacityGraphObj["ComparePassengerCapacityGraphObj (python)"]
+        ComparePassengerCapacityGraphObj["ComparePassengerCapacityGraphObj<br>──<br>IPythonExecutor"]
         CapacityPlotGraphObj[("CapacityPlotGraphObj")]
-        CreateConfusionMatrix["CreateConfusionMatrix (python)"]
+        CreateConfusionMatrix["CreateConfusionMatrix<br>──<br>IPythonExecutor"]
         ConfusionMatrix[("ConfusionMatrix")]
     end
+
+    %% Service legend
+    subgraph service_legend["services"]
+        svc_Flowthru_Step_Python_IPythonExecutor["IPythonExecutor<br>• cache: neutral<br>• cap: 1"]
+        svc_efcore_Microsoft_EntityFrameworkCore_Sqlite__home_spelkington_Repos_cgc_flowthru_examples_advanced_SpaceflightsPythonEFCore_Data_spaceflights_db_main["db:/home/spelkington/Repos/cgc/flowthru/examples/advanced/SpaceflightsPythonEFCore/Data/spaceflights.db/main<br>• cap: ∞"]
+    end
+    style service_legend fill:#EEF4FF,stroke:#3B6FB0
+    classDef serviceNode fill:#EEF4FF,stroke:#3B6FB0
+    class svc_Flowthru_Step_Python_IPythonExecutor,svc_efcore_Microsoft_EntityFrameworkCore_Sqlite__home_spelkington_Repos_cgc_flowthru_examples_advanced_SpaceflightsPythonEFCore_Data_spaceflights_db_main serviceNode
 
     %% Edges
     Companies --> PreprocessCompanies

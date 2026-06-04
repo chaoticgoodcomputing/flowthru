@@ -65,6 +65,28 @@ flowchart TB
         WeeklyDtu_spain[("WeeklyDtu_spain")]
         Analyze_netherlands["Analyze_netherlands"]
         WeeklyDtu_netherlands[("WeeklyDtu_netherlands")]
+        Analyze_belgium["Analyze_belgium"]
+        WeeklyDtu_belgium[("WeeklyDtu_belgium")]
+        Analyze_switzerland["Analyze_switzerland"]
+        WeeklyDtu_switzerland[("WeeklyDtu_switzerland")]
+        Analyze_portugal["Analyze_portugal"]
+        WeeklyDtu_portugal[("WeeklyDtu_portugal")]
+        Analyze_australia["Analyze_australia"]
+        WeeklyDtu_australia[("WeeklyDtu_australia")]
+        Analyze_norway["Analyze_norway"]
+        WeeklyDtu_norway[("WeeklyDtu_norway")]
+        Analyze_italy["Analyze_italy"]
+        WeeklyDtu_italy[("WeeklyDtu_italy")]
+        Analyze_channel_islands["Analyze_channel_islands"]
+        WeeklyDtu_channel_islands[("WeeklyDtu_channel_islands")]
+        Analyze_finland["Analyze_finland"]
+        WeeklyDtu_finland[("WeeklyDtu_finland")]
+        Analyze_sweden["Analyze_sweden"]
+        WeeklyDtu_sweden[("WeeklyDtu_sweden")]
+        Analyze_denmark["Analyze_denmark"]
+        WeeklyDtu_denmark[("WeeklyDtu_denmark")]
+        Analyze_japan["Analyze_japan"]
+        WeeklyDtu_japan[("WeeklyDtu_japan")]
     end
 
     subgraph Consolidation_ds["Consolidation"]
@@ -92,11 +114,66 @@ flowchart TB
     CountryCurrencies --> Analyze_netherlands
     OfxRates --> Analyze_netherlands
     Analyze_netherlands --> WeeklyDtu_netherlands
+    AllRetailTransactions --> Analyze_belgium
+    CountryCurrencies --> Analyze_belgium
+    OfxRates --> Analyze_belgium
+    Analyze_belgium --> WeeklyDtu_belgium
+    AllRetailTransactions --> Analyze_switzerland
+    CountryCurrencies --> Analyze_switzerland
+    OfxRates --> Analyze_switzerland
+    Analyze_switzerland --> WeeklyDtu_switzerland
+    AllRetailTransactions --> Analyze_portugal
+    CountryCurrencies --> Analyze_portugal
+    OfxRates --> Analyze_portugal
+    Analyze_portugal --> WeeklyDtu_portugal
+    AllRetailTransactions --> Analyze_australia
+    CountryCurrencies --> Analyze_australia
+    OfxRates --> Analyze_australia
+    Analyze_australia --> WeeklyDtu_australia
+    AllRetailTransactions --> Analyze_norway
+    CountryCurrencies --> Analyze_norway
+    OfxRates --> Analyze_norway
+    Analyze_norway --> WeeklyDtu_norway
+    AllRetailTransactions --> Analyze_italy
+    CountryCurrencies --> Analyze_italy
+    OfxRates --> Analyze_italy
+    Analyze_italy --> WeeklyDtu_italy
+    AllRetailTransactions --> Analyze_channel_islands
+    CountryCurrencies --> Analyze_channel_islands
+    OfxRates --> Analyze_channel_islands
+    Analyze_channel_islands --> WeeklyDtu_channel_islands
+    AllRetailTransactions --> Analyze_finland
+    CountryCurrencies --> Analyze_finland
+    OfxRates --> Analyze_finland
+    Analyze_finland --> WeeklyDtu_finland
+    AllRetailTransactions --> Analyze_sweden
+    CountryCurrencies --> Analyze_sweden
+    OfxRates --> Analyze_sweden
+    Analyze_sweden --> WeeklyDtu_sweden
+    AllRetailTransactions --> Analyze_denmark
+    CountryCurrencies --> Analyze_denmark
+    OfxRates --> Analyze_denmark
+    Analyze_denmark --> WeeklyDtu_denmark
+    AllRetailTransactions --> Analyze_japan
+    CountryCurrencies --> Analyze_japan
+    OfxRates --> Analyze_japan
+    Analyze_japan --> WeeklyDtu_japan
     WeeklyDtu_germany --> ConsolidateShards
     WeeklyDtu_france --> ConsolidateShards
     WeeklyDtu_eire --> ConsolidateShards
     WeeklyDtu_spain --> ConsolidateShards
     WeeklyDtu_netherlands --> ConsolidateShards
+    WeeklyDtu_belgium --> ConsolidateShards
+    WeeklyDtu_switzerland --> ConsolidateShards
+    WeeklyDtu_portugal --> ConsolidateShards
+    WeeklyDtu_australia --> ConsolidateShards
+    WeeklyDtu_norway --> ConsolidateShards
+    WeeklyDtu_italy --> ConsolidateShards
+    WeeklyDtu_channel_islands --> ConsolidateShards
+    WeeklyDtu_finland --> ConsolidateShards
+    WeeklyDtu_sweden --> ConsolidateShards
+    WeeklyDtu_denmark --> ConsolidateShards
+    WeeklyDtu_japan --> ConsolidateShards
 
     classDef collapsed stroke-dasharray:5 5,fill:transparent
     class DataIngestion_us,Consolidation_ds collapsed
@@ -108,11 +185,22 @@ flowchart TB
 flowchart TB
 
     subgraph Analysis_us["Analysis"]
+        WeeklyDtu_australia[("WeeklyDtu_australia")]
+        WeeklyDtu_belgium[("WeeklyDtu_belgium")]
+        WeeklyDtu_channel_islands[("WeeklyDtu_channel_islands")]
+        WeeklyDtu_denmark[("WeeklyDtu_denmark")]
         WeeklyDtu_eire[("WeeklyDtu_eire")]
+        WeeklyDtu_finland[("WeeklyDtu_finland")]
         WeeklyDtu_france[("WeeklyDtu_france")]
         WeeklyDtu_germany[("WeeklyDtu_germany")]
+        WeeklyDtu_italy[("WeeklyDtu_italy")]
+        WeeklyDtu_japan[("WeeklyDtu_japan")]
         WeeklyDtu_netherlands[("WeeklyDtu_netherlands")]
+        WeeklyDtu_norway[("WeeklyDtu_norway")]
+        WeeklyDtu_portugal[("WeeklyDtu_portugal")]
         WeeklyDtu_spain[("WeeklyDtu_spain")]
+        WeeklyDtu_sweden[("WeeklyDtu_sweden")]
+        WeeklyDtu_switzerland[("WeeklyDtu_switzerland")]
     end
 
     subgraph Consolidation["Consolidation"]
@@ -121,9 +209,9 @@ flowchart TB
     end
 
     subgraph Graphing_ds["Graphing"]
-        PlotDollarsChart["PlotDollarsChart (python)"]
-        PlotTransactionsChart["PlotTransactionsChart (python)"]
-        PlotUsersChart["PlotUsersChart (python)"]
+        PlotDollarsChart["PlotDollarsChart"]
+        PlotTransactionsChart["PlotTransactionsChart"]
+        PlotUsersChart["PlotUsersChart"]
     end
 
     %% Edges
@@ -132,6 +220,17 @@ flowchart TB
     WeeklyDtu_eire --> ConsolidateShards
     WeeklyDtu_spain --> ConsolidateShards
     WeeklyDtu_netherlands --> ConsolidateShards
+    WeeklyDtu_belgium --> ConsolidateShards
+    WeeklyDtu_switzerland --> ConsolidateShards
+    WeeklyDtu_portugal --> ConsolidateShards
+    WeeklyDtu_australia --> ConsolidateShards
+    WeeklyDtu_norway --> ConsolidateShards
+    WeeklyDtu_italy --> ConsolidateShards
+    WeeklyDtu_channel_islands --> ConsolidateShards
+    WeeklyDtu_finland --> ConsolidateShards
+    WeeklyDtu_sweden --> ConsolidateShards
+    WeeklyDtu_denmark --> ConsolidateShards
+    WeeklyDtu_japan --> ConsolidateShards
     ConsolidateShards --> AllCountriesWeeklyDtu
     AllCountriesWeeklyDtu --> PlotDollarsChart
     AllCountriesWeeklyDtu --> PlotTransactionsChart
@@ -155,11 +254,22 @@ flowchart TB
     end
 
     subgraph Analysis_ds["Analysis"]
+        Analyze_australia["Analyze_australia"]
+        Analyze_belgium["Analyze_belgium"]
+        Analyze_channel_islands["Analyze_channel_islands"]
+        Analyze_denmark["Analyze_denmark"]
         Analyze_eire["Analyze_eire"]
+        Analyze_finland["Analyze_finland"]
         Analyze_france["Analyze_france"]
         Analyze_germany["Analyze_germany"]
+        Analyze_italy["Analyze_italy"]
+        Analyze_japan["Analyze_japan"]
         Analyze_netherlands["Analyze_netherlands"]
+        Analyze_norway["Analyze_norway"]
+        Analyze_portugal["Analyze_portugal"]
         Analyze_spain["Analyze_spain"]
+        Analyze_sweden["Analyze_sweden"]
+        Analyze_switzerland["Analyze_switzerland"]
     end
 
     subgraph Reporting_ds["Reporting"]
@@ -169,11 +279,22 @@ flowchart TB
     %% Edges
     RetailTransactionsRaw --> ValidateCsvTransactions
     ValidateCsvTransactions --> AllRetailTransactions
+    AllRetailTransactions --> Analyze_australia
+    AllRetailTransactions --> Analyze_belgium
+    AllRetailTransactions --> Analyze_channel_islands
+    AllRetailTransactions --> Analyze_denmark
     AllRetailTransactions --> Analyze_eire
+    AllRetailTransactions --> Analyze_finland
     AllRetailTransactions --> Analyze_france
     AllRetailTransactions --> Analyze_germany
+    AllRetailTransactions --> Analyze_italy
+    AllRetailTransactions --> Analyze_japan
     AllRetailTransactions --> Analyze_netherlands
+    AllRetailTransactions --> Analyze_norway
+    AllRetailTransactions --> Analyze_portugal
     AllRetailTransactions --> Analyze_spain
+    AllRetailTransactions --> Analyze_sweden
+    AllRetailTransactions --> Analyze_switzerland
     AllRetailTransactions --> SummarizeByCountry
 
     classDef collapsed stroke-dasharray:5 5,fill:transparent
@@ -190,13 +311,21 @@ flowchart TB
     end
 
     subgraph Graphing["Graphing"]
-        PlotDollarsChart["PlotDollarsChart (python)"]
+        PlotDollarsChart["PlotDollarsChart<br>──<br>IPythonExecutor"]
         DollarsChart[("DollarsChart")]
-        PlotTransactionsChart["PlotTransactionsChart (python)"]
+        PlotTransactionsChart["PlotTransactionsChart<br>──<br>IPythonExecutor"]
         TransactionsChart[("TransactionsChart")]
-        PlotUsersChart["PlotUsersChart (python)"]
+        PlotUsersChart["PlotUsersChart<br>──<br>IPythonExecutor"]
         UsersChart[("UsersChart")]
     end
+
+    %% Service legend
+    subgraph service_legend["services"]
+        svc_Flowthru_Step_Python_IPythonExecutor["IPythonExecutor<br>• cache: neutral<br>• cap: 1"]
+    end
+    style service_legend fill:#EEF4FF,stroke:#3B6FB0
+    classDef serviceNode fill:#EEF4FF,stroke:#3B6FB0
+    class svc_Flowthru_Step_Python_IPythonExecutor serviceNode
 
     %% Edges
     AllCountriesWeeklyDtu --> PlotDollarsChart

@@ -87,19 +87,28 @@ Apps Script can't *run* this .NET example — the example authenticates through 
 
 <!-- flowthru:mermaid:start -->
 ```mermaid
-flowchart LR
+flowchart TB
 
     %% External Data Inputs
-    RawSales[("RawSales")]
+    RawSales[("RawSales<br>──<br>sheet:example-spreadsheet")]
 
     subgraph Sales["Sales"]
         SummarizeSales["SummarizeSales"]
-        DailyTotals[("DailyTotals")]
+        DailyTotals[("DailyTotals<br>──<br>sheet:example-spreadsheet")]
     end
+
+    %% Service legend
+    subgraph service_legend["services"]
+        svc_sheets_example_spreadsheet["sheet:example-spreadsheet<br>• cap: write 1 · read ∞"]
+    end
+    style service_legend fill:#EEF4FF,stroke:#3B6FB0
+    classDef serviceNode fill:#EEF4FF,stroke:#3B6FB0
+    class svc_sheets_example_spreadsheet serviceNode
 
     %% Edges
     RawSales --> SummarizeSales
     SummarizeSales --> DailyTotals
+
 ```
 <!-- flowthru:mermaid:end -->
 
@@ -110,8 +119,6 @@ flowchart LR
 GoogleSheets/
 ├── Program.cs  # entry point
 ├── Data/
-│   ├── .local-sheets/
-│   │   └── raw.json  # checked-in offline input (working.json is generated)
 │   ├── _01_Raw/
 │   │   └── Schemas/
 │   │       └── RawSaleSchema.cs

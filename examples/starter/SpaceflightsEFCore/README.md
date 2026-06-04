@@ -50,32 +50,40 @@ flowchart TB
 
     subgraph DataProcessing["DataProcessing"]
         PreprocessCompanies["PreprocessCompanies"]
-        PreprocessedCompanies[("PreprocessedCompanies")]
+        PreprocessedCompanies[("PreprocessedCompanies<br>──<br>db:/home/spelkington/Repos/cgc/flowthru/examples/starter/SpaceflightsEFCore/Data/spaceflights.db/main")]
         PreprocessShuttles["PreprocessShuttles"]
-        PreprocessedShuttles[("PreprocessedShuttles")]
+        PreprocessedShuttles[("PreprocessedShuttles<br>──<br>db:/home/spelkington/Repos/cgc/flowthru/examples/starter/SpaceflightsEFCore/Data/spaceflights.db/main")]
         CreateModelInputTable["CreateModelInputTable"]
-        ModelInputTable[("ModelInputTable")]
+        ModelInputTable[("ModelInputTable<br>──<br>db:/home/spelkington/Repos/cgc/flowthru/examples/starter/SpaceflightsEFCore/Data/spaceflights.db/main")]
     end
 
     subgraph DataScience["DataScience"]
         SplitData["SplitData"]
-        XTrain[("XTrain")]
-        XTest[("XTest")]
+        XTrain[("XTrain<br>──<br>db:/home/spelkington/Repos/cgc/flowthru/examples/starter/SpaceflightsEFCore/Data/spaceflights.db/main")]
+        XTest[("XTest<br>──<br>db:/home/spelkington/Repos/cgc/flowthru/examples/starter/SpaceflightsEFCore/Data/spaceflights.db/main")]
         TrainModel["TrainModel"]
-        Regressor[("Regressor")]
+        Regressor[("Regressor<br>──<br>db:/home/spelkington/Repos/cgc/flowthru/examples/starter/SpaceflightsEFCore/Data/spaceflights.db/main")]
         EvaluateModel["EvaluateModel"]
-        ModelMetrics[("ModelMetrics")]
-        ModelPredictions[("ModelPredictions")]
+        ModelMetrics[("ModelMetrics<br>──<br>db:/home/spelkington/Repos/cgc/flowthru/examples/starter/SpaceflightsEFCore/Data/spaceflights.db/main")]
+        ModelPredictions[("ModelPredictions<br>──<br>db:/home/spelkington/Repos/cgc/flowthru/examples/starter/SpaceflightsEFCore/Data/spaceflights.db/main")]
     end
 
     subgraph Reporting["Reporting"]
         ComparePassengerCapacity["ComparePassengerCapacity"]
         ShuttleCapacityReport[("ShuttleCapacityReport")]
-        GeneratePassengerCapacityChart["GeneratePassengerCapacityChart<br>──<br>ILogger"]
+        GeneratePassengerCapacityChart["GeneratePassengerCapacityChart"]
         ShuttlePassengerCapacityChart[("ShuttlePassengerCapacityChart")]
         GenerateConfusionMatrixChart["GenerateConfusionMatrixChart"]
         ConfusionMatrixChart[("ConfusionMatrixChart")]
     end
+
+    %% Service legend
+    subgraph service_legend["services"]
+        svc_efcore_Microsoft_EntityFrameworkCore_Sqlite__home_spelkington_Repos_cgc_flowthru_examples_starter_SpaceflightsEFCore_Data_spaceflights_db_main["db:/home/spelkington/Repos/cgc/flowthru/examples/starter/SpaceflightsEFCore/Data/spaceflights.db/main<br>• cap: ∞"]
+    end
+    style service_legend fill:#EEF4FF,stroke:#3B6FB0
+    classDef serviceNode fill:#EEF4FF,stroke:#3B6FB0
+    class svc_efcore_Microsoft_EntityFrameworkCore_Sqlite__home_spelkington_Repos_cgc_flowthru_examples_starter_SpaceflightsEFCore_Data_spaceflights_db_main serviceNode
 
     %% Edges
     Companies --> PreprocessCompanies

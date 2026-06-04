@@ -47,15 +47,23 @@ flowchart TB
     ReportTemplate[("ReportTemplate")]
 
     subgraph ReportTime["ReportTime"]
-        ReportEastern["ReportEastern<br>──<br>IRemoteTimeService<br>ILogger"]
+        ReportEastern["ReportEastern<br>──<br>IRemoteTimeService"]
         EasternTimeReport[("EasternTimeReport")]
-        ReportCentral["ReportCentral<br>──<br>IRemoteTimeService<br>ILogger"]
+        ReportCentral["ReportCentral<br>──<br>IRemoteTimeService"]
         CentralTimeReport[("CentralTimeReport")]
-        ReportMountain["ReportMountain<br>──<br>IRemoteTimeService<br>ILogger"]
+        ReportMountain["ReportMountain<br>──<br>IRemoteTimeService"]
         MountainTimeReport[("MountainTimeReport")]
-        ReportPacific["ReportPacific<br>──<br>IRemoteTimeService<br>ILogger"]
+        ReportPacific["ReportPacific<br>──<br>IRemoteTimeService"]
         PacificTimeReport[("PacificTimeReport")]
     end
+
+    %% Service legend
+    subgraph service_legend["services"]
+        svc_SimpleEffectsExample_Services_IRemoteTimeService["IRemoteTimeService<br>• cache: affecting<br>• cap: ∞"]
+    end
+    style service_legend fill:#EEF4FF,stroke:#3B6FB0
+    classDef serviceNode fill:#EEF4FF,stroke:#3B6FB0
+    class svc_SimpleEffectsExample_Services_IRemoteTimeService serviceNode
 
     %% Edges
     ReportTemplate --> ReportEastern

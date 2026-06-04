@@ -87,7 +87,10 @@ public class Program
       {
         var metadataPath = Path.Combine(basePath, "Metadata");
         meta.AddJsonMetadata(opt => opt.WithOutputDirectory(metadataPath));
-        meta.AddMermaidMetadata(opt => opt.WithOutputDirectory(metadataPath));
+        meta.AddMermaidMetadata(opt =>
+          opt.WithOutputDirectory(metadataPath)
+          .WithPerFlow(opts => opts.WithMode(PerFlowMode.Enabled))
+        );
       });
 
       flowthru.UsePython(python =>

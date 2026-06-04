@@ -88,3 +88,59 @@ dotnet run                    # runs with NProcPerNode = 2
 Edit `Program.cs` to change `NProcPerNode` — the rank-0 single-rank
 path and the rank-0/rank-N>0 distributed path both work via the same
 worker entry point.
+
+<!-- flowthru:mermaid:start -->
+```mermaid
+flowchart TB
+
+    %% External Data Inputs
+    TrainingConfig{{"TrainingConfig"}}
+
+    subgraph Train["Train"]
+        TrainCnnDistributed["TrainCnnDistributed<br>──<br>IPythonExecutor"]
+        ModelWeights[("ModelWeights")]
+        VerifyModel["VerifyModel<br>──<br>IPythonExecutor"]
+        VerificationOutput[("VerificationOutput")]
+    end
+
+    %% Service legend
+    subgraph service_legend["services"]
+        svc_Flowthru_Step_Python_IPythonExecutor["IPythonExecutor<br>• cache: neutral<br>• cap: 1"]
+    end
+    style service_legend fill:#EEF4FF,stroke:#3B6FB0
+    classDef serviceNode fill:#EEF4FF,stroke:#3B6FB0
+    class svc_Flowthru_Step_Python_IPythonExecutor serviceNode
+
+    %% Edges
+    TrainingConfig --> TrainCnnDistributed
+    TrainCnnDistributed --> ModelWeights
+    ModelWeights --> VerifyModel
+    VerifyModel --> VerificationOutput
+
+```
+<!-- flowthru:mermaid:end -->
+
+<!-- flowthru:filetree:start -->
+```
+MnistDistributed/
+├── Program.cs  # entry point
+├── Data/
+│   ├── _05_ModelInput/
+│   │   └── Schemas/
+│   │       └── TrainingConfigSchema.cs
+│   └── _06_Models/
+│       └── Datasets/
+│           ├── model.pkl
+│           └── verification.pkl
+└── Flows/
+    └── Train/
+        └── Steps/
+            ├── __init__.py
+            ├── train_ddp.py
+            ├── verify_model.py
+            └── __pycache__/
+                ├── __init__.cpython-310.pyc
+                ├── train_ddp.cpython-310.pyc
+                └── verify_model.cpython-310.pyc
+```
+<!-- flowthru:filetree:end -->
