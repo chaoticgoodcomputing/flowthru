@@ -91,6 +91,18 @@ public sealed record FlowMetadataContext
   public bool BypassCacheReads { get; init; } = false;
 
   /// <summary>
+  /// The resolved service-profile provider for this run — lets a metadata
+  /// provider compute the flow's
+  /// <see cref="Flowthru.Validation.Runtime.ConflictGroup"/>s (which steps
+  /// serialize against a shared finite-capacity resource, ADR-0019). Null
+  /// when the host built the context without one (e.g. the
+  /// <see cref="Unsliced"/> test convenience); consumers fall back to the
+  /// permissive default, under which no resource is constrained and there
+  /// are no conflict groups.
+  /// </summary>
+  public Flowthru.Validation.Runtime.IServiceProfileProvider? ServiceProfiles { get; init; }
+
+  /// <summary>
   /// Build an unsliced context — every step in <paramref name="flow"/>
   /// is active, no slice was requested, and <see cref="MergedFlow"/>
   /// equals <see cref="EffectiveFlow"/>. Convenience for hosts that

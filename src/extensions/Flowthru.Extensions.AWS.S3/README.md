@@ -5,12 +5,22 @@ an `IStorageMediumProvider` for the `s3://` scheme, so **any** format extension
 (Csv, Parquet, Json, Xml, …) works over S3 with no change — a Flow targets S3 by
 writing an `s3://bucket/key` path on an Item, nothing more.
 
+[![coverage](https://codecov.io/gh/chaoticgoodcomputing/flowthru/branch/main/graph/badge.svg?component=flowthru_extensions_aws_s3)](https://codecov.io/gh/chaoticgoodcomputing/flowthru)
+
 ## Mental model
 
 Storage in Flowthru is three independent axes: **format** (how bytes serialize) ×
 **medium** (where bytes live) × **container** (the in-memory shape). This package
 adds one medium. It does not know about CSV or Parquet, and CSV/Parquet do not know
 about S3 — they meet through the medium resolver. Adding S3 is purely additive.
+
+## Install
+
+```bash
+dotnet add package Flowthru.Extensions.AWS.S3
+```
+
+Register the medium, then target S3 by writing an `s3://` path anywhere a path is accepted:
 
 ```csharp
 services.AddFlowthru(b =>

@@ -337,6 +337,9 @@ public sealed class FlowthruService : IFlowthruService
         .ToHashSet(StringComparer.Ordinal),
       RequestedFlowLabel = flowLabel,
       BypassCacheReads = options.BypassCacheReads,
+      // Hand providers the resolved profiles so they can surface conflict
+      // groups (ADR-0019) — the same provider the scheduler gates on.
+      ServiceProfiles = _services.GetService<IServiceProfileProvider>(),
     };
 
     // Run the body, capture the FlowResult, then release LIFO with

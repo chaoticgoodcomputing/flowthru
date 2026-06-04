@@ -133,13 +133,13 @@ public sealed class ParallelFlowScheduler : IFlowScheduler
     for (var i = 0; i < orderedSteps.Count; i++)
     {
       List<string>? keys = null;
-      foreach (var (dep, op) in ConflictDependenciesOf(orderedSteps[i]))
+      foreach (var (dep, op) in ConflictKeys.Of(orderedSteps[i]))
       {
         var capacity = _profiles.Resolve(dep).CapacityFor(op);
         if (capacity >= int.MaxValue) continue; // unbounded for this op — no conflict
         // The op-class is part of the key, so read:X and write:X are
         // distinct (concurrent readers don't conflict with one writer).
-        var key = $"{op}:{dep.DagId}";
+        var key = ConflictKeys.KeyFor(dep, op);
         (keys ??= new List<string>()).Add(key);
         // A key identifies one shared resource+op, so its capacity is
         // global; if sources disagree, the most restrictive wins.
@@ -244,22 +244,6 @@ public sealed class ParallelFlowScheduler : IFlowScheduler
 
     runStopwatch.Stop();
     return new FlowResult(resultsByIndex.Cast<StepResult>().ToList(), runStopwatch.Elapsed);
-  }
-
-  /// <summary>
-  /// A step's conflict-relevant dependencies: its own service deps plus
-  /// those declared by the items it reads (<c>Inputs</c>) and writes
-  /// (<c>Outputs</c>). An item can surface a shared resource (e.g. a
-  /// database-backed item), so the step touching it inherits the
-  /// resource's conflict key.
-  /// </summary>
-  private static IEnumerable<(ServiceDependency Dep, ConflictOp Op)> ConflictDependenciesOf(IStepNode step)
-  {
-    foreach (var dep in step.ServiceDependencies) yield return (dep, ConflictOp.Use);
-    foreach (var input in step.Inputs)
-      foreach (var dep in input.ServiceDependencies) yield return (dep, ConflictOp.Read);
-    foreach (var output in step.Outputs)
-      foreach (var dep in output.ServiceDependencies) yield return (dep, ConflictOp.Write);
   }
 
   /// <summary>

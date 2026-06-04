@@ -2,6 +2,7 @@ using System.Text.Json.Serialization;
 using Flowthru.Caching;
 using Flowthru.Flow;
 using Flowthru.Step;
+using Flowthru.Validation.Runtime;
 
 namespace Flowthru.Diagnostics.Json.Internal;
 
@@ -58,6 +59,16 @@ internal sealed record DagMetadataProjection
   [JsonPropertyOrder(6)]
   public CachePlanProjection? CachePlan { get; init; }
 
+  /// <summary>
+  /// Steps that contend on a shared finite-capacity resource (ADR-0019) —
+  /// the scheduler will serialize them. Empty when no resource declares a
+  /// finite capacity (the default). Each group names the resource, the
+  /// contending operation, the capacity, the member steps, and whether the
+  /// group actually serializes (more members than capacity).
+  /// </summary>
+  [JsonPropertyOrder(7)]
+  public required IReadOnlyList<ConflictGroupProjection> ConflictGroups { get; init; }
+
   public static DagMetadataProjection From(FlowMetadataContext ctx)
   {
     var merged = ctx.MergedFlow;
@@ -113,6 +124,11 @@ internal sealed record DagMetadataProjection
       }
     }
 
+    var conflictGroups = ConflictGroupAnalyzer
+      .Analyze(merged, ctx.ServiceProfiles ?? new DefaultServiceProfileProvider())
+      .Select(ConflictGroupProjection.From)
+      .ToList();
+
     return new DagMetadataProjection
     {
       FlowName = ctx.EffectiveFlow.Label,
@@ -124,8 +140,51 @@ internal sealed record DagMetadataProjection
         .ToList(),
       Edges = edges,
       CachePlan = CachePlanProjection.From(plan, ctx.BypassCacheReads),
+      ConflictGroups = conflictGroups,
     };
   }
+}
+
+/// <summary>
+/// One conflict group — the steps that contend on a shared finite-capacity
+/// resource under one operation, and so serialize against each other
+/// (ADR-0019).
+/// </summary>
+internal sealed record ConflictGroupProjection
+{
+  /// <summary>Human-readable resource name (the dependency's display name).</summary>
+  [JsonPropertyOrder(0)]
+  public required string Resource { get; init; }
+
+  /// <summary><c>"Use"</c> (injected service), <c>"Read"</c> (input item), or <c>"Write"</c> (output item).</summary>
+  [JsonPropertyOrder(1)]
+  public required string Op { get; init; }
+
+  /// <summary>Concurrent holders the resource admits under this op.</summary>
+  [JsonPropertyOrder(2)]
+  public required int Capacity { get; init; }
+
+  /// <summary>True when more steps share the resource than its capacity — the group serializes at runtime.</summary>
+  [JsonPropertyOrder(3)]
+  public required bool Serializes { get; init; }
+
+  /// <summary>The contending step labels, in flow order.</summary>
+  [JsonPropertyOrder(4)]
+  public required IReadOnlyList<string> Steps { get; init; }
+
+  /// <summary>Raw scheduler conflict key (<c>"{Op}:{resourceDagId}"</c>) — for tooling that joins on it.</summary>
+  [JsonPropertyOrder(5)]
+  public required string Key { get; init; }
+
+  public static ConflictGroupProjection From(ConflictGroup group) => new()
+  {
+    Resource = group.ResourceDisplayName,
+    Op = group.Op.ToString(),
+    Capacity = group.Capacity,
+    Serializes = group.Serializes,
+    Steps = group.StepLabels,
+    Key = group.Key,
+  };
 }
 
 /// <summary>

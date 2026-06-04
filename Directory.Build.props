@@ -43,4 +43,15 @@
     <PackageProjectUrl>https://github.com/chaoticgoodcomputing/flowthru</PackageProjectUrl>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
   </PropertyGroup>
+
+  <!-- Pack each shippable project's own README.md as its NuGet package readme.
+       One rule covers every shippable package; projects without a colocated
+       README (source generators, code-fix projects) simply don't match Exists().
+       The per-package README skeleton is enforced by the README conformance test. -->
+  <PropertyGroup Condition="$(MSBuildProjectDirectory.Contains('src')) AND Exists('$(MSBuildProjectDirectory)/README.md')">
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+  </PropertyGroup>
+  <ItemGroup Condition="$(MSBuildProjectDirectory.Contains('src')) AND Exists('$(MSBuildProjectDirectory)/README.md')">
+    <None Include="README.md" Pack="true" PackagePath="/" />
+  </ItemGroup>
 </Project>
