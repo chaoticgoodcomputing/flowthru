@@ -40,20 +40,12 @@ export default defineConfig({
       // the scheduled docs-external-links workflow, so it's not checked here.
       // errorOnRelativeLinks:false allows relative links (which the tutorial
       // chapters and section landings use) while still validating they resolve.
-      // errorOnRelativeLinks:false — relative links are the repo convention.
-<<<<<<< HEAD
-      // errorOnLocalLinks:false — generated API reference embeds example
-      //   endpoints from docstrings (e.g. S3Options' `http://localhost:9000`
-      //   for MinIO/LocalStack); those are documentation content, not broken
-      //   navigation, and must not fail the build.
-=======
       // errorOnLocalLinks:false — the generated API reference embeds example
       //   endpoints from docstrings (e.g. S3Options' `http://localhost:9000`
       //   for MinIO/LocalStack). docfx emits them as raw <code> HTML, which is
       //   not a CommonMark code span, so remark-gfm autolinks the bare URL —
       //   making it a "link". Those are documentation content, never broken
       //   navigation, so they must not fail the build.
->>>>>>> d0ec905d (ci: correct ci lint for dead links in markdown codeblocks)
       plugins: [
         starlightLinksValidator({
           errorOnRelativeLinks: false,
