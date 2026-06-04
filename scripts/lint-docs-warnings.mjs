@@ -29,6 +29,7 @@ import { readdirSync, readFileSync, existsSync, appendFileSync } from 'node:fs';
 import { join, relative, resolve } from 'node:path';
 import { dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { maskCode } from './lib/markdown-code.mjs';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const GLOSSARY = join(ROOT, 'examples', 'CONTRIBUTING.md');
@@ -80,14 +81,6 @@ function walk(dir, out) {
 
 // Blank out fenced code blocks and inline code so matches inside them are
 // ignored, while preserving line numbers (replace with spaces, keep newlines).
-function maskCode(content) {
-  let masked = content.replace(/```[\s\S]*?```/g, (m) =>
-    m.replace(/[^\n]/g, ' '),
-  );
-  masked = masked.replace(/`[^`\n]*`/g, (m) => m.replace(/./g, ' '));
-  return masked;
-}
-
 function frontmatterReview(content) {
   const m = /^---\r?\n([\s\S]*?)\r?\n---/.exec(content);
   if (!m) return 'draft'; // no frontmatter → treat as draft

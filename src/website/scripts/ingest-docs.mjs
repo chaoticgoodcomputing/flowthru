@@ -29,6 +29,7 @@ import { mkdir, readdir, readFile, rm, writeFile } from "node:fs/promises";
 import { existsSync, readFileSync, statSync } from "node:fs";
 import { dirname, join, posix, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
+import { maskCode } from "../../../scripts/lib/markdown-code.mjs";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const PROJECT_ROOT = resolve(HERE, "..");
@@ -116,24 +117,17 @@ function rewriteOneLink(url, relPath) {
 }
 
 function rewriteLinks(body, relPath) {
-  const fences = [];
-  let s = body.replace(/```[\s\S]*?```/g, (m) => {
-    fences.push(m);
-    return `@@FTSNIP_F${fences.length - 1}@@`;
-  });
-  const inlines = [];
-  s = s.replace(/`[^`\n]*`/g, (m) => {
-    inlines.push(m);
-    return `@@FTSNIP_I${inlines.length - 1}@@`;
-  });
-  s = s.replace(/\]\(([^)]+)\)/g, (full, inner) => {
+  // Mask code once (length-preserving), then rewrite links in the ORIGINAL body
+  // but skip any whose `](` token falls in a masked (code) region — so links in
+  // fenced/inline code are left verbatim, while a prose link whose text holds
+  // inline code (e.g. [`FlowIO`](/src/…)) is still rewritten (its `](` is intact).
+  const masked = maskCode(body);
+  return body.replace(/\]\(([^)]+)\)/g, (full, inner, offset) => {
+    if (masked.substr(offset, 2) !== "](") return full; // inside code — leave verbatim
     const sp = inner.match(/^(\S+)(\s.*)?$/);
     if (!sp) return full;
     return `](${rewriteOneLink(sp[1], relPath)}${sp[2] || ""})`;
   });
-  s = s.replace(/@@FTSNIP_I(\d+)@@/g, (_m, i) => inlines[+i]);
-  s = s.replace(/@@FTSNIP_F(\d+)@@/g, (_m, i) => fences[+i]);
-  return s;
 }
 
 async function walk(dir) {
