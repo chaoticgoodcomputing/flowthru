@@ -22,6 +22,7 @@
 import { readdirSync, readFileSync, existsSync, statSync } from 'node:fs';
 import { join, dirname, resolve, relative, posix } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { maskCode } from './lib/markdown-code.mjs';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const SECTIONS = ['docs/tutorials', 'docs/guides', 'docs/explanation'];
@@ -36,12 +37,6 @@ function walk(dir, out = []) {
     else if (e.isFile() && e.name.endsWith('.md')) out.push(full);
   }
   return out;
-}
-
-function maskCode(s) {
-  return s
-    .replace(/```[\s\S]*?```/g, (m) => m.replace(/[^\n]/g, ' '))
-    .replace(/`[^`\n]*`/g, (m) => m.replace(/./g, ' '));
 }
 
 // Does a path resolve to a real Starlight page? (exact .md file, dir/index.md, or name.md)
