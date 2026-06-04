@@ -19,12 +19,14 @@ namespace Flowthru.Diagnostics.Mermaid.Internal;
 /// itself is wrapped in a single subgraph keyed by <see cref="BuiltFlow.Label"/>;
 /// inside, steps are rectangles and produced items are databases.
 /// Step→item and item→step edges connect them in topological order.
-/// Service dependencies (declared via <see cref="IStepNode.ServiceDependencies"/>)
-/// render as an inline compartment inside the consuming step's node —
-/// step label, a Unicode rule divider, and one service per line. No
-/// separate service nodes or dashed edges; the compartment inherits
-/// whatever fill the step has (run-result heat-map, cache-plan blue,
-/// inactive grey).
+/// Service dependencies (declared via <see cref="Flowthru.Data.Catalog.INode.ServiceDependencies"/>
+/// on steps and items) render two ways: an inline compartment inside the
+/// node — node label, a Unicode rule divider, one service per line — and a
+/// distinct-coloured <c>services</c> legend subgraph carrying each
+/// service's capacity / cacheability (ADR-0019). No step→service edges; the
+/// reader joins the inline name to its legend entry. The compartment
+/// inherits whatever fill the node has (heat-map, cache-plan blue, inactive
+/// grey).
 /// </para>
 /// <para>
 /// <strong>Run-result coloring.</strong> When a <see cref="FlowResult"/>
@@ -67,7 +69,13 @@ internal static class MermaidDiagramRenderer
     // (or whose post-run StepResult.Succeeded.Reason is "cached")
     // renders with this fill. Distinct from the heat-map curve so
     // cache hits are immediately distinguishable from ran-fast steps.
-    string CachedStepColor = "#1976D2"
+    string CachedStepColor = "#1976D2",
+    // The service-legend subgraph (ADR-0019 #100 s7) — a deliberately
+    // distinct fill/stroke from the per-flow subgraphs (which have no
+    // explicit fill) so the "what services does this DAG use" key reads
+    // as a separate region, not another flow.
+    string ServiceLegendColor = "#EEF4FF",
+    string ServiceLegendStroke = "#3B6FB0"
   )
   {
     public static Theme Default => new(
@@ -266,32 +274,18 @@ internal static class MermaidDiagramRenderer
         var isFailed = stepResult is StepResult.Failed;
         var displayLabel = step.Label;
 
-        // Source-language tag — `(python)`, `(fsharp)`, etc. Appended
-        // before failed/service suffixes so the tag stays on the step-
-        // name row, not the compartment. Null/empty means the host
-        // runtime's primary language (.NET) — omitted by convention.
-        if (!string.IsNullOrEmpty(step.SourceLanguage))
-        {
-          displayLabel += $" ({step.SourceLanguage})";
-        }
-
         if (isFailed)
         {
           displayLabel += " (failed)";
         }
 
-        // Service dependencies render as a compartment inside the step
-        // node — divider rule + one service per line. The whole node
-        // shares whatever fill the step has (run-result heat-map,
-        // cache-plan blue, slice-inactive grey, etc.) so the compartment
-        // inherits the active styling.
-        if (step.ServiceDependencies.Count > 0)
-        {
-          displayLabel += "<br>──<br>" + string.Join(
-            "<br>",
-            step.ServiceDependencies.Select(s => s.DisplayName)
-          );
-        }
+        // Service dependencies render as a compartment inside the node —
+        // divider rule + one service per line. Node-generic: AppendServices
+        // is shared with item cylinders, and the service legend below
+        // carries each service's capacity / cacheability. The whole node
+        // shares whatever fill it has (heat-map, cache-plan blue, inactive
+        // grey), so the compartment inherits the active styling.
+        displayLabel = AppendServices(displayLabel, step.ServiceDependencies);
         sb.AppendLine($"        {stepId}[\"{EscapeLabel(displayLabel)}\"]");
 
         // Run-result coloring takes precedence over slice styling.
@@ -335,6 +329,16 @@ internal static class MermaidDiagramRenderer
       sb.AppendLine();
     }
 
+    // ── Service legend ─────────────────────────────────────────────────
+    // A key for the services annotated on steps and item cylinders: one
+    // node per distinct service, carrying capacity + cacheability. No
+    // edges — the reader joins by name (a node lists "IPythonExecutor",
+    // the legend says what cap/cache that implies). (ADR-0019 #100 s7.)
+    RenderServiceLegend(
+      sb,
+      ServiceUsageAnalyzer.Analyze(topology, ctx.ServiceProfiles ?? new DefaultServiceProfileProvider()),
+      theme);
+
     // ── Edges ──────────────────────────────────────────────────────────
     // Emit all input → step and step → output edges at the top level.
     // Mermaid resolves cross-subgraph references by id, so cross-flow
@@ -358,12 +362,11 @@ internal static class MermaidDiagramRenderer
     }
     sb.AppendLine();
 
-    // Service dependencies are surfaced inline in each step node's
-    // label (see the step-emission block above), not as a separate
-    // cluster — one compartment per step, divider rule plus the list
-    // of consumed services. The previous cluster-with-dashed-edges
-    // design was retired with the compartment redesign; see
-    // docs/scratch/mermaid-design/04-simple-effects.md.
+    // Services are surfaced two ways: inline in each node's label (the
+    // compartment emitted above, naming the services it uses), and once
+    // more in the service-legend subgraph (emitted before the edges) that
+    // carries each service's capacity / cacheability. There are no
+    // step→service edges — the reader joins inline name to legend entry.
 
     // ── Failed-step decoration ─────────────────────────────────────────
     // Mermaid doesn't let `style` directives set font-weight or
@@ -444,6 +447,7 @@ internal static class MermaidDiagramRenderer
 
     var cachePlanFreshLabels = ctx.CachePlan?.FreshStepLabels;
     var active = ctx.ActiveStepLabels;
+    var profiles = ctx.ServiceProfiles ?? new DefaultServiceProfileProvider();
 
     // Group steps by FlowLabel — the same grouping the merged renderer
     // uses for subgraphs. The auto-threshold check in the provider also
@@ -469,6 +473,7 @@ internal static class MermaidDiagramRenderer
         heatMapMax: heatMapMax,
         cachePlanFreshLabels: cachePlanFreshLabels,
         active: active,
+        profiles: profiles,
         direction: direction,
         theme: theme,
         headingPrefix: headingPrefix
@@ -495,6 +500,7 @@ internal static class MermaidDiagramRenderer
     TimeSpan? heatMapMax,
     IReadOnlySet<string>? cachePlanFreshLabels,
     IReadOnlySet<string> active,
+    IServiceProfileProvider profiles,
     MermaidFlowchartDirection direction,
     Theme theme,
     string headingPrefix
@@ -609,21 +615,11 @@ internal static class MermaidDiagramRenderer
       var isFailed = stepResult is StepResult.Failed;
 
       var displayLabel = step.Label;
-      if (!string.IsNullOrEmpty(step.SourceLanguage))
-      {
-        displayLabel += $" ({step.SourceLanguage})";
-      }
       if (isFailed)
       {
         displayLabel += " (failed)";
       }
-      if (step.ServiceDependencies.Count > 0)
-      {
-        displayLabel += "<br>──<br>" + string.Join(
-          "<br>",
-          step.ServiceDependencies.Select(s => s.DisplayName)
-        );
-      }
+      displayLabel = AppendServices(displayLabel, step.ServiceDependencies);
       sb.AppendLine($"        {stepId}[\"{EscapeLabel(displayLabel)}\"]");
 
       if (stepResult is not null)
@@ -654,11 +650,13 @@ internal static class MermaidDiagramRenderer
     sb.AppendLine("    end");
     sb.AppendLine();
 
+    // ── Service legend (local services) ────────────────────────────────
+    RenderServiceLegend(sb, ServiceUsageAnalyzer.Analyze(localSteps, profiles), theme);
+
     // ── Downstream collapsed subgraphs ────────────────────────────────
-    // Collapsed-neighbor Steps render with language tag preserved but
-    // no run-state fill, no service compartment, no failed suffix.
-    // Reader navigates to that Flow's own per-flow block for full
-    // styling.
+    // Collapsed-neighbor Steps render with no run-state fill, no service
+    // compartment, no failed suffix. Reader navigates to that Flow's own
+    // per-flow block for full styling.
     foreach (var (downstreamFlow, steps) in downstreamByFlow)
     {
       var subgraphId = SanitizeId(downstreamFlow) + "_ds";
@@ -667,12 +665,7 @@ internal static class MermaidDiagramRenderer
       foreach (var step in steps)
       {
         var stepId = SanitizeId(step.Label);
-        var displayLabel = step.Label;
-        if (!string.IsNullOrEmpty(step.SourceLanguage))
-        {
-          displayLabel += $" ({step.SourceLanguage})";
-        }
-        sb.AppendLine($"        {stepId}[\"{EscapeLabel(displayLabel)}\"]");
+        sb.AppendLine($"        {stepId}[\"{EscapeLabel(step.Label)}\"]");
       }
       sb.AppendLine("    end");
       sb.AppendLine();
@@ -840,7 +833,15 @@ internal static class MermaidDiagramRenderer
   internal static string ItemNodeSyntax(string label, IItem? item)
   {
     var id = SanitizeId(label);
-    var escaped = EscapeLabel(label);
+    // Node-generic service annotation: an item backed by a shared resource
+    // (a database, a rate-limited endpoint) shows it in the same
+    // divider-rule compartment a step uses for its services. The shape
+    // (cylinder / stadium / hexagon) still says "this is data"; the
+    // compartment says "on this resource" — look it up in the legend.
+    var displayLabel = item is not null
+      ? AppendServices(label, item.ServiceDependencies)
+      : label;
+    var escaped = EscapeLabel(displayLabel);
 
     if (item is not null && IsConfigurationItem(item))
     {
@@ -854,6 +855,80 @@ internal static class MermaidDiagramRenderer
     }
 
     return $"{id}[(\"{escaped}\")]";
+  }
+
+  /// <summary>
+  /// Append a node's service dependencies as an inline compartment —
+  /// divider rule + one service display-name per line. Shared by steps and
+  /// item cylinders so the annotation is node-generic (ADR-0019 #100 s7);
+  /// returns <paramref name="baseLabel"/> unchanged when there are none.
+  /// </summary>
+  private static string AppendServices(string baseLabel, IReadOnlyList<ServiceDependency> deps) =>
+    deps.Count > 0
+      ? baseLabel + "<br>──<br>" + string.Join("<br>", deps.Select(d => d.DisplayName))
+      : baseLabel;
+
+  /// <summary>
+  /// Emit the service-legend subgraph: one node per distinct service, each
+  /// labelled with its name and a bulleted metadata list (cache, cap). No
+  /// edges — steps and items reference services by name in their inline
+  /// compartments, and the reader joins to this key. A no-op when the flow
+  /// uses no services.
+  /// </summary>
+  private static void RenderServiceLegend(
+    StringBuilder sb, IReadOnlyList<ServiceUsage> services, Theme theme)
+  {
+    if (services.Count == 0) return;
+
+    sb.AppendLine("    %% Service legend");
+    sb.AppendLine("    subgraph service_legend[\"services\"]");
+    var ids = new List<string>(services.Count);
+    foreach (var svc in services)
+    {
+      var id = "svc_" + SanitizeId(svc.DagId);
+      ids.Add(id);
+      sb.AppendLine($"        {id}[\"{EscapeLabel(ServiceLegendNodeLabel(svc))}\"]");
+    }
+    sb.AppendLine("    end");
+    sb.AppendLine(
+      $"    style service_legend fill:{theme.ServiceLegendColor},stroke:{theme.ServiceLegendStroke}");
+    sb.AppendLine(
+      $"    classDef serviceNode fill:{theme.ServiceLegendColor},stroke:{theme.ServiceLegendStroke}");
+    sb.AppendLine($"    class {string.Join(",", ids)} serviceNode");
+    sb.AppendLine();
+  }
+
+  /// <summary>
+  /// A legend node's label: the service name, then a bulleted list of its
+  /// metadata. Cache is shown only for injected (Use) services — it doesn't
+  /// apply to an item's backing resource.
+  /// </summary>
+  private static string ServiceLegendNodeLabel(ServiceUsage svc)
+  {
+    var lines = new List<string> { svc.DisplayName };
+    if (svc.Cacheable is bool cacheable)
+    {
+      lines.Add($"• cache: {(cacheable ? "neutral" : "affecting")}");
+    }
+    lines.Add($"• cap: {CapLabel(svc)}");
+    return string.Join("<br>", lines);
+  }
+
+  /// <summary>
+  /// Format a service's capacity for the legend: a single value when read
+  /// and write agree (or only one op applies), or <c>write W · read R</c>
+  /// when they differ. <see cref="int.MaxValue"/> renders as ∞.
+  /// </summary>
+  private static string CapLabel(ServiceUsage svc)
+  {
+    static string Fmt(int c) => c >= int.MaxValue ? "∞" : c.ToString();
+    var hasRead = svc.Ops.Contains(ConflictOp.Read);
+    var hasWrite = svc.Ops.Contains(ConflictOp.Use) || svc.Ops.Contains(ConflictOp.Write);
+    if (hasRead && hasWrite && svc.WriteCapacity != svc.ReadCapacity)
+    {
+      return $"write {Fmt(svc.WriteCapacity)} · read {Fmt(svc.ReadCapacity)}";
+    }
+    return hasRead && !hasWrite ? Fmt(svc.ReadCapacity) : Fmt(svc.WriteCapacity);
   }
 
   /// <summary>
@@ -892,15 +967,15 @@ internal static class MermaidDiagramRenderer
     _ => false,
   };
 
+  /// <summary>
+  /// Reduce an arbitrary label or resource id to a Mermaid-safe node id.
+  /// Replaces every character outside <c>[A-Za-z0-9_]</c> with <c>_</c> —
+  /// robust to the punctuation in service DagIds (the legend keys nodes by
+  /// DagId, which carries <c>: | / + .</c> etc.), not just the handful of
+  /// characters that show up in step/item labels.
+  /// </summary>
   internal static string SanitizeId(string id) =>
-    id.Replace(" ", "_")
-      .Replace("-", "_")
-      .Replace(".", "_")
-      .Replace("(", "_")
-      .Replace(")", "_")
-      .Replace("[", "_")
-      .Replace("]", "_")
-      .Replace(":", "_");
+    System.Text.RegularExpressions.Regex.Replace(id, "[^A-Za-z0-9_]", "_");
 
   internal static string EscapeLabel(string label) => label.Replace("\"", "\\\"");
 

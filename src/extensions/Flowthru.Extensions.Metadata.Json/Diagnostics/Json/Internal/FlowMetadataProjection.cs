@@ -60,14 +60,14 @@ internal sealed record DagMetadataProjection
   public CachePlanProjection? CachePlan { get; init; }
 
   /// <summary>
-  /// Steps that contend on a shared finite-capacity resource (ADR-0019) —
-  /// the scheduler will serialize them. Empty when no resource declares a
-  /// finite capacity (the default). Each group names the resource, the
-  /// contending operation, the capacity, the member steps, and whether the
-  /// group actually serializes (more members than capacity).
+  /// Every service used in the DAG with its resolved profile and the steps
+  /// that touch it (ADR-0019): capacity (write/read), cacheability, the ops
+  /// it's used under, and its members. A service whose finite capacity is
+  /// exceeded by its users reports <c>serializes: true</c> — the
+  /// conflict-group view. Empty when the flow declares no service deps.
   /// </summary>
   [JsonPropertyOrder(7)]
-  public required IReadOnlyList<ConflictGroupProjection> ConflictGroups { get; init; }
+  public required IReadOnlyList<ServiceProjection> Services { get; init; }
 
   public static DagMetadataProjection From(FlowMetadataContext ctx)
   {
@@ -124,9 +124,9 @@ internal sealed record DagMetadataProjection
       }
     }
 
-    var conflictGroups = ConflictGroupAnalyzer
+    var services = ServiceUsageAnalyzer
       .Analyze(merged, ctx.ServiceProfiles ?? new DefaultServiceProfileProvider())
-      .Select(ConflictGroupProjection.From)
+      .Select(ServiceProjection.From)
       .ToList();
 
     return new DagMetadataProjection
@@ -140,51 +140,73 @@ internal sealed record DagMetadataProjection
         .ToList(),
       Edges = edges,
       CachePlan = CachePlanProjection.From(plan, ctx.BypassCacheReads),
-      ConflictGroups = conflictGroups,
+      Services = services,
     };
   }
 }
 
 /// <summary>
-/// One conflict group — the steps that contend on a shared finite-capacity
-/// resource under one operation, and so serialize against each other
-/// (ADR-0019).
+/// One service used in the DAG: its resolved profile (capacities,
+/// cacheability), the ops it's touched under, whether it serializes its
+/// users, and the steps that use it (ADR-0019).
 /// </summary>
-internal sealed record ConflictGroupProjection
+internal sealed record ServiceProjection
 {
   /// <summary>Human-readable resource name (the dependency's display name).</summary>
   [JsonPropertyOrder(0)]
   public required string Resource { get; init; }
 
-  /// <summary><c>"Use"</c> (injected service), <c>"Read"</c> (input item), or <c>"Write"</c> (output item).</summary>
+  /// <summary>Stable resource identity — for tooling that joins on it.</summary>
   [JsonPropertyOrder(1)]
-  public required string Op { get; init; }
+  public required string DagId { get; init; }
 
-  /// <summary>Concurrent holders the resource admits under this op.</summary>
+  /// <summary>Ops the service is touched under: <c>"Use"</c> (injected), <c>"Read"</c> (input item), <c>"Write"</c> (output item).</summary>
   [JsonPropertyOrder(2)]
-  public required int Capacity { get; init; }
+  public required IReadOnlyList<string> Ops { get; init; }
 
-  /// <summary>True when more steps share the resource than its capacity — the group serializes at runtime.</summary>
+  /// <summary>Concurrent holders for Use/Write. <see cref="int.MaxValue"/> (2147483647) = unbounded.</summary>
   [JsonPropertyOrder(3)]
+  public required int WriteCapacity { get; init; }
+
+  /// <summary>Concurrent holders for Read. <see cref="int.MaxValue"/> = unbounded.</summary>
+  [JsonPropertyOrder(4)]
+  public required int ReadCapacity { get; init; }
+
+  /// <summary>Whether using it keeps dependent steps cacheable. <c>null</c> for item-backed (Read/Write) resources, where it doesn't apply.</summary>
+  [JsonPropertyOrder(5)]
+  public required bool? Cacheable { get; init; }
+
+  /// <summary>True when a finite capacity is exceeded by its users — the scheduler serializes them.</summary>
+  [JsonPropertyOrder(6)]
   public required bool Serializes { get; init; }
 
-  /// <summary>The contending step labels, in flow order.</summary>
-  [JsonPropertyOrder(4)]
-  public required IReadOnlyList<string> Steps { get; init; }
+  /// <summary>The steps that touch this service, with the op each uses.</summary>
+  [JsonPropertyOrder(7)]
+  public required IReadOnlyList<ServiceMemberProjection> UsedBy { get; init; }
 
-  /// <summary>Raw scheduler conflict key (<c>"{Op}:{resourceDagId}"</c>) — for tooling that joins on it.</summary>
-  [JsonPropertyOrder(5)]
-  public required string Key { get; init; }
-
-  public static ConflictGroupProjection From(ConflictGroup group) => new()
+  public static ServiceProjection From(ServiceUsage usage) => new()
   {
-    Resource = group.ResourceDisplayName,
-    Op = group.Op.ToString(),
-    Capacity = group.Capacity,
-    Serializes = group.Serializes,
-    Steps = group.StepLabels,
-    Key = group.Key,
+    Resource = usage.DisplayName,
+    DagId = usage.DagId,
+    Ops = usage.Ops.Select(o => o.ToString()).ToList(),
+    WriteCapacity = usage.WriteCapacity,
+    ReadCapacity = usage.ReadCapacity,
+    Cacheable = usage.Cacheable,
+    Serializes = usage.Serializes,
+    UsedBy = usage.UsedBy
+      .Select(m => new ServiceMemberProjection { Step = m.StepLabel, Op = m.Op.ToString() })
+      .ToList(),
   };
+}
+
+/// <summary>One step's use of a service, with the op it uses.</summary>
+internal sealed record ServiceMemberProjection
+{
+  [JsonPropertyOrder(0)]
+  public required string Step { get; init; }
+
+  [JsonPropertyOrder(1)]
+  public required string Op { get; init; }
 }
 
 /// <summary>
