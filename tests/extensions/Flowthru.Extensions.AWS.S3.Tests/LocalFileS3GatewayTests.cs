@@ -41,6 +41,28 @@ public class LocalFileS3GatewayTests
   }
 
   [Test]
+  public async Task GetObject_ReturnsForwardOnlyStream_MatchingRealS3()
+  {
+    // The stub deliberately models real S3's non-seekable response body rather
+    // than the seekable file underneath it. A seekable read stream here is what
+    // let a seek-required format (Parquet) pass every offline test yet fail
+    // against live S3 (#105) — pin the forward-only contract so it can't drift back.
+    var payload = Encoding.UTF8.GetBytes("forward-only");
+    await _gateway.PutObject("b", "obj.bin", new MemoryStream(payload), default);
+
+    await using var stream = await _gateway.GetObject("b", "obj.bin", default);
+
+    Assert.That(stream.CanSeek, Is.False, "S3 object reads must be forward-only, as against real S3.");
+    Assert.That(() => stream.Position, Throws.InstanceOf<NotSupportedException>());
+    Assert.That(() => stream.Seek(0, SeekOrigin.Begin), Throws.InstanceOf<NotSupportedException>());
+
+    // Forward-only does not mean unreadable: the bytes still stream through intact.
+    using var sink = new MemoryStream();
+    await stream.CopyToAsync(sink);
+    Assert.That(sink.ToArray(), Is.EqualTo(payload));
+  }
+
+  [Test]
   public async Task Put_CreatesIntermediateDirectories()
   {
     await _gateway.PutObject("b", "deep/nested/key.bin", new MemoryStream([1, 2]), default);

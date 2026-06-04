@@ -33,6 +33,16 @@ namespace Flowthru.Data.Storage.S3.Local;
 /// demos, and tests — not shared or production storage. For that, use
 /// <c>UseS3()</c> over the AWS-backed gateway.
 /// </para>
+/// <para>
+/// <strong>Reads are forward-only, on purpose.</strong> <see cref="GetObject"/>
+/// returns a non-seekable stream even though it is backed by a local file. Real
+/// S3 (<c>AmazonS3Gateway</c>) hands back a forward-only response body, and the
+/// <see cref="IS3Gateway"/> contract never promised seekability. Modelling that
+/// faithfully means a format that needs random access (Parquet, Excel) exercises
+/// its buffering path against this stub exactly as it would against S3 — so the
+/// "seekable stub hides a seek-required-format bug" failure cannot slip past
+/// offline tests or local development.
+/// </para>
 /// </remarks>
 public sealed class LocalFileS3Gateway : IS3Gateway
 {
@@ -52,6 +62,12 @@ public sealed class LocalFileS3Gateway : IS3Gateway
   }
 
   /// <inheritdoc/>
+  /// <remarks>
+  /// The returned stream is <strong>forward-only</strong> (<c>CanSeek == false</c>),
+  /// matching the AWS gateway's response body. See the type-level remarks for why
+  /// the stub deliberately withholds seekability the backing file would otherwise
+  /// allow.
+  /// </remarks>
   public Task<Stream> GetObject(string bucket, string key, CancellationToken ct)
   {
     ct.ThrowIfCancellationRequested();
@@ -60,10 +76,10 @@ public sealed class LocalFileS3Gateway : IS3Gateway
     {
       throw new FileNotFoundException($"No object at s3://{bucket}/{key}.", path);
     }
-    Stream stream = new FileStream(
+    var file = new FileStream(
       path, FileMode.Open, FileAccess.Read, FileShare.Read,
       bufferSize: 4096, useAsync: true);
-    return Task.FromResult(stream);
+    return Task.FromResult<Stream>(new ForwardOnlyStream(file));
   }
 
   /// <inheritdoc/>
@@ -156,5 +172,59 @@ public sealed class LocalFileS3Gateway : IS3Gateway
         $"Key '{key}' on bucket '{bucket}' resolves outside the gateway root.", nameof(key));
     }
     return combined;
+  }
+
+  /// <summary>
+  /// Read-only, forward-only view over the backing <see cref="FileStream"/>:
+  /// delegates reads, reports <see cref="CanSeek"/> as <c>false</c>, and refuses
+  /// every seek/length/write operation. Owns the inner stream and disposes it.
+  /// This is what makes the stub model real S3's non-seekable response body
+  /// rather than the seekable file underneath it.
+  /// </summary>
+  private sealed class ForwardOnlyStream(Stream inner) : Stream
+  {
+    public override bool CanRead => inner.CanRead;
+    public override bool CanSeek => false;
+    public override bool CanWrite => false;
+    public override long Length => throw new NotSupportedException("S3 object reads are forward-only.");
+    public override long Position
+    {
+      get => throw new NotSupportedException("S3 object reads are forward-only.");
+      set => throw new NotSupportedException("S3 object reads are forward-only.");
+    }
+
+    public override int Read(byte[] buffer, int offset, int count) =>
+      inner.Read(buffer, offset, count);
+
+    public override Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken ct) =>
+      inner.ReadAsync(buffer, offset, count, ct);
+
+    public override ValueTask<int> ReadAsync(Memory<byte> buffer, CancellationToken ct = default) =>
+      inner.ReadAsync(buffer, ct);
+
+    public override void Flush() => inner.Flush();
+
+    public override long Seek(long offset, SeekOrigin origin) =>
+      throw new NotSupportedException("S3 object reads are forward-only.");
+
+    public override void SetLength(long value) => throw new NotSupportedException();
+
+    public override void Write(byte[] buffer, int offset, int count) =>
+      throw new NotSupportedException("S3 object reads are read-only.");
+
+    protected override void Dispose(bool disposing)
+    {
+      if (disposing)
+      {
+        inner.Dispose();
+      }
+      base.Dispose(disposing);
+    }
+
+    public override async ValueTask DisposeAsync()
+    {
+      await inner.DisposeAsync().ConfigureAwait(false);
+      await base.DisposeAsync().ConfigureAwait(false);
+    }
   }
 }

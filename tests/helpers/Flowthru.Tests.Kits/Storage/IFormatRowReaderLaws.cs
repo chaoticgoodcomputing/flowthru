@@ -124,4 +124,40 @@ public abstract class IFormatRowReaderLaws<TRow>
         $"Row {i} differs from fixture. Expected {expected[i]}, got {output[i]}.");
     }
   }
+
+  // ── Non-seekable-input law ────────────────────────────────────────────
+
+  /// <summary>
+  /// The reader must yield <see cref="ExpectedRows"/> even when the fixture is
+  /// presented through a <strong>forward-only</strong> (non-seekable) stream —
+  /// what a real S3 or HTTP response body is. A reader whose provider needs random
+  /// access (Excel via ExcelDataReader) must buffer the input itself; one that
+  /// reads forward-only handles it directly. The seekable test stand-in otherwise
+  /// hides this gap (issue #105).
+  /// </summary>
+  [Test]
+  public async Task NonSeekableDeserializeLaw()
+  {
+    var reader = CreateReader();
+    var expected = ExpectedRows.ToList();
+    Assert.That(expected, Is.Not.Empty, "ExpectedRows must yield at least one row.");
+
+    using var fixture = CreateFixtureStream();
+    using var forwardOnly = new NonSeekableStream(fixture);
+    Assert.That(forwardOnly.CanSeek, Is.False, "Precondition: the input stream must be non-seekable.");
+
+    var output = new List<TRow>();
+    await foreach (var row in reader.DeserializeRows(forwardOnly))
+    {
+      output.Add(row);
+    }
+
+    Assert.That(output, Has.Count.EqualTo(expected.Count),
+      "Deserializing a non-seekable fixture must yield the same row count as a seekable one.");
+    for (int i = 0; i < expected.Count; i++)
+    {
+      Assert.That(RowsEqual(output[i], expected[i]), Is.True,
+        $"Row {i} differs after a non-seekable read. Expected {expected[i]}, got {output[i]}.");
+    }
+  }
 }

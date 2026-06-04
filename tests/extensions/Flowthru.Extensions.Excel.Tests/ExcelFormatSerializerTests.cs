@@ -187,26 +187,9 @@ public class ExcelFormatSerializerTests
     );
   }
 
-  // ── Non-seekable stream ─────────────────────────────────────────────
-
-  [Test]
-  public async Task DeserializeRows_NonSeekableStream_BuffersAndReadsSuccessfully()
-  {
-    using var xlsx = CreateXlsx(
-      "Products",
-      ["Id", "Name", "Price"],
-      [[5, "Seekless", 1.23]]
-    );
-
-    using var nonSeekable = new NonSeekableStream(xlsx);
-    Assert.That(nonSeekable.CanSeek, Is.False, "Precondition: stream must be non-seekable");
-
-    var serializer = new ExcelFormatSerializer<ProductRow>("Products");
-    var result = await ToList(serializer.DeserializeRows(nonSeekable));
-
-    Assert.That(result, Has.Count.EqualTo(1));
-    Assert.That(result[0].Id, Is.EqualTo(5));
-  }
+  // Non-seekable-stream coverage now lives in IFormatRowReaderLaws.NonSeekableDeserializeLaw,
+  // inherited by ExcelFormatRowReaderLaws — the contract is asserted once for every
+  // read-only format rather than ad-hoc per format here.
 
   // ── SerializedEnum ──────────────────────────────────────────────────
 
@@ -227,33 +210,5 @@ public class ExcelFormatSerializerTests
     Assert.That(rows, Has.Count.EqualTo(2));
     Assert.That(rows[0].Status, Is.EqualTo(CheckStatus.Complete));
     Assert.That(rows[1].Status, Is.EqualTo(CheckStatus.Incomplete));
-  }
-
-  // ── Helper: non-seekable stream wrapper ─────────────────────────────
-
-  private sealed class NonSeekableStream(Stream inner) : Stream
-  {
-    public override bool CanRead => inner.CanRead;
-    public override bool CanSeek => false;
-    public override bool CanWrite => false;
-    public override long Length => throw new NotSupportedException();
-    public override long Position
-    {
-      get => throw new NotSupportedException();
-      set => throw new NotSupportedException();
-    }
-
-    public override void Flush() => inner.Flush();
-
-    public override int Read(byte[] buffer, int offset, int count) =>
-      inner.Read(buffer, offset, count);
-
-    public override long Seek(long offset, SeekOrigin origin) =>
-      throw new NotSupportedException();
-
-    public override void SetLength(long value) => throw new NotSupportedException();
-
-    public override void Write(byte[] buffer, int offset, int count) =>
-      throw new NotSupportedException();
   }
 }

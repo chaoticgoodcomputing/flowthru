@@ -115,6 +115,47 @@ public abstract class IFormatSerializerLaws<TRow>
     Assert.That(count, Is.EqualTo(0), "Empty serialization should round-trip to empty deserialization.");
   }
 
+  // ── Non-seekable-input law ─────────────────────────────────────────────
+
+  /// <summary>
+  /// <c>DeserializeRows</c> must succeed when handed a <strong>forward-only</strong>
+  /// (non-seekable) stream — exactly what a real S3 or HTTP response body is. A
+  /// format that needs random access (e.g. Parquet, whose footer lives at the end
+  /// of the file) must buffer the input itself rather than assume a seekable
+  /// source; a forward-only format reads it as-is. Either way the row sequence must
+  /// be identical to the seekable round-trip. Without this law the failure hides
+  /// behind every seekable test stand-in and only surfaces against live storage
+  /// (issue #105).
+  /// </summary>
+  [Test]
+  public async Task NonSeekableDeserializeLaw()
+  {
+    var serializer = CreateSerializer();
+    var input = SampleRows.ToList();
+    Assert.That(input, Is.Not.Empty, "SampleRows must yield at least one row.");
+
+    using var seekable = new MemoryStream();
+    await serializer.SerializeRows(seekable, ToAsync(input));
+    seekable.Position = 0;
+
+    using var forwardOnly = new NonSeekableStream(seekable);
+    Assert.That(forwardOnly.CanSeek, Is.False, "Precondition: the input stream must be non-seekable.");
+
+    var output = new List<TRow>();
+    await foreach (var row in serializer.DeserializeRows(forwardOnly))
+    {
+      output.Add(row);
+    }
+
+    Assert.That(output, Has.Count.EqualTo(input.Count),
+      "Deserializing a non-seekable stream must yield the same row count as a seekable one.");
+    for (int i = 0; i < input.Count; i++)
+    {
+      Assert.That(RowsEqual(output[i], input[i]), Is.True,
+        $"Row {i} differs after a non-seekable round-trip. Expected {input[i]}, got {output[i]}.");
+    }
+  }
+
   // ── Helpers ────────────────────────────────────────────────────────────
 
   private static async IAsyncEnumerable<T> ToAsync<T>(IEnumerable<T> source)
