@@ -47,7 +47,7 @@ flowchart TB
     SplitDataOptions{{"SplitDataOptions"}}
 
     subgraph DataEngineering["DataEngineering"]
-        SplitData["SplitData (python)"]
+        SplitData["SplitData<br>──<br>IPythonExecutor"]
         TrainX[("TrainX")]
         TrainY[("TrainY")]
         TestX[("TestX")]
@@ -55,13 +55,21 @@ flowchart TB
     end
 
     subgraph DataScience["DataScience"]
-        TrainModel["TrainModel (python)"]
+        TrainModel["TrainModel<br>──<br>IPythonExecutor"]
         ModelWeights[("ModelWeights")]
-        Predict["Predict (python)"]
+        Predict["Predict<br>──<br>IPythonExecutor"]
         Predictions[("Predictions")]
-        ReportAccuracy["ReportAccuracy (python)"]
+        ReportAccuracy["ReportAccuracy<br>──<br>IPythonExecutor"]
         AccuracyReport[("AccuracyReport")]
     end
+
+    %% Service legend
+    subgraph service_legend["services"]
+        svc_Flowthru_Step_Python_IPythonExecutor["IPythonExecutor<br>• cache: neutral<br>• cap: 1"]
+    end
+    style service_legend fill:#EEF4FF,stroke:#3B6FB0
+    classDef serviceNode fill:#EEF4FF,stroke:#3B6FB0
+    class svc_Flowthru_Step_Python_IPythonExecutor serviceNode
 
     %% Edges
     IrisRaw --> SplitData

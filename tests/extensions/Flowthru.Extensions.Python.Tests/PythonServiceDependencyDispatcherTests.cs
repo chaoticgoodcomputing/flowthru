@@ -11,10 +11,10 @@ using Microsoft.Extensions.Options;
 namespace Flowthru.Extensions.Python.Tests;
 
 /// <summary>
-/// Pins the routing logic in <see cref="PythonServiceRefDispatcher"/>:
+/// Pins the routing logic in <see cref="PythonServiceDependencyDispatcher"/>:
 /// <list type="bullet">
 ///   <item>Category is the literal "python".</item>
-///   <item>Non-PythonServiceRef inputs fail with a typed error.</item>
+///   <item>Non-PythonServiceDependency inputs fail with a typed error.</item>
 ///   <item>Registered services delegate to the executor's InvokeInspector.</item>
 ///   <item>Unregistered services return a successful Validated (non-fatal,
 ///     mirroring the C#-side IFlowServiceInspector resolution).</item>
@@ -22,18 +22,18 @@ namespace Flowthru.Extensions.Python.Tests;
 /// </summary>
 [TestFixture]
 [Category("Python")]
-public class PythonServiceRefDispatcherTests
+public class PythonServiceDependencyDispatcherTests
 {
-  private static PythonServiceRefDispatcher Build(
+  private static PythonServiceDependencyDispatcher Build(
     PythonRuntimeOptions opts,
     IPythonExecutor executor
   )
   {
     var registry = new PythonServiceInspectorRegistry(Options.Create(opts));
-    return new PythonServiceRefDispatcher(
+    return new PythonServiceDependencyDispatcher(
       registry,
       executor,
-      NullLogger<PythonServiceRefDispatcher>.Instance
+      NullLogger<PythonServiceDependencyDispatcher>.Instance
     );
   }
 
@@ -49,27 +49,27 @@ public class PythonServiceRefDispatcherTests
   {
     var registry = new PythonServiceInspectorRegistry(Options.Create(new PythonRuntimeOptions()));
     var executor = new RecordingExecutor();
-    var logger = NullLogger<PythonServiceRefDispatcher>.Instance;
+    var logger = NullLogger<PythonServiceDependencyDispatcher>.Instance;
 
     Assert.That(
-      () => new PythonServiceRefDispatcher(null!, executor, logger),
+      () => new PythonServiceDependencyDispatcher(null!, executor, logger),
       Throws.TypeOf<ArgumentNullException>()
     );
     Assert.That(
-      () => new PythonServiceRefDispatcher(registry, null!, logger),
+      () => new PythonServiceDependencyDispatcher(registry, null!, logger),
       Throws.TypeOf<ArgumentNullException>()
     );
     Assert.That(
-      () => new PythonServiceRefDispatcher(registry, executor, null!),
+      () => new PythonServiceDependencyDispatcher(registry, executor, null!),
       Throws.TypeOf<ArgumentNullException>()
     );
   }
 
   [Test]
-  public async Task Inspect_NonPythonServiceRef_FailsWithTypedError()
+  public async Task Inspect_NonPythonServiceDependency_FailsWithTypedError()
   {
     var dispatcher = Build(new PythonRuntimeOptions(), new RecordingExecutor());
-    var alienRef = new AlienServiceRef("alien.svc");
+    var alienRef = new AlienServiceDependency("alien.svc");
 
     var io = dispatcher.Inspect(alienRef);
     var result = await io.Run();
@@ -85,7 +85,7 @@ public class PythonServiceRefDispatcherTests
   {
     var executor = new RecordingExecutor();
     var dispatcher = Build(new PythonRuntimeOptions(), executor);
-    var serviceRef = new PythonServiceRef("Services.Unregistered");
+    var serviceRef = new PythonServiceDependency("Services.Unregistered");
 
     var io = dispatcher.Inspect(serviceRef);
     var result = await io.Run();
@@ -104,7 +104,7 @@ public class PythonServiceRefDispatcherTests
 
     var executor = new RecordingExecutor();
     var dispatcher = Build(opts, executor);
-    var serviceRef = new PythonServiceRef("Services.X");
+    var serviceRef = new PythonServiceDependency("Services.X");
 
     var io = dispatcher.Inspect(serviceRef);
     var result = await io.Run();
@@ -118,7 +118,7 @@ public class PythonServiceRefDispatcherTests
 
   // ── Helpers ─────────────────────────────────────────────────────────
 
-  private sealed record AlienServiceRef(string DagId) : IExtensionServiceRef
+  private sealed record AlienServiceDependency(string DagId) : IExtensionServiceDependency
   {
     public string DisplayName => DagId;
     public string Category => "alien";

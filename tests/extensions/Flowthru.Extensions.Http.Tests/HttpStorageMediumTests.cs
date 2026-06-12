@@ -65,6 +65,30 @@ public class HttpStorageMediumTests
   }
 
   [Test]
+  public async Task ReadStream_ForwardOnlyBody_YieldsNonSeekableStream()
+  {
+    // A real HTTP response body is forward-only; HttpStorageMedium streams it via
+    // ResponseHeadersRead without buffering. Pin that the medium passes the
+    // non-seekable stream straight through — a seek-required format reading from
+    // here must do its own buffering (the contract the format laws enforce). The
+    // default StringContent buffers into a seekable MemoryStream and would hide this.
+    const string body = "Id,Name\n1,Alice\n";
+    var response = new HttpResponseMessage(HttpStatusCode.OK) { Content = new ForwardOnlyContent(body) };
+    var handler = new FakeHandler(HttpStatusCode.OK, "") { NextResponse = response };
+    var medium = new HttpStorageMedium(new Uri("https://example.com/data.csv"), new HttpClient(handler));
+
+    var result = await medium.ReadStream().Run();
+    using var stream = ((EffResult<Stream>.Success)result).Value;
+
+    Assert.That(stream.CanSeek, Is.False,
+      "HTTP reads must surface as forward-only, matching the production response body.");
+
+    // Still fully readable forward — the bytes arrive intact.
+    using var reader = new StreamReader(stream);
+    Assert.That(await reader.ReadToEndAsync(), Is.EqualTo(body));
+  }
+
+  [Test]
   public async Task ReadStream_ServerError_ReturnsFailure()
   {
     var medium = new HttpStorageMedium(

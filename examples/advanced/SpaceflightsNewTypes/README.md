@@ -70,7 +70,7 @@ flowchart TB
     subgraph Reporting["Reporting"]
         ComparePassengerCapacity["ComparePassengerCapacity"]
         ShuttleCapacityReport[("ShuttleCapacityReport")]
-        GeneratePassengerCapacityChart["GeneratePassengerCapacityChart<br>──<br>ILogger"]
+        GeneratePassengerCapacityChart["GeneratePassengerCapacityChart"]
         ShuttlePassengerCapacityChart[("ShuttlePassengerCapacityChart")]
         GenerateConfusionMatrixChart["GenerateConfusionMatrixChart"]
         ConfusionMatrixChart[("ConfusionMatrixChart")]

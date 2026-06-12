@@ -46,19 +46,26 @@ namespace Flowthru.Flow;
 public sealed class ParallelFlowScheduler : IFlowScheduler
 {
   private readonly ILogger _logger;
+  private readonly IServiceProfileProvider _profiles;
 
   /// <summary>
-  /// Construct with the engine's shared <see cref="ILogger"/>. The
-  /// engine and every step share one <c>"Flowthru"</c>-category
-  /// logger; this scheduler logs per-step
-  /// lifecycle boundaries directly through it. When no logger is
-  /// supplied (the historical parameterless ctor path used by
-  /// <see cref="BuiltFlow.RunAsync()"/>) the
-  /// <see cref="NullLogger"/> instance drops calls silently.
+  /// Construct with the engine's shared <see cref="ILogger"/> and the
+  /// host's <see cref="IServiceProfileProvider"/>. The engine and every
+  /// step share one <c>"Flowthru"</c>-category logger; this scheduler
+  /// logs per-step lifecycle boundaries directly through it. When no
+  /// logger is supplied (the historical parameterless ctor path used by
+  /// <see cref="BuiltFlow.RunAsync()"/>) the <see cref="NullLogger"/>
+  /// instance drops calls silently. When no profile provider is supplied
+  /// the permissive <see cref="DefaultServiceProfileProvider"/> is used,
+  /// so conflict gating is a no-op until a resource declares a capacity.
   /// </summary>
-  public ParallelFlowScheduler(ILogger? logger = null)
+  public ParallelFlowScheduler(
+    ILogger? logger = null,
+    IServiceProfileProvider? profiles = null
+  )
   {
     _logger = logger ?? NullLogger.Instance;
+    _profiles = profiles ?? new DefaultServiceProfileProvider();
   }
 
   /// <inheritdoc/>
@@ -112,47 +119,92 @@ public sealed class ParallelFlowScheduler : IFlowScheduler
       }
     }
 
-    // ── Initial ready set ─────────────────────────────────────────────
-    var readyQueue = new Queue<int>();
+    // ── Conflict keys per step ────────────────────────────────────────
+    // A step's conflict keys come from its service dependencies whose
+    // resolved profile constrains concurrency (capacity < ∞). The
+    // scheduler admits at most `capacity` concurrent holders of a key,
+    // refusing to *dispatch* an over-capacity step rather than
+    // dispatching it and blocking — the latter wastes a threadpool
+    // thread (the pathology a single-worker resource causes today).
+    // Item-derived read/write keys are a later slice; for now a step's
+    // keys are its own service deps.
+    var capacityByKey = new Dictionary<string, int>(StringComparer.Ordinal);
+    var keysByStep = new string[orderedSteps.Count][];
     for (var i = 0; i < orderedSteps.Count; i++)
-      if (pendingDeps[i] == 0) readyQueue.Enqueue(i);
+    {
+      List<string>? keys = null;
+      foreach (var (dep, op) in ConflictKeys.Of(orderedSteps[i]))
+      {
+        var capacity = _profiles.Resolve(dep).CapacityFor(op);
+        if (capacity >= int.MaxValue) continue; // unbounded for this op — no conflict
+        // The op-class is part of the key, so read:X and write:X are
+        // distinct (concurrent readers don't conflict with one writer).
+        var key = ConflictKeys.KeyFor(dep, op);
+        (keys ??= new List<string>()).Add(key);
+        // A key identifies one shared resource+op, so its capacity is
+        // global; if sources disagree, the most restrictive wins.
+        capacityByKey[key] = capacityByKey.TryGetValue(key, out var existing)
+          ? Math.Min(existing, capacity)
+          : capacity;
+      }
+      keysByStep[i] = keys is null ? Array.Empty<string>() : keys.Distinct().ToArray();
+    }
+
+    // ── Initial ready set ─────────────────────────────────────────────
+    // A List (not a Queue) so the dispatch pass can skip a step blocked
+    // on a full key and still dispatch a later, unblocked one.
+    var ready = new List<int>();
+    for (var i = 0; i < orderedSteps.Count; i++)
+      if (pendingDeps[i] == 0) ready.Add(i);
 
     var stopAcceptingNew = false;
     var inFlight = new Dictionary<Task<(int Index, StepResult Result)>, byte>();
+    var inFlightByKey = new Dictionary<string, int>(StringComparer.Ordinal);
     var maxConcurrency = Math.Max(1, options.Parallelism);
 
-    // ── Dispatch loop ─────────────────────────────────────────────────
-    while (readyQueue.Count > 0 || inFlight.Count > 0)
+    bool KeysAvailable(string[] keys)
     {
-      while (
-        !stopAcceptingNew
-        && readyQueue.Count > 0
-        && inFlight.Count < maxConcurrency
-      )
+      foreach (var key in keys)
+        if (inFlightByKey.GetValueOrDefault(key) >= capacityByKey[key]) return false;
+      return true;
+    }
+
+    // ── Dispatch loop ─────────────────────────────────────────────────
+    while (ready.Count > 0 || inFlight.Count > 0)
+    {
+      // Dispatch pass: scan the ready set in order, dispatching each step
+      // whose keys all have free capacity, up to maxConcurrency. Acquire
+      // all of a step's keys atomically at dispatch — a step never waits
+      // on a key mid-flight, so the conflict layer cannot deadlock.
+      var r = 0;
+      while (!stopAcceptingNew && r < ready.Count && inFlight.Count < maxConcurrency)
       {
-        var idx = readyQueue.Dequeue();
+        var idx = ready[r];
         var step = orderedSteps[idx];
 
-        // Cache short-circuit: when pre-flight produced a plan that
-        // marks this step fresh, the scheduler skips dispatch and
-        // emits a synthetic Succeeded with Reason="cached" and zero
-        // duration. Treated by the dispatch bookkeeping as if it had
-        // run — dependents' pending-dep counts decrement off the
-        // synthetic result the same way a real success would.
+        // Cache short-circuit: a fresh step is never dispatched and
+        // acquires no keys; its dependents unlock off the synthetic
+        // Succeeded exactly as a real success would.
         if (options.CachePlan is { } plan && plan.IsFresh(step.Label))
         {
+          ready.RemoveAt(r);
           resultsByIndex[idx] = new StepResult.Succeeded(step.Label, TimeSpan.Zero)
           {
             Reason = "cached",
           };
           foreach (var dependent in dependents[idx])
-          {
-            if (--pendingDeps[dependent] == 0) readyQueue.Enqueue(dependent);
-          }
-          continue;
+            if (--pendingDeps[dependent] == 0) ready.Add(dependent);
+          continue; // list shifted left; re-evaluate the same index
         }
 
+        // Conflict gate: only dispatch when every key has free capacity.
+        if (!KeysAvailable(keysByStep[idx])) { r++; continue; }
+
+        foreach (var key in keysByStep[idx])
+          inFlightByKey[key] = inFlightByKey.GetValueOrDefault(key) + 1;
+        ready.RemoveAt(r);
         inFlight[ExecuteOneAsync(step, idx, options, cancellationToken)] = 0;
+        // list shifted; the same index now points at the next ready step
       }
 
       if (inFlight.Count == 0) break;
@@ -161,6 +213,10 @@ public sealed class ParallelFlowScheduler : IFlowScheduler
       inFlight.Remove(completed);
       var (idx2, result2) = completed.Result;
       resultsByIndex[idx2] = result2;
+
+      // Release the completed step's keys.
+      foreach (var key in keysByStep[idx2])
+        inFlightByKey[key] = inFlightByKey.GetValueOrDefault(key) - 1;
 
       if (result2 is StepResult.Failed && options.StopOnFirstError)
       {
@@ -172,7 +228,7 @@ public sealed class ParallelFlowScheduler : IFlowScheduler
       {
         foreach (var dependent in dependents[idx2])
         {
-          if (--pendingDeps[dependent] == 0) readyQueue.Enqueue(dependent);
+          if (--pendingDeps[dependent] == 0) ready.Add(dependent);
         }
       }
     }

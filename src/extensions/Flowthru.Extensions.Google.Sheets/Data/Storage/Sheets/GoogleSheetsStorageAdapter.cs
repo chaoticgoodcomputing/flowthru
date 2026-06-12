@@ -3,6 +3,7 @@ using Flowthru.Data.Schema.Mapping;
 using Flowthru.Data.Storage.Sheets.Internal;
 using Flowthru.Prelude;
 using Flowthru.Validation.Runtime;
+using Flowthru.Validation.Runtime.Sheets;
 
 namespace Flowthru.Data.Storage.Sheets;
 
@@ -45,13 +46,22 @@ namespace Flowthru.Data.Storage.Sheets;
 /// </para>
 /// </remarks>
 public sealed class GoogleSheetsStorageAdapter<TRow>
-  : IStorageAdapter<IEnumerable<TRow>>
+  : IStorageAdapter<IEnumerable<TRow>>, IHasServiceDependencies
   where TRow : notnull, IFlatSchema
 {
+  /// <summary>
+  /// Concurrent writers permitted against one spreadsheet. A Save is a
+  /// single atomic <c>batchUpdate</c> per spreadsheet, and two of them
+  /// race on overlapping ranges while doubling the per-user quota draw —
+  /// so writes to one spreadsheet serialize (ADR-0019).
+  /// </summary>
+  private const int SpreadsheetWriteCapacity = 1;
+
   private readonly string _spreadsheetId;
   private readonly string _tableName;
   private readonly ISheetsGateway _gateway;
   private readonly Func<ISheetsGateway, string, string, IReadOnlyList<TRow>, CancellationToken, Task>? _saveFunc;
+  private readonly IReadOnlyList<ServiceDependency> _serviceDependencies;
 
   /// <summary>
   /// Bind the adapter to the table named <paramref name="tableName"/> in
@@ -78,6 +88,11 @@ public sealed class GoogleSheetsStorageAdapter<TRow>
     _tableName = tableName ?? throw new ArgumentNullException(nameof(tableName));
     _gateway = gateway ?? throw new ArgumentNullException(nameof(gateway));
     _saveFunc = saveFunc;
+    _serviceDependencies = new ServiceDependency[]
+    {
+      new ServiceDependency.External(new SheetsSpreadsheetDependency(
+        _spreadsheetId, WriteCapacity: SpreadsheetWriteCapacity, ReadCapacity: int.MaxValue)),
+    };
   }
 
   /// <inheritdoc/>
@@ -87,7 +102,14 @@ public sealed class GoogleSheetsStorageAdapter<TRow>
     // contract), so the transactional claim is honest. No read cursor.
     IsTransactional = true,
     CanStream = false,
+    // The spreadsheet is the conflict resource: concurrent writers
+    // serialize (ADR-0019), readers parallelize.
+    WriteCapacity = SpreadsheetWriteCapacity,
+    ReadCapacity = int.MaxValue,
   };
+
+  /// <inheritdoc/>
+  public IReadOnlyList<ServiceDependency> ServiceDependencies => _serviceDependencies;
 
   /// <inheritdoc/>
   public FlowIO<IEnumerable<TRow>> Load() =>

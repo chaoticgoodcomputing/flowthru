@@ -6,7 +6,7 @@ namespace Flowthru.Step;
 /// <summary>
 /// Process-wide registry of <c>[FlowthruStep]</c> classes to their
 /// source-generated identity record — the <c>CodeVersion</c> string
-/// and the array of declared <see cref="ServiceRef"/>s discovered from
+/// and the array of declared <see cref="ServiceDependency"/>s discovered from
 /// the step's <c>Create</c>-overload parameters. Populated at module
 /// load time via <c>[ModuleInitializer]</c>-attributed companions the
 /// <c>StepMetadataGenerator</c> emits alongside each step's
@@ -48,10 +48,10 @@ public static class StepMetadataRegistry
   /// emissions populate both fields; legacy two-arg registrations get
   /// <see cref="Services"/> defaulted to the empty array.
   /// </summary>
-  public sealed record Entry(string CodeVersion, IReadOnlyList<ServiceRef> Services);
+  public sealed record Entry(string CodeVersion, IReadOnlyList<ServiceDependency> Services);
 
   private static readonly ConcurrentDictionary<Type, Entry> _entriesByType = new();
-  private static readonly IReadOnlyList<ServiceRef> _noServices = Array.Empty<ServiceRef>();
+  private static readonly IReadOnlyList<ServiceDependency> _noServices = Array.Empty<ServiceDependency>();
 
   /// <summary>
   /// Register a (<paramref name="stepType"/>, <paramref name="codeVersion"/>,
@@ -66,7 +66,7 @@ public static class StepMetadataRegistry
   public static void Register(
     Type stepType,
     string codeVersion,
-    IReadOnlyList<ServiceRef>? services = null)
+    IReadOnlyList<ServiceDependency>? services = null)
   {
     if (stepType is null) throw new ArgumentNullException(nameof(stepType));
     if (codeVersion is null) throw new ArgumentNullException(nameof(codeVersion));
@@ -92,7 +92,7 @@ public static class StepMetadataRegistry
   /// null-on-miss contract but on a non-nullable collection so callers
   /// can iterate without a null check.
   /// </summary>
-  public static IReadOnlyList<ServiceRef> TryGetServices(Type stepType)
+  public static IReadOnlyList<ServiceDependency> TryGetServices(Type stepType)
   {
     if (stepType is null) throw new ArgumentNullException(nameof(stepType));
     return _entriesByType.TryGetValue(stepType, out var entry) ? entry.Services : _noServices;

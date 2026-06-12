@@ -101,7 +101,7 @@ public class PythonStepGenerator : IIncrementalGenerator
           {{inputParam}} input,
           {{outputParam}} output,
           IPythonExecutor executor,
-          System.Collections.Generic.IReadOnlyList<ServiceRef>? services = null,
+          System.Collections.Generic.IReadOnlyList<ServiceDependency>? services = null,
           string? codeVersion = null
         )
         {

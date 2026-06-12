@@ -54,12 +54,20 @@ flowchart TB
 
     subgraph DataProcessing["DataProcessing"]
         PreprocessCompanies["PreprocessCompanies"]
-        StagingCompanies[("StagingCompanies")]
+        StagingCompanies[("StagingCompanies<br>──<br>db:tcp://127.0.0.1:32849/spaceflights")]
         PreprocessShuttles["PreprocessShuttles"]
-        StagingShuttles[("StagingShuttles")]
+        StagingShuttles[("StagingShuttles<br>──<br>db:tcp://127.0.0.1:32849/spaceflights")]
         PreprocessReviews["PreprocessReviews"]
-        StagingReviews[("StagingReviews")]
+        StagingReviews[("StagingReviews<br>──<br>db:tcp://127.0.0.1:32849/spaceflights")]
     end
+
+    %% Service legend
+    subgraph service_legend["services"]
+        svc_efcore_Npgsql_EntityFrameworkCore_PostgreSQL_tcp___127_0_0_1_32849_spaceflights["db:tcp://127.0.0.1:32849/spaceflights<br>• cap: ∞"]
+    end
+    style service_legend fill:#EEF4FF,stroke:#3B6FB0
+    classDef serviceNode fill:#EEF4FF,stroke:#3B6FB0
+    class svc_efcore_Npgsql_EntityFrameworkCore_PostgreSQL_tcp___127_0_0_1_32849_spaceflights serviceNode
 
     subgraph Promotion_ds["Promotion"]
         PromoteCompanies["PromoteCompanies"]
@@ -94,23 +102,31 @@ flowchart TB
     ModelOptions{{"ModelOptions"}}
 
     subgraph Promotion_us["Promotion"]
-        ProductionCompanies[("ProductionCompanies")]
-        ProductionReviews[("ProductionReviews")]
-        ProductionShuttles[("ProductionShuttles")]
+        ProductionCompanies[("ProductionCompanies<br>──<br>db:tcp://127.0.0.1:32849/spaceflights")]
+        ProductionReviews[("ProductionReviews<br>──<br>db:tcp://127.0.0.1:32849/spaceflights")]
+        ProductionShuttles[("ProductionShuttles<br>──<br>db:tcp://127.0.0.1:32849/spaceflights")]
     end
 
     subgraph DataScience["DataScience"]
         BuildModelInputTable["BuildModelInputTable"]
         ProductionModelInputTableView[("ProductionModelInputTableView")]
         SplitData["SplitData"]
-        XTrain[("XTrain")]
-        XTest[("XTest")]
+        XTrain[("XTrain<br>──<br>db:tcp://127.0.0.1:32849/spaceflights")]
+        XTest[("XTest<br>──<br>db:tcp://127.0.0.1:32849/spaceflights")]
         TrainModel["TrainModel"]
-        Regressor[("Regressor")]
+        Regressor[("Regressor<br>──<br>db:tcp://127.0.0.1:32849/spaceflights")]
         EvaluateModel["EvaluateModel"]
-        ModelMetrics[("ModelMetrics")]
-        ModelPredictions[("ModelPredictions")]
+        ModelMetrics[("ModelMetrics<br>──<br>db:tcp://127.0.0.1:32849/spaceflights")]
+        ModelPredictions[("ModelPredictions<br>──<br>db:tcp://127.0.0.1:32849/spaceflights")]
     end
+
+    %% Service legend
+    subgraph service_legend["services"]
+        svc_efcore_Npgsql_EntityFrameworkCore_PostgreSQL_tcp___127_0_0_1_32849_spaceflights["db:tcp://127.0.0.1:32849/spaceflights<br>• cap: ∞"]
+    end
+    style service_legend fill:#EEF4FF,stroke:#3B6FB0
+    classDef serviceNode fill:#EEF4FF,stroke:#3B6FB0
+    class svc_efcore_Npgsql_EntityFrameworkCore_PostgreSQL_tcp___127_0_0_1_32849_spaceflights serviceNode
 
     subgraph Reporting_ds["Reporting"]
         GenerateConfusionMatrixChart["GenerateConfusionMatrixChart"]
@@ -143,19 +159,27 @@ flowchart TB
 flowchart TB
 
     subgraph DataProcessing_us["DataProcessing"]
-        StagingCompanies[("StagingCompanies")]
-        StagingReviews[("StagingReviews")]
-        StagingShuttles[("StagingShuttles")]
+        StagingCompanies[("StagingCompanies<br>──<br>db:tcp://127.0.0.1:32849/spaceflights")]
+        StagingReviews[("StagingReviews<br>──<br>db:tcp://127.0.0.1:32849/spaceflights")]
+        StagingShuttles[("StagingShuttles<br>──<br>db:tcp://127.0.0.1:32849/spaceflights")]
     end
 
     subgraph Promotion["Promotion"]
         PromoteCompanies["PromoteCompanies"]
-        ProductionCompanies[("ProductionCompanies")]
+        ProductionCompanies[("ProductionCompanies<br>──<br>db:tcp://127.0.0.1:32849/spaceflights")]
         PromoteShuttles["PromoteShuttles"]
-        ProductionShuttles[("ProductionShuttles")]
+        ProductionShuttles[("ProductionShuttles<br>──<br>db:tcp://127.0.0.1:32849/spaceflights")]
         PromoteReviews["PromoteReviews"]
-        ProductionReviews[("ProductionReviews")]
+        ProductionReviews[("ProductionReviews<br>──<br>db:tcp://127.0.0.1:32849/spaceflights")]
     end
+
+    %% Service legend
+    subgraph service_legend["services"]
+        svc_efcore_Npgsql_EntityFrameworkCore_PostgreSQL_tcp___127_0_0_1_32849_spaceflights["db:tcp://127.0.0.1:32849/spaceflights<br>• cap: ∞"]
+    end
+    style service_legend fill:#EEF4FF,stroke:#3B6FB0
+    classDef serviceNode fill:#EEF4FF,stroke:#3B6FB0
+    class svc_efcore_Npgsql_EntityFrameworkCore_PostgreSQL_tcp___127_0_0_1_32849_spaceflights serviceNode
 
     subgraph DataScience_ds["DataScience"]
         BuildModelInputTable["BuildModelInputTable"]
@@ -194,21 +218,29 @@ flowchart TB
     ConfusionMatrixOptions{{"ConfusionMatrixOptions"}}
 
     subgraph DataScience_us["DataScience"]
-        ModelPredictions[("ModelPredictions")]
+        ModelPredictions[("ModelPredictions<br>──<br>db:tcp://127.0.0.1:32849/spaceflights")]
     end
 
     subgraph Promotion_us["Promotion"]
-        ProductionShuttles[("ProductionShuttles")]
+        ProductionShuttles[("ProductionShuttles<br>──<br>db:tcp://127.0.0.1:32849/spaceflights")]
     end
 
     subgraph Reporting["Reporting"]
         ComparePassengerCapacity["ComparePassengerCapacity"]
         ShuttleCapacityReport[("ShuttleCapacityReport")]
-        GeneratePassengerCapacityChart["GeneratePassengerCapacityChart<br>──<br>ILogger"]
+        GeneratePassengerCapacityChart["GeneratePassengerCapacityChart"]
         ShuttlePassengerCapacityChart[("ShuttlePassengerCapacityChart")]
         GenerateConfusionMatrixChart["GenerateConfusionMatrixChart"]
         ConfusionMatrixChart[("ConfusionMatrixChart")]
     end
+
+    %% Service legend
+    subgraph service_legend["services"]
+        svc_efcore_Npgsql_EntityFrameworkCore_PostgreSQL_tcp___127_0_0_1_32849_spaceflights["db:tcp://127.0.0.1:32849/spaceflights<br>• cap: ∞"]
+    end
+    style service_legend fill:#EEF4FF,stroke:#3B6FB0
+    classDef serviceNode fill:#EEF4FF,stroke:#3B6FB0
+    class svc_efcore_Npgsql_EntityFrameworkCore_PostgreSQL_tcp___127_0_0_1_32849_spaceflights serviceNode
 
     %% Edges
     ProductionShuttles --> ComparePassengerCapacity

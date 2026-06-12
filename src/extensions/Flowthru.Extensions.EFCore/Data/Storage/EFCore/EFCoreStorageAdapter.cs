@@ -49,7 +49,7 @@ namespace Flowthru.Data.Storage.EFCore;
 /// </para>
 /// </remarks>
 public sealed class EFCoreStorageAdapter<T>
-  : IStorageAdapter<IEnumerable<T>>, IHasEfficientCount
+  : IStorageAdapter<IEnumerable<T>>, IHasEfficientCount, IHasServiceDependencies
   where T : class
 {
   private readonly DbContext? _injectedContext;
@@ -58,6 +58,7 @@ public sealed class EFCoreStorageAdapter<T>
   private readonly bool _allowEmptyData;
   private readonly Func<IQueryable<T>, IQueryable<T>>? _queryCustomizer;
   private readonly Func<DbContext, IEnumerable<T>, CancellationToken, Task>? _saveFunc;
+  private readonly IReadOnlyList<ServiceDependency> _serviceDependencies;
 
   /// <summary>Adapter with an injected DbContext (caller owns lifetime).</summary>
   public EFCoreStorageAdapter(
@@ -78,11 +79,17 @@ public sealed class EFCoreStorageAdapter<T>
     // wraps SaveChanges in a transaction). Streaming reflects EF Core's
     // IAsyncEnumerable cursor support; we always materialise on Load
     // for now but the trait stays honest about the underlying capability.
+    // WriteCapacity comes from the provider — SQLite is single-writer
+    // (1); pooled servers stay unbounded (ADR-0019).
+    var conflict = EFCoreConflictProfile.Probe(context);
     Traits = new StorageTraits
     {
       IsTransactional = true,
       CanStream = true,
+      WriteCapacity = conflict.WriteCapacity,
+      ReadCapacity = conflict.ReadCapacity,
     };
+    _serviceDependencies = new[] { conflict.Dependency };
 
     ValidateEntityConfiguration(context);
   }
@@ -101,18 +108,25 @@ public sealed class EFCoreStorageAdapter<T>
     _queryCustomizer = queryCustomizer;
     _saveFunc = saveFunc;
 
+    using var context = contextFactory();
+    var conflict = EFCoreConflictProfile.Probe(context);
     Traits = new StorageTraits
     {
       IsTransactional = true,
       CanStream = true,
+      WriteCapacity = conflict.WriteCapacity,
+      ReadCapacity = conflict.ReadCapacity,
     };
+    _serviceDependencies = new[] { conflict.Dependency };
 
-    using var context = contextFactory();
     ValidateEntityConfiguration(context);
   }
 
   /// <inheritdoc/>
   public StorageTraits Traits { get; }
+
+  /// <inheritdoc/>
+  public IReadOnlyList<ServiceDependency> ServiceDependencies => _serviceDependencies;
 
   /// <inheritdoc/>
   public FlowIO<IEnumerable<T>> Load() =>

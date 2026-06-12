@@ -28,7 +28,7 @@ namespace Flowthru.Step.Python;
 /// </para>
 /// <para>
 /// <strong>Service dependencies.</strong> Pass any
-/// <see cref="ServiceRef"/>s explicitly via the
+/// <see cref="ServiceDependency"/>s explicitly via the
 /// <c>serviceDependencies</c> constructor argument. The build-time
 /// source generator (Q2 path) bakes them in from
 /// <c>@step(services=[…])</c>; the string-based <c>AddPythonStep</c>
@@ -48,6 +48,19 @@ public sealed class PythonStep<TIn, TOut> : IStepNode<TIn, TOut>
   private readonly Func<TOut, FlowIO<FlowUnit>> _saveOutputs;
 
   /// <summary>
+  /// The shared Python worker every step's transform invokes. Declared
+  /// as a service dependency so the scheduler can gate concurrent Python
+  /// steps on the executor's capacity (the subprocess worker is serial) —
+  /// see <c>PythonExecutorProfileContributor</c>. Its resolved profile
+  /// carries <c>AffectsOutputs = false</c>, so it stays cache-neutral:
+  /// Python step determinism is already captured by the step's
+  /// <see cref="CodeVersion"/> (interpreter + source + lockfile), not the
+  /// executor's runtime identity.
+  /// </summary>
+  internal static readonly ServiceDependency ExecutorDependency =
+    ServiceDependency.Of<IPythonExecutor>();
+
+  /// <summary>
   /// Construct a typed Python step description. No IO is performed —
   /// see the type-level remarks for the rationale.
   /// </summary>
@@ -61,7 +74,7 @@ public sealed class PythonStep<TIn, TOut> : IStepNode<TIn, TOut>
     Func<FlowIO<TIn>> loadInputs,
     Func<TOut, FlowIO<FlowUnit>> saveOutputs,
     NodeTraits? traits = null,
-    IReadOnlyList<ServiceRef>? serviceDependencies = null,
+    IReadOnlyList<ServiceDependency>? serviceDependencies = null,
     string? flowLabel = null,
     string? codeVersion = null
   )
@@ -75,7 +88,16 @@ public sealed class PythonStep<TIn, TOut> : IStepNode<TIn, TOut>
     _loadInputs = loadInputs ?? throw new ArgumentNullException(nameof(loadInputs));
     _saveOutputs = saveOutputs ?? throw new ArgumentNullException(nameof(saveOutputs));
     Traits = traits ?? new NodeTraits();
-    ServiceDependencies = serviceDependencies ?? Array.Empty<ServiceRef>();
+    // Append the executor dependency to whatever the caller declared
+    // (decorator-derived @step(services=[…]) refs, or none). This is the
+    // single construction chokepoint shared by the 1×1 factory, the
+    // generated arity matrix, and direct construction — so every Python
+    // step uniformly carries the executor as a conflict resource.
+    var deps = new List<ServiceDependency>(serviceDependencies ?? Array.Empty<ServiceDependency>())
+    {
+      ExecutorDependency,
+    };
+    ServiceDependencies = deps;
     FlowLabel = flowLabel ?? string.Empty;
     CodeVersion = codeVersion;
   }
@@ -115,7 +137,7 @@ public sealed class PythonStep<TIn, TOut> : IStepNode<TIn, TOut>
   public IReadOnlyList<IItem> Outputs { get; }
 
   /// <inheritdoc/>
-  public IReadOnlyList<ServiceRef> ServiceDependencies { get; }
+  public IReadOnlyList<ServiceDependency> ServiceDependencies { get; }
 
   /// <inheritdoc/>
   public string? CodeVersion { get; }

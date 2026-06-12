@@ -5,6 +5,7 @@ using Flowthru.Step.Python.Internal;
 using Flowthru.Validation.PreFlight;
 using Flowthru.Validation.PreFlight.Python;
 using Flowthru.Validation.Runtime;
+using Flowthru.Validation.Runtime.Python;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -133,19 +134,36 @@ public class PythonFlowthruBuilderExtensionsTests
   }
 
   [Test]
-  public void UsePython_RegistersPythonServiceRefDispatcher()
+  public void UsePython_RegistersPythonServiceDependencyDispatcher()
   {
     var (builder, _) = MakeBuilder();
     builder.UsePython();
     using var sp = builder.Services.BuildServiceProvider();
 
-    var dispatchers = sp.GetServices<IServiceRefDispatcher>().ToArray();
+    var dispatchers = sp.GetServices<IServiceDependencyDispatcher>().ToArray();
     Assert.That(dispatchers, Is.Not.Empty,
-      "UsePython() must contribute an IServiceRefDispatcher so PythonServiceRef can be routed.");
+      "UsePython() must contribute an IServiceDependencyDispatcher so PythonServiceDependency can be routed.");
     Assert.That(
-      dispatchers.Any(d => d is PythonServiceRefDispatcher),
+      dispatchers.Any(d => d is PythonServiceDependencyDispatcher),
       Is.True,
-      "At least one dispatcher must be the PythonServiceRefDispatcher matching Category=\"python\"."
+      "At least one dispatcher must be the PythonServiceDependencyDispatcher matching Category=\"python\"."
+    );
+  }
+
+  [Test]
+  public void UsePython_RegistersPythonExecutorProfileContributor()
+  {
+    var (builder, _) = MakeBuilder();
+    builder.UsePython();
+    using var sp = builder.Services.BuildServiceProvider();
+
+    var contributors = sp.GetServices<IServiceProfileContributor>().ToArray();
+    Assert.That(contributors, Is.Not.Empty,
+      "UsePython() must contribute an IServiceProfileContributor so the scheduler can gate Python steps.");
+    Assert.That(
+      contributors.Any(c => c is PythonExecutorProfileContributor),
+      Is.True,
+      "At least one contributor must be the PythonExecutorProfileContributor declaring the executor's capacity."
     );
   }
 
@@ -272,7 +290,7 @@ public class PythonFlowthruBuilderExtensionsTests
       Assert.That(sp.GetService<IPythonServiceInspectorRegistry>(), Is.Not.Null);
       Assert.That(sp.GetService<IPythonExecutor>(), Is.Not.Null);
       Assert.That(
-        sp.GetServices<IServiceRefDispatcher>().Any(d => d is PythonServiceRefDispatcher),
+        sp.GetServices<IServiceDependencyDispatcher>().Any(d => d is PythonServiceDependencyDispatcher),
         Is.True
       );
       Assert.That(

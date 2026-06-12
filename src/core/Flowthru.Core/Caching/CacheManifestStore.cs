@@ -151,11 +151,14 @@ public static class CacheManifestStore
     ComputePostRunFingerprintsAsync(
       BuiltFlow flow,
       IReadOnlySet<string> succeededStepLabels,
+      IServiceProfileProvider? profiles = null,
       CancellationToken cancellationToken = default
     )
   {
     if (flow is null) throw new ArgumentNullException(nameof(flow));
     if (succeededStepLabels is null) throw new ArgumentNullException(nameof(succeededStepLabels));
+
+    var serviceProfiles = profiles ?? new DefaultServiceProfileProvider();
 
     var producerByItemLabel = new Dictionary<string, string>(StringComparer.Ordinal);
     foreach (var step in flow.Steps)
@@ -184,7 +187,12 @@ public static class CacheManifestStore
     {
       cancellationToken.ThrowIfCancellationRequested();
 
-      if (step.CodeVersion is null || step.ServiceDependencies.Count > 0)
+      // Eligibility mirrors CachePlanBuilder: a dep is cache-neutral when
+      // it's ObservationOnly or its profile declares AffectsOutputs=false.
+      if (step.CodeVersion is null
+          || step.ServiceDependencies.Any(r =>
+               r is not ServiceDependency.ObservationOnly
+               && serviceProfiles.Resolve(r).AffectsOutputs))
       {
         ineligibleStepLabels.Add(step.Label);
         continue;

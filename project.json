@@ -46,6 +46,28 @@
         "cwd": ".",
         "parallel": false
       }
+    },
+    "test": {
+      "//": "Root meta-test barrel — composes workspace-wide gates that no single package owns. Mirrors the docs:test composition pattern.",
+      "executor": "nx:noop",
+      "dependsOn": [ "_test:readme-conformance" ]
+    },
+    "_test:readme-conformance": {
+      "//": "GATING. Asserts every shippable src/ package has a README.md matching the per-package skeleton (H1=PackageId, lead paragraph, coverage badge for the package's codecov component, ## Install, and ## Mental model iff under src/extensions/). Pure function of the READMEs + csproj set + codecov.yml, so NX caches it honestly. AFFECTED CAVEAT: each README is owned by its inferred @nx/dotnet package project, so a pure README edit marks that package affected — not this root project. This gate re-runs under `nx affected` when codecov.yml, this script, or Directory.Build.props (a default input of every project) change; for a hard gate on isolated README edits, run `nx run flowthru:_test:readme-conformance` unconditionally in CI.",
+      "executor": "nx:run-commands",
+      "cache": true,
+      "inputs": [
+        "{workspaceRoot}/src/**/README.md",
+        "{workspaceRoot}/src/**/*.csproj",
+        "{workspaceRoot}/codecov.yml",
+        "{workspaceRoot}/scripts/lint-readmes.mjs"
+      ],
+      "outputs": [],
+      "options": {
+        "commands": [ "node scripts/lint-readmes.mjs" ],
+        "cwd": "{workspaceRoot}",
+        "parallel": false
+      }
     }
   }
 }

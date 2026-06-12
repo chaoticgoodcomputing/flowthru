@@ -21,7 +21,8 @@ namespace Flowthru.Data.Storage;
 /// declaration site, not mid-flow.
 /// </para>
 /// </remarks>
-public sealed class ConstrainedStorageAdapter<T> : IStorageAdapter<T>, ISupportsFingerprint
+public sealed class ConstrainedStorageAdapter<T>
+  : IStorageAdapter<T>, ISupportsFingerprint, IHasServiceDependencies
 {
   private readonly IStorageAdapter<T> _inner;
   private readonly string _itemLabel;
@@ -89,6 +90,29 @@ public sealed class ConstrainedStorageAdapter<T> : IStorageAdapter<T>, ISupports
             + "ISupportsFingerprint; constrained item cannot produce a leaf fingerprint."
           )));
 
+  // ── IHasServiceDependencies ──────────────────────────────────────────
+
+  /// <inheritdoc/>
+  /// <remarks>
+  /// Surfaces the inner adapter's conflict resources so a constrained item
+  /// keeps the gating it inherited — constraining (e.g. to read-only) must
+  /// not silently drop it. Each dependency that opts into
+  /// <see cref="ICapacityConstrainable"/> is also ratcheted down to this
+  /// item's constrained <see cref="StorageTraits.WriteCapacity"/> /
+  /// <see cref="StorageTraits.ReadCapacity"/>, so tightening an item's
+  /// capacity flows through to the scheduler.
+  /// </remarks>
+  public IReadOnlyList<ServiceDependency> ServiceDependencies =>
+    _inner is IHasServiceDependencies declarer
+      ? declarer.ServiceDependencies.Select(ClampToConstrainedCapacity).ToArray()
+      : Array.Empty<ServiceDependency>();
+
+  private ServiceDependency ClampToConstrainedCapacity(ServiceDependency dependency) =>
+    dependency is ServiceDependency.External { Cause: ICapacityConstrainable constrainable }
+      ? new ServiceDependency.External(
+          constrainable.ClampTo(Traits.WriteCapacity, Traits.ReadCapacity))
+      : dependency;
+
   // ── One-way-ratchet enforcement ──────────────────────────────────────
 
   private static void AssertOneWayRatchet(
@@ -103,6 +127,10 @@ public sealed class ConstrainedStorageAdapter<T> : IStorageAdapter<T>, ISupports
     AssertNarrowing(nameof(StorageTraits.CanStream), original.CanStream, narrowed.CanStream, itemLabel);
     AssertNarrowing(nameof(StorageTraits.CanAppend), original.CanAppend, narrowed.CanAppend, itemLabel);
     AssertNarrowing(nameof(StorageTraits.IsTransactional), original.IsTransactional, narrowed.IsTransactional, itemLabel);
+    // Capacity narrows by lowering: a constraint can tighten concurrency
+    // (∞ → pool size → 1) but never loosen it past what the medium claims.
+    AssertCapacityNarrowing(nameof(StorageTraits.WriteCapacity), original.WriteCapacity, narrowed.WriteCapacity, itemLabel);
+    AssertCapacityNarrowing(nameof(StorageTraits.ReadCapacity), original.ReadCapacity, narrowed.ReadCapacity, itemLabel);
   }
 
   private static void AssertNarrowing(string traitName, bool original, bool narrowed, string itemLabel)
@@ -112,6 +140,18 @@ public sealed class ConstrainedStorageAdapter<T> : IStorageAdapter<T>, ISupports
       throw new ArgumentException(
         $"Constraint on item '{itemLabel}' attempted to widen trait '{traitName}' "
         + $"from false to true. Constraints are a one-way ratchet — they can only narrow, never widen."
+      );
+    }
+  }
+
+  private static void AssertCapacityNarrowing(string traitName, int original, int narrowed, string itemLabel)
+  {
+    if (narrowed > original)
+    {
+      throw new ArgumentException(
+        $"Constraint on item '{itemLabel}' attempted to raise capacity '{traitName}' "
+        + $"from {original} to {narrowed}. Capacity constraints are a one-way ratchet — "
+        + "they can only lower concurrency, never raise it past what the medium declares."
       );
     }
   }

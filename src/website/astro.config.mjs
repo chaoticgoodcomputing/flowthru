@@ -40,7 +40,6 @@ export default defineConfig({
       // the scheduled docs-external-links workflow, so it's not checked here.
       // errorOnRelativeLinks:false allows relative links (which the tutorial
       // chapters and section landings use) while still validating they resolve.
-      // errorOnRelativeLinks:false — relative links are the repo convention.
       // errorOnLocalLinks:false — the generated API reference embeds example
       //   endpoints from docstrings (e.g. S3Options' `http://localhost:9000`
       //   for MinIO/LocalStack). docfx emits them as raw <code> HTML, which is

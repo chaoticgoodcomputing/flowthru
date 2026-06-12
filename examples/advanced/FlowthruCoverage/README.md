@@ -49,15 +49,14 @@ The headline outputs in [`Data/_04_Reporting/Datasets/`](./Data/_04_Reporting/Da
 ### Diagram
 
 <!-- flowthru:mermaid:start -->
+#### Coverage
+
 ```mermaid
 flowchart TB
 
     %% External Data Inputs
     CoverageXmlFiles[("CoverageXmlFiles")]
     ProjectManifest[("ProjectManifest")]
-    SrcInventory[("SrcInventory")]
-    UnitCoverageReportOptions{{"UnitCoverageReportOptions"}}
-    UnitCoverageReportTemplate[("UnitCoverageReportTemplate")]
 
     subgraph Coverage["Coverage"]
         FlattenCobertura["FlattenCobertura"]
@@ -74,16 +73,65 @@ flowchart TB
         MethodNameSummary[("MethodNameSummary")]
     end
 
+    subgraph Reporting_ds["Reporting"]
+        BuildProvenanceIcicleCoverage["BuildProvenanceIcicleCoverage"]
+        ClassifyCoverage["ClassifyCoverage"]
+        FilterUncoveredMethodHits["FilterUncoveredMethodHits"]
+        FilterUncoveredMethodNames["FilterUncoveredMethodNames"]
+    end
+
+    %% Edges
+    CoverageXmlFiles --> FlattenCobertura
+    FlattenCobertura --> LineCoverage
+    LineCoverage --> AggregateCoverage
+    AggregateCoverage --> PackageCoverage
+    LineCoverage --> FilterCompilerGenerated
+    FilterCompilerGenerated --> MethodLineCoverage
+    MethodLineCoverage --> BuildMethodCoverage
+    BuildMethodCoverage --> MethodCoverage
+    MethodCoverage --> BuildMethodHitSummary
+    ProjectManifest --> BuildMethodHitSummary
+    BuildMethodHitSummary --> MethodHitSummary
+    MethodCoverage --> BuildMethodNameSummary
+    ProjectManifest --> BuildMethodNameSummary
+    BuildMethodNameSummary --> MethodNameSummary
+    MethodLineCoverage --> BuildProvenanceIcicleCoverage
+    PackageCoverage --> ClassifyCoverage
+    MethodHitSummary --> FilterUncoveredMethodHits
+    MethodNameSummary --> FilterUncoveredMethodNames
+
+    classDef collapsed stroke-dasharray:5 5,fill:transparent
+    class Reporting_ds collapsed
+```
+
+#### Reporting
+
+```mermaid
+flowchart TB
+
+    %% External Data Inputs
+    ProjectManifest[("ProjectManifest")]
+    SrcInventory[("SrcInventory")]
+    UnitCoverageReportOptions{{"UnitCoverageReportOptions"}}
+    UnitCoverageReportTemplate[("UnitCoverageReportTemplate")]
+
+    subgraph Coverage_us["Coverage"]
+        MethodHitSummary[("MethodHitSummary")]
+        MethodLineCoverage[("MethodLineCoverage")]
+        MethodNameSummary[("MethodNameSummary")]
+        PackageCoverage[("PackageCoverage")]
+    end
+
     subgraph Reporting["Reporting"]
         ClassifyCoverage["ClassifyCoverage"]
         PivotCoverage[("PivotCoverage")]
         BuildProvenanceIcicleCoverage["BuildProvenanceIcicleCoverage"]
         ProvenanceIcicleCoverage[("ProvenanceIcicleCoverage")]
-        GenerateCoverageHeatmap["GenerateCoverageHeatmap (python)"]
+        GenerateCoverageHeatmap["GenerateCoverageHeatmap<br>──<br>IPythonExecutor"]
         CoverageHeatmap[("CoverageHeatmap")]
         AggregatePackageCoverage["AggregatePackageCoverage"]
         PackageCoverageMax[("PackageCoverageMax")]
-        GenerateProvenanceCoverageIcicle["GenerateProvenanceCoverageIcicle (python)"]
+        GenerateProvenanceCoverageIcicle["GenerateProvenanceCoverageIcicle<br>──<br>IPythonExecutor"]
         ProvenanceCoverageIcicles[("ProvenanceCoverageIcicles")]
         BuildUnitCoverageReport["BuildUnitCoverageReport"]
         UnitCoverageReport[("UnitCoverageReport")]
@@ -97,18 +145,18 @@ flowchart TB
         UncoveredMethodNames[("UncoveredMethodNames")]
     end
 
+    %% Service legend
+    subgraph service_legend["services"]
+        svc_Flowthru_Step_Python_IPythonExecutor["IPythonExecutor<br>• cache: neutral<br>• cap: 1"]
+    end
+    style service_legend fill:#EEF4FF,stroke:#3B6FB0
+    classDef serviceNode fill:#EEF4FF,stroke:#3B6FB0
+    class svc_Flowthru_Step_Python_IPythonExecutor serviceNode
+
     %% Edges
-    CoverageXmlFiles --> FlattenCobertura
-    FlattenCobertura --> LineCoverage
-    LineCoverage --> AggregateCoverage
-    AggregateCoverage --> PackageCoverage
-    LineCoverage --> FilterCompilerGenerated
-    FilterCompilerGenerated --> MethodLineCoverage
     PackageCoverage --> ClassifyCoverage
     ProjectManifest --> ClassifyCoverage
     ClassifyCoverage --> PivotCoverage
-    MethodLineCoverage --> BuildMethodCoverage
-    BuildMethodCoverage --> MethodCoverage
     MethodLineCoverage --> BuildProvenanceIcicleCoverage
     ProjectManifest --> BuildProvenanceIcicleCoverage
     SrcInventory --> BuildProvenanceIcicleCoverage
@@ -117,12 +165,6 @@ flowchart TB
     GenerateCoverageHeatmap --> CoverageHeatmap
     PivotCoverage --> AggregatePackageCoverage
     AggregatePackageCoverage --> PackageCoverageMax
-    MethodCoverage --> BuildMethodHitSummary
-    ProjectManifest --> BuildMethodHitSummary
-    BuildMethodHitSummary --> MethodHitSummary
-    MethodCoverage --> BuildMethodNameSummary
-    ProjectManifest --> BuildMethodNameSummary
-    BuildMethodNameSummary --> MethodNameSummary
     ProvenanceIcicleCoverage --> GenerateProvenanceCoverageIcicle
     GenerateProvenanceCoverageIcicle --> ProvenanceCoverageIcicles
     ProvenanceIcicleCoverage --> BuildUnitCoverageReport
@@ -138,6 +180,8 @@ flowchart TB
     UncoveredMethodNamesRaw --> FilterRemoteSourceFilesNames
     FilterRemoteSourceFilesNames --> UncoveredMethodNames
 
+    classDef collapsed stroke-dasharray:5 5,fill:transparent
+    class Coverage_us collapsed
 ```
 <!-- flowthru:mermaid:end -->
 
@@ -175,6 +219,9 @@ FlowthruCoverage/
 │   │   │   ├── Flowthru.Misc.DataFrames.Tests.xml
 │   │   │   ├── Flowthru.Tests.xml
 │   │   │   ├── FlowthruCoverage.xml
+│   │   │   ├── Iris.xml
+│   │   │   ├── IrisFUnit.xml
+│   │   │   ├── IrisPython.xml
 │   │   │   ├── KedroIris.xml
 │   │   │   ├── KedroIrisFUnit.xml
 │   │   │   ├── KedroIrisPython.xml
@@ -195,6 +242,7 @@ FlowthruCoverage/
 │   │   │   ├── SpaceflightsGQL.xml
 │   │   │   ├── SpaceflightsHybridCatalog.xml
 │   │   │   ├── SpaceflightsNewTypes.xml
+│   │   │   ├── SpaceflightsPython.xml
 │   │   │   ├── SpaceflightsPythonEFCore.xml
 │   │   │   ├── SpaceflightsStagingSchema.xml
 │   │   │   └── src_inventory.csv

@@ -27,7 +27,7 @@ namespace Flowthru.Data.Storage.EFCore;
 /// — the table's invariant has been violated by some other writer.
 /// </para>
 /// </remarks>
-public sealed class EFCoreSingleStorageAdapter<T> : IStorageAdapter<T>
+public sealed class EFCoreSingleStorageAdapter<T> : IStorageAdapter<T>, IHasServiceDependencies
   where T : class
 {
   private readonly DbContext? _injectedContext;
@@ -36,6 +36,7 @@ public sealed class EFCoreSingleStorageAdapter<T> : IStorageAdapter<T>
   private readonly bool _allowEmptyData;
   private readonly Func<IQueryable<T>, IQueryable<T>>? _queryCustomizer;
   private readonly Func<DbContext, T, CancellationToken, Task>? _saveFunc;
+  private readonly IReadOnlyList<ServiceDependency> _serviceDependencies;
 
   /// <summary>Adapter with an injected DbContext (caller owns lifetime).</summary>
   public EFCoreSingleStorageAdapter(
@@ -51,11 +52,15 @@ public sealed class EFCoreSingleStorageAdapter<T> : IStorageAdapter<T>
     _allowEmptyData = allowEmptyData;
     _queryCustomizer = queryCustomizer;
     _saveFunc = saveFunc;
+    var conflict = EFCoreConflictProfile.Probe(context);
     Traits = new StorageTraits
     {
       IsTransactional = true,
       CanStream = true,
+      WriteCapacity = conflict.WriteCapacity,
+      ReadCapacity = conflict.ReadCapacity,
     };
+    _serviceDependencies = new[] { conflict.Dependency };
     EFCoreEntityValidation.Validate<T>(context);
   }
 
@@ -72,18 +77,25 @@ public sealed class EFCoreSingleStorageAdapter<T> : IStorageAdapter<T>
     _allowEmptyData = allowEmptyData;
     _queryCustomizer = queryCustomizer;
     _saveFunc = saveFunc;
+
+    using var context = contextFactory();
+    var conflict = EFCoreConflictProfile.Probe(context);
     Traits = new StorageTraits
     {
       IsTransactional = true,
       CanStream = true,
+      WriteCapacity = conflict.WriteCapacity,
+      ReadCapacity = conflict.ReadCapacity,
     };
-
-    using var context = contextFactory();
+    _serviceDependencies = new[] { conflict.Dependency };
     EFCoreEntityValidation.Validate<T>(context);
   }
 
   /// <inheritdoc/>
   public StorageTraits Traits { get; }
+
+  /// <inheritdoc/>
+  public IReadOnlyList<ServiceDependency> ServiceDependencies => _serviceDependencies;
 
   /// <inheritdoc/>
   public FlowIO<T> Load() =>

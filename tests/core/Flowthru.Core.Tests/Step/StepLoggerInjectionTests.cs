@@ -46,7 +46,7 @@ public static class FixtureLoggingStep
 /// a <c>[FlowthruStep]</c> class declares
 /// <see cref="ILogger"/> as a parameter on its <c>Create()</c>
 /// factory; the source generator extracts it as a
-/// <see cref="ServiceRef.ObservationOnly"/>; the host
+/// <see cref="ServiceDependency.ObservationOnly"/>; the host
 /// resolves it through DI; the step's logged lines hit the captured
 /// provider.
 /// </summary>
@@ -63,10 +63,10 @@ public class StepLoggerInjectionTests
   }
 
   [Test]
-  public void SourceGenerator_ExtractsILoggerParameter_AsObservationOnlyServiceRef()
+  public void SourceGenerator_ExtractsILoggerParameter_AsObservationOnlyServiceDependency()
   {
     // The [FlowthruStep] generator inspects Create() parameter types
-    // and registers interface-typed params as ServiceRefs on the
+    // and registers interface-typed params as ServiceDependencies on the
     // step's metadata. ILogger (non-generic) must round-trip through
     // this path so the engine's shared "Flowthru"-category logger is
     // resolvable at flow-construction time — AND it must be emitted
@@ -77,10 +77,10 @@ public class StepLoggerInjectionTests
     Assert.That(entry, Is.Not.Null,
       "ModuleInitializer should have registered the fixture step before any test runs.");
     Assert.That(
-      entry!.Services.OfType<ServiceRef.ObservationOnly>()
+      entry!.Services.OfType<ServiceDependency.ObservationOnly>()
         .Any(r => r.ServiceType == typeof(ILogger)),
       Is.True,
-      "Step metadata must record ILogger as an ObservationOnly ServiceRef. Found: "
+      "Step metadata must record ILogger as an ObservationOnly ServiceDependency. Found: "
         + string.Join(", ", entry.Services.Select(s => $"{s.GetType().Name}({s.DisplayName})"))
     );
   }

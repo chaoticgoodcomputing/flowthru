@@ -6,17 +6,17 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Flowthru.Core.Tests.Runtime;
 
 /// <summary>
-/// Tests for the <see cref="IServiceRefDispatcher"/> extension-point contract:
+/// Tests for the <see cref="IServiceDependencyDispatcher"/> extension-point contract:
 /// extension-defined service references (the
-/// <see cref="ServiceRef.External"/> variant) reach an implementation via the
-/// dispatcher's <see cref="IServiceRefDispatcher.Category"/> matching the
-/// wrapped <see cref="IExtensionServiceRef.Category"/>, and inspection
+/// <see cref="ServiceDependency.External"/> variant) reach an implementation via the
+/// dispatcher's <see cref="IServiceDependencyDispatcher.Category"/> matching the
+/// wrapped <see cref="IExtensionServiceDependency.Category"/>, and inspection
 /// returns an aggregating <see cref="Validated{TError, TValue}"/> over
 /// <see cref="PreFlightError"/>.
 /// </summary>
 /// <remarks>
 /// <para>
-/// Ports the legacy <c>02_Validation/PreFlightInspection/ServiceRefDispatcherTests</c>
+/// Ports the legacy <c>02_Validation/PreFlightInspection/ServiceDependencyDispatcherTests</c>
 /// (gap #2 from the test-coverage gap analysis). The active branch ships the
 /// dispatcher contract on Core but has not yet wired the dispatch loop into
 /// <see cref="PreFlightPipeline"/>; these tests pin the dispatcher's
@@ -36,13 +36,13 @@ namespace Flowthru.Core.Tests.Runtime;
 /// </para>
 /// </remarks>
 [TestFixture]
-public class ServiceRefDispatcherTests
+public class ServiceDependencyDispatcherTests
 {
   // ── Test-only extension types ───────────────────────────────────────
 
-  /// <summary>An <see cref="IExtensionServiceRef"/> for a fictional category.</summary>
-  private sealed record FakeExtensionServiceRef(string DagId, string DisplayName, string Category)
-    : IExtensionServiceRef;
+  /// <summary>An <see cref="IExtensionServiceDependency"/> for a fictional category.</summary>
+  private sealed record FakeExtensionServiceDependency(string DagId, string DisplayName, string Category)
+    : IExtensionServiceDependency;
 
   private enum DispatcherBehavior { Pass, Fail, Throw }
 
@@ -51,7 +51,7 @@ public class ServiceRefDispatcherTests
   /// returns a configurable outcome. Matches a single category (set in
   /// the constructor); refs of other categories should not reach it.
   /// </summary>
-  private sealed class RecordingDispatcher : IServiceRefDispatcher
+  private sealed class RecordingDispatcher : IServiceDependencyDispatcher
   {
     private readonly DispatcherBehavior _behavior;
     private readonly string? _failureDetail;
@@ -69,9 +69,9 @@ public class ServiceRefDispatcherTests
 
     public string Category { get; }
     public int InvokeCount { get; private set; }
-    public IExtensionServiceRef? LastRef { get; private set; }
+    public IExtensionServiceDependency? LastRef { get; private set; }
 
-    public FlowIO<Validated<PreFlightError, FlowUnit>> Inspect(IExtensionServiceRef serviceRef)
+    public FlowIO<Validated<PreFlightError, FlowUnit>> Inspect(IExtensionServiceDependency serviceRef)
     {
       InvokeCount++;
       LastRef = serviceRef;
@@ -105,14 +105,14 @@ public class ServiceRefDispatcherTests
   public void Category_MatchesExtensionRefCategory_DispatcherSelected()
   {
     // An extension consumer (the future pre-flight integration site) routes
-    // an IExtensionServiceRef to its dispatcher by matching Category. This
+    // an IExtensionServiceDependency to its dispatcher by matching Category. This
     // test pins the routing-by-string contract — without it, a custom
     // dispatcher cannot be found from a heterogeneous registration.
-    var ext = new FakeExtensionServiceRef(
+    var ext = new FakeExtensionServiceDependency(
       DagId: "ext.python.X.Y", DisplayName: "Y", Category: "python");
     var python = new RecordingDispatcher(category: "python");
     var sql = new RecordingDispatcher(category: "sql");
-    var dispatchers = new IServiceRefDispatcher[] { sql, python };
+    var dispatchers = new IServiceDependencyDispatcher[] { sql, python };
 
     var matched = dispatchers.FirstOrDefault(d =>
       string.Equals(d.Category, ext.Category, StringComparison.Ordinal));
@@ -131,7 +131,7 @@ public class ServiceRefDispatcherTests
   public async Task Inspect_OnSuccess_ReturnsValid()
   {
     var dispatcher = new RecordingDispatcher(category: "ext");
-    var ext = new FakeExtensionServiceRef("ext.svc.X", "X", "ext");
+    var ext = new FakeExtensionServiceDependency("ext.svc.X", "X", "ext");
 
     var io = dispatcher.Inspect(ext);
     var effResult = await io.Run(CancellationToken.None);
@@ -156,7 +156,7 @@ public class ServiceRefDispatcherTests
       behavior: DispatcherBehavior.Fail,
       failureDetail: "service unreachable"
     );
-    var ext = new FakeExtensionServiceRef("ext.svc.Z", "Z", "ext");
+    var ext = new FakeExtensionServiceDependency("ext.svc.Z", "Z", "ext");
 
     var effResult = await dispatcher.Inspect(ext).Run(CancellationToken.None);
     var validated = ((EffResult<Validated<PreFlightError, FlowUnit>>.Success)effResult).Value;
@@ -184,7 +184,7 @@ public class ServiceRefDispatcherTests
     // than letting it escape uncaught.
     var dispatcher = new RecordingDispatcher(
       category: "ext", behavior: DispatcherBehavior.Throw);
-    var ext = new FakeExtensionServiceRef("ext.svc.Bad", "Bad", "ext");
+    var ext = new FakeExtensionServiceDependency("ext.svc.Bad", "Bad", "ext");
 
     var effResult = await dispatcher.Inspect(ext).Run(CancellationToken.None);
 
@@ -208,27 +208,27 @@ public class ServiceRefDispatcherTests
     // halt.
     using var sp = new ServiceCollection().BuildServiceProvider();
 
-    var dispatchers = sp.GetServices<IServiceRefDispatcher>();
+    var dispatchers = sp.GetServices<IServiceDependencyDispatcher>();
 
     Assert.That(dispatchers, Is.Empty,
-      "With no dispatcher registered, IEnumerable<IServiceRefDispatcher> resolution must be empty.");
+      "With no dispatcher registered, IEnumerable<IServiceDependencyDispatcher> resolution must be empty.");
   }
 
   [Test]
   public void DI_TwoDispatchersRegistered_BothResolveViaGetServices()
   {
     // The dispatch surface is plural — Core's integration site resolves
-    // IEnumerable<IServiceRefDispatcher> so multiple extensions can
+    // IEnumerable<IServiceDependencyDispatcher> so multiple extensions can
     // coexist (Python + SQL + …). Two distinct registrations must both
     // surface.
     var services = new ServiceCollection();
     var python = new RecordingDispatcher(category: "python");
     var sql = new RecordingDispatcher(category: "sql");
-    services.AddSingleton<IServiceRefDispatcher>(python);
-    services.AddSingleton<IServiceRefDispatcher>(sql);
+    services.AddSingleton<IServiceDependencyDispatcher>(python);
+    services.AddSingleton<IServiceDependencyDispatcher>(sql);
 
     using var sp = services.BuildServiceProvider();
-    var dispatchers = sp.GetServices<IServiceRefDispatcher>().ToArray();
+    var dispatchers = sp.GetServices<IServiceDependencyDispatcher>().ToArray();
 
     Assert.Multiple(() =>
     {
@@ -239,24 +239,24 @@ public class ServiceRefDispatcherTests
     });
   }
 
-  // ── (6) External ServiceRef wraps the extension ref correctly ───────
+  // ── (6) External ServiceDependency wraps the extension ref correctly ───────
 
   [Test]
-  public void ServiceRef_External_ExposesExtensionRefProperties()
+  public void ServiceDependency_External_ExposesExtensionRefProperties()
   {
-    // The dispatch loop reaches an IExtensionServiceRef via
-    // ServiceRef.External(cause). Pin that DagId/DisplayName flow through
+    // The dispatch loop reaches an IExtensionServiceDependency via
+    // ServiceDependency.External(cause). Pin that DagId/DisplayName flow through
     // the wrapper unchanged — without this, a Category match would still
     // produce the wrong identity at the dispatcher boundary.
-    var ext = new FakeExtensionServiceRef("ext.cat.X.Y", "Y", "cat");
-    var serviceRef = new ServiceRef.External(ext);
+    var ext = new FakeExtensionServiceDependency("ext.cat.X.Y", "Y", "cat");
+    var serviceRef = new ServiceDependency.External(ext);
 
     Assert.Multiple(() =>
     {
       Assert.That(serviceRef.DagId, Is.EqualTo("ext.cat.X.Y"));
       Assert.That(serviceRef.DisplayName, Is.EqualTo("Y"));
       Assert.That(serviceRef.Cause, Is.SameAs(ext),
-        "The wrapped IExtensionServiceRef must be reachable for dispatcher routing.");
+        "The wrapped IExtensionServiceDependency must be reachable for dispatcher routing.");
       Assert.That(serviceRef.Cause.Category, Is.EqualTo("cat"));
     });
   }

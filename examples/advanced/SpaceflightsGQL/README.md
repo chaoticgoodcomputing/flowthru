@@ -135,6 +135,14 @@ flowchart TB
         GqlDatabaseSeeded[("GqlDatabaseSeeded")]
     end
 
+    %% Service legend
+    subgraph service_legend["services"]
+        svc_SpaceflightsGQL_Infra_GqlClient_ISpaceflightsClient["ISpaceflightsClient<br>• cache: affecting<br>• cap: ∞"]
+    end
+    style service_legend fill:#EEF4FF,stroke:#3B6FB0
+    classDef serviceNode fill:#EEF4FF,stroke:#3B6FB0
+    class svc_SpaceflightsGQL_Infra_GqlClient_ISpaceflightsClient serviceNode
+
     subgraph DataProcessing_ds["DataProcessing"]
         CreateModelInputTable["CreateModelInputTable"]
     end
@@ -182,7 +190,7 @@ flowchart TB
     subgraph Reporting["Reporting"]
         ComparePassengerCapacity["ComparePassengerCapacity"]
         ShuttleCapacityReport[("ShuttleCapacityReport")]
-        GeneratePassengerCapacityChart["GeneratePassengerCapacityChart<br>──<br>ILogger"]
+        GeneratePassengerCapacityChart["GeneratePassengerCapacityChart"]
         ShuttlePassengerCapacityChart[("ShuttlePassengerCapacityChart")]
         GenerateConfusionMatrixChart["GenerateConfusionMatrixChart"]
         ConfusionMatrixChart[("ConfusionMatrixChart")]

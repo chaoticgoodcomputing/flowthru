@@ -31,7 +31,7 @@ namespace Flowthru.Data.Storage.EFCore;
 /// </remarks>
 /// <typeparam name="T">Entity type — must match the wrapped adapter's element type.</typeparam>
 public sealed class EFCoreFingerprintingStorageAdapter<T>
-  : IStorageAdapter<IEnumerable<T>>, IHasEfficientCount, ISupportsFingerprint
+  : IStorageAdapter<IEnumerable<T>>, IHasEfficientCount, ISupportsFingerprint, IHasServiceDependencies
   where T : class
 {
   private readonly EFCoreStorageAdapter<T> _inner;
@@ -54,6 +54,10 @@ public sealed class EFCoreFingerprintingStorageAdapter<T>
 
   /// <inheritdoc/>
   public StorageTraits Traits => _inner.Traits;
+
+  /// <inheritdoc/>
+  public IReadOnlyList<ServiceDependency> ServiceDependencies =>
+    ((IHasServiceDependencies)_inner).ServiceDependencies;
 
   /// <inheritdoc/>
   public FlowIO<IEnumerable<T>> Load() => _inner.Load();

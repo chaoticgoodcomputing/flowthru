@@ -14,7 +14,7 @@ namespace Flowthru.Step.Python;
 /// <c>IFlowServiceInspector&lt;TService&gt;</c>
 /// registration on the C# side. Both paths feed the same preflight
 /// aggregation loop in <c>Flow.RunAsync</c> after the
-/// <c>ServiceRef</c> migration in core.
+/// <c>ServiceDependency</c> migration in core.
 /// </para>
 /// <para>
 /// Lookups are by exact <see cref="PythonServiceRegistration.ServiceClassPath"/>

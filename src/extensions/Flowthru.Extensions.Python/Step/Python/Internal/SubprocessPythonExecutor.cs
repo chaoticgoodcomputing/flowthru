@@ -107,6 +107,17 @@ public sealed class SubprocessPythonExecutor : IPythonExecutor, IFlowResourcePro
     _logger = logger ?? throw new ArgumentNullException(nameof(logger));
   }
 
+  /// <inheritdoc/>
+  /// <remarks>
+  /// One worker process, one stdin/stdout pipe; every <see cref="Invoke{TInput, TOutput}"/>
+  /// is serialized behind <c>lock (_lock)</c> + a blocking read of the
+  /// worker's response. Two concurrent invocations would interleave on
+  /// the pipe, so this executor is strictly serial — declared
+  /// explicitly rather than inherited so the contract survives any change
+  /// to the interface default.
+  /// </remarks>
+  public int MaxConcurrency => 1;
+
   // ── IFlowResourceProvider ───────────────────────────────────────────────────────────────
 
   public IFlowResource? FlowResource => Flowthru.Prelude.FlowResource.Make<string>(

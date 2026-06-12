@@ -34,7 +34,7 @@ public class HermeticValidationTests
 
   /// <summary>Minimal external service ref for the dispatcher-presence test.</summary>
   private sealed record FakeExternalRef(string DagId, string DisplayName, string Category)
-    : IExtensionServiceRef;
+    : IExtensionServiceDependency;
 
   // ── Smoke test: Hermetic + DryRun performs no registration I/O ───────
 
@@ -234,7 +234,7 @@ public class HermeticValidationTests
       outputs: new IItem[] { output },
       loadInputs: () => input.Load(),
       saveOutputs: v => output.Save(v),
-      serviceDependencies: new ServiceRef[] { ServiceRef.Of<IUnregisteredService>() }
+      serviceDependencies: new ServiceDependency[] { ServiceDependency.Of<IUnregisteredService>() }
     );
 
     var services = BuildHost(host =>
@@ -255,7 +255,7 @@ public class HermeticValidationTests
   }
 
   [Test]
-  public async Task Hermetic_MissingDispatcherForExternalServiceRef_IsCaught()
+  public async Task Hermetic_MissingDispatcherForExternalServiceDependency_IsCaught()
   {
     // Dispatcher presence is hermetic (a dictionary lookup). A step
     // referencing an external category with no registered dispatcher fails
@@ -269,9 +269,9 @@ public class HermeticValidationTests
       outputs: new IItem[] { output },
       loadInputs: () => input.Load(),
       saveOutputs: v => output.Save(v),
-      serviceDependencies: new ServiceRef[]
+      serviceDependencies: new ServiceDependency[]
       {
-        new ServiceRef.External(new FakeExternalRef("ext-1", "Ext One", "no-such-category")),
+        new ServiceDependency.External(new FakeExternalRef("ext-1", "Ext One", "no-such-category")),
       }
     );
 

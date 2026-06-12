@@ -2,6 +2,7 @@ using System.Text.Json.Serialization;
 using Flowthru.Caching;
 using Flowthru.Flow;
 using Flowthru.Step;
+using Flowthru.Validation.Runtime;
 
 namespace Flowthru.Diagnostics.Json.Internal;
 
@@ -58,6 +59,16 @@ internal sealed record DagMetadataProjection
   [JsonPropertyOrder(6)]
   public CachePlanProjection? CachePlan { get; init; }
 
+  /// <summary>
+  /// Every service used in the DAG with its resolved profile and the steps
+  /// that touch it (ADR-0019): capacity (write/read), cacheability, the ops
+  /// it's used under, and its members. A service whose finite capacity is
+  /// exceeded by its users reports <c>serializes: true</c> — the
+  /// conflict-group view. Empty when the flow declares no service deps.
+  /// </summary>
+  [JsonPropertyOrder(7)]
+  public required IReadOnlyList<ServiceProjection> Services { get; init; }
+
   public static DagMetadataProjection From(FlowMetadataContext ctx)
   {
     var merged = ctx.MergedFlow;
@@ -113,6 +124,11 @@ internal sealed record DagMetadataProjection
       }
     }
 
+    var services = ServiceUsageAnalyzer
+      .Analyze(merged, ctx.ServiceProfiles ?? new DefaultServiceProfileProvider())
+      .Select(ServiceProjection.From)
+      .ToList();
+
     return new DagMetadataProjection
     {
       FlowName = ctx.EffectiveFlow.Label,
@@ -124,8 +140,82 @@ internal sealed record DagMetadataProjection
         .ToList(),
       Edges = edges,
       CachePlan = CachePlanProjection.From(plan, ctx.BypassCacheReads),
+      Services = services,
     };
   }
+}
+
+/// <summary>
+/// One service used in the DAG: its resolved profile (capacities,
+/// cacheability), the ops it's touched under, whether it serializes its
+/// users, and the steps that use it (ADR-0019).
+/// </summary>
+internal sealed record ServiceProjection
+{
+  /// <summary>Human-readable resource name (the dependency's display name).</summary>
+  [JsonPropertyOrder(0)]
+  public required string Resource { get; init; }
+
+  /// <summary>Stable resource identity — for tooling that joins on it.</summary>
+  [JsonPropertyOrder(1)]
+  public required string DagId { get; init; }
+
+  /// <summary>Ops the service is touched under: <c>"Use"</c> (injected), <c>"Read"</c> (input item), <c>"Write"</c> (output item).</summary>
+  [JsonPropertyOrder(2)]
+  public required IReadOnlyList<string> Ops { get; init; }
+
+  /// <summary>Concurrent holders for Use/Write. <see cref="int.MaxValue"/> (2147483647) = unbounded.</summary>
+  [JsonPropertyOrder(3)]
+  public required int WriteCapacity { get; init; }
+
+  /// <summary>Concurrent holders for Read. <see cref="int.MaxValue"/> = unbounded.</summary>
+  [JsonPropertyOrder(4)]
+  public required int ReadCapacity { get; init; }
+
+  /// <summary>Whether using it keeps dependent steps cacheable. <c>null</c> for item-backed (Read/Write) resources, where it doesn't apply.</summary>
+  [JsonPropertyOrder(5)]
+  public required bool? Cacheable { get; init; }
+
+  /// <summary>
+  /// True for an observation-only surface (e.g. ILogger) — it can't change
+  /// outputs or gate concurrency. The Mermaid diagram filters these out;
+  /// JSON consumers can do the same.
+  /// </summary>
+  [JsonPropertyOrder(6)]
+  public required bool Observation { get; init; }
+
+  /// <summary>True when a finite capacity is exceeded by its users — the scheduler serializes them.</summary>
+  [JsonPropertyOrder(7)]
+  public required bool Serializes { get; init; }
+
+  /// <summary>The steps that touch this service, with the op each uses.</summary>
+  [JsonPropertyOrder(8)]
+  public required IReadOnlyList<ServiceMemberProjection> UsedBy { get; init; }
+
+  public static ServiceProjection From(ServiceUsage usage) => new()
+  {
+    Resource = usage.DisplayName,
+    DagId = usage.DagId,
+    Ops = usage.Ops.Select(o => o.ToString()).ToList(),
+    WriteCapacity = usage.WriteCapacity,
+    ReadCapacity = usage.ReadCapacity,
+    Cacheable = usage.Cacheable,
+    Observation = usage.IsObservationOnly,
+    Serializes = usage.Serializes,
+    UsedBy = usage.UsedBy
+      .Select(m => new ServiceMemberProjection { Step = m.StepLabel, Op = m.Op.ToString() })
+      .ToList(),
+  };
+}
+
+/// <summary>One step's use of a service, with the op it uses.</summary>
+internal sealed record ServiceMemberProjection
+{
+  [JsonPropertyOrder(0)]
+  public required string Step { get; init; }
+
+  [JsonPropertyOrder(1)]
+  public required string Op { get; init; }
 }
 
 /// <summary>

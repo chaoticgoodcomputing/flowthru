@@ -573,7 +573,7 @@ public class PythonStepFactoryGenerator : IIncrementalGenerator
           global::Flowthru.Step.Python.IPythonExecutor executor,
           {{EmitInputItemParameters(inputTypes)}},
           {{EmitOutputItemParameters(outputTypes)}},
-          System.Collections.Generic.IReadOnlyList<global::Flowthru.Validation.Runtime.ServiceRef>? services = null,
+          System.Collections.Generic.IReadOnlyList<global::Flowthru.Validation.Runtime.ServiceDependency>? services = null,
           string? codeVersion = null
         )
         {

@@ -36,12 +36,13 @@ namespace Flowthru.Data.Storage.EFCore;
 /// </para>
 /// </remarks>
 public sealed class EFCoreQueryStorageAdapter<T>
-  : IStorageAdapter<IEnumerable<T>>, IHasEfficientCount
+  : IStorageAdapter<IEnumerable<T>>, IHasEfficientCount, IHasServiceDependencies
   where T : class
 {
   private readonly DbQuery<T> _handle;
   private readonly bool _allowEmptyData;
   private readonly Func<DbContext, IEnumerable<T>, CancellationToken, Task>? _saveFunc;
+  private readonly IReadOnlyList<ServiceDependency> _serviceDependencies;
 
   /// <summary>Adapter with an injected DbContext (caller owns lifetime).</summary>
   public EFCoreQueryStorageAdapter(
@@ -63,11 +64,15 @@ public sealed class EFCoreQueryStorageAdapter<T>
     );
     _allowEmptyData = allowEmptyData;
     _saveFunc = saveFunc;
+    var conflict = EFCoreConflictProfile.Probe(context);
     Traits = new StorageTraits
     {
       IsTransactional = true,
       CanStream = true,
+      WriteCapacity = conflict.WriteCapacity,
+      ReadCapacity = conflict.ReadCapacity,
     };
+    _serviceDependencies = new[] { conflict.Dependency };
     ValidateEntityConfiguration(context);
   }
 
@@ -91,17 +96,24 @@ public sealed class EFCoreQueryStorageAdapter<T>
     );
     _allowEmptyData = allowEmptyData;
     _saveFunc = saveFunc;
+    using var ctx = contextFactory();
+    var conflict = EFCoreConflictProfile.Probe(ctx);
     Traits = new StorageTraits
     {
       IsTransactional = true,
       CanStream = true,
+      WriteCapacity = conflict.WriteCapacity,
+      ReadCapacity = conflict.ReadCapacity,
     };
-    using var ctx = contextFactory();
+    _serviceDependencies = new[] { conflict.Dependency };
     ValidateEntityConfiguration(ctx);
   }
 
   /// <inheritdoc/>
   public StorageTraits Traits { get; }
+
+  /// <inheritdoc/>
+  public IReadOnlyList<ServiceDependency> ServiceDependencies => _serviceDependencies;
 
   /// <inheritdoc/>
   /// <remarks>Returns the deferred handle — no database I/O yet.</remarks>

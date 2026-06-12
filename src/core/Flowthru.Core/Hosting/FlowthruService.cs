@@ -337,6 +337,9 @@ public sealed class FlowthruService : IFlowthruService
         .ToHashSet(StringComparer.Ordinal),
       RequestedFlowLabel = flowLabel,
       BypassCacheReads = options.BypassCacheReads,
+      // Hand providers the resolved profiles so they can surface conflict
+      // groups (ADR-0019) — the same provider the scheduler gates on.
+      ServiceProfiles = _services.GetService<IServiceProfileProvider>(),
     };
 
     // Run the body, capture the FlowResult, then release LIFO with
@@ -556,11 +559,11 @@ public sealed class FlowthruService : IFlowthruService
       // Extension-supplied service-ref dispatchers — resolved from DI as
       // a plural surface so multiple extensions (Python + SQL + ...) can
       // coexist. Layer 4 inside PreFlightPipeline matches each step's
-      // ServiceRef.External by Category to find its dispatcher; an
+      // ServiceDependency.External by Category to find its dispatcher; an
       // unregistered category surfaces as PreFlightError.RegistrationCheckFailed
       // at every scope (presence is hermetic; only the Inspect probe is I/O).
       var dispatchers = _services
-        .GetServices<Flowthru.Validation.Runtime.IServiceRefDispatcher>()
+        .GetServices<Flowthru.Validation.Runtime.IServiceDependencyDispatcher>()
         .ToList();
 
       // DI-registration query for the hermetic C# service-dependency check.
@@ -624,7 +627,11 @@ public sealed class FlowthruService : IFlowthruService
             .LoadAsync(cacheItem, cancellationToken)
             .ConfigureAwait(false);
           var cachePlan = await CachePlanBuilder
-            .BuildAsync(effectiveFlow, manifest, cancellationToken)
+            .BuildAsync(
+              effectiveFlow,
+              manifest,
+              _services.GetService<IServiceProfileProvider>(),
+              cancellationToken)
             .ConfigureAwait(false);
           options = options with { CachePlan = cachePlan };
           metadataContext = metadataContext with { CachePlan = cachePlan };
@@ -702,7 +709,11 @@ public sealed class FlowthruService : IFlowthruService
         );
 
         var postRunFingerprints = await CacheManifestStore
-          .ComputePostRunFingerprintsAsync(effectiveFlow, ranSuccessfully, cancellationToken)
+          .ComputePostRunFingerprintsAsync(
+            effectiveFlow,
+            ranSuccessfully,
+            _services.GetService<IServiceProfileProvider>(),
+            cancellationToken)
           .ConfigureAwait(false);
 
         // Build the combined Steps + Items maps. Phase 8: items get their

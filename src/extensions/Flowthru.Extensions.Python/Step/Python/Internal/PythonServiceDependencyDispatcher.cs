@@ -9,11 +9,11 @@ using Microsoft.Extensions.Logging;
 namespace Flowthru.Step.Python.Internal;
 
 /// <summary>
-/// Routes <see cref="ServiceRef.External"/> values whose
-/// <see cref="IExtensionServiceRef.Category"/> is <c>"python"</c> to
+/// Routes <see cref="ServiceDependency.External"/> values whose
+/// <see cref="IExtensionServiceDependency.Category"/> is <c>"python"</c> to
 /// the Python executor's sidecar inspector. Registered via DI by
 /// <c>UsePython()</c>; Core's pre-flight pipeline picks it up through
-/// the <see cref="IEnumerable{IServiceRefDispatcher}"/> resolution.
+/// the <see cref="IEnumerable{IServiceDependencyDispatcher}"/> resolution.
 /// </summary>
 /// <remarks>
 /// <para>
@@ -24,16 +24,16 @@ namespace Flowthru.Step.Python.Internal;
 /// <see cref="IFlowServiceInspector{T}"/> resolution semantics.
 /// </para>
 /// </remarks>
-internal sealed class PythonServiceRefDispatcher : IServiceRefDispatcher
+internal sealed class PythonServiceDependencyDispatcher : IServiceDependencyDispatcher
 {
   private readonly IPythonServiceInspectorRegistry _registry;
   private readonly IPythonExecutor _executor;
-  private readonly ILogger<PythonServiceRefDispatcher> _logger;
+  private readonly ILogger<PythonServiceDependencyDispatcher> _logger;
 
-  public PythonServiceRefDispatcher(
+  public PythonServiceDependencyDispatcher(
     IPythonServiceInspectorRegistry registry,
     IPythonExecutor executor,
-    ILogger<PythonServiceRefDispatcher> logger
+    ILogger<PythonServiceDependencyDispatcher> logger
   )
   {
     _registry = registry ?? throw new ArgumentNullException(nameof(registry));
@@ -45,17 +45,17 @@ internal sealed class PythonServiceRefDispatcher : IServiceRefDispatcher
   public string Category => "python";
 
   /// <inheritdoc/>
-  public FlowIO<Validated<PreFlightError, FlowUnit>> Inspect(IExtensionServiceRef serviceRef)
+  public FlowIO<Validated<PreFlightError, FlowUnit>> Inspect(IExtensionServiceDependency serviceRef)
   {
-    if (serviceRef is not PythonServiceRef python)
+    if (serviceRef is not PythonServiceDependency python)
     {
-      // Defensive: Category="python" should only ever produce PythonServiceRef
+      // Defensive: Category="python" should only ever produce PythonServiceDependency
       // values; mismatch is a programming error in whoever constructed the ref.
       return FlowIO.Pure(Validated<PreFlightError, FlowUnit>.Fail(
         new PreFlightError.External(
           new PythonPreFlightError.ServiceInspectionFailed(
             ServiceClassPath: serviceRef.DagId,
-            Detail: $"Expected PythonServiceRef but got {serviceRef.GetType().Name}."
+            Detail: $"Expected PythonServiceDependency but got {serviceRef.GetType().Name}."
           )
         )
       ));

@@ -53,6 +53,15 @@ public static class ServiceCollectionExtensions
     // way TryAddSingleton works for any DI default.
     services.TryAddSingleton<IFlowScheduler, ParallelFlowScheduler>();
 
+    // Service-profile provider — composes every registered
+    // IServiceProfileContributor by conservative meet (same shape as the
+    // IStorageMediumProvider → StorageMediumResolver pattern below). With
+    // no contributors it returns Unbounded for everything, so conflict
+    // gating is a no-op until an extension declares a resource's capacity.
+    // TryAdd preserves any provider a host registered ahead of AddFlowthru.
+    services.TryAddSingleton<IServiceProfileProvider>(sp =>
+      new CompositeServiceProfileProvider(sp.GetServices<IServiceProfileContributor>()));
+
     // Execution defaults (Parallelism, …) flow through the standard
     // Options pipeline so they can be set via ConfigureExecution(...)
     // or bound from appsettings. The validator turns a nonsensical

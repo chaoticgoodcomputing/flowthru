@@ -3,7 +3,7 @@ namespace Flowthru.Step.Python;
 /// <summary>
 /// One service ↔ sidecar-inspector linkage, populated by
 /// <c>UsePython(o =&gt; o.RegisterService(...))</c> and consumed by
-/// <c>PythonServiceRefDispatcher</c> through the inspector registry.
+/// <c>PythonServiceDependencyDispatcher</c> through the inspector registry.
 /// </summary>
 /// <param name="ServiceClassPath">
 /// Fully-qualified Python class path of the service —
@@ -11,7 +11,7 @@ namespace Flowthru.Step.Python;
 /// by <c>@step(services=[…])</c>'s <c>__flowthru_services__</c>
 /// attribute, so the pre-flight pipeline can look up registrations by
 /// exact string equality on
-/// <see cref="Validation.Runtime.Python.PythonServiceRef.ClassPath"/>.
+/// <see cref="Validation.Runtime.Python.PythonServiceDependency.ClassPath"/>.
 /// </param>
 /// <param name="InspectorModule">
 /// Fully-qualified Python module path of the sidecar inspector —

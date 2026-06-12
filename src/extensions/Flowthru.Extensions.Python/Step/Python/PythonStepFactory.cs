@@ -25,7 +25,7 @@ namespace Flowthru.Flow;
 /// </para>
 /// <para>
 /// <strong>Service dependencies.</strong> Pass any
-/// <see cref="ServiceRef"/>s via the <c>services</c> argument. The
+/// <see cref="ServiceDependency"/>s via the <c>services</c> argument. The
 /// build-time source-generator path bakes them in from
 /// <c>@step(services=[…])</c>; the string-based escape hatch leaves
 /// them empty unless the caller supplies them. The pre-flight hook
@@ -52,9 +52,9 @@ public static partial class PythonStepFactory
   /// <param name="executor">Python executor (subprocess or Python.NET).</param>
   /// <param name="services">
   /// Optional service-dependency list. Each entry is typically a
-  /// <c>ServiceRef.External(new PythonServiceRef("Module.Class"))</c>;
+  /// <c>ServiceDependency.External(new PythonServiceDependency("Module.Class"))</c>;
   /// pre-flight will dispatch each through
-  /// <c>PythonServiceRefDispatcher</c>. Leave <c>null</c> when the
+  /// <c>PythonServiceDependencyDispatcher</c>. Leave <c>null</c> when the
   /// step has no service dependencies.
   /// </param>
   /// <param name="codeVersion">
@@ -74,7 +74,7 @@ public static partial class PythonStepFactory
     IItem<TIn> input,
     IItem<TOut> output,
     IPythonExecutor executor,
-    IReadOnlyList<ServiceRef>? services = null,
+    IReadOnlyList<ServiceDependency>? services = null,
     string? codeVersion = null
   )
     where TIn : notnull

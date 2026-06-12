@@ -47,36 +47,44 @@ flowchart TB
     SplitDataOptions{{"SplitDataOptions"}}
 
     subgraph DataProcessing["DataProcessing"]
-        PreprocessCompanies["PreprocessCompanies (python)"]
+        PreprocessCompanies["PreprocessCompanies<br>──<br>IPythonExecutor"]
         PreprocessedCompanies[("PreprocessedCompanies")]
-        PreprocessShuttles["PreprocessShuttles (python)"]
+        PreprocessShuttles["PreprocessShuttles<br>──<br>IPythonExecutor"]
         PreprocessedShuttles[("PreprocessedShuttles")]
-        CreateModelInputTable["CreateModelInputTable (python)"]
+        CreateModelInputTable["CreateModelInputTable<br>──<br>IPythonExecutor"]
         ModelInputTable[("ModelInputTable")]
     end
 
     subgraph DataScience["DataScience"]
-        SplitData["SplitData (python)"]
+        SplitData["SplitData<br>──<br>IPythonExecutor"]
         XTrain[("XTrain")]
         XTest[("XTest")]
         YTrain[("YTrain")]
         YTest[("YTest")]
-        TrainModel["TrainModel (python)"]
+        TrainModel["TrainModel<br>──<br>IPythonExecutor"]
         Regressor[("Regressor")]
-        EvaluateModel["EvaluateModel (python)"]
+        EvaluateModel["EvaluateModel<br>──<br>IPythonExecutor"]
         ModelMetrics[("ModelMetrics")]
-        GeneratePredictions["GeneratePredictions (python)"]
+        GeneratePredictions["GeneratePredictions<br>──<br>IPythonExecutor"]
         ModelPredictions[("ModelPredictions")]
     end
 
     subgraph Reporting["Reporting"]
-        ComparePassengerCapacityExpress["ComparePassengerCapacityExpress (python)"]
+        ComparePassengerCapacityExpress["ComparePassengerCapacityExpress<br>──<br>IPythonExecutor"]
         CapacityPlotExpress[("CapacityPlotExpress")]
-        ComparePassengerCapacityGraphObj["ComparePassengerCapacityGraphObj (python)"]
+        ComparePassengerCapacityGraphObj["ComparePassengerCapacityGraphObj<br>──<br>IPythonExecutor"]
         CapacityPlotGraphObj[("CapacityPlotGraphObj")]
-        CreateConfusionMatrix["CreateConfusionMatrix (python)"]
+        CreateConfusionMatrix["CreateConfusionMatrix<br>──<br>IPythonExecutor"]
         ConfusionMatrix[("ConfusionMatrix")]
     end
+
+    %% Service legend
+    subgraph service_legend["services"]
+        svc_Flowthru_Step_Python_IPythonExecutor["IPythonExecutor<br>• cache: neutral<br>• cap: 1"]
+    end
+    style service_legend fill:#EEF4FF,stroke:#3B6FB0
+    classDef serviceNode fill:#EEF4FF,stroke:#3B6FB0
+    class svc_Flowthru_Step_Python_IPythonExecutor serviceNode
 
     %% Edges
     Companies --> PreprocessCompanies

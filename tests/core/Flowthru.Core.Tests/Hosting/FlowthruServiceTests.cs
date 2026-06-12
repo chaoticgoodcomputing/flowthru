@@ -307,7 +307,7 @@ public class FlowthruServiceTests
     public NodeTraits Traits => new();
     public IReadOnlyList<IItem> Inputs => Array.Empty<IItem>();
     public IReadOnlyList<IItem> Outputs => Array.Empty<IItem>();
-    public IReadOnlyList<ServiceRef> ServiceDependencies => Array.Empty<ServiceRef>();
+    public IReadOnlyList<ServiceDependency> ServiceDependencies => Array.Empty<ServiceDependency>();
     public FlowIO<Flowthru.Data.Storage.ValidationResult> Validate() =>
       FlowIO.Pure(Flowthru.Data.Storage.ValidationResult.Success());
     public FlowIO<FlowUnit> Execute() => FlowIO.Pure(FlowUnit.Default);

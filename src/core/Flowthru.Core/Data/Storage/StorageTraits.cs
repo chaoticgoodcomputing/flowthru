@@ -43,4 +43,26 @@ public record StorageTraits
 
   /// <summary>Are writes atomic (all-or-nothing)? Default <c>false</c>.</summary>
   public bool IsTransactional { get; init; } = false;
+
+  // ── Concurrency capacity (conflict gating, ADR-0019) ──
+
+  /// <summary>
+  /// Maximum number of concurrent <em>writers</em> the medium tolerates.
+  /// <see cref="int.MaxValue"/> (the default) is unbounded — the medium
+  /// imposes no write-concurrency limit. A single-writer medium (SQLite)
+  /// declares <c>1</c>; a pooled server declares its pool size. The
+  /// scheduler serializes steps whose output items share a finite-capacity
+  /// resource (see <see cref="Flowthru.Validation.Runtime.ServiceProfile.Capacity"/>).
+  /// Narrows only (a <c>Constrain</c> can lower it, never raise it).
+  /// </summary>
+  public int WriteCapacity { get; init; } = int.MaxValue;
+
+  /// <summary>
+  /// Maximum number of concurrent <em>readers</em> the medium tolerates.
+  /// <see cref="int.MaxValue"/> (the default) is unbounded — concurrent
+  /// reads of one resource usually don't conflict (SQLite allows many
+  /// readers). A medium that can't be read concurrently lowers this.
+  /// Narrows only.
+  /// </summary>
+  public int ReadCapacity { get; init; } = int.MaxValue;
 }

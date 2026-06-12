@@ -71,4 +71,17 @@ public sealed class Item<T> : IItem<T>
   /// <inheritdoc/>
   public string? StorageKind =>
     _storage is IHasStorageKind kinded ? kinded.StorageKind : null;
+
+  /// <inheritdoc/>
+  /// <remarks>
+  /// Surfaces the conflict resources an adapter declares via
+  /// <see cref="IHasServiceDependencies"/> (a database scope, a
+  /// rate-limited endpoint) so the scheduler can gate concurrent steps
+  /// that share them. Adapters that don't implement the capability —
+  /// every file-backed format — report none, and gating stays a no-op.
+  /// </remarks>
+  public IReadOnlyList<Validation.Runtime.ServiceDependency> ServiceDependencies =>
+    _storage is IHasServiceDependencies declarer
+      ? declarer.ServiceDependencies
+      : Array.Empty<Validation.Runtime.ServiceDependency>();
 }

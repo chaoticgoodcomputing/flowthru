@@ -3,8 +3,10 @@ using Flowthru.Flow;
 using Flowthru.Prelude;
 using Flowthru.Validation.PreFlight;
 using Flowthru.Validation.Runtime;
+using Flowthru.Validation.Runtime.EFCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Flowthru.Hosting;
 
@@ -20,6 +22,40 @@ namespace Flowthru.Hosting;
 /// </summary>
 public static class EFCoreFlowthruBuilderExtensions
 {
+  /// <summary>
+  /// Enable EF Core scheduler conflict gating (ADR-0019). Registers the
+  /// <see cref="IServiceProfileContributor"/> that resolves an EF Core
+  /// database dependency to its read/write capacity, so the scheduler
+  /// serializes concurrent writes to a single-writer database (SQLite)
+  /// while letting reads — and pooled-server writes — parallelize.
+  /// </summary>
+  /// <remarks>
+  /// <para>
+  /// EF Core catalog items always <em>declare</em> their database as a
+  /// conflict resource; this call supplies the contributor that turns
+  /// that declaration into an enforced capacity. Without it, EF Core
+  /// concurrency is ungated — preserving pre-ADR-0019 behaviour, but a
+  /// SQLite flow run at <c>Parallelism &gt; 1</c> can still hit
+  /// "database is locked". Call it once when wiring an EF Core catalog.
+  /// </para>
+  /// <para>
+  /// Idempotent: the contributor is registered with
+  /// <see cref="ServiceCollectionDescriptorExtensions.TryAddEnumerable(IServiceCollection, ServiceDescriptor)"/>
+  /// semantics so repeated calls (or multiple EF Core catalogs) don't
+  /// stack duplicate contributors.
+  /// </para>
+  /// </remarks>
+  /// <param name="builder">The Flowthru builder.</param>
+  public static IFlowthruBuilder UseEFCore(this IFlowthruBuilder builder)
+  {
+    if (builder is null) throw new ArgumentNullException(nameof(builder));
+
+    builder.Services.TryAddEnumerable(
+      ServiceDescriptor.Singleton<IServiceProfileContributor, EFCoreDatabaseProfileContributor>());
+
+    return builder;
+  }
+
   /// <summary>
   /// Register a hook that opens a connection probe for
   /// <typeparamref name="TContext"/> at host startup. Catches

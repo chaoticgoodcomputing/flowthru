@@ -17,7 +17,7 @@ namespace Flowthru.Validation.PreFlight;
 /// <list type="bullet">
 ///   <item><b>Hermetic</b> (run at every scope): C# service-dependency DI
 ///   registration presence, and dispatcher presence for
-///   <see cref="ServiceRef.External"/> refs.</item>
+///   <see cref="ServiceDependency.External"/> refs.</item>
 ///   <item><b>Full only</b>: adapter-internal inspections of every input
 ///   item, registered <see cref="IFlowValidationHook"/>s, caller-supplied
 ///   service inspections, and <c>dispatcher.Inspect</c> probes.</item>
@@ -45,11 +45,11 @@ public static class PreFlightPipeline
   /// <param name="serviceProbes">Service-inspector probes; null = none.</param>
   /// <param name="serviceRefDispatchers">
   /// Extension-supplied dispatchers for
-  /// <see cref="ServiceRef.External"/> service references. Each dispatcher
-  /// declares the <see cref="IServiceRefDispatcher.Category"/> it handles;
+  /// <see cref="ServiceDependency.External"/> service references. Each dispatcher
+  /// declares the <see cref="IServiceDependencyDispatcher.Category"/> it handles;
   /// the pipeline routes every external service ref encountered in the
   /// flow's <c>ServiceDependencies</c> to its matching dispatcher's
-  /// <see cref="IServiceRefDispatcher.Inspect"/>. A category with no
+  /// <see cref="IServiceDependencyDispatcher.Inspect"/>. A category with no
   /// registered dispatcher surfaces as
   /// <see cref="PreFlightError.RegistrationCheckFailed"/>.
   /// </param>
@@ -76,7 +76,7 @@ public static class PreFlightPipeline
     BuiltFlow flow,
     IReadOnlyList<IFlowValidationHook>? hooks = null,
     IReadOnlyList<FlowIO<Validated<PreFlightError, FlowUnit>>>? serviceProbes = null,
-    IReadOnlyList<IServiceRefDispatcher>? serviceRefDispatchers = null,
+    IReadOnlyList<IServiceDependencyDispatcher>? serviceRefDispatchers = null,
     InspectionLevel inspectionLevel = InspectionLevel.Shallow,
     int maxDegreeOfParallelism = 1,
     PreFlightScope scope = PreFlightScope.Full,
@@ -119,8 +119,8 @@ public static class PreFlightPipeline
           {
             var serviceType = dependency switch
             {
-              ServiceRef.CSharp cs => cs.ServiceType,
-              ServiceRef.ObservationOnly oo => oo.ServiceType,
+              ServiceDependency.CSharp cs => cs.ServiceType,
+              ServiceDependency.ObservationOnly oo => oo.ServiceType,
               _ => null,
             };
             if (serviceType is null) continue;
@@ -284,7 +284,7 @@ public static class PreFlightPipeline
       }
 
       // Layer 4 — dispatcher-resolved external service refs. Walk every
-      // step's ServiceDependencies, filter to ServiceRef.External, dedupe
+      // step's ServiceDependencies, filter to ServiceDependency.External, dedupe
       // by DagId so each unique extension service is probed at most once
       // per flow, then route to the dispatcher registered for the ref's
       // Category. An external category with no registered dispatcher is
@@ -296,9 +296,9 @@ public static class PreFlightPipeline
       // extension wiring).
       {
         // Build a category → dispatcher index up front; last-write-wins
-        // on duplicate categories (matches the IServiceRefDispatcher
+        // on duplicate categories (matches the IServiceDependencyDispatcher
         // contract: "categories must be unique").
-        var dispatchersByCategory = new Dictionary<string, IServiceRefDispatcher>(
+        var dispatchersByCategory = new Dictionary<string, IServiceDependencyDispatcher>(
           StringComparer.Ordinal
         );
         if (serviceRefDispatchers is not null)
@@ -309,13 +309,13 @@ public static class PreFlightPipeline
           }
         }
 
-        var seenServiceRefIds = new HashSet<string>(StringComparer.Ordinal);
+        var seenServiceDependencyIds = new HashSet<string>(StringComparer.Ordinal);
         foreach (var step in flow.Steps)
         {
           foreach (var dependency in step.ServiceDependencies)
           {
-            if (dependency is not ServiceRef.External external) continue;
-            if (!seenServiceRefIds.Add(external.Cause.DagId)) continue;
+            if (dependency is not ServiceDependency.External external) continue;
+            if (!seenServiceDependencyIds.Add(external.Cause.DagId)) continue;
 
             // Presence check (hermetic — pure dictionary lookup, no I/O):
             // a referenced category with no registered dispatcher is a
@@ -325,11 +325,11 @@ public static class PreFlightPipeline
               aggregated.Add(Validated<PreFlightError, FlowUnit>.Fail(
                 new PreFlightError.RegistrationCheckFailed(
                   HookId: $"service-ref-dispatch:{external.Cause.Category}",
-                  CheckMessage: $"No IServiceRefDispatcher registered for category "
+                  CheckMessage: $"No IServiceDependencyDispatcher registered for category "
                     + $"'{external.Cause.Category}' (referenced by service ref "
                     + $"'{external.Cause.DagId}' on step '{step.Label}').",
-                  Details: "Extensions that introduce a ServiceRef.External category must also "
-                    + "register an IServiceRefDispatcher with that Category via DI."
+                  Details: "Extensions that introduce a ServiceDependency.External category must also "
+                    + "register an IServiceDependencyDispatcher with that Category via DI."
                 )
               ));
               continue;

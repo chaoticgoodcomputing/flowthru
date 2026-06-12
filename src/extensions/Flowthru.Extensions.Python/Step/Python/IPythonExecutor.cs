@@ -91,4 +91,22 @@ public interface IPythonExecutor
   /// </para>
   /// </remarks>
   string? GetInterpreterVersion() => null;
+
+  /// <summary>
+  /// Maximum number of <see cref="Invoke{TInput, TOutput}"/> calls this
+  /// executor can service at once. The scheduler gates concurrent Python
+  /// steps on this ceiling (via the extension's
+  /// <c>IServiceProfileContributor</c>): an executor that can't run two
+  /// transforms in parallel reports its true capacity here, and the
+  /// scheduler serializes Python steps accordingly.
+  /// </summary>
+  /// <remarks>
+  /// Defaults to <c>1</c> — the conservative serial floor that matches
+  /// the shipped <c>SubprocessPythonExecutor</c> (one worker process, one
+  /// lock-serialized stdin/stdout pipe). An executor that genuinely
+  /// supports concurrent invocation — a process pool, an RPC fan-out —
+  /// overrides this with its real capacity so the scheduler can let those
+  /// steps overlap.
+  /// </remarks>
+  int MaxConcurrency => 1;
 }

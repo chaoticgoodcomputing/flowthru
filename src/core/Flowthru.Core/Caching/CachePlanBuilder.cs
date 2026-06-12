@@ -52,11 +52,14 @@ public static class CachePlanBuilder
   public static async Task<CachePlan> BuildAsync(
     BuiltFlow flow,
     CacheManifest manifest,
+    IServiceProfileProvider? profiles = null,
     CancellationToken cancellationToken = default
   )
   {
     if (flow is null) throw new ArgumentNullException(nameof(flow));
     if (manifest is null) throw new ArgumentNullException(nameof(manifest));
+
+    var serviceProfiles = profiles ?? new DefaultServiceProfileProvider();
 
     // Schema-version mismatch: treat every recorded entry as absent so
     // every cacheable step re-records on this run.
@@ -116,15 +119,16 @@ public static class CachePlanBuilder
         uncacheableReasons[step.Label] = new StepUncacheableReason.NoCodeVersion();
         continue;
       }
-      // Cache-affecting deps only. ServiceRef.ObservationOnly variants
-      // (e.g., ILogger) are skipped — observation surfaces can't change
-      // a step's output values, so their presence or
-      // identity doesn't invalidate a cached result. Without this
-      // filter, declaring a logger on a Create() factory would
-      // uncacheabilise the step and cascade through every downstream
-      // consumer.
+      // Cache-affecting deps only. A dep is cache-neutral when it's an
+      // ObservationOnly variant (e.g. ILogger — observation surfaces can't
+      // change output values) OR its resolved profile declares
+      // AffectsOutputs=false (e.g. the Python worker, whose determinism is
+      // captured by CodeVersion rather than its identity). Without this
+      // filter, declaring such a dep would uncacheabilise the step and
+      // cascade through every downstream consumer.
       var cacheAffectingDeps = step.ServiceDependencies
-        .Count(r => r is not ServiceRef.ObservationOnly);
+        .Count(r => r is not ServiceDependency.ObservationOnly
+                    && serviceProfiles.Resolve(r).AffectsOutputs);
       if (cacheAffectingDeps > 0)
       {
         uncacheable.Add(step.Label);

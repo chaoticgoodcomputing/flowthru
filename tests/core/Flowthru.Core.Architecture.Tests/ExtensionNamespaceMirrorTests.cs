@@ -131,10 +131,14 @@ public class ExtensionNamespaceMirrorTests
           "Flowthru.Data.Catalog",
           // EFCore contributes registration-validation hooks
           // (VerifyEFCoreConnection / VerifyEFCoreConfiguration /
-          // VerifyEFCoreSchema) as extension methods on
+          // VerifyEFCoreSchema) plus UseEFCore() as extension methods on
           // IFlowthruBuilder, declared in the Hosting algebra root
           // per §3.2 / §4.8.0.5.
           "Flowthru.Hosting",
+          // The DbScope conflict dependency + its profile contributor
+          // (ADR-0019) live alongside Core's Validation.Runtime closed
+          // sums — same placement as Python's PythonServiceDependency.
+          "Flowthru.Validation.Runtime.EFCore",
         },
         ForbiddenAlgebraRoots: new[]
         {
@@ -164,6 +168,10 @@ public class ExtensionNamespaceMirrorTests
           // IFlowthruBuilder, declared in the Hosting algebra root
           // — same shape as EFCore's VerifyEFCoreXxx hooks.
           "Flowthru.Hosting",
+          // The opt-in endpoint-throttle dependency + its profile
+          // contributor (ADR-0019 #104) live alongside Core's
+          // Validation.Runtime closed sums.
+          "Flowthru.Validation.Runtime.Http",
         },
         ForbiddenAlgebraRoots: new[]
         {
@@ -187,6 +195,12 @@ public class ExtensionNamespaceMirrorTests
         {
           "Flowthru.Data.Storage.Gql",
           "Flowthru.Data.Catalog",
+          // UseGql() registers the opt-in endpoint-throttle contributor
+          // (ADR-0019 #104) in the Hosting algebra root.
+          "Flowthru.Hosting",
+          // The endpoint throttle dependency + its profile contributor
+          // live alongside Core's Validation.Runtime closed sums.
+          "Flowthru.Validation.Runtime.Gql",
         },
         ForbiddenAlgebraRoots: new[]
         {
@@ -204,7 +218,7 @@ public class ExtensionNamespaceMirrorTests
           "Flowthru.Flow",
           // UsePython() extension method on IFlowthruBuilder.
           "Flowthru.Hosting",
-          // PythonRuntimeError + PythonServiceRef live alongside
+          // PythonRuntimeError + PythonServiceDependency live alongside
           // Core's Validation.Runtime closed sums.
           "Flowthru.Validation.Runtime.Python",
           // PythonPreFlightError + PythonStepValidationHook.

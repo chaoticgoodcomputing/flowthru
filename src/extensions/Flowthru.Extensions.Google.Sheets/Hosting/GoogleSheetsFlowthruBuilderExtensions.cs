@@ -1,7 +1,10 @@
 using Flowthru.Data.Storage.Sheets;
 using Flowthru.Prelude;
+using Flowthru.Validation.Runtime;
+using Flowthru.Validation.Runtime.Sheets;
 using Google.Apis.Sheets.v4;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Flowthru.Hosting;
 
@@ -147,6 +150,14 @@ public static class GoogleSheetsFlowthruBuilderExtensions
     {
       builder.Services.AddSingleton(provider);
     }
+
+    // Conflict gating (ADR-0019): resolves each Sheets item's spreadsheet
+    // dependency to write capacity 1 / read capacity ∞, so the scheduler
+    // serializes concurrent writes to one spreadsheet. Registered here —
+    // the single chokepoint every AddGoogleSheets* overload funnels
+    // through. TryAddEnumerable keeps it idempotent across repeated calls.
+    builder.Services.TryAddEnumerable(
+      ServiceDescriptor.Singleton<IServiceProfileContributor, SheetsSpreadsheetProfileContributor>());
 
     return builder;
   }

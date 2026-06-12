@@ -9,7 +9,6 @@
     <!-- NuGet Package Configuration -->
     <PackageId>Flowthru</PackageId>
     <PackageTags>data-engineering;pipeline;kedro</PackageTags>
-    <PackageReadmeFile>README.md</PackageReadmeFile>
     <!-- Suppress empty-assembly warnings for meta-package pattern -->
     <NoWarn>$(NoWarn);NU5127;NU5128</NoWarn>
     <!-- NoDefaultExcludes allows dotfiles in packed content -->
@@ -32,8 +31,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <!-- Include README and LICENSE in package -->
-    <None Include="$(RepoRoot)src/core/Flowthru.Core/README.md" Pack="true" PackagePath="/" />
+    <!-- README is packed globally via Directory.Build.props (this project's own README.md). -->
     <None Include="$(RepoRoot)LICENSE" Pack="true" PackagePath="/" />
     <!-- build/ targets for from-source dev experience -->
     <None Include="build/Flowthru.targets" Pack="true" PackagePath="build\" />
