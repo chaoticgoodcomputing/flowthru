@@ -76,11 +76,6 @@ jobs:
       - name: Sync Codecov flags
         run: pnpm nx run tests:coverage:sync
 
-      - name: Configure Git
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-
       - name: Determine last published release tag
         id: last-published
         run: |
@@ -97,7 +92,7 @@ jobs:
           echo "tag=${BASE_TAG}" >> "$GITHUB_OUTPUT"
           echo "Base tag for release: ${BASE_TAG}"
 
-      - name: Run NX Release (version + changelog + commit + tag)
+      - name: Run NX Release (version + changelog; commit/tag made via API below)
         id: release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -116,9 +111,28 @@ jobs:
             echo "No version bump — skipping release."
           fi
 
-      - name: Push release commit and tag
+      # The org requires verified signatures on commits to main, so we can't push
+      # a locally-made (unsigned) bot commit. Create the commit through the GitHub
+      # API instead — GitHub signs it server-side, so it lands as "Verified".
+      # nx already wrote the version + changelog into the working tree (its own
+      # commit/tag are disabled in scripts/release.mjs); this commits that diff.
+      - name: Create verified release commit
+        id: commit
         if: steps.release.outputs.changed == 'true'
-        run: git push --follow-tags
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          COMMIT_BRANCH: ${{ github.ref_name }}
+          COMMIT_MESSAGE: "chore(release): v${{ steps.release.outputs.version }} [skip ci]"
+        run: node scripts/ci/create-verified-commit.mjs
+
+      - name: Create release tag
+        if: steps.release.outputs.changed == 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh api "repos/${{ github.repository }}/git/refs" \
+            -f ref="refs/tags/v${{ steps.release.outputs.version }}" \
+            -f sha="${{ steps.commit.outputs.sha }}"
 
       - name: Create GitHub Release Draft
         if: steps.release.outputs.changed == 'true'
