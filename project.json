@@ -36,6 +36,17 @@
         "parallel": false
       }
     },
+    "publish:nuget": {
+      "//": "MANUAL / LOCAL ONLY. API-key push of dist/packages/*.nupkg, retained for bootstrapping a brand-new package ID or out-of-band release. Routine preview/release publishing is keyless in CI via NuGet Trusted Publishing (.github/workflows/{release,publish}.yml). Requires NUGET_API_KEY env var and packed nupkgs (run `nx run-many -t pack` first).",
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": [
+          "bash scripts/publish-nuget.sh"
+        ],
+        "cwd": "{workspaceRoot}",
+        "parallel": false
+      }
+    },
     "format": {
       "//": "Format all C# source files with CSharpier",
       "executor": "nx:run-commands",

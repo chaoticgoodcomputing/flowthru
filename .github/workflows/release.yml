@@ -32,6 +32,7 @@ jobs:
 
     permissions:
       contents: write
+      id-token: write   # mint the GitHub OIDC token for NuGet Trusted Publishing
 
     steps:
       - name: Checkout code
@@ -196,10 +197,20 @@ jobs:
       #       gh release edit "${VERSION}" --notes-file /tmp/combined-notes.md
       #     fi
 
+      # NuGet Trusted Publishing: exchange the job's OIDC token for a short-lived
+      # (1-hour, single-use) API key. Requires a trusted-publishing policy on
+      # nuget.org for owner=<org>, repo=flowthru, workflow file=release.yml.
+      # Run immediately before the push so the key doesn't expire.
+      - name: Authenticate to NuGet (Trusted Publishing)
+        if: steps.release.outputs.changed == 'true'
+        uses: NuGet/login@v1
+        id: nuget-login
+        with:
+          # nuget.org account/profile name that owns the policy (NOT an email).
+          user: ${{ secrets.NUGET_USER }}
+
       - name: Publish preview to NuGet
         if: steps.release.outputs.changed == 'true'
-        env:
-          FLOWTHRU_NUGET_API_KEY: ${{ secrets.FLOWTHRU_NUGET_API_KEY }}
         run: |
           VERSION="${{ steps.release.outputs.version }}"
           PRERELEASE_VERSION="${VERSION}-preview.${{ github.run_number }}"
@@ -214,23 +225,18 @@ jobs:
               /p:Version="${PRERELEASE_VERSION}"
           done
           dotnet nuget push "dist/packages/*.nupkg" \
-            --api-key "${FLOWTHRU_NUGET_API_KEY}" \
+            --api-key "${{ steps.nuget-login.outputs.NUGET_API_KEY }}" \
             --source https://api.nuget.org/v3/index.json \
             --skip-duplicate
 
       - name: Install Codecov CLI
         if: always()
-        run: |
-          curl https://keybase.io/codecovsecurity/pgp_keys.asc \
-            | gpg --no-default-keyring --keyring trustedkeys.gpg --import
-          curl -Os https://cli.codecov.io/latest/linux/codecov
-          curl -Os https://cli.codecov.io/latest/linux/codecov.SHA256SUM
-          curl -Os https://cli.codecov.io/latest/linux/codecov.SHA256SUM.sig
-          gpg --no-default-keyring --keyring trustedkeys.gpg \
-            --verify codecov.SHA256SUM.sig codecov.SHA256SUM
-          shasum -a 256 -c codecov.SHA256SUM
-          sudo chmod +x codecov
-          sudo mv codecov /usr/local/bin/codecov
+        # Install from PyPI (the `codecov-cli` package provides the `codecov`
+        # entry point that the coverage scripts call). Replaces the prior binary
+        # download + PGP integrity check, which hard-failed once keybase.io
+        # stopped serving Codecov's key (pgp_keys.asc → HTTP 404). pip avoids the
+        # signature dance entirely; Python is already provisioned by ./setup.
+        run: python3 -m pip install codecov-cli
 
       - name: Upload coverage to Codecov
         if: always()
