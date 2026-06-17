@@ -1,3 +1,17 @@
+## 0.26.0 (2026-06-17)
+
+### 🚀 Features
+
+- restore improved concurrency ([8484f2e3](https://github.com/chaoticgoodcomputing/flowthru/commit/8484f2e3))
+
+### 🩹 Fixes
+
+- ci nuget publishing ([#109](https://github.com/chaoticgoodcomputing/flowthru/pull/109))
+
+### ❤️ Thank You
+
+- Spencer Elkington
+
 ## 0.25.0 (2026-06-02)
 
 ### 🚀 Features

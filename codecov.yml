@@ -14,6 +14,8 @@ comment:
   behavior: default
   require_changes: false
 flags:
+  .:
+    carryforward: true
   docs:
     carryforward: true
   flowthru-vscode:
