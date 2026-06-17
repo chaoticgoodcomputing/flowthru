@@ -10,6 +10,7 @@ jobs:
 
     permissions:
       contents: read
+      id-token: write   # mint the GitHub OIDC token for NuGet Trusted Publishing
 
     steps:
       - name: Setup .NET
@@ -32,9 +33,18 @@ jobs:
             --dir dist/packages \
             --repo "${{ github.repository }}"
 
+      # NuGet Trusted Publishing: exchange the job's OIDC token for a short-lived
+      # API key. Requires a trusted-publishing policy on nuget.org for
+      # owner=<org>, repo=flowthru, workflow file=publish.yml.
+      - name: Authenticate to NuGet (Trusted Publishing)
+        uses: NuGet/login@v1
+        id: nuget-login
+        with:
+          user: ${{ secrets.NUGET_USER }}
+
       - name: Publish to NuGet
         run: |
           dotnet nuget push "dist/packages/*.nupkg" \
-            --api-key ${{ secrets.FLOWTHRU_NUGET_API_KEY }} \
+            --api-key ${{ steps.nuget-login.outputs.NUGET_API_KEY }} \
             --source https://api.nuget.org/v3/index.json \
             --skip-duplicate
