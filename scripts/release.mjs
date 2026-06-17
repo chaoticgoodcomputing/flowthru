@@ -5,8 +5,10 @@
  * Replaces commit-and-tag-version. Responsibilities:
  *  1. Determine next version via NX Release conventional commits
  *  2. Sync new version to Directory.Build.props
- *  3. Generate CHANGELOG.md and create GitHub Release
+ *  3. Generate CHANGELOG.md (commit, tag, and GitHub Release are made in CI)
  *
+ * Commit/tag are NOT made here: the org requires verified commits on main, so CI
+ * creates them via the GitHub API (scripts/ci/create-verified-commit.mjs).
  * Publishing (dotnet nuget push) is handled separately in CI after this script
  * succeeds, ensuring NuGet receives packages before the release is finalized.
  *
@@ -117,16 +119,23 @@ if (updatedBuildProps === buildPropsContent) {
   console.log(`[dry-run] Would update Directory.Build.props to ${workspaceVersion}`);
 }
 
-// ── 3. Changelog + commit + tag (no push, no GitHub Release yet) ─────────────
+// ── 3. Changelog only — no commit, tag, push, or GitHub Release ──────────────
 //
-// git push and GitHub Release are kicked off in CI after NuGet publish succeeds.
-// This ensures NuGet packages are available before the release is publicly visible.
+// We let nx write CHANGELOG.md but explicitly disable its git commit and tag.
+// The org requires verified (signed) commits on main, and a locally-made bot
+// commit is unsigned — it's rejected on push. Instead, CI creates the release
+// commit AND tag through the GitHub API (scripts/ci/create-verified-commit.mjs),
+// which GitHub signs server-side so the commit lands as "Verified". This script
+// therefore only mutates the working tree (version files + changelog); commit,
+// tag, push, and the GitHub Release all happen in CI.
 
 await releaseChangelog({
   dryRun: DRY_RUN,
   verbose: false,
   version: workspaceVersion,
   versionData: projectsVersionData,
+  gitCommit: false,
+  gitTag: false,
   gitPush: false,
   createRelease: false,
   ...(FROM_TAG ? { from: FROM_TAG } : {}),
@@ -134,7 +143,7 @@ await releaseChangelog({
 
 console.log('\n✓ Release preparation complete.');
 if (DRY_RUN) {
-  console.log('  (dry-run — no files were modified, no tags created)');
+  console.log('  (dry-run — no files were modified, no commit/tag created)');
 } else {
-  console.log('  Next: pack NuGet packages, push packages, then git push --follow-tags.');
+  console.log('  Working tree updated. CI creates the verified commit + tag via the GitHub API.');
 }
