@@ -207,7 +207,7 @@ jobs:
         id: nuget-login
         with:
           # nuget.org account/profile name that owns the policy (NOT an email).
-          user: ${{ secrets.NUGET_USER }}
+          user: ${{ vars.NUGET_USER }}
 
       - name: Publish preview to NuGet
         if: steps.release.outputs.changed == 'true'
