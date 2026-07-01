@@ -111,6 +111,17 @@ jobs:
             echo "No version bump — skipping release."
           fi
 
+      # Fail-fast pre-flight: NuGet versions are immutable, so a version that is
+      # already published can never be re-released. If the pipeline computed one,
+      # a release tag was almost certainly deleted after a successful publish,
+      # leaving the tag-derived baseline behind NuGet. Catch it here — before the
+      # bump commit lands on main — instead of failing opaquely at the tag step.
+      - name: Guard — version not already published to NuGet
+        if: steps.release.outputs.changed == 'true'
+        env:
+          NEW_VERSION: ${{ steps.release.outputs.version }}
+        run: node scripts/ci/assert-nuget-version-free.mjs
+
       # The org requires verified signatures on commits to main, so we can't push
       # a locally-made (unsigned) bot commit. Create the commit through the GitHub
       # API instead — GitHub signs it server-side, so it lands as "Verified".
@@ -129,10 +140,20 @@ jobs:
         if: steps.release.outputs.changed == 'true'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ steps.release.outputs.version }}
+          SHA: ${{ steps.commit.outputs.sha }}
         run: |
+          # The NuGet guard above should already have rejected an
+          # already-released version; this is a clear-error backstop so a
+          # pre-existing tag surfaces as an actionable message rather than an
+          # opaque "gh: Reference already exists (HTTP 422)".
+          if gh api "repos/${{ github.repository }}/git/ref/tags/v${VERSION}" >/dev/null 2>&1; then
+            echo "::error title=Release tag already exists::Tag v${VERSION} already exists in ${{ github.repository }}. Refusing to overwrite. This usually means the version was already released; bump past it before re-running." >&2
+            exit 1
+          fi
           gh api "repos/${{ github.repository }}/git/refs" \
-            -f ref="refs/tags/v${{ steps.release.outputs.version }}" \
-            -f sha="${{ steps.commit.outputs.sha }}"
+            -f ref="refs/tags/v${VERSION}" \
+            -f sha="${SHA}"
 
       - name: Create GitHub Release Draft
         if: steps.release.outputs.changed == 'true'
