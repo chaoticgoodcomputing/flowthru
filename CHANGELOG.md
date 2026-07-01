@@ -1,3 +1,13 @@
+## 0.27.0 (2026-07-01)
+
+### 🚀 Features
+
+- get nuget publishing back on track ([b66b5ef1](https://github.com/chaoticgoodcomputing/flowthru/commit/b66b5ef1))
+
+### ❤️ Thank You
+
+- Spencer Elkington
+
 ## 0.26.1 (2026-07-01)
 
 ### 🩹 Fixes
