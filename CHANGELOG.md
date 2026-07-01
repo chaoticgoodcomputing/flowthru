@@ -1,3 +1,13 @@
+## 0.26.1 (2026-07-01)
+
+### 🩹 Fixes
+
+- release guard ([281fbc5d](https://github.com/chaoticgoodcomputing/flowthru/commit/281fbc5d))
+
+### ❤️ Thank You
+
+- Spencer Elkington
+
 ## 0.26.0 (2026-06-17)
 
 ### 🚀 Features
