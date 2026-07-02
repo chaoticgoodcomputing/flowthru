@@ -20,6 +20,7 @@ namespace Flowthru.Extensions.AWS.S3.Tests.Contract;
 /// </remarks>
 [TestFixture(typeof(LocalFileS3Backend))]
 [TestFixture(typeof(LiveS3Backend))]
+[TestFixture(typeof(MinioContainerBackend))]
 [Category("AwsS3")]
 [Category("Laws")]
 public sealed class S3GatewayLaws<TBackend>

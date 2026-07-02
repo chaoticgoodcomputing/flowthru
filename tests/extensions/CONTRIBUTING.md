@@ -43,6 +43,8 @@ The pattern: a generic [[Laws kit]] subclass parameterizes over multiple backend
 
 The canonical example lives in [/tests/extensions/Flowthru.Extensions.EFCore.Tests/Lifecycle/EFCoreResourceLaws.cs](/tests/extensions/Flowthru.Extensions.EFCore.Tests/Lifecycle/EFCoreResourceLaws.cs): one generic subclass, two `[TestFixture(typeof(...))]` attributes binding [SqliteFileBackend](/tests/extensions/Flowthru.Extensions.EFCore.Tests/Backends/SqliteFileBackend.cs) (in-process, runs always) and [PostgresContainerBackend](/tests/extensions/Flowthru.Extensions.EFCore.Tests/Backends/PostgresContainerBackend.cs) (Testcontainers-driven, gated on Docker availability). Both fixtures run by default; the Postgres tier reports Inconclusive on environments without Docker rather than failing — see [[Test capability gate]] below.
 
+The S3 gateway laws ([S3GatewayLaws](/tests/extensions/Flowthru.Extensions.AWS.S3.Tests/Contract/S3GatewayLaws.cs)) are a second instance, over three tiers: [LocalFileS3Backend](/tests/extensions/Flowthru.Extensions.AWS.S3.Tests/Backends/LocalFileS3Backend.cs) (offline stub, always runs), [MinioContainerBackend](/tests/extensions/Flowthru.Extensions.AWS.S3.Tests/Backends/MinioContainerBackend.cs) (Testcontainers-driven real MinIO, gated on Docker), and [LiveS3Backend](/tests/extensions/Flowthru.Extensions.AWS.S3.Tests/Backends/LiveS3Backend.cs) (an external S3 / S3-compatible bucket via `FLOWTHRU_S3_TEST_*`, gated on [[TestCapabilities.AwsS3|Test capability gate]]). The MinIO tier makes the shipped `LocalFileS3Gateway` stub a *verified* stand-in against a real S3 server with no AWS account.
+
 ### Re-entrancy contract
 
 A single backend instance lives for a whole fixture. `CreateResource()` is called per test and must return a resource whose external state is *disjoint* from every prior and concurrent call. The kit enforces this via `ConcurrentCreateResourceProducesDisjointStateLaw` — 8 parallel `CreateResource()` calls, each yielding a unique `ExternalStateIdentifier(scope)`. Violations point to shared mutable state on the backend; constructors must stay cheap and configuration-only, with any expensive shared setup amortised inside a `Lazy<T>` field that fires on first use.
@@ -68,6 +70,25 @@ public static TestCapability SparkHome { get; } = new(
 A backend that needs it declares `RequiredCapabilities { get; } = [TestCapabilities.SparkHome]` and gets gated automatically — no new branches in the Laws kit, no per-consumer plumbing.
 
 Backends that need a dependency may *also* carry `[Category("RequiresX")]` for explicit CI matrix selection. The category is informational; the capability gate is the load-bearing check.
+
+## Constrained-Resource Tiers
+
+Capability gating answers *is the dependency present?* Some bugs answer a different question: *does it survive under production-like resource limits?* These never reproduce on a fat CI runner — nothing enforces a ceiling. That is the same blind spot that let the seekable-stub bug (#105) and the concurrent-read memory-exhaustion crash (#111) ship: both passed every test until they hit a real, constrained environment.
+
+The convention: a resource-sensitive integration test asserts the invariant plainly (every concurrent read returns the right rows), and a **constrained-container CI job** runs it under an explicit cap so the ceiling is real. The test cannot impose the host's memory limit on itself — that is a job/container concern:
+
+```bash
+# Reproduces #111: concurrent s3:// Parquet reads exhaust memory under a 1 GB ceiling.
+# Green unconstrained; fails under the cap. MinIO runs as a sidecar; the *test process* is capped.
+podman run --rm --network=host --memory=1g --cpus=0.5 -v "$PWD":/work -w /work \
+  -e FLOWTHRU_S3_TEST_BUCKET=... -e FLOWTHRU_S3_TEST_SERVICE_URL=http://localhost:19000 \
+  -e AWS_ACCESS_KEY_ID=... -e AWS_SECRET_ACCESS_KEY=... \
+  mcr.microsoft.com/dotnet/sdk:10.0 dotnet vstest \
+  dist/tests/extensions/Flowthru.Extensions.AWS.S3.Tests/net10.0/Flowthru.Extensions.AWS.S3.Tests.dll \
+  --TestCaseFilter:"FullyQualifiedName~ParquetOverS3ConcurrencyTests"
+```
+
+[ParquetOverS3ConcurrencyTests](/tests/extensions/Flowthru.Extensions.AWS.S3.Tests/ParquetOverS3ConcurrencyTests.cs) is the reference case. Test non-local storage under production-like limits, not just functionally.
 
 ## Glossary
 

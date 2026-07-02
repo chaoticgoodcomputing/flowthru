@@ -14,10 +14,12 @@ namespace Flowthru.Data.Storage.S3;
 public sealed class S3StorageMediumProvider : IStorageMediumProvider
 {
   private readonly IS3Gateway _gateway;
+  private readonly int _readCapacity;
 
-  public S3StorageMediumProvider(IS3Gateway gateway)
+  public S3StorageMediumProvider(IS3Gateway gateway, int readCapacity = int.MaxValue)
   {
     _gateway = gateway ?? throw new ArgumentNullException(nameof(gateway));
+    _readCapacity = readCapacity;
   }
 
   /// <inheritdoc/>
@@ -41,6 +43,6 @@ public sealed class S3StorageMediumProvider : IStorageMediumProvider
         $"S3 URI '{uri}' has no object key; expected s3://bucket/key.");
     }
 
-    return new S3StorageMedium(_gateway, bucket, key);
+    return new S3StorageMedium(_gateway, bucket, key, _readCapacity);
   }
 }

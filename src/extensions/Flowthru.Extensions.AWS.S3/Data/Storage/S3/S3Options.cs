@@ -47,4 +47,21 @@ public sealed class S3Options
   /// large objects.
   /// </summary>
   public TimeSpan Timeout { get; set; } = TimeSpan.FromMinutes(5);
+
+  /// <summary>
+  /// Maximum number of <c>s3://</c> object reads the scheduler may run
+  /// concurrently across the whole flow. <see cref="int.MaxValue"/> (the
+  /// default) is unbounded — the ADR-0019 "network is parallel-safe" posture.
+  /// </summary>
+  /// <remarks>
+  /// Lower this on memory-constrained hosts. A seek-required format (Parquet,
+  /// Excel) buffers the whole object into memory to read it, so a wide layer of
+  /// concurrent <c>s3://</c> Parquet reads holds many whole objects at once and
+  /// can exhaust a small container's memory — surfacing as a non-deterministic
+  /// SIGSEGV / OOM / decode-corruption crash (issue #111). A finite cap here
+  /// bounds the total concurrent reads (all S3 reads share one memory-domain
+  /// conflict key), trading some throughput for a bounded memory ceiling.
+  /// Must be ≥ 1.
+  /// </remarks>
+  public int MaxConcurrentReads { get; set; } = int.MaxValue;
 }

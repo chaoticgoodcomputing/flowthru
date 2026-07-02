@@ -1,8 +1,12 @@
 using Flowthru.Data.Storage;
 using Flowthru.Data.Storage.S3;
 using Flowthru.Data.Storage.S3.Local;
+using Flowthru.Validation.Runtime;
+using Flowthru.Validation.Runtime.S3;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Options;
 
 namespace Flowthru.Hosting;
 
@@ -122,8 +126,16 @@ public static class S3FlowthruBuilderExtensions
 
   private static IFlowthruBuilder RegisterProvider(IFlowthruBuilder builder)
   {
+    // Resolve the read profile for the medium's shared memory-domain dependency
+    // (ADR-0019, #111). Registered on every UseS3 path; a no-op until a finite
+    // MaxConcurrentReads is declared, so default behaviour is unchanged.
+    builder.Services.TryAddEnumerable(
+      ServiceDescriptor.Singleton<IServiceProfileContributor, S3ReadProfileContributor>());
+
     builder.Services.AddSingleton<IStorageMediumProvider>(sp =>
-      new S3StorageMediumProvider(sp.GetRequiredService<IS3Gateway>()));
+      new S3StorageMediumProvider(
+        sp.GetRequiredService<IS3Gateway>(),
+        sp.GetService<IOptions<S3Options>>()?.Value.MaxConcurrentReads ?? int.MaxValue));
     return builder;
   }
 }

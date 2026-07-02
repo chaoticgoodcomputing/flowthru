@@ -1,5 +1,6 @@
 using Flowthru.Prelude;
 using Flowthru.Validation.Runtime;
+using Flowthru.Validation.Runtime.S3;
 
 namespace Flowthru.Data.Storage.S3;
 
@@ -28,8 +29,9 @@ public sealed class S3StorageMedium : IStorageMedium, ISupportsFingerprint
   private readonly IS3Gateway _gateway;
   private readonly string _bucket;
   private readonly string _key;
+  private readonly IReadOnlyList<ServiceDependency> _serviceDependencies;
 
-  public S3StorageMedium(IS3Gateway gateway, string bucket, string key)
+  public S3StorageMedium(IS3Gateway gateway, string bucket, string key, int readCapacity = int.MaxValue)
   {
     _gateway = gateway ?? throw new ArgumentNullException(nameof(gateway));
     if (string.IsNullOrWhiteSpace(bucket))
@@ -42,7 +44,17 @@ public sealed class S3StorageMedium : IStorageMedium, ISupportsFingerprint
     }
     _bucket = bucket;
     _key = key;
+
+    // Only attach the memory-domain read dependency when a finite cap is
+    // declared (ADR-0019 opt-in). Unbounded reads carry no dependency, so the
+    // scheduler's default behaviour is unchanged. See S3ReadDependency (#111).
+    _serviceDependencies = readCapacity >= int.MaxValue
+      ? Array.Empty<ServiceDependency>()
+      : new ServiceDependency[] { new ServiceDependency.External(new S3ReadDependency(readCapacity)) };
   }
+
+  /// <inheritdoc/>
+  public IReadOnlyList<ServiceDependency> ServiceDependencies => _serviceDependencies;
 
   /// <inheritdoc/>
   /// <remarks>
