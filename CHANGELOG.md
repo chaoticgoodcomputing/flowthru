@@ -1,3 +1,13 @@
+## 0.27.1 (2026-07-02)
+
+### 🩹 Fixes
+
+- resolution of S3+Parquet combo errors in Fargate ([3623f784](https://github.com/chaoticgoodcomputing/flowthru/commit/3623f784))
+
+### ❤️ Thank You
+
+- Spencer Elkington
+
 ## 0.27.0 (2026-07-01)
 
 ### 🚀 Features
