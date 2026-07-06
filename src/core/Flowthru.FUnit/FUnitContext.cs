@@ -2,6 +2,7 @@ using System.Reflection;
 using Flowthru.Data.Catalog;
 using Flowthru.Data.Storage;
 using Flowthru.Prelude;
+using Flowthru.Validation.Runtime;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Flowthru.Step.Testing;
@@ -99,6 +100,85 @@ public class FUnitContext : IDisposable
     TInput input,
     CancellationToken cancellationToken = default
   ) => step(input, cancellationToken);
+
+  // ===========================================================================
+  // Streaming (FlowSource) invocation
+  //
+  // The streaming siblings of Invoke/InvokeAsync. A FlowSource's only exit is
+  // Compile(), whose terminals return a FlowIO run with .Run(ct) → EffResult.
+  // These helpers compile/drain a source (or a step returning one) and unwind
+  // the EffResult to a materialised list — mirroring how Validate unwinds an
+  // EffResult<ValidationResult> for assertion sites.
+  // ===========================================================================
+
+  /// <summary>
+  /// Compile and run a <see cref="FlowSource{A}"/> to a materialised list,
+  /// unwinding the <see cref="EffResult{A}"/> for assertion. A terminal
+  /// <see cref="RuntimeError"/> (a failed compile) surfaces as a thrown
+  /// <see cref="InvalidOperationException"/> so <c>Assert.CatchAsync</c> works;
+  /// use <see cref="RunStream"/> to inspect the typed error instead.
+  /// </summary>
+  protected async Task<IReadOnlyList<A>> InvokeStream<A>(
+    FlowSource<A> source,
+    CancellationToken cancellationToken = default
+  )
+  {
+    var result = await source.Compile().ToList().Run(cancellationToken).ConfigureAwait(false);
+    return result switch
+    {
+      EffResult<IReadOnlyList<A>>.Success ok => ok.Value,
+      EffResult<IReadOnlyList<A>>.Failure failure =>
+        throw new InvalidOperationException(failure.Error.Message),
+      _ => throw new InvalidOperationException("Unreachable: EffResult is a closed sum"),
+    };
+  }
+
+  /// <summary>
+  /// Invoke a streaming step transform over an in-memory sample and materialise
+  /// the output — the streaming analogue of <see cref="Invoke{TInput,TOutput}"/>.
+  /// </summary>
+  protected Task<IReadOnlyList<TOutput>> InvokeStream<TInput, TOutput>(
+    Func<FlowSource<TInput>, FlowSource<TOutput>> step,
+    IEnumerable<TInput> input,
+    CancellationToken cancellationToken = default
+  ) => InvokeStream(step(FlowSource.FromEnumerable(input)), cancellationToken);
+
+  /// <summary>
+  /// Invoke a streaming step transform over an existing <see cref="FlowSource{A}"/>
+  /// input and materialise the output.
+  /// </summary>
+  protected Task<IReadOnlyList<TOutput>> InvokeStream<TInput, TOutput>(
+    Func<FlowSource<TInput>, FlowSource<TOutput>> step,
+    FlowSource<TInput> input,
+    CancellationToken cancellationToken = default
+  ) => InvokeStream(step(input), cancellationToken);
+
+  /// <summary>
+  /// Compile and run a <see cref="FlowSource{A}"/>, returning the raw
+  /// <see cref="EffResult{A}"/> so a test can assert <em>both</em> error modes:
+  /// a <c>Success</c> list of rows, or a terminal <c>Failure</c> carrying the
+  /// typed <see cref="RuntimeError"/> from a failed compile. For per-item
+  /// (dead-letter) failures, run a <c>FlowSource&lt;EffResult&lt;T&gt;&gt;</c>
+  /// through <see cref="InvokeStream{A}"/> and assert on each element, or
+  /// collapse it with <c>SkipErrors</c>/<c>Rethrow</c> first.
+  /// </summary>
+  protected Task<EffResult<IReadOnlyList<A>>> RunStream<A>(
+    FlowSource<A> source,
+    CancellationToken cancellationToken = default
+  ) => source.Compile().ToList().Run(cancellationToken);
+
+  /// <summary>
+  /// Drive a <see cref="FlowSource{A}"/> into a sink inside the effect envelope
+  /// and return the raw <see cref="EffResult{A}"/>. Use with a
+  /// <see cref="RecordingSink{T}"/> (or another <see cref="IFlowSink{T}"/> test
+  /// double) to observe the sink's batch lifecycle and its release on every exit
+  /// path.
+  /// </summary>
+  protected Task<EffResult<FlowUnit>> DrainInto<A>(
+    FlowSource<A> source,
+    IFlowSink<A> sink,
+    CancellationToken cancellationToken = default
+  ) => source.Compile().Into(sink).Run(cancellationToken);
 
   /// <summary>
   /// Run pre-flight <see cref="INode.Validate"/> on any DAG node and

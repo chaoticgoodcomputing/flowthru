@@ -12,6 +12,7 @@
 | FT1004  | Flowthru.Schema     | Error    | FlowthruColumn properties have inconsistent backing types          |
 | FT1101  | Flowthru.Step       | Warning  | Step factory class missing [FlowthruStep] attribute                |
 | FT1102  | Flowthru.Step       | Error    | Read-only catalog item used as step output                         |
+| FT1201  | Flowthru.Storage    | Error    | Format declares CanStream but does not stream                      |
 | FT1301  | Flowthru.Step       | Error    | Step extension misses minimum container support                    |
 | FT1303  | Flowthru.Step       | Error    | Step extension capability/marshaller mismatch                      |
 | FT2001  | Flowthru.Validation | Error    | Single-producer invariant violated                                 |
