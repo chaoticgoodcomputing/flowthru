@@ -112,6 +112,39 @@ public class AsStreamTests
     Assert.DoesNotThrow(() => item.AsStream());
   }
 
+  // ── StreamingItem node-delegation ──────────────────────────────────────
+
+  [Test]
+  public async Task StreamingItem_Exists_DelegatesToOrigin()
+  {
+    var item = StreamingSource(new StubMedium(), new[] { 1 }).AsStream();
+    var result = await item.Exists().Run();
+    Assert.That(((EffResult<bool>.Success)result).Value, Is.True);
+  }
+
+  [Test]
+  public async Task StreamingItem_LoadUntyped_BoxesTheSource()
+  {
+    var item = StreamingSource(new StubMedium(), new[] { 1, 2 }).AsStream();
+    var result = await item.LoadUntyped().Run();
+    Assert.That(((EffResult<object>.Success)result).Value, Is.InstanceOf<FlowSource<int>>());
+  }
+
+  [Test]
+  public void StreamingItem_DataType_IsFlowSource()
+  {
+    var item = StreamingSource(new StubMedium(), new[] { 1 }).AsStream();
+    Assert.That(((IItem)item).DataType, Is.EqualTo(typeof(FlowSource<int>)));
+  }
+
+  [Test]
+  public async Task StreamingItem_SaveUntyped_Fails()
+  {
+    var item = StreamingSource(new StubMedium(), new[] { 1 }).AsStream();
+    var result = await item.SaveUntyped(FlowSource.Empty<int>()).Run();
+    Assert.That(result, Is.InstanceOf<EffResult<FlowUnit>.Failure>());
+  }
+
   // ── helpers ────────────────────────────────────────────────────────────
 
   private static IItem<IEnumerable<int>> StreamingSource(
