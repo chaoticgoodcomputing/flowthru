@@ -90,14 +90,12 @@ public sealed class ExcelFormatSerializer<TRow>
       throw new ArgumentNullException(nameof(stream));
     }
 
-    // ExcelDataReader requires a seekable stream; buffer if needed.
-    if (!stream.CanSeek)
-    {
-      var buffered = new MemoryStream();
-      await stream.CopyToAsync(buffered, cancellationToken).ConfigureAwait(false);
-      buffered.Position = 0;
-      stream = buffered;
-    }
+    // ExcelDataReader requires a seekable stream; SeekableSpill makes a
+    // forward-only source seekable by spilling to a bounded temp file rather
+    // than buffering the whole workbook in RAM. An already-seekable source
+    // passes through untouched.
+    await using var spill = await SeekableSpill.CreateAsync(stream, cancellationToken).ConfigureAwait(false);
+    stream = spill.Stream;
 
     Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 
