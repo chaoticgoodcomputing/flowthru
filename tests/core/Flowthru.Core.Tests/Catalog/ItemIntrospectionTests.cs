@@ -1,4 +1,5 @@
 using Flowthru.Data.Catalog;
+using Flowthru.Prelude;
 using Flowthru.Step;
 
 namespace Flowthru.Core.Tests.Catalog;
@@ -59,10 +60,24 @@ public class ItemIntrospectionTests
   }
 
   [Test]
-  public void ContainerKindOf_IAsyncEnumerable_IsAsyncStream() =>
+  public void ContainerKindOf_FlowSource_IsSource() =>
+    // FlowSource<T> is the streaming catalog payload (.AsStream()). It
+    // implements none of the sequence interfaces, so introspection must
+    // recognise it structurally — otherwise it falls through to Singleton
+    // with row type FlowSource<T>, the bug ADR-0023 corrects.
+    Assert.That(
+      Item.ContainerKindOf<FlowSource<Row>>(),
+      Is.EqualTo(StepContainerKind.Source)
+    );
+
+  [Test]
+  public void ContainerKindOf_IAsyncEnumerable_IsSingleton() =>
+    // The bare-IAsyncEnumerable AsyncStream kind was removed (ADR-0023);
+    // a raw IAsyncEnumerable is no longer a recognised container kind and
+    // now resolves to Singleton. FlowSource is the sole streaming kind.
     Assert.That(
       Item.ContainerKindOf<IAsyncEnumerable<Row>>(),
-      Is.EqualTo(StepContainerKind.AsyncStream)
+      Is.EqualTo(StepContainerKind.Singleton)
     );
 
   // ── RowTypeOf ────────────────────────────────────────────────────────
@@ -88,8 +103,17 @@ public class ItemIntrospectionTests
     Assert.That(Item.RowTypeOf<IQueryable<Row>>(), Is.EqualTo(typeof(Row)));
 
   [Test]
-  public void RowTypeOf_AsyncStream_UnwrapsToRow() =>
-    Assert.That(Item.RowTypeOf<IAsyncEnumerable<Row>>(), Is.EqualTo(typeof(Row)));
+  public void RowTypeOf_FlowSource_UnwrapsToRow() =>
+    Assert.That(Item.RowTypeOf<FlowSource<Row>>(), Is.EqualTo(typeof(Row)));
+
+  [Test]
+  public void RowTypeOf_IAsyncEnumerable_ReturnsSelf() =>
+    // No longer a recognised container kind — treated as a Singleton, so
+    // its row type is the IAsyncEnumerable<Row> itself.
+    Assert.That(
+      Item.RowTypeOf<IAsyncEnumerable<Row>>(),
+      Is.EqualTo(typeof(IAsyncEnumerable<Row>))
+    );
 
   [Test]
   public void RowTypeOf_Array_ReturnsArrayType()

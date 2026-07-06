@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using Flowthru.Prelude;
 using Flowthru.Step;
 
 namespace Flowthru.Data.Catalog;
@@ -19,7 +20,7 @@ namespace Flowthru.Data.Catalog;
 /// repo ask for the surface we can promote without API churn.
 /// </para>
 /// <para>
-/// Resolution order: <see cref="StepContainerKind.AsyncStream"/> →
+/// Resolution order: <see cref="StepContainerKind.Source"/> →
 /// <see cref="StepContainerKind.Queryable"/> →
 /// <see cref="StepContainerKind.Enumerable"/> →
 /// <see cref="StepContainerKind.Singleton"/>, with two special cases
@@ -48,12 +49,17 @@ public static partial class Item
     if (type == typeof(string)) return StepContainerKind.Singleton;
     if (type.IsArray) return StepContainerKind.Singleton;
 
+    // FlowSource<T> is the streaming catalog payload (the .AsStream()
+    // view). It is a sealed class implementing none of the sequence
+    // interfaces, so without this structural case it falls through to
+    // Singleton with row type FlowSource<T> — the exact
+    // misclassification ADR-0023 corrects.
+    if (ImplementsOpenGeneric(type, typeof(FlowSource<>)))
+      return StepContainerKind.Source;
+
     // Walk in specificity order — IQueryable<T> implements
     // IEnumerable<T>, so we test it first to pick the more-specific
     // tag.
-    if (ImplementsOpenGeneric(type, typeof(IAsyncEnumerable<>)))
-      return StepContainerKind.AsyncStream;
-
     if (ImplementsOpenGeneric(type, typeof(System.Linq.IQueryable<>)))
       return StepContainerKind.Queryable;
 
@@ -82,10 +88,10 @@ public static partial class Item
 
   /// <summary>
   /// View function: the underlying row type of <paramref name="type"/>.
-  /// For containers (<c>IEnumerable&lt;TRow&gt;</c>,
-  /// <c>IQueryable&lt;TRow&gt;</c>,
-  /// <c>IAsyncEnumerable&lt;TRow&gt;</c>) returns the element type;
-  /// for singletons returns <paramref name="type"/> itself.
+  /// For containers (<c>Flowthru.Prelude.FlowSource&lt;TRow&gt;</c>,
+  /// <c>IEnumerable&lt;TRow&gt;</c>, <c>IQueryable&lt;TRow&gt;</c>)
+  /// returns the element type; for singletons returns
+  /// <paramref name="type"/> itself.
   /// </summary>
   internal static Type RowTypeOf(Type type)
   {
@@ -95,8 +101,8 @@ public static partial class Item
     if (type == typeof(string)) return type;
     if (type.IsArray) return type;
 
-    var asyncStream = FindClosedGeneric(type, typeof(IAsyncEnumerable<>));
-    if (asyncStream is not null) return asyncStream.GetGenericArguments()[0];
+    var source = FindClosedGeneric(type, typeof(FlowSource<>));
+    if (source is not null) return source.GetGenericArguments()[0];
 
     var queryable = FindClosedGeneric(type, typeof(System.Linq.IQueryable<>));
     if (queryable is not null) return queryable.GetGenericArguments()[0];

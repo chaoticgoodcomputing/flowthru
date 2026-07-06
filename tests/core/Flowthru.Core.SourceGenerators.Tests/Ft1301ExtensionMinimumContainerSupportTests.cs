@@ -31,7 +31,7 @@ public class Ft1301ExtensionMinimumContainerSupportTests
         Singleton = 1,
         Enumerable = 2,
         Queryable = 4,
-        AsyncStream = 8,
+        Source = 8,
       }
 
       public enum ExtensionStatus
