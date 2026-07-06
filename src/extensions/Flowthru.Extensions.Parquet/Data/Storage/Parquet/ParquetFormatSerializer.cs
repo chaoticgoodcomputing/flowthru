@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using Flowthru.Data.Schema;
 using Flowthru.Data.Schema.Mapping;
 using Flowthru.Data.Storage.Parquet.Internal;
@@ -75,7 +76,9 @@ public sealed class ParquetFormatSerializer<TRow>
   public StorageTraits Traits => new() { CanStream = true };
 
   /// <inheritdoc/>
-  public async IAsyncEnumerable<TRow> DeserializeRows(Stream stream)
+  public async IAsyncEnumerable<TRow> DeserializeRows(
+    Stream stream,
+    [EnumeratorCancellation] CancellationToken cancellationToken = default)
   {
     if (stream is null)
     {
@@ -93,7 +96,7 @@ public sealed class ParquetFormatSerializer<TRow>
     if (!stream.CanSeek)
     {
       buffered = new MemoryStream();
-      await stream.CopyToAsync(buffered).ConfigureAwait(false);
+      await stream.CopyToAsync(buffered, cancellationToken).ConfigureAwait(false);
       buffered.Position = 0;
       stream = buffered;
     }
@@ -102,7 +105,8 @@ public sealed class ParquetFormatSerializer<TRow>
     {
       var readOptions = _options?.ToReadOptions();
 
-      using var reader = await ParquetReader.CreateAsync(stream, leaveStreamOpen: true)
+      using var reader = await ParquetReader
+        .CreateAsync(stream, leaveStreamOpen: true, cancellationToken: cancellationToken)
         .ConfigureAwait(false);
       var schema = reader.Schema;
       var rowGroupCount = reader.RowGroupCount;
@@ -134,6 +138,7 @@ public sealed class ParquetFormatSerializer<TRow>
       // inspection, small-sample readers) avoid full-file materialisation.
       for (var rgi = 0; rgi < rowGroupCount; rgi++)
       {
+        cancellationToken.ThrowIfCancellationRequested();
         stream.Position = 0;
         var dtos = await adapter.DeserializeRowGroup(stream, rgi, readOptions).ConfigureAwait(false);
         foreach (var dto in dtos)

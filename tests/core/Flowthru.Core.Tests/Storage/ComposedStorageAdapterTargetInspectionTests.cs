@@ -89,7 +89,9 @@ public class ComposedStorageAdapterTargetInspectionTests
   {
     public StorageTraits Traits => new();
 
-    public IAsyncEnumerable<StubRow> DeserializeRows(Stream stream) =>
+    public IAsyncEnumerable<StubRow> DeserializeRows(
+      Stream stream,
+      CancellationToken cancellationToken = default) =>
       AsyncEnumerable.Empty<StubRow>();
 
     public Task SerializeRows(Stream stream, IAsyncEnumerable<StubRow> rows) =>

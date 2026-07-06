@@ -107,7 +107,7 @@ public sealed class ComposedStorageAdapter<TContainer, TRow>
       {
         try
         {
-          var rows = _reader.DeserializeRows(stream);
+          var rows = _reader.DeserializeRows(stream, ct);
           return await _container.FromRows(rows).ConfigureAwait(false);
         }
         finally
@@ -250,7 +250,7 @@ public sealed class ComposedStorageAdapter<TContainer, TRow>
     var stream = ((EffResult<Stream>.Success)streamResult).Value;
     try
     {
-      var rows = _reader.DeserializeRows(stream);
+      var rows = _reader.DeserializeRows(stream, ct);
       var count = 0;
       await foreach (var _ in rows.WithCancellation(ct).ConfigureAwait(false))
       {

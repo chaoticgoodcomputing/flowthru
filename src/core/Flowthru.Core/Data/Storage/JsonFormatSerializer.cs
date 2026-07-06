@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Flowthru.Data.Schema;
@@ -63,14 +64,18 @@ public sealed class JsonFormatSerializer<TRow>
   public StorageTraits Traits => new() { CanStream = false };
 
   /// <inheritdoc/>
-  public async IAsyncEnumerable<TRow> DeserializeRows(Stream stream)
+  public async IAsyncEnumerable<TRow> DeserializeRows(
+    Stream stream,
+    [EnumeratorCancellation] CancellationToken cancellationToken = default)
   {
     if (stream is null)
     {
       throw new ArgumentNullException(nameof(stream));
     }
 
-    await foreach (var item in JsonSerializer.DeserializeAsyncEnumerable<TRow>(stream, _options).ConfigureAwait(false))
+    await foreach (var item in JsonSerializer
+      .DeserializeAsyncEnumerable<TRow>(stream, _options, cancellationToken)
+      .ConfigureAwait(false))
     {
       if (item is null)
       {

@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using System.Runtime.CompilerServices;
 using System.Text;
 using ExcelDataReader;
 using Flowthru.Data.Schema;
@@ -80,7 +81,9 @@ public sealed class ExcelFormatSerializer<TRow>
   public StorageTraits Traits => new() { CanWrite = false, CanStream = false };
 
   /// <inheritdoc/>
-  public async IAsyncEnumerable<TRow> DeserializeRows(Stream stream)
+  public async IAsyncEnumerable<TRow> DeserializeRows(
+    Stream stream,
+    [EnumeratorCancellation] CancellationToken cancellationToken = default)
   {
     if (stream is null)
     {
@@ -91,7 +94,7 @@ public sealed class ExcelFormatSerializer<TRow>
     if (!stream.CanSeek)
     {
       var buffered = new MemoryStream();
-      await stream.CopyToAsync(buffered).ConfigureAwait(false);
+      await stream.CopyToAsync(buffered, cancellationToken).ConfigureAwait(false);
       buffered.Position = 0;
       stream = buffered;
     }
@@ -127,6 +130,7 @@ public sealed class ExcelFormatSerializer<TRow>
 
       while (reader.Read())
       {
+        cancellationToken.ThrowIfCancellationRequested();
         var row = SchemaActivator.CreateInstance<TRow>();
         foreach (var binding in plan.Bindings)
         {
