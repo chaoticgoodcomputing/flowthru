@@ -156,6 +156,59 @@ public readonly struct FlowSourceCompiler<A>
   public FlowIO<IReadOnlyList<A>> ToList() =>
     Fold(new List<A>(), static (list, a) => { list.Add(a); return list; })
       .Map(static list => (IReadOnlyList<A>)list);
+
+  /// <summary>
+  /// Drive the stream into a batch sink inside the effect envelope: open, write
+  /// each <see cref="IFlowSink{T}.BatchSize"/>-sized batch as elements arrive,
+  /// then complete. The sink is disposed on every exit path (so it can roll
+  /// back when completion is not reached), and the byte source is released
+  /// after. Pull-based, so a slow sink paces a fast source in O(batch) memory.
+  /// </summary>
+  public FlowIO<FlowUnit> Into(IFlowSink<A> sink)
+  {
+    var source = _source;
+    var batchSize = Math.Max(1, sink.BatchSize);
+    return FlowSource.BracketUse(
+      source.Resource,
+      scope =>
+        FlowIO.LiftAsync(
+          async ct =>
+          {
+            var buffer = new List<A>(batchSize);
+            try
+            {
+              await sink.OpenAsync(ct).ConfigureAwait(false);
+              await foreach (var a in source.Pull(scope, ct).WithCancellation(ct).ConfigureAwait(false))
+              {
+                buffer.Add(a);
+                if (buffer.Count >= batchSize)
+                {
+                  await sink.WriteBatchAsync(buffer, ct).ConfigureAwait(false);
+                  buffer.Clear();
+                }
+              }
+
+              if (buffer.Count > 0)
+              {
+                await sink.WriteBatchAsync(buffer, ct).ConfigureAwait(false);
+              }
+
+              await sink.CompleteAsync(ct).ConfigureAwait(false);
+              return FlowUnit.Default;
+            }
+            finally
+            {
+              // The finally guarantees disposal on every path: success (cleanup
+              // after commit) and failure/cancellation (abort/rollback, since
+              // CompleteAsync was not reached).
+              await sink.DisposeAsync().ConfigureAwait(false);
+            }
+          },
+          source: "FlowSource.Into"
+        )
+        .MapError(err => FlowSource.UnwrapFailure(err, source.MapErr))
+    );
+  }
 }
 
 /// <summary>Factories, combinators, and internal machinery for <see cref="FlowSource{A}"/>.</summary>

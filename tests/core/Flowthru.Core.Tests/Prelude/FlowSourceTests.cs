@@ -201,6 +201,51 @@ public class FlowSourceTests
     Assert.That(result, Is.InstanceOf<EffResult<IReadOnlyList<int>>.Failure>());
   }
 
+  // ── Into (sink) ────────────────────────────────────────────────────────
+
+  [Test]
+  public async Task Into_WritesBatches_ThenCompletes_ThenDisposes()
+  {
+    var events = new List<string>();
+    var sink = new FakeSink<int>(events, batchSize: 2);
+
+    var result = await FlowSource.FromEnumerable(new[] { 1, 2, 3, 4, 5 }).Compile().Into(sink).Run();
+
+    Assert.That(result, Is.InstanceOf<EffResult<FlowUnit>.Success>());
+    Assert.That(events, Is.EqualTo(new[] { "open", "write(2)", "write(2)", "write(1)", "complete", "dispose" }));
+    Assert.That(sink.Written, Is.EqualTo(new[] { 1, 2, 3, 4, 5 }));
+  }
+
+  [Test]
+  public async Task Into_OnMidStreamFailure_DisposesWithoutCompleting()
+  {
+    var events = new List<string>();
+    var sink = new FakeSink<int>(events, batchSize: 2);
+
+    var result = await FlowSource.Lift<int>(ThrowAfter1).Compile().Into(sink).Run();
+
+    Assert.That(result, Is.InstanceOf<EffResult<FlowUnit>.Failure>());
+    Assert.That(events, Does.Not.Contain("complete"));
+    Assert.That(events, Does.Contain("dispose"));
+  }
+
+  [Test]
+  public async Task Into_NestsSinkLifecycleInsideResourceBracket()
+  {
+    var events = new List<string>();
+    var resource = FlowResource.Make(
+      acquire: FlowIO.Lift(() => { events.Add("acquire"); return 0; }),
+      release: (_, _) => FlowIO.Lift(() => { events.Add("release"); return FlowUnit.Default; })
+    );
+    var sink = new FakeSink<int>(events, batchSize: 10);
+    var source = FlowSource.Bracket(resource, (scope, ct) => Range(1, 3, ct));
+
+    await source.Compile().Into(sink).Run();
+
+    Assert.That(events, Is.EqualTo(new[] { "acquire", "open", "write(3)", "complete", "dispose", "release" }));
+    Assert.That(sink.Written, Is.EqualTo(new[] { 1, 2, 3 }));
+  }
+
   // ── helpers ────────────────────────────────────────────────────────────
 
   private static IReadOnlyList<T> Value<T>(EffResult<IReadOnlyList<T>> result) =>
@@ -260,5 +305,44 @@ public class FlowSourceTests
 
     cts.Cancel();
     ct.ThrowIfCancellationRequested();
+  }
+
+  private sealed class FakeSink<T> : IFlowSink<T>
+  {
+    private readonly List<string> _events;
+
+    public FakeSink(List<string> events, int batchSize)
+    {
+      _events = events;
+      BatchSize = batchSize;
+    }
+
+    public List<T> Written { get; } = new();
+    public int BatchSize { get; }
+
+    public ValueTask OpenAsync(CancellationToken cancellationToken)
+    {
+      _events.Add("open");
+      return ValueTask.CompletedTask;
+    }
+
+    public ValueTask WriteBatchAsync(IReadOnlyList<T> batch, CancellationToken cancellationToken)
+    {
+      _events.Add($"write({batch.Count})");
+      Written.AddRange(batch);
+      return ValueTask.CompletedTask;
+    }
+
+    public ValueTask CompleteAsync(CancellationToken cancellationToken)
+    {
+      _events.Add("complete");
+      return ValueTask.CompletedTask;
+    }
+
+    public ValueTask DisposeAsync()
+    {
+      _events.Add("dispose");
+      return ValueTask.CompletedTask;
+    }
   }
 }
