@@ -35,7 +35,7 @@ The FP layer in [src/core/Flowthru.Core/Prelude/](/src/core/Flowthru.Core/Prelud
 
 The Prelude is derived from a small slice of [LanguageExt](https://github.com/louthy/language-ext), but the [Flowthru.Core README](/src/core/Flowthru.Core/README.md) is emphatic that this is **not a port**. We took only the FP primitives Flowthru actively uses, and we own them going forward. No HKTs (`K<F, A>`), no generic `Functor<F>` / `Applicative<F>` / `Monad<F>` typeclasses, no monad transformer stack, no `Either` / `Option` / `Try` / `Fin`, no `Seq` / `Lst` / `Iterable`. Every additional abstraction would buy generality we don't need at the cost of API surface a future contributor would have to learn.
 
-The four primitives that survived the cut are:
+The five primitives that survived the cut are:
 
 #### `FlowIO<A>` — [Prelude/FlowIO.cs](/src/core/Flowthru.Core/Prelude/FlowIO.cs)
 
@@ -59,6 +59,16 @@ Two consequences fall out for free:
 **Side effects can't be accidentally dropped.** A `FlowIO<A>` value held in a variable does nothing until `Run` is called. There is no `var = doThing()` shape that performs an I/O and forgets the result. The framework is the only thing that calls `Run`, at one specific point in the scheduler, and the result is structurally inspected, not thrown.
 
 **Errors can't be silently swallowed.** A failing `FlowIO<A>` is still a value; consumers must pattern-match `EffResult<A>` to get at the success. Forgetting to handle the failure is a compile-time error at every consumer site.
+
+#### `FlowSource<A>` — [Prelude/FlowSource.cs](/src/core/Flowthru.Core/Prelude/FlowSource.cs)
+
+The streaming sibling of `FlowIO<A>`: where `FlowIO<A>` describes a computation yielding *one* value-or-error, `FlowSource<A>` describes a lazy, resource-safe stream of *many* `A` values. Its defining rule is that its **only** consumption path is `.Compile()`, whose terminals (`Drain`, `Fold`, `ToList`) each return a `FlowIO`. Enumeration therefore always runs *inside* the effect envelope, so `FlowIO`'s guarantees extend to streams:
+
+- **Errors are values.** A mid-stream failure surfaces at compile as a terminal `RuntimeError`; it never escapes as a thrown exception into consumer code. `Attempt` moves failures in-band (`FlowSource<EffResult<A>>`) for dead-lettering, with `SkipErrors` / `Rethrow` to collapse back.
+- **Resources release deterministically.** The byte source is a `FlowResource` (below) acquired on the *first pull* and released on every exit path — completion, failure, cancellation. A source built but never run acquires nothing.
+- **Backpressure is pull-based.** A slow consumer paces a fast producer with no buffering, so a read → transform → write pipeline runs in bounded (`O(batch)`) memory rather than `O(file)`.
+
+This is why a streaming catalog read can process a dataset larger than RAM. The full rationale — including why we vendor a minimal `FlowSource` rather than take a LanguageExt dependency — is [ADR-0023](/.claude/docs/adr/0023-streaming-reads-as-catalog-item-type.md).
 
 #### `EffResult<A>` — [Prelude/EffResult.cs](/src/core/Flowthru.Core/Prelude/EffResult.cs)
 

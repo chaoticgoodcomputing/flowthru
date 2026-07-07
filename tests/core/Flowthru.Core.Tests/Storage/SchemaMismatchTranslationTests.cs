@@ -33,7 +33,9 @@ public class SchemaMismatchTranslationTests
   {
     public StorageTraits Traits => new();
 
-    public async IAsyncEnumerable<SmTestRow> DeserializeRows(SysIO.Stream stream)
+    public async IAsyncEnumerable<SmTestRow> DeserializeRows(
+      SysIO.Stream stream,
+      CancellationToken cancellationToken = default)
     {
       await Task.Yield();
       throw new SchemaMismatchException(
@@ -54,8 +56,10 @@ public class SchemaMismatchTranslationTests
   {
     private readonly ThrowingReader _reader = new();
     public StorageTraits Traits => _reader.Traits;
-    public IAsyncEnumerable<SmTestRow> DeserializeRows(SysIO.Stream stream) =>
-      _reader.DeserializeRows(stream);
+    public IAsyncEnumerable<SmTestRow> DeserializeRows(
+      SysIO.Stream stream,
+      CancellationToken cancellationToken = default) =>
+      _reader.DeserializeRows(stream, cancellationToken);
     public Task SerializeRows(SysIO.Stream stream, IAsyncEnumerable<SmTestRow> rows) =>
       Task.CompletedTask;
   }

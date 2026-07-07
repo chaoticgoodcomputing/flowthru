@@ -27,11 +27,14 @@ namespace Flowthru.Step.Python;
 /// behaviour. The attribute drives <c>FT1301</c> (minimum-coverage
 /// floor) and <c>FT1303</c> (capability/marshaller alignment); the
 /// marker interface is the implementation evidence that
-/// <c>FT1303</c> verifies. <c>IQueryableMarshaller</c> and
-/// <c>IAsyncStreamMarshaller</c> are intentionally absent — the
-/// Python subprocess executor does not push computation down into
-/// the data source nor stream rows lazily, so declaring those kinds
-/// would be a false claim.
+/// <c>FT1303</c> verifies. <c>IQueryableMarshaller</c> is
+/// intentionally absent — the Python subprocess executor does not
+/// push computation down into the data source, so declaring
+/// <see cref="StepContainerKind.Queryable"/> would be a false claim.
+/// Streaming (<see cref="StepContainerKind.Source"/>) has no marker:
+/// per ADR-0023 the eager <see cref="StepContainerKind.Enumerable"/>
+/// path already covers what a step consumes, and Arrow marshalling
+/// materialises the batch today (chunk-wise streaming is a follow-up).
 /// </para>
 /// </remarks>
 [StepExtensionCapabilities(

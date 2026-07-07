@@ -20,8 +20,8 @@ namespace Flowthru.Step;
 /// containers carry higher bits than less-specific ones. Resolution
 /// at the catalog-side introspection layer
 /// (<c>Flowthru.Data.Catalog.Item.ContainerKindOf</c>) walks
-/// container interfaces in the order
-/// <see cref="AsyncStream"/> → <see cref="Queryable"/> →
+/// container shapes in the order
+/// <see cref="Source"/> → <see cref="Queryable"/> →
 /// <see cref="Enumerable"/> → <see cref="Singleton"/>, picking the
 /// most specific match. <see cref="System.Linq.IQueryable{T}"/> is
 /// itself <see cref="System.Collections.Generic.IEnumerable{T}"/>-
@@ -57,8 +57,14 @@ public enum StepContainerKind
   Queryable = 1 << 2,
 
   /// <summary>
-  /// <c>IAsyncEnumerable&lt;T&gt;</c> — streaming inputs. Nice-to-have;
-  /// not part of the Phase 9 minimum floor.
+  /// A <c>Flowthru.Prelude.FlowSource&lt;T&gt;</c> — the lazy,
+  /// resource-safe streaming catalog payload produced by
+  /// <c>.AsStream()</c>, whose sole consumption path is
+  /// compile-to-<c>FlowIO</c>. Supersedes the removed bare-
+  /// <c>IAsyncEnumerable</c> <c>AsyncStream</c> kind (see ADR-0023):
+  /// <c>FlowSource</c> keeps enumeration inside the effect envelope,
+  /// so errors-as-values, disposal, and cancellation are preserved by
+  /// construction. Nice-to-have; not part of the Phase 9 minimum floor.
   /// </summary>
-  AsyncStream = 1 << 3,
+  Source = 1 << 3,
 }

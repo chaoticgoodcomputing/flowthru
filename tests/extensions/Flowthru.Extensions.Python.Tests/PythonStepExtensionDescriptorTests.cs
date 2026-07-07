@@ -51,16 +51,6 @@ public class PythonStepExtensionDescriptorTests
   }
 
   [Test]
-  public void PythonStepExtension_DoesNotImplementAsyncStreamMarshaller()
-  {
-    // The subprocess executor doesn't stream rows lazily; same
-    // reasoning as Queryable above.
-    Assert.That(
-      typeof(IAsyncStreamMarshaller<PythonStepExtension>).IsAssignableFrom(typeof(PythonStepExtension)),
-      Is.False);
-  }
-
-  [Test]
   public void PythonStepExtension_DeclaresProductionFloorCapabilities()
   {
     var attr = typeof(PythonStepExtension)
@@ -82,7 +72,8 @@ public class PythonStepExtensionDescriptorTests
     // Negative assertion — Phase 9's deliberate scope:
     Assert.That(attr.Inputs & StepContainerKind.Queryable, Is.EqualTo(StepContainerKind.None),
       "The Python extension does not currently support Queryable inputs.");
-    Assert.That(attr.Inputs & StepContainerKind.AsyncStream, Is.EqualTo(StepContainerKind.None),
-      "The Python extension does not currently support AsyncStream inputs.");
+    Assert.That(attr.Inputs & StepContainerKind.Source, Is.EqualTo(StepContainerKind.None),
+      "The Python extension does not currently declare Source (FlowSource) inputs — "
+      + "it consumes the eager Enumerable view and marshals via Arrow (ADR-0023).");
   }
 }

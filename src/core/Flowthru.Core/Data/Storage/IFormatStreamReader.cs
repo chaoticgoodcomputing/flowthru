@@ -9,11 +9,11 @@ namespace Flowthru.Data.Storage;
 /// </summary>
 /// <typeparam name="TRow">The row type produced by deserialization.</typeparam>
 /// <remarks>
-/// Formats that buffer the full payload (JSON-as-array via
-/// <c>JsonSerializer.Deserialize</c>) implement only the parent
-/// <see cref="IFormatRowReader{TRow}"/>. Formats that decode row-at-a-time
-/// off a forward-only cursor (CsvHelper, Parquet's row-group iteration)
-/// implement this segment.
+/// Formats that buffer the full payload before yielding implement only the
+/// parent <see cref="IFormatRowReader{TRow}"/>. Formats that decode
+/// row-at-a-time off a forward-only cursor — CsvHelper, Parquet's row-group
+/// iteration, JSON via <c>DeserializeAsyncEnumerable</c> — implement this
+/// segment.
 /// </remarks>
 public interface IFormatStreamReader<TRow> : IFormatRowReader<TRow>
   where TRow : notnull

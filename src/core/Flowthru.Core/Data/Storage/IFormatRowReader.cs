@@ -1,3 +1,5 @@
+using System.Runtime.CompilerServices;
+
 namespace Flowthru.Data.Storage;
 
 /// <summary>
@@ -16,5 +18,8 @@ public interface IFormatRowReader<TRow> : IFormatBase<TRow>
   /// as deserialized (lazy enumeration) so consumers can process large
   /// datasets without materializing everything in memory.
   /// </summary>
-  IAsyncEnumerable<TRow> DeserializeRows(Stream stream);
+  IAsyncEnumerable<TRow> DeserializeRows(
+    Stream stream,
+    [EnumeratorCancellation] CancellationToken cancellationToken = default
+  );
 }

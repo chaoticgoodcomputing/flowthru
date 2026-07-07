@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using System.Runtime.CompilerServices;
 using System.Text;
 using ExcelDataReader;
 using Flowthru.Data.Schema;
@@ -80,21 +81,21 @@ public sealed class ExcelFormatSerializer<TRow>
   public StorageTraits Traits => new() { CanWrite = false, CanStream = false };
 
   /// <inheritdoc/>
-  public async IAsyncEnumerable<TRow> DeserializeRows(Stream stream)
+  public async IAsyncEnumerable<TRow> DeserializeRows(
+    Stream stream,
+    [EnumeratorCancellation] CancellationToken cancellationToken = default)
   {
     if (stream is null)
     {
       throw new ArgumentNullException(nameof(stream));
     }
 
-    // ExcelDataReader requires a seekable stream; buffer if needed.
-    if (!stream.CanSeek)
-    {
-      var buffered = new MemoryStream();
-      await stream.CopyToAsync(buffered).ConfigureAwait(false);
-      buffered.Position = 0;
-      stream = buffered;
-    }
+    // ExcelDataReader requires a seekable stream; SeekableSpill makes a
+    // forward-only source seekable by spilling to a bounded temp file rather
+    // than buffering the whole workbook in RAM. An already-seekable source
+    // passes through untouched.
+    await using var spill = await SeekableSpill.CreateAsync(stream, cancellationToken).ConfigureAwait(false);
+    stream = spill.Stream;
 
     Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 
@@ -127,6 +128,7 @@ public sealed class ExcelFormatSerializer<TRow>
 
       while (reader.Read())
       {
+        cancellationToken.ThrowIfCancellationRequested();
         var row = SchemaActivator.CreateInstance<TRow>();
         foreach (var binding in plan.Bindings)
         {

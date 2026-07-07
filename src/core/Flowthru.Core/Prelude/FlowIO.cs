@@ -185,6 +185,16 @@ public sealed class FlowIO<A>
       };
     });
 
+  /// <summary>
+  /// Run this effect with cancellation suppressed
+  /// (<see cref="CancellationToken.None"/>), so it completes even when the
+  /// ambient token is already cancelled. Used for cleanup/release effects that
+  /// must run on every exit path — including cancellation — where a
+  /// <see cref="Lift"/>/<see cref="LiftAsync"/> body would otherwise
+  /// short-circuit on the cancelled token.
+  /// </summary>
+  public FlowIO<A> Uncancellable() => new(_ => _run(CancellationToken.None));
+
   // ───────────────────────────────────────────────────────────────────────
   // LINQ syntax (monadic; short-circuits on failure)
   // ───────────────────────────────────────────────────────────────────────

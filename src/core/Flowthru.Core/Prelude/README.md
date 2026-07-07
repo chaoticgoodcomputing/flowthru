@@ -23,6 +23,12 @@ containing only the FP primitives Flowthru actively uses.
 - `Has<TRuntime, TCapability>` — capability constraint trait (Eff-specialised)
 - `Validated<E, T>` — error-accumulating applicative for pre-flight checks
 - `Unit` — bound type for effects with no meaningful result
+- `FlowSource<T>` — the streaming sibling of the effect type: a lazy,
+  resource-safe stream consumed by compiling back into `FlowIO`. Its minimum
+  shape earns a Prelude seat because streaming is a first-class grain (bounded
+  `O(batch)` reads on memory-constrained hosts); see
+  [ADR-0023](/.claude/docs/adr/0023-streaming-reads-as-catalog-item-type.md)
+  for why it is vendored, not taken as a LanguageExt dependency
 
 **Excluded** (and not planned):
 
@@ -31,7 +37,8 @@ containing only the FP primitives Flowthru actively uses.
 - Monad transformer stack (`StateT`, `WriterT`, `ReaderT`, `RWST`, …)
 - `Either`, `Option`, `Try`, `Fin` — Flowthru's `RuntimeError` ADT and
   `Validated<E, T>` cover these roles
-- Free monads, Pipes, Streams
+- Free monads and Pipes (but **not** Streams — see `FlowSource<T>` above,
+  added under ADR-0023)
 - Immutable collections (`Seq`, `Lst`, `Iterable`, `HashMap`, …)
 
 ## Maintenance policy

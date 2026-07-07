@@ -26,13 +26,11 @@ public sealed class ExtensionCapabilityMarshallerAlignmentAnalyzer : DiagnosticA
   internal const string CapabilitiesAttributeFullName = "Flowthru.Step.StepExtensionCapabilitiesAttribute";
   internal const string ContainerMarshallerOpenName = "Flowthru.Step.Marshalling.IContainerMarshaller<TExtension>";
   internal const string QueryableMarshallerOpenName = "Flowthru.Step.Marshalling.IQueryableMarshaller<TExtension>";
-  internal const string AsyncStreamMarshallerOpenName = "Flowthru.Step.Marshalling.IAsyncStreamMarshaller<TExtension>";
 
   // Mirrors StepContainerKind bit layout.
   private const int Singleton = 1;
   private const int Enumerable = 1 << 1;
   private const int Queryable = 1 << 2;
-  private const int AsyncStream = 1 << 3;
   private const int FloorBits = Singleton | Enumerable;
 
   /// <inheritdoc/>
@@ -62,7 +60,6 @@ public sealed class ExtensionCapabilityMarshallerAlignmentAnalyzer : DiagnosticA
     var declared = inputs | outputs;
     var hasContainer = ImplementsOpenGenericInterface(type, ContainerMarshallerOpenName);
     var hasQueryable = ImplementsOpenGenericInterface(type, QueryableMarshallerOpenName);
-    var hasAsyncStream = ImplementsOpenGenericInterface(type, AsyncStreamMarshallerOpenName);
 
     var location = capabilitiesAttr.ApplicationSyntaxReference?
       .GetSyntax(context.CancellationToken).GetLocation() ?? type.Locations.FirstOrDefault();
@@ -101,22 +98,10 @@ public sealed class ExtensionCapabilityMarshallerAlignmentAnalyzer : DiagnosticA
         + "Add Queryable to the attribute's Inputs or Outputs, or remove the marker interface.");
     }
 
-    // ── Opt-in: AsyncStream. ──
-    var declaresAsyncStream = (declared & AsyncStream) != 0;
-    if (declaresAsyncStream && !hasAsyncStream)
-    {
-      Report(context, location, type.Name,
-        "declares AsyncStream container support but does not implement "
-        + "Flowthru.Step.Marshalling.IAsyncStreamMarshaller<" + type.Name + ">. "
-        + "Add the marker interface, or remove AsyncStream from the attribute.");
-    }
-    else if (!declaresAsyncStream && hasAsyncStream)
-    {
-      Report(context, location, type.Name,
-        "implements Flowthru.Step.Marshalling.IAsyncStreamMarshaller<" + type.Name + "> but the "
-        + "[StepExtensionCapabilities] attribute does not declare AsyncStream. "
-        + "Add AsyncStream to the attribute's Inputs or Outputs, or remove the marker interface.");
-    }
+    // Note: StepContainerKind.Source (a FlowSource<T> streaming payload) has
+    // no marshaller marker — per ADR-0023 a FlowSource is consumed by
+    // compiling back into FlowIO, not marshalled across a marker seam — so
+    // there is no alignment check for it here.
   }
 
   private static void Report(

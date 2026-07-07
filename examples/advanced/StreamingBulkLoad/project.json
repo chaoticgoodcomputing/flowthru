@@ -1,0 +1,27 @@
+{
+  "name": "StreamingBulkLoad",
+  "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "sourceRoot": "examples/advanced/StreamingBulkLoad",
+  "tags": [ "scope:examples", "scope:advanced" ],
+  "targets": {
+    "generate": {
+      "//": "Regenerate the synthetic multi-row-group Parquet dataset. Row count via --rows or the STREAMINGBULKLOAD_ROWS env var.",
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": [ "dotnet run -- --generate" ],
+        "cwd": "examples/advanced/StreamingBulkLoad",
+        "parallel": false
+      }
+    },
+    "run": {
+      "//": "Generate the dataset if missing, measure eager vs streaming ingest into SQLite, and render memory_report.md.",
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": [ "dotnet run" ],
+        "cwd": "examples/advanced/StreamingBulkLoad",
+        "parallel": false
+      }
+    }
+  }
+}

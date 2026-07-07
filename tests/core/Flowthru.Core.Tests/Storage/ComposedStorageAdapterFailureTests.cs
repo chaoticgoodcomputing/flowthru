@@ -211,7 +211,9 @@ public class ComposedStorageAdapterFailureTests
 
     public StorageTraits Traits => new();
 
-    public IAsyncEnumerable<StubRow> DeserializeRows(Stream stream)
+    public IAsyncEnumerable<StubRow> DeserializeRows(
+      Stream stream,
+      CancellationToken cancellationToken = default)
     {
       if (_throwOnDeserialize)
       {

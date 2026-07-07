@@ -143,7 +143,7 @@ public sealed class ExtensionMinimumContainerSupportAnalyzer : DiagnosticAnalyze
     if ((bits & Singleton) != 0) parts.Add("Singleton");
     if ((bits & Enumerable) != 0) parts.Add("Enumerable");
     if ((bits & (1 << 2)) != 0) parts.Add("Queryable");
-    if ((bits & (1 << 3)) != 0) parts.Add("AsyncStream");
+    if ((bits & (1 << 3)) != 0) parts.Add("Source");
 
     return parts.Count == 0 ? $"0x{bits:X}" : string.Join(" | ", parts);
   }

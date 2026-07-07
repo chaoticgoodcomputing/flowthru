@@ -90,6 +90,31 @@ podman run --rm --network=host --memory=1g --cpus=0.5 -v "$PWD":/work -w /work \
 
 [ParquetOverS3ConcurrencyTests](/tests/extensions/Flowthru.Extensions.AWS.S3.Tests/ParquetOverS3ConcurrencyTests.cs) is the reference case. Test non-local storage under production-like limits, not just functionally.
 
+### Streaming tier — RSS stays flat as row count grows (#124)
+
+The eager tier above proves the *cap holds* for whole-object reads (bounded fan-out). The streaming tier proves the ADR-0023 remedy: a `.AsStream()` read of a **multi-row-group** `s3://` Parquet object is O(one row group), so a *single* streaming read of an arbitrarily large object — and a whole layer of concurrent ones — survives a cap that whole-object buffering would blow. [StreamingParquetOverS3Tests](/tests/extensions/Flowthru.Extensions.AWS.S3.Tests/StreamingParquetOverS3Tests.cs) is the reference case: it asserts only correctness (every streamed read returns all seeded rows, in order, checksum-verified); the **flat-RSS invariant is the job's to enforce** — crank `FLOWTHRU_STREAM_ROWS` and the capped test process's RSS must not track it.
+
+This tier self-provisions MinIO via Testcontainers (gated on `TestCapabilities.Docker`), so — unlike the sidecar pattern above — MinIO is launched as a **sibling container on the host socket**, outside the cap; only the *test process* is memory-limited:
+
+```bash
+# Streaming O(row group) regression (#124): a multi-row-group s3:// Parquet object
+# streamed back through .AsStream(). RSS of the *capped test process* stays FLAT as
+# FLOWTHRU_STREAM_ROWS grows; the eager whole-object path would blow the 1 GB cap.
+# Testcontainers launches MinIO as a sibling on the mounted host socket — the MinIO
+# container is NOT counted against --memory; only the test process is. A `docker`
+# shim is needed for the capability probe (`which docker`) when the runtime is podman.
+podman run --rm --network=host --memory=1g --cpus=0.5 -v "$PWD":/work -w /work \
+  -v /run/user/1000/podman/podman.sock:/var/run/docker.sock \
+  -e DOCKER_HOST=unix:///var/run/docker.sock -e TESTCONTAINERS_RYUK_DISABLED=true \
+  -e FLOWTHRU_STREAM_ROWS=2000000 -e FLOWTHRU_STREAM_ROWGROUP=50000 \
+  mcr.microsoft.com/dotnet/sdk:10.0 sh -c \
+  'ln -sf "$(command -v podman || echo /usr/bin/docker)" /usr/local/bin/docker; dotnet vstest \
+   dist/tests/extensions/Flowthru.Extensions.AWS.S3.Tests/net10.0/Flowthru.Extensions.AWS.S3.Tests.dll \
+   --TestCaseFilter:"FullyQualifiedName~StreamingParquetOverS3Tests"'
+```
+
+Both tiers share the discipline: the test asserts the *right rows*; the container job imposes the *memory ceiling*. Neither test measures its own RSS.
+
 ## Glossary
 
 ### Roles

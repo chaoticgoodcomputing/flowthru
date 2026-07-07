@@ -25,7 +25,7 @@ public class Ft1303ExtensionCapabilityMarshallerAlignmentTests
         Singleton = 1,
         Enumerable = 2,
         Queryable = 4,
-        AsyncStream = 8,
+        Source = 8,
       }
 
       public enum ExtensionStatus
@@ -52,7 +52,6 @@ public class Ft1303ExtensionCapabilityMarshallerAlignmentTests
     {
       public interface IContainerMarshaller<TExtension> where TExtension : Flowthru.Step.IStepExtension { }
       public interface IQueryableMarshaller<TExtension> where TExtension : Flowthru.Step.IStepExtension { }
-      public interface IAsyncStreamMarshaller<TExtension> where TExtension : Flowthru.Step.IStepExtension { }
     }
     """;
 
@@ -223,11 +222,15 @@ public class Ft1303ExtensionCapabilityMarshallerAlignmentTests
     Assert.That(ft1303[0].GetMessage(), Does.Contain("does not declare Queryable"));
   }
 
-  // ── AsyncStream alignment ────────────────────────────────────────────
+  // ── Source: no marshaller marker, so no alignment check ──────────────
 
   [Test]
-  public async Task AsyncStreamDeclared_WithoutMarshaller_FiresFt1303()
+  public async Task SourceDeclared_WithoutMarshaller_Silent()
   {
+    // StepContainerKind.Source (a FlowSource<T> streaming payload) has no
+    // marshaller marker — per ADR-0023 a FlowSource is consumed by
+    // compiling back into FlowIO, not marshalled across a marker seam —
+    // so declaring it never fires an alignment diagnostic.
     var consumer = """
       using Flowthru.Step;
       using Flowthru.Step.Marshalling;
@@ -235,11 +238,11 @@ public class Ft1303ExtensionCapabilityMarshallerAlignmentTests
       namespace Sample;
 
       [StepExtensionCapabilities(
-        StepContainerKind.Singleton | StepContainerKind.Enumerable | StepContainerKind.AsyncStream,
+        StepContainerKind.Singleton | StepContainerKind.Enumerable | StepContainerKind.Source,
         StepContainerKind.Singleton | StepContainerKind.Enumerable)]
-      public sealed class HalfAsyncExtension :
+      public sealed class SourceExtension :
         IStepExtension,
-        IContainerMarshaller<HalfAsyncExtension>
+        IContainerMarshaller<SourceExtension>
       { }
       """;
 
@@ -247,10 +250,7 @@ public class Ft1303ExtensionCapabilityMarshallerAlignmentTests
       new ExtensionCapabilityMarshallerAlignmentAnalyzer(),
       new[] { Stubs, consumer }
     );
-
-    var ft1303 = diags.Where("FT1303").ToList();
-    Assert.That(ft1303, Is.Not.Empty);
-    Assert.That(ft1303[0].GetMessage(), Does.Contain("IAsyncStreamMarshaller"));
+    Assert.That(diags.Where("FT1303").ToList(), Is.Empty);
   }
 
   // ── Non-extension classes are silent ─────────────────────────────────

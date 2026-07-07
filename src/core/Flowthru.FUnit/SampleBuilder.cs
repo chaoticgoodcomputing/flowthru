@@ -1,4 +1,5 @@
 using System.Reflection;
+using Flowthru.Prelude;
 
 namespace Flowthru.Step.Testing;
 
@@ -13,6 +14,14 @@ public class SampleBuilder
 {
   /// <summary>Wrap explicit instances into an <see cref="IEnumerable{T}"/>.</summary>
   public IEnumerable<T> Of<T>(params T[] items) => items;
+
+  /// <summary>
+  /// Lift explicit instances into a streaming <see cref="FlowSource{T}"/> — the
+  /// streaming counterpart of <see cref="Of{T}"/>. Equivalent to
+  /// <c>Samples.Of(items).AsStream()</c>; provided so a streaming step test can
+  /// build its input as tersely as an eager one.
+  /// </summary>
+  public FlowSource<T> Source<T>(params T[] items) => FlowSource.FromEnumerable(items);
 
   /// <summary>
   /// Generate <paramref name="count"/> rows by invoking

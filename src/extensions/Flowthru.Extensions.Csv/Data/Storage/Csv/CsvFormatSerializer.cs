@@ -1,4 +1,5 @@
 using System.Globalization;
+using System.Runtime.CompilerServices;
 using CsvHelper;
 using CsvHelper.Configuration;
 using Flowthru.Data.Schema;
@@ -93,7 +94,9 @@ public sealed class CsvFormatSerializer<TRow>
   public StorageTraits Traits => new() { CanStream = true };
 
   /// <inheritdoc/>
-  public async IAsyncEnumerable<TRow> DeserializeRows(Stream stream)
+  public async IAsyncEnumerable<TRow> DeserializeRows(
+    Stream stream,
+    [EnumeratorCancellation] CancellationToken cancellationToken = default)
   {
     if (stream is null)
     {
@@ -105,7 +108,7 @@ public sealed class CsvFormatSerializer<TRow>
 
     csv.Context.RegisterClassMap(new SerializedLabelClassMap<TRow>(_nullValues));
 
-    var enumerator = csv.GetRecordsAsync<TRow>().GetAsyncEnumerator();
+    var enumerator = csv.GetRecordsAsync<TRow>(cancellationToken).GetAsyncEnumerator(cancellationToken);
     try
     {
       while (true)

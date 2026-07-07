@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using Flowthru.Data.Schema;
 using Flowthru.Data.Schema.Mapping;
 using Flowthru.Data.Storage.Parquet.Internal;
@@ -75,7 +76,9 @@ public sealed class ParquetFormatSerializer<TRow>
   public StorageTraits Traits => new() { CanStream = true };
 
   /// <inheritdoc/>
-  public async IAsyncEnumerable<TRow> DeserializeRows(Stream stream)
+  public async IAsyncEnumerable<TRow> DeserializeRows(
+    Stream stream,
+    [EnumeratorCancellation] CancellationToken cancellationToken = default)
   {
     if (stream is null)
     {
@@ -85,70 +88,57 @@ public sealed class ParquetFormatSerializer<TRow>
     // Parquet decoding requires random access: ParquetReader reads the footer
     // at the end of the object first, and each row group is re-read from a reset
     // position below. A forward-only source — a real S3 or HTTP response body —
-    // reports CanSeek == false, so materialise it into a seekable MemoryStream
-    // before decoding. Mirrors the guard in ExcelFormatSerializer. This does not
-    // contradict Traits.CanStream: streaming describes incremental row-group
-    // *consumption*, not seekability of the underlying byte source.
-    MemoryStream? buffered = null;
-    if (!stream.CanSeek)
+    // reports CanSeek == false; SeekableSpill makes it seekable by spilling to a
+    // bounded temp file (O(object) disk, not O(object) RAM), so peak read memory
+    // stays at one row group regardless of object size. An already-seekable
+    // source passes through untouched. This does not contradict Traits.CanStream:
+    // streaming describes incremental row-group *consumption*, not seekability of
+    // the underlying byte source.
+    await using var spill = await SeekableSpill.CreateAsync(stream, cancellationToken).ConfigureAwait(false);
+    var seekable = spill.Stream;
+
+    var readOptions = _options?.ToReadOptions();
+
+    using var reader = await ParquetReader
+      .CreateAsync(seekable, leaveStreamOpen: true, cancellationToken: cancellationToken)
+      .ConfigureAwait(false);
+    var schema = reader.Schema;
+    var rowGroupCount = reader.RowGroupCount;
+
+    // Pre-flight schema check: every column the schema declares must
+    // be present in the on-disk file. Without this, missing columns
+    // silently deserialize to default values and pre-flight passes on
+    // a structurally invalid file. We standardise on
+    // SchemaMismatchException across all formats so the composed
+    // adapter classifies them uniformly.
+    var expectedColumns = PropertyMappingPlanner.Build<TRow>().ByFieldName.Keys;
+    var fileColumns = new HashSet<string>(
+      schema.Fields.OfType<DataField>().Select(f => f.Name),
+      StringComparer.OrdinalIgnoreCase
+    );
+    var missing = expectedColumns.Where(c => !fileColumns.Contains(c)).ToList();
+    if (missing.Count > 0)
     {
-      buffered = new MemoryStream();
-      await stream.CopyToAsync(buffered).ConfigureAwait(false);
-      buffered.Position = 0;
-      stream = buffered;
-    }
-
-    try
-    {
-      var readOptions = _options?.ToReadOptions();
-
-      using var reader = await ParquetReader.CreateAsync(stream, leaveStreamOpen: true)
-        .ConfigureAwait(false);
-      var schema = reader.Schema;
-      var rowGroupCount = reader.RowGroupCount;
-
-      // Pre-flight schema check: every column the schema declares must
-      // be present in the on-disk file. Without this, missing columns
-      // silently deserialize to default values and pre-flight passes on
-      // a structurally invalid file. We standardise on
-      // SchemaMismatchException across all formats so the composed
-      // adapter classifies them uniformly.
-      var expectedColumns = PropertyMappingPlanner.Build<TRow>().ByFieldName.Keys;
-      var fileColumns = new HashSet<string>(
-        schema.Fields.OfType<DataField>().Select(f => f.Name),
-        StringComparer.OrdinalIgnoreCase
+      throw new SchemaMismatchException(
+        $"Parquet file is missing column(s) declared by schema '{typeof(TRow).Name}': "
+        + $"[{string.Join(", ", missing)}]. "
+        + $"File columns: [{string.Join(", ", fileColumns)}]."
       );
-      var missing = expectedColumns.Where(c => !fileColumns.Contains(c)).ToList();
-      if (missing.Count > 0)
-      {
-        throw new SchemaMismatchException(
-          $"Parquet file is missing column(s) declared by schema '{typeof(TRow).Name}': "
-          + $"[{string.Join(", ", missing)}]. "
-          + $"File columns: [{string.Join(", ", fileColumns)}]."
-        );
-      }
-
-      var adapter = new ParquetAdapter<TRow>(schema);
-
-      // Yield one row group at a time so early-break consumers (shallow
-      // inspection, small-sample readers) avoid full-file materialisation.
-      for (var rgi = 0; rgi < rowGroupCount; rgi++)
-      {
-        stream.Position = 0;
-        var dtos = await adapter.DeserializeRowGroup(stream, rgi, readOptions).ConfigureAwait(false);
-        foreach (var dto in dtos)
-        {
-          yield return adapter.FromDto(dto);
-        }
-      }
     }
-    finally
+
+    var adapter = new ParquetAdapter<TRow>(schema);
+
+    // Yield one row group at a time so early-break consumers (shallow
+    // inspection, small-sample readers) avoid full-file materialisation.
+    for (var rgi = 0; rgi < rowGroupCount; rgi++)
     {
-      // We opened the reader with leaveStreamOpen: true, so the buffer we
-      // allocated here is ours to dispose once enumeration completes or is
-      // abandoned. (When the caller's stream was already seekable, buffered is
-      // null and this is a no-op — we never own the caller's stream.)
-      buffered?.Dispose();
+      cancellationToken.ThrowIfCancellationRequested();
+      seekable.Position = 0;
+      var dtos = await adapter.DeserializeRowGroup(seekable, rgi, readOptions).ConfigureAwait(false);
+      foreach (var dto in dtos)
+      {
+        yield return adapter.FromDto(dto);
+      }
     }
   }
 

@@ -103,7 +103,7 @@ public static class StepDiagnostics
       defaultSeverity: DiagnosticSeverity.Error,
       isEnabledByDefault: true,
       description: "The [StepExtensionCapabilities] attribute and the IContainerMarshaller / "
-        + "IQueryableMarshaller / IAsyncStreamMarshaller marker interfaces are two halves of the same "
+        + "IQueryableMarshaller marker interfaces are two halves of the same "
         + "contract — capability disclosure and implementation evidence. They must agree. "
         + "An attribute declaring a kind without the matching marker interface (or a marker interface "
         + "implemented without the matching kind declared) is silent drift that breaks at runtime."

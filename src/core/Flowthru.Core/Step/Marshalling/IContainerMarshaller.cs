@@ -20,13 +20,14 @@ namespace Flowthru.Step.Marshalling;
 /// interfaces it implements.
 /// </para>
 /// <para>
-/// Extensions declaring <see cref="StepContainerKind.Queryable"/> or
-/// <see cref="StepContainerKind.AsyncStream"/> additionally implement
-/// <see cref="IQueryableMarshaller{TExtension}"/> or
-/// <see cref="IAsyncStreamMarshaller{TExtension}"/> respectively —
-/// those are opt-in markers and the floor's
-/// <see cref="IContainerMarshaller{TExtension}"/> is the only one
-/// strictly required.
+/// Extensions declaring <see cref="StepContainerKind.Queryable"/>
+/// additionally implement
+/// <see cref="IQueryableMarshaller{TExtension}"/> — an opt-in marker;
+/// the floor's <see cref="IContainerMarshaller{TExtension}"/> is the
+/// only one strictly required. Streaming
+/// (<see cref="StepContainerKind.Source"/>) has no marshaller marker:
+/// per ADR-0023 a <c>FlowSource&lt;T&gt;</c> is consumed by compiling
+/// back into <c>FlowIO</c>, not shuttled across a marker seam.
 /// </para>
 /// </remarks>
 /// <typeparam name="TExtension">
@@ -49,18 +50,5 @@ public interface IContainerMarshaller<TExtension> where TExtension : IStepExtens
 /// The step extension's descriptor class.
 /// </typeparam>
 public interface IQueryableMarshaller<TExtension> where TExtension : IStepExtension
-{
-}
-
-/// <summary>
-/// Marker interface declaring that <typeparamref name="TExtension"/>
-/// can marshal <see cref="StepContainerKind.AsyncStream"/> catalog
-/// items (i.e. <c>IItem&lt;IAsyncEnumerable&lt;TRow&gt;&gt;</c>).
-/// Opt-in; not part of the minimum-coverage floor.
-/// </summary>
-/// <typeparam name="TExtension">
-/// The step extension's descriptor class.
-/// </typeparam>
-public interface IAsyncStreamMarshaller<TExtension> where TExtension : IStepExtension
 {
 }

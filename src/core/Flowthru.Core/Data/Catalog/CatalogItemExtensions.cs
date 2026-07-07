@@ -79,6 +79,46 @@ public static class CatalogItemExtensions
   }
 
   /// <summary>
+  /// Derive a read-only <em>streaming</em> view of a collection item:
+  /// <c>IItem&lt;IEnumerable&lt;TRow&gt;&gt;</c> →
+  /// <c>IReadOnlyItem&lt;FlowSource&lt;TRow&gt;&gt;</c>. The view's
+  /// <c>Load()</c> yields a deferred <see cref="Prelude.FlowSource{TRow}"/>
+  /// whose peak read memory is O(batch), not O(file).
+  /// </summary>
+  /// <remarks>
+  /// Read-only because composed streaming <em>writes</em> are out of scope
+  /// (ADR-0023). Gated to streaming-capable composed formats: calling this on a
+  /// direct adapter (EFCore, Sheets, GQL) or a non-streaming format throws at
+  /// wire-up — a design-time error, never a silent O(file) materialise. A
+  /// <c>.Constrain()</c> wrapper is unwrapped to reach the composed format.
+  /// </remarks>
+  public static IReadOnlyItem<FlowSource<TRow>> AsStream<TRow>(this IItem<IEnumerable<TRow>> item)
+    where TRow : notnull
+  {
+    if (item is null) throw new ArgumentNullException(nameof(item));
+
+    var adapter = ResolveStorageAdapter(item);
+    if (adapter is ConstrainedStorageAdapter<IEnumerable<TRow>> constrained)
+    {
+      adapter = constrained.Inner;
+    }
+
+    if (adapter is not ISupportsStreamingView<TRow> streamable || !streamable.SupportsStreaming)
+    {
+      throw new ArgumentException(
+        $"AsStream() requires item '{item.Label}' to be backed by a streaming-capable composed "
+        + $"format (an IFormatStreamReader<{typeof(TRow).Name}>). Its adapter "
+        + $"({adapter?.GetType().Name ?? "none"}) does not support streaming reads — direct "
+        + "adapters (EFCore, Sheets, GQL) and non-streaming formats cannot stream. Use the "
+        + "eager item, or a streaming-capable format.",
+        nameof(item)
+      );
+    }
+
+    return new StreamingItem<TRow>(item.Label, streamable, item);
+  }
+
+  /// <summary>
   /// Best-effort extraction of the underlying <see cref="IStorageAdapter{T}"/>
   /// from a catalog item. Recognises <see cref="Item{T}"/> directly and
   /// <see cref="ConstrainedStorageAdapter{T}"/>-wrapped items; falls back to

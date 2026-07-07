@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Flowthru.Data.Schema;
@@ -28,7 +29,7 @@ namespace Flowthru.Data.Storage;
 /// </remarks>
 /// <typeparam name="TRow">The row schema type.</typeparam>
 public sealed class JsonFormatSerializer<TRow>
-  : IFormatSerializer<TRow>, ISupportsIScalar, ISupportsNested
+  : IFormatSerializer<TRow>, IFormatStreamReader<TRow>, ISupportsIScalar, ISupportsNested
   where TRow : notnull, IStructuredSerializable
 {
   private readonly JsonSerializerOptions _options;
@@ -60,17 +61,29 @@ public sealed class JsonFormatSerializer<TRow>
   public JsonSerializerOptions Options => _options;
 
   /// <inheritdoc/>
-  public StorageTraits Traits => new() { CanStream = false };
+  /// <remarks>
+  /// Streaming: the read path is genuinely incremental via
+  /// <see cref="JsonSerializer.DeserializeAsyncEnumerable{TValue}(Stream, JsonSerializerOptions?, CancellationToken)"/>,
+  /// which yields top-level array elements without materialising the whole
+  /// array — so the serializer honestly implements
+  /// <see cref="IFormatStreamReader{TRow}"/> and declares
+  /// <see cref="StorageTraits.CanStream"/> = <c>true</c>.
+  /// </remarks>
+  public StorageTraits Traits => new() { CanStream = true };
 
   /// <inheritdoc/>
-  public async IAsyncEnumerable<TRow> DeserializeRows(Stream stream)
+  public async IAsyncEnumerable<TRow> DeserializeRows(
+    Stream stream,
+    [EnumeratorCancellation] CancellationToken cancellationToken = default)
   {
     if (stream is null)
     {
       throw new ArgumentNullException(nameof(stream));
     }
 
-    await foreach (var item in JsonSerializer.DeserializeAsyncEnumerable<TRow>(stream, _options).ConfigureAwait(false))
+    await foreach (var item in JsonSerializer
+      .DeserializeAsyncEnumerable<TRow>(stream, _options, cancellationToken)
+      .ConfigureAwait(false))
     {
       if (item is null)
       {

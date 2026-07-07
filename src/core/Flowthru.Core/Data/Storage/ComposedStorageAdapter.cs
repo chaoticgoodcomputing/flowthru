@@ -20,7 +20,7 @@ namespace Flowthru.Data.Storage;
 /// </para>
 /// </remarks>
 public sealed class ComposedStorageAdapter<TContainer, TRow>
-  : IStorageAdapter<TContainer>, ISupportsFingerprint, IHasServiceDependencies
+  : IStorageAdapter<TContainer>, ISupportsFingerprint, IHasServiceDependencies, ISupportsStreamingView<TRow>
   where TRow : notnull
 {
   private readonly IStorageMedium _medium;
@@ -107,7 +107,7 @@ public sealed class ComposedStorageAdapter<TContainer, TRow>
       {
         try
         {
-          var rows = _reader.DeserializeRows(stream);
+          var rows = _reader.DeserializeRows(stream, ct);
           return await _container.FromRows(rows).ConfigureAwait(false);
         }
         finally
@@ -133,6 +133,39 @@ public sealed class ComposedStorageAdapter<TContainer, TRow>
           InnerExceptionInfo: smx.InnerException?.ToString()
         )
       : error;
+
+  // ── ISupportsStreamingView<TRow> (the .AsStream() seam) ────────────────
+
+  /// <inheritdoc/>
+  public bool SupportsStreaming => _reader is IFormatStreamReader<TRow>;
+
+  /// <inheritdoc/>
+  public FlowSource<TRow> OpenStreamingSource()
+  {
+    if (_reader is not IFormatStreamReader<TRow>)
+    {
+      throw new InvalidOperationException(
+        $"Format '{_reader.GetType().Name}' does not support streaming reads for "
+        + $"'{typeof(TRow).Name}' (it is not an IFormatStreamReader<{typeof(TRow).Name}>). "
+        + "Use the eager Load() path, or bind a streaming-capable format."
+      );
+    }
+
+    // Deferred: the medium stream is acquired on the first pull inside the
+    // FlowSource bracket and disposed on every exit path (completion, failure,
+    // cancellation, early break). The reader throws SchemaMismatchException from
+    // inside the row stream; TranslateSchemaMismatch lifts that External wrapper
+    // to the typed RuntimeError.SchemaMismatch at the compile boundary — the
+    // storage layer is where SchemaMismatchException is visible, not the Prelude.
+    var reader = _reader;
+    var resource = FlowResource.Make<Stream>(
+      acquire: _medium.ReadStream(),
+      release: (stream, _) => FlowIO.Lift(() => { stream.Dispose(); return FlowUnit.Default; })
+    );
+    return FlowSource
+      .Bracket(resource, (stream, ct) => reader.DeserializeRows(stream, ct))
+      .MapError(TranslateSchemaMismatch);
+  }
 
   /// <inheritdoc/>
   public FlowIO<FlowUnit> Save(TContainer data)
@@ -250,7 +283,7 @@ public sealed class ComposedStorageAdapter<TContainer, TRow>
     var stream = ((EffResult<Stream>.Success)streamResult).Value;
     try
     {
-      var rows = _reader.DeserializeRows(stream);
+      var rows = _reader.DeserializeRows(stream, ct);
       var count = 0;
       await foreach (var _ in rows.WithCancellation(ct).ConfigureAwait(false))
       {
