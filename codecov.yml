@@ -116,6 +116,8 @@ flags:
     carryforward: true
   SpaceflightsStagingSchema:
     carryforward: true
+  StreamingBulkLoad:
+    carryforward: true
 component_management:
   individual_components:
     - component_id: flowthru

@@ -1,3 +1,13 @@
+## 0.28.0 (2026-07-07)
+
+### 🚀 Features
+
+- FlowSource for streaming-native architecture ([#125](https://github.com/chaoticgoodcomputing/flowthru/pull/125), [#113](https://github.com/chaoticgoodcomputing/flowthru/issues/113), [#115](https://github.com/chaoticgoodcomputing/flowthru/issues/115), [#114](https://github.com/chaoticgoodcomputing/flowthru/issues/114), [#116](https://github.com/chaoticgoodcomputing/flowthru/issues/116), [#122](https://github.com/chaoticgoodcomputing/flowthru/issues/122), [#120](https://github.com/chaoticgoodcomputing/flowthru/issues/120), [#121](https://github.com/chaoticgoodcomputing/flowthru/issues/121), [#117](https://github.com/chaoticgoodcomputing/flowthru/issues/117), [#119](https://github.com/chaoticgoodcomputing/flowthru/issues/119), [#118](https://github.com/chaoticgoodcomputing/flowthru/issues/118), [#123](https://github.com/chaoticgoodcomputing/flowthru/issues/123), [#124](https://github.com/chaoticgoodcomputing/flowthru/issues/124), [#112](https://github.com/chaoticgoodcomputing/flowthru/issues/112), [#111](https://github.com/chaoticgoodcomputing/flowthru/issues/111))
+
+### ❤️ Thank You
+
+- Spencer Elkington
+
 ## 0.27.1 (2026-07-02)
 
 ### 🩹 Fixes
