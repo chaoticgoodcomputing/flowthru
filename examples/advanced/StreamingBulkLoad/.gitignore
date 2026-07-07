@@ -1,0 +1,27 @@
+# Flowthru cache manifest (framework-managed; safe to delete to force rebuild)
+.flowthru/
+
+# Generated metadata
+Metadata/
+
+# Ignore all generated data artifacts (Parquet, SQLite DB, CSV samples, report)
+Data/**
+
+# Un-ignore layer directories and their Schemas subdirectories so git can traverse them
+!Data/*/
+!Data/*/Schemas/
+
+# Allow raw input template files (the report template is checked in)
+!Data/_01_Raw/Templates/
+!Data/_01_Raw/Templates/*
+
+# Allow all schema and catalog .cs files
+!Data/**/*.cs
+
+# Un-ignore all .gitkeep files anywhere
+!**/.gitkeep
+
+# SQLite databases are generated
+*.db
+*.db-shm
+*.db-wal

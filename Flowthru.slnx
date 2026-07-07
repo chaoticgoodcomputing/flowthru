@@ -60,6 +60,7 @@
   <Project Path="examples/starter/SpaceflightsPython/SpaceflightsPython.csproj" />
   <Project Path="examples/advanced/FlowthruCoverage/FlowthruCoverage.csproj" />
   <Project Path="examples/advanced/RetailDataSplitFlow/RetailDataSplitFlow.csproj" />
+  <Project Path="examples/advanced/StreamingBulkLoad/StreamingBulkLoad.csproj" />
   <Project Path="examples/advanced/SpaceflightsDistributed/SpaceflightsDistributed.DataProcessing/SpaceflightsDistributed.DataProcessing.csproj" />
   <Project Path="examples/advanced/SpaceflightsDistributed/SpaceflightsDistributed.DataScience/SpaceflightsDistributed.DataScience.csproj" />
   <Project Path="examples/advanced/SpaceflightsDistributed/SpaceflightsDistributed.Reporting/SpaceflightsDistributed.Reporting.csproj" />
