@@ -47,7 +47,7 @@ public class FUnitBulkTransferTests : FUnitContext
     );
 
     Assert.That(negotiation.IsValid, Is.False,
-      "RequireNative must fail negotiation while no native rung exists.");
+      "RequireNative must fail negotiation for a pairing with no native capability pair.");
     var errors = ((Validated<PreFlightError, BulkTransferDecision>.Invalid)negotiation).Errors;
     Assert.That(errors.Single(), Is.InstanceOf<PreFlightError.BulkTransferRungUnavailable>());
   }

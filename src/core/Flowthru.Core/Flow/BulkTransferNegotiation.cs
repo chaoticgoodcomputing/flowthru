@@ -22,9 +22,11 @@ public enum BulkTransferRung
   /// A provider-native byte passthrough between a paired
   /// <see cref="ISupportsBulkExport"/> source and
   /// <see cref="ISupportsBulkImport"/> target (same provider, same wire
-  /// format). The execution machinery for this rung has not shipped yet,
-  /// so negotiation never selects it in the current version; a matched
-  /// capability pair downgrades — visibly — to <see cref="Streaming"/>.
+  /// format) — e.g. a Postgres source's binary <c>COPY TO</c> pumped
+  /// straight into a Postgres target's binary <c>COPY FROM</c>. Selected
+  /// whenever the pair matches; transfer bytes never materialise as CLR
+  /// rows, and the import side finalizes transactionally (a failed
+  /// transfer rolls the target back).
   /// </summary>
   Native,
 }
@@ -123,12 +125,17 @@ public static class BulkTransferNegotiation
     }
     else
     {
-      // A matched pair still cannot run natively: the native rung's
-      // execution machinery has not shipped yet. Saying so here keeps the
-      // downgrade visible instead of silently taking the slow path.
-      pairStatus =
-        $"capability pair matched ({export.BulkProvider}/{export.BulkWireFormat}), but the "
-        + "native transfer rung is not available in this version of Flowthru";
+      // Matched pair — the native rung executes it as a provider-native
+      // byte passthrough. Naming the pairing keeps the selection just as
+      // visible as a downgrade would be.
+      return Validated<PreFlightError, BulkTransferDecision>.Pure(
+        new BulkTransferDecision(
+          label,
+          BulkTransferRung.Native,
+          $"native rung selected — capability pair matched "
+          + $"({export.BulkProvider}/{export.BulkWireFormat})"
+        )
+      );
     }
 
     if (effectiveOptions.RequireNative)
@@ -137,7 +144,8 @@ public static class BulkTransferNegotiation
         new PreFlightError.BulkTransferRungUnavailable(
           label,
           $"RequireNative is set but no native path is available — {pairStatus}. "
-          + "Unset RequireNative to allow the streaming fallback."
+          + "Pair the endpoints on the same provider-native capability (equal provider "
+          + "and wire format), or unset RequireNative to allow the streaming fallback."
         )
       );
     }

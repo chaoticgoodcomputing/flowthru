@@ -53,6 +53,8 @@ public interface ISupportsBulkExport
   /// native rung — never during negotiation. Failures surface through the
   /// <see cref="FlowIO{A}"/> failure channel; the caller owns the stream
   /// and disposes it when the transfer completes or aborts.
+  /// Implementations must treat disposal before end-of-stream as an
+  /// abort and cancel any in-flight provider operation.
   /// </summary>
   FlowIO<Stream> OpenBulkExport();
 }

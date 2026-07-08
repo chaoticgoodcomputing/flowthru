@@ -40,6 +40,14 @@ internal sealed class BulkTransferSourceItem<T> : IReadOnlyItem<FlowSource<T>>
   /// surfaces here as the pre-flight error it would have been — the
   /// backstop for hosts that run with validation off.
   /// </summary>
+  /// <remarks>
+  /// On the native rung, no rows flow through the DAG at all — the
+  /// target endpoint's <c>Save</c> pumps provider-native bytes directly —
+  /// so this returns a sentinel <see cref="FlowSource{T}"/> that fails
+  /// loudly if anything ever compiles it. A pulled sentinel means
+  /// negotiation and execution drifted apart, which must surface as an
+  /// invariant violation rather than silently transferring nothing.
+  /// </remarks>
   public FlowIO<FlowSource<T>> Load() =>
     _negotiation.Value.Match(
       onValid: decision => decision.Rung switch
@@ -51,8 +59,11 @@ internal sealed class BulkTransferSourceItem<T> : IReadOnlyItem<FlowSource<T>>
                 $"BulkTransferSourceItem[{Label}].Load",
                 "negotiation selected the streaming rung but the source no longer resolves a "
                 + "streaming view — negotiation and execution must probe identically.")),
-        // Negotiation never selects Native while its execution machinery
-        // hasn't shipped; reaching this arm means the two drifted apart.
+        BulkTransferRung.Native =>
+          FlowIO.Pure(FlowSource.Lift<T>(_ => throw new InvalidOperationException(
+            $"Bulk transfer '{Label}' negotiated the native rung: bytes move provider-side "
+            + "and the row channel is a sentinel that must never be compiled. Pulling it "
+            + "means rung selection and execution drifted apart."))),
         _ => FlowIO.Fail<FlowSource<T>>(new RuntimeError.InvariantViolated(
           $"BulkTransferSourceItem[{Label}].Load",
           $"negotiation selected rung '{decision.Rung}', which this version cannot execute.")),

@@ -59,7 +59,11 @@ public static class FlowBuilderBulkTransferExtensions
       label: stepLabel,
       transform: static s => s,
       inputs: new BulkTransferSourceItem<T>(source, negotiation),
-      outputs: new BulkTransferTargetItem<T>(target, negotiation)
+      // The target endpoint also holds the source item: the native rung
+      // pumps bytes from the source's bulk-export channel inside the
+      // target's Save, re-probing both capabilities exactly as
+      // negotiation did.
+      outputs: new BulkTransferTargetItem<T>(target, source, negotiation)
     );
   }
 }

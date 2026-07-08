@@ -50,10 +50,11 @@ public interface ISupportsBulkImport
   /// Open the writable byte channel that lands content into this item in
   /// <see cref="BulkWireFormat"/>. Called only at transfer runtime by a
   /// native rung — never during negotiation. Failures surface through the
-  /// <see cref="FlowIO{A}"/> failure channel; the caller writes the
-  /// exported bytes and disposes the stream, and the implementation must
-  /// finalize the import on clean disposal after a complete payload and
-  /// abort (e.g. roll back) otherwise.
+  /// <see cref="FlowIO{A}"/> failure channel. The caller writes the
+  /// exported bytes, calls <see cref="BulkImportChannel.CompleteAsync"/>
+  /// exactly once on success, and disposes the channel on every path;
+  /// the implementation finalizes the import (commit) only on completion
+  /// and aborts it (e.g. rolls back) on disposal without one.
   /// </summary>
-  FlowIO<Stream> OpenBulkImport();
+  FlowIO<BulkImportChannel> OpenBulkImport();
 }

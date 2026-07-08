@@ -42,6 +42,7 @@
     <PackageVersion Include="Microsoft.EntityFrameworkCore" Version="10.0.4" /> <!-- tracks current stable; revisit before publish -->
     <PackageVersion Include="Microsoft.EntityFrameworkCore.Relational" Version="10.0.4" /> <!-- tracks current stable; revisit before publish -->
     <PackageVersion Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.4" /> <!-- tracks current stable; revisit before publish -->
+    <PackageVersion Include="Npgsql" Version="10.0.3" /> <!-- raw binary COPY rung for AddBulkTransfer; tracks the EF provider's Npgsql floor -->
     <PackageVersion Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.1" /> <!-- tracks current stable; revisit before publish -->
     <PackageVersion Include="Testcontainers.PostgreSql" Version="4.6.0" /> <!-- tracks current stable; revisit before publish -->
     <PackageVersion Include="Testcontainers" Version="4.6.0" /> <!-- core; MinIO container backend for the S3 gateway-law matrix -->
