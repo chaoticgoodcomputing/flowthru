@@ -1,3 +1,5 @@
+using Flowthru.Data.Storage;
+
 namespace Flowthru.Step.DuckDb;
 
 /// <summary>
@@ -11,17 +13,18 @@ namespace Flowthru.Step.DuckDb;
 /// </param>
 /// <param name="Relations">
 /// The input relations, in wire-up order: each SQL relation name bound
-/// to the local Parquet file holding its rows.
+/// to the located Parquet bytes holding its rows — a local file, or an
+/// <c>s3://</c> object plus its access handoff.
 /// </param>
 /// <param name="Sql">
 /// The transform body — a single SQL query whose relations are the
 /// names in <paramref name="Relations"/> and whose result becomes the
 /// output item's rows.
 /// </param>
-/// <param name="OutputPath">
-/// Local filesystem path the result is written to as Parquet
-/// (DuckDB <c>COPY ... TO</c>); parent directories are created if
-/// missing.
+/// <param name="OutputLocation">
+/// Where the result is written as Parquet (DuckDB <c>COPY ... TO</c>):
+/// a local file (parent directories created if missing) or an
+/// <c>s3://</c> object the engine uploads to directly.
 /// </param>
 /// <param name="ExpectedColumns">
 /// The output item's declared schema, one entry per column, that the
@@ -32,18 +35,21 @@ public sealed record DuckDbTransformRequest(
   string StepLabel,
   IReadOnlyList<DuckDbBoundRelation> Relations,
   string Sql,
-  string OutputPath,
+  ByteLocation OutputLocation,
   IReadOnlyList<DuckDbExpectedColumn> ExpectedColumns,
   DuckDbTransformOptions Options
 );
 
 /// <summary>
 /// One input relation, resolved to bytes: the name the transform SQL
-/// refers to it by, and the local Parquet file the engine reads it from.
+/// refers to it by, and the located Parquet bytes the engine reads it
+/// from — a <see cref="ByteLocation.LocalFile"/>, or a
+/// <see cref="ByteLocation.RemoteUri"/> whose access handoff the engine
+/// turns into a connection-scoped DuckDB secret.
 /// </summary>
 /// <param name="Name">SQL relation name (quoted by the engine — any non-empty string works).</param>
-/// <param name="LocalPath">Absolute path of the Parquet file holding the relation's rows.</param>
-public sealed record DuckDbBoundRelation(string Name, string LocalPath);
+/// <param name="Location">Where the relation's Parquet bytes live.</param>
+public sealed record DuckDbBoundRelation(string Name, ByteLocation Location);
 
 /// <summary>
 /// One column of the output item's declared schema, as the engine

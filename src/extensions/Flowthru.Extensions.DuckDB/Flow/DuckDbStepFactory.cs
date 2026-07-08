@@ -33,9 +33,11 @@ namespace Flowthru.Flow;
 /// the result against the output item's declared schema (no real data
 /// touched — failures name the step, relation binding, and offending
 /// columns); at execution the same verification runs against the real
-/// files before anything is written. Wiring problems — a
-/// non-file-backed endpoint, duplicate relation names — fail here, at
-/// wire-up, and a unit test can run the same check via
+/// endpoints before anything is written. Endpoints may be local files
+/// or <c>s3://</c> objects (the engine reads and writes both
+/// natively). Wiring problems — a non-byte-addressable endpoint,
+/// duplicate relation names — fail here, at wire-up, and a unit test
+/// can run the same check via
 /// <c>flow.ValidateDuckDbTransforms()</c> or
 /// <c>FUnitContext.Validate(step)</c>.
 /// </para>

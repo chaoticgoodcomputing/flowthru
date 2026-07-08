@@ -133,6 +133,8 @@ public class DuckDbFlowthruBuilderExtensionsTests
       ["Flowthru:DuckDb:MaxConcurrentTransforms"] = "3",
       ["Flowthru:DuckDb:MemoryLimit"] = "2GB",
       ["Flowthru:DuckDb:Threads"] = "4",
+      ["Flowthru:DuckDb:ExtensionDirectory"] = "/opt/duckdb-extensions",
+      ["Flowthru:DuckDb:AllowExtensionDownload"] = "false",
     }));
     builder.UseDuckDb();
 
@@ -144,6 +146,9 @@ public class DuckDbFlowthruBuilderExtensionsTests
       Assert.That(options.MaxConcurrentTransforms, Is.EqualTo(3));
       Assert.That(options.MemoryLimit, Is.EqualTo("2GB"));
       Assert.That(options.Threads, Is.EqualTo(4));
+      Assert.That(options.ExtensionDirectory, Is.EqualTo("/opt/duckdb-extensions"),
+        "The httpfs provisioning knobs must bind from configuration like every other option.");
+      Assert.That(options.AllowExtensionDownload, Is.False);
     });
   }
 

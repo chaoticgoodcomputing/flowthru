@@ -23,8 +23,9 @@ namespace Flowthru.Validation.Runtime.DuckDb;
 /// <para>
 /// Diagnostic codes live in the FTDDB40xx range:
 /// <list type="bullet">
-///   <item>FTDDB4001 — remote-bytes-unsupported (input/output located behind a remote URI)</item>
+///   <item>FTDDB4001 — remote-bytes-unsupported (endpoint behind a remote URI whose scheme the engine can't reach)</item>
 ///   <item>FTDDB4002 — engine-failed (DuckDB rejected or aborted the transform)</item>
+///   <item>FTDDB4003 — httpfs-unavailable (the httpfs extension an s3:// endpoint needs could not be loaded)</item>
 /// </list>
 /// </para>
 /// </remarks>
@@ -42,18 +43,19 @@ public abstract record DuckDbRuntimeError : IExtensionRuntimeError
   public abstract string DiagnosticCode { get; }
 
   /// <summary>
-  /// An endpoint's bytes live behind a remote URI (e.g.
-  /// <c>s3://...</c>), which the DuckDB transform can't reach yet —
-  /// only local files are supported. Point the item at local storage,
-  /// or stage the object locally before the transform.
+  /// An endpoint's bytes live behind a remote URI whose scheme the
+  /// DuckDB transform can't reach — it reads and writes local files and
+  /// <c>s3://</c> objects. Point the item at local or S3 storage, or
+  /// stage the object before the transform.
   /// </summary>
   public sealed record RemoteBytesUnsupported(string ItemLabel, Uri Uri) : DuckDbRuntimeError
   {
     /// <inheritdoc/>
     public override string Message =>
       $"Item '{ItemLabel}' locates its bytes at remote URI '{Uri}', but the DuckDB "
-      + "transform currently reads and writes local files only. Back the item with "
-      + "local storage, or stage the object to a local path before this step.";
+      + $"transform reaches local files and s3:// objects only — '{Uri.Scheme}://' "
+      + "endpoints aren't supported. Back the item with local or S3 storage, or "
+      + "stage the object before this step.";
     /// <inheritdoc/>
     public override string DiagnosticCode => "FTDDB4001";
   }
@@ -71,5 +73,28 @@ public abstract record DuckDbRuntimeError : IExtensionRuntimeError
       $"DuckDB transform '{StepLabel}' failed inside the engine: {Detail}";
     /// <inheritdoc/>
     public override string DiagnosticCode => "FTDDB4002";
+  }
+
+  /// <summary>
+  /// A transform has an <c>s3://</c> endpoint, but DuckDB's
+  /// <c>httpfs</c> extension — which the bundled engine does not
+  /// statically link — could not be loaded. Either the extension isn't
+  /// present locally and downloads are disabled
+  /// (<c>DuckDbEngineOptions.AllowExtensionDownload = false</c>), or the
+  /// one-time <c>INSTALL httpfs</c> download failed (typically: no
+  /// network path to DuckDB's extension repository). The
+  /// <see cref="Detail"/> carries DuckDB's own message plus the remedy:
+  /// pre-provision <c>httpfs.duckdb_extension</c> into
+  /// <c>DuckDbEngineOptions.ExtensionDirectory</c> (or DuckDB's default
+  /// <c>~/.duckdb</c>), or allow the download on a networked host.
+  /// </summary>
+  public sealed record HttpfsUnavailable(string StepLabel, string Detail) : DuckDbRuntimeError
+  {
+    /// <inheritdoc/>
+    public override string Message =>
+      $"DuckDB transform '{StepLabel}' has an s3:// endpoint, but the httpfs "
+      + $"extension could not be loaded: {Detail}";
+    /// <inheritdoc/>
+    public override string DiagnosticCode => "FTDDB4003";
   }
 }

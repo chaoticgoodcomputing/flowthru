@@ -241,16 +241,17 @@ public sealed class DuckDbTransformStep<TOut> : IStepNode, IDuckDbTransformDescr
   /// <remarks>
   /// Resolves every endpoint's byte location, then hands the whole
   /// transform to the engine. No item <c>Load()</c>/<c>Save()</c> is
-  /// involved — the payload bytes move engine-side only.
+  /// involved — the payload bytes move engine-side only, whether they
+  /// live in local files or behind <c>s3://</c> URIs.
   /// </remarks>
   public FlowIO<FlowUnit> Execute() =>
     from relations in ResolveRelations()
-    from outputPath in ResolveLocalPath(Output.Label, _outputLocation)
+    from outputLocation in ResolveEndpoint(Output.Label, _outputLocation)
     from result in _engine.ExecuteTransform(new DuckDbTransformRequest(
       StepLabel: Label,
       Relations: relations,
       Sql: Sql,
-      OutputPath: outputPath,
+      OutputLocation: outputLocation,
       ExpectedColumns: _expectedColumns,
       Options: _options
     ))
@@ -265,10 +266,10 @@ public sealed class DuckDbTransformStep<TOut> : IStepNode, IDuckDbTransformDescr
     {
       var current = relation;
       bound = bound.Bind(list =>
-        ResolveLocalPath(current.Item.Label, current.Location)
-          .Map(path =>
+        ResolveEndpoint(current.Item.Label, current.Location)
+          .Map(location =>
           {
-            list.Add(new DuckDbBoundRelation(current.RelationName, path));
+            list.Add(new DuckDbBoundRelation(current.RelationName, location));
             return list;
           })
       );
@@ -277,21 +278,27 @@ public sealed class DuckDbTransformStep<TOut> : IStepNode, IDuckDbTransformDescr
   }
 
   /// <summary>
-  /// Collapse a resolved <see cref="ByteLocation"/> to a local path.
-  /// Remote locations fail with the typed
-  /// <see cref="DuckDbRuntimeError.RemoteBytesUnsupported"/> value —
-  /// local files are the only location this transform reaches today.
+  /// Validate a resolved <see cref="ByteLocation"/> as an engine
+  /// endpoint: local files and <c>s3://</c> objects pass through (the
+  /// engine reads both natively — S3 via <c>httpfs</c> plus a
+  /// connection-scoped secret minted from the location's access
+  /// handoff); any other remote scheme fails with the typed
+  /// <see cref="DuckDbRuntimeError.RemoteBytesUnsupported"/> value,
+  /// attributed to the item whose bytes live there.
   /// </summary>
-  private static FlowIO<string> ResolveLocalPath(
+  private static FlowIO<ByteLocation> ResolveEndpoint(
     string itemLabel,
     FlowIO<ByteLocation> location
   ) =>
     location.Bind(resolved => resolved.Match(
-      onLocalFile: local => FlowIO.Pure(local.Path),
-      onRemoteUri: remote => FlowIO.Fail<string>(
-        new RuntimeError.ExtensionError(
-          new DuckDbRuntimeError.RemoteBytesUnsupported(itemLabel, remote.Uri)
-        ))
+      onLocalFile: local => FlowIO.Pure<ByteLocation>(local),
+      onRemoteUri: remote =>
+        string.Equals(remote.Uri.Scheme, "s3", StringComparison.OrdinalIgnoreCase)
+          ? FlowIO.Pure<ByteLocation>(remote)
+          : FlowIO.Fail<ByteLocation>(
+              new RuntimeError.ExtensionError(
+                new DuckDbRuntimeError.RemoteBytesUnsupported(itemLabel, remote.Uri)
+              ))
     ));
 
 }

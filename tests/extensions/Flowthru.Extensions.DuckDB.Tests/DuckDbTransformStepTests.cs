@@ -239,19 +239,12 @@ public class DuckDbTransformStepTests
       "The mismatch message should point at the fix (an explicit CAST).");
   }
 
-  // ── Remote bytes (typed error value) ────────────────────────────────────
+  // ── Remote bytes (typed error value for non-s3 schemes) ─────────────────
 
   [Test]
-  public async Task RemoteInput_FailsWithTypedRemoteBytesError()
+  public async Task NonS3RemoteInput_FailsWithTypedRemoteBytesError()
   {
-    var remote = new Item<IEnumerable<EventRow>>(
-      "remote_events",
-      new ComposedStorageAdapter<IEnumerable<EventRow>, EventRow>(
-        new FakeRemoteMedium(new Uri("s3://bucket/events.parquet")),
-        new ParquetFormatSerializer<EventRow>(),
-        new EnumerableContainerAdapter<EventRow>()
-      )
-    );
+    var remote = RemoteItem("remote_events", new Uri("https://example.com/events.parquet"));
     var sorted = ItemFactory.Enumerable.Parquet<EventRow>("sorted", Path("s.parquet"));
 
     var step = new DuckDbTransformStep<EventRow>(
@@ -269,7 +262,81 @@ public class DuckDbTransformStepTests
     var cause = ((RuntimeError.ExtensionError)error).Cause;
     Assert.That(cause, Is.InstanceOf<DuckDbRuntimeError.RemoteBytesUnsupported>(),
       $"Expected the typed remote-bytes error, got: {cause}");
-    Assert.That(cause.Message, Does.Contain("s3://bucket/events.parquet"));
+    Assert.Multiple(() =>
+    {
+      Assert.That(cause.Message, Does.Contain("https://example.com/events.parquet"));
+      Assert.That(cause.Message, Does.Contain("'https://'"),
+        "The error must name the unsupported scheme honestly.");
+      Assert.That(cause.Message, Does.Contain("s3://"),
+        "The error must say which remote scheme IS supported.");
+    });
+  }
+
+  [Test]
+  public async Task NonS3RemoteOutput_FailsWithTypedRemoteBytesError()
+  {
+    var events = SeedEvents("events", "events.parquet", new[] { MakeEvent(1, "AU", 1.0) });
+    var remoteOut = RemoteItem("remote_sorted", new Uri("ftp://example.com/sorted.parquet"));
+
+    var step = new DuckDbTransformStep<EventRow>(
+      label: "remote_out",
+      sql: "SELECT * FROM events",
+      inputs: new[] { DuckDbInputRelation.From(events) },
+      output: remoteOut,
+      engine: _engine
+    );
+
+    var outcome = await step.Execute().Run();
+    Assert.That(outcome, Is.InstanceOf<EffResult<FlowUnit>.Failure>());
+    var error = Unwrap(((EffResult<FlowUnit>.Failure)outcome).Error);
+    Assert.That(error, Is.InstanceOf<RuntimeError.ExtensionError>());
+    var cause = ((RuntimeError.ExtensionError)error).Cause;
+    Assert.That(cause, Is.InstanceOf<DuckDbRuntimeError.RemoteBytesUnsupported>());
+    Assert.That(cause.Message, Does.Contain("remote_sorted"),
+      "The error must attribute the unsupported location to the output item.");
+  }
+
+  // ── S3 endpoints pass through to the engine (request planning) ──────────
+
+  [Test]
+  public async Task S3Endpoints_PassThroughToEngine_AsRemoteLocations()
+  {
+    var s3Access = new Dictionary<string, string>
+    {
+      ["region"] = "us-east-1",
+      ["access_key_id"] = "AKIAEXAMPLE",
+      ["secret_access_key"] = "supersecret",
+    };
+    var s3Input = RemoteItem(
+      "s3_events", new Uri("s3://bucket/in/events.parquet"), s3Access);
+    var localOutput = ItemFactory.Enumerable.Parquet<EventRow>("sorted", Path("s.parquet"));
+    var recorder = new RequestRecordingEngine();
+
+    var step = new DuckDbTransformStep<EventRow>(
+      label: "s3_sort",
+      sql: "SELECT * FROM s3_events",
+      inputs: new[] { DuckDbInputRelation.From(s3Input) },
+      output: localOutput,
+      engine: recorder
+    );
+
+    var outcome = await step.Execute().Run();
+    Assert.That(outcome, Is.InstanceOf<EffResult<FlowUnit>.Success>(),
+      "An s3:// input must not be rejected by the step — the engine reaches it via httpfs.");
+
+    var request = recorder.LastRequest!;
+    Assert.Multiple(() =>
+    {
+      Assert.That(request.Relations.Single().Location,
+        Is.InstanceOf<ByteLocation.RemoteUri>(),
+        "The s3 location must reach the engine un-collapsed — no local staging.");
+      var remote = (ByteLocation.RemoteUri)request.Relations.Single().Location;
+      Assert.That(remote.Uri, Is.EqualTo(new Uri("s3://bucket/in/events.parquet")));
+      Assert.That(remote.Access, Is.EqualTo(s3Access),
+        "The gateway-minted access handoff must ride along for the engine's secret.");
+      Assert.That(request.OutputLocation, Is.InstanceOf<ByteLocation.LocalFile>(),
+        "The local output must stay a local file — endpoints resolve independently.");
+    });
   }
 
   // ── Engine failure (typed error value) ──────────────────────────────────
@@ -395,22 +462,61 @@ public class DuckDbTransformStepTests
     }));
 
   /// <summary>
+  /// A Parquet item whose bytes locate behind a remote URI (plus optional
+  /// access handoff) — simulates an object-store-backed item without an
+  /// S3 dependency.
+  /// </summary>
+  private static IItem<IEnumerable<EventRow>> RemoteItem(
+    string label, Uri uri, IReadOnlyDictionary<string, string>? access = null
+  ) =>
+    new Item<IEnumerable<EventRow>>(
+      label,
+      new ComposedStorageAdapter<IEnumerable<EventRow>, EventRow>(
+        new FakeRemoteMedium(uri, access),
+        new ParquetFormatSerializer<EventRow>(),
+        new EnumerableContainerAdapter<EventRow>()
+      )
+    );
+
+  /// <summary>
+  /// Engine double that records the request it was handed and reports
+  /// success — for asserting what the step plans, without a real engine.
+  /// </summary>
+  private sealed class RequestRecordingEngine : IDuckDbEngine
+  {
+    public DuckDbTransformRequest? LastRequest { get; private set; }
+
+    public int MaxConcurrency => 1;
+
+    public FlowIO<DuckDbTransformResult> ExecuteTransform(DuckDbTransformRequest request)
+    {
+      LastRequest = request;
+      return FlowIO.Pure(
+        new DuckDbTransformResult(0, Array.Empty<(string, string)>()));
+    }
+  }
+
+  /// <summary>
   /// Byte-addressable medium whose bytes live behind a remote URI —
   /// simulates an object-store medium without an S3 dependency.
   /// </summary>
   private sealed class FakeRemoteMedium : IStorageMedium, ISupportsByteLocation
   {
     private readonly Uri _uri;
+    private readonly IReadOnlyDictionary<string, string> _access;
 
-    public FakeRemoteMedium(Uri uri) => _uri = uri;
+    public FakeRemoteMedium(Uri uri, IReadOnlyDictionary<string, string>? access = null)
+    {
+      _uri = uri;
+      _access = access ?? new Dictionary<string, string>();
+    }
 
     public StorageTraits Traits => new() { CanRead = true, CanWrite = true, IsPersistent = true };
 
     public bool IsAddressable => true;
 
     public FlowIO<ByteLocation> LocateBytes() =>
-      FlowIO.Pure<ByteLocation>(
-        new ByteLocation.RemoteUri(_uri, new Dictionary<string, string>()));
+      FlowIO.Pure<ByteLocation>(new ByteLocation.RemoteUri(_uri, _access));
 
     public FlowIO<Stream> ReadStream() =>
       FlowIO.Fail<Stream>(new RuntimeError.External(

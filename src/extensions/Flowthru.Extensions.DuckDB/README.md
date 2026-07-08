@@ -116,6 +116,56 @@ declared input schemas (unknown column/relation, syntax error); `FTDDB3002` — 
 doesn't satisfy the declared output schema; `FTDDB3003` — an input's declared schema has a
 property the checks can't model.
 
+## S3 endpoints
+
+Endpoints don't have to be local files: a Parquet item on an `s3://` path (via
+`Flowthru.Extensions.AWS.S3`'s `UseS3()`) works as a transform input or output unmodified — the
+engine reads inputs with `read_parquet('s3://…')` and writes the output with
+`COPY … TO 's3://…'`, all inside DuckDB's `httpfs` extension. The object bytes move directly
+between the engine and the object store; nothing is staged to a local file, buffered in the CLR,
+or materialized as rows.
+
+```csharp
+// catalog.Events on "s3://lake/raw/events.parquet", catalog.SortedEvents on
+// "s3://lake/sorted/events.parquet" — the transform wiring is identical:
+flow.AddDuckDbTransform(
+  label: "sort_events",
+  input: catalog.Events,
+  output: catalog.SortedEvents,
+  sql: "SELECT * FROM Events ORDER BY Country, OccurredAt",
+  engine: engine);
+```
+
+**How credentials flow.** When the step executes, each S3-backed endpoint resolves its
+`ByteLocation` through the S3 gateway — the same seam that reads and writes the object — which
+mints a per-call access handoff (endpoint, region, url style, credentials from the standard AWS
+chain, session token). The engine turns each handoff into a *temporary* DuckDB secret `SCOPE`d
+to exactly that object's URI, created inside the transform's private in-memory database: inputs
+carrying different credentials never see each other's (DuckDB picks the secret whose scope is
+the longest prefix of the path being read, and an exact-object scope is the most specific
+possible). Secrets die with the connection when the transform finishes — nothing is persisted,
+logged, or carried on the catalog or the DAG, and engine error messages are scrubbed of
+credential material before they surface as error values.
+
+**How `httpfs` loads.** The bundled DuckDB binary statically links `parquet` but *not*
+`httpfs`. On the first S3 transform, the engine runs `LOAD httpfs`; if the extension isn't
+installed locally it runs `INSTALL httpfs` — a one-time download from DuckDB's extension
+repository into the extension directory (`~/.duckdb` by default) — and loads it. Every later
+transform loads it locally with no network. Two options control this:
+
+- `ExtensionDirectory` — where DuckDB looks for (and installs) extensions. For air-gapped
+  hosts, pre-provision `httpfs.duckdb_extension` here (run `INSTALL httpfs` once on a networked
+  machine with the same DuckDB version and platform, or bake it into the container image).
+- `AllowExtensionDownload` (default `true`) — set `false` to forbid the `INSTALL` download.
+  A missing `httpfs` then fails the step with the typed `FTDDB4003` error naming the remedy,
+  and DuckDB's own extension autoinstall is disabled for the connection so nothing downloads
+  implicitly either. Purely local transforms never touch `httpfs` and are unaffected.
+
+**Concurrency inheritance.** The `s3:read` concurrency cap (`S3Options.MaxConcurrentReads`) is
+a property of the S3 medium, inherited through ordinary item wiring — a DuckDB step with
+S3-backed endpoints picks it up exactly as a plain load step does, with no DuckDB-specific
+configuration.
+
 ## Concurrency and memory
 
 Each transform may use the engine's full memory budget (`MemoryLimit`, spilling to
@@ -127,9 +177,13 @@ section or code-first via `UseDuckDb(opts => ...)`.
 
 ## Limitations (honest ones)
 
-- **Local files only.** Endpoints must be backed by local file storage. An item whose bytes live
-  behind a remote URI (e.g. `s3://`) fails the step with a typed error (`FTDDB4001`); S3-backed
-  transforms are planned. Non-file-backed items (memory, database) are rejected at wire-up.
+- **Local files and `s3://` objects only.** An item whose bytes live behind any other remote
+  scheme (`https://`, `ftp://`, …) fails the step with a typed error (`FTDDB4001`).
+  Non-byte-addressable items (memory, database) are rejected at wire-up.
+- **`httpfs` may need the network once.** The bundled engine doesn't statically link `httpfs`,
+  so the first S3 transform on a host downloads it unless it was pre-provisioned (see the S3
+  section above). With `AllowExtensionDownload = false`, a missing `httpfs` is the typed
+  `FTDDB4003` failure — explicit, never papered over.
 - **Parquet endpoints only.** Inputs are bound via `read_parquet`; the output is written with
   `COPY ... (FORMAT PARQUET)`. Other formats (CSV, Postgres via `ATTACH`) are planned.
 - **Transforms are never cached — loudly.** The SQL text is wire-up data that isn't part of the
