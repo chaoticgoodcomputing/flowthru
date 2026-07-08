@@ -31,6 +31,7 @@
     <PackageVersion Include="AWSSDK.S3" Version="4.0.23" /> <!-- tracks current stable; revisit before publish -->
     <PackageVersion Include="ClosedXML" Version="0.105.0" />
     <PackageVersion Include="CsvHelper" Version="33.0.1" /> <!-- tracks current stable; revisit before publish -->
+    <PackageVersion Include="DuckDB.NET.Data.Full" Version="1.5.3" /> <!-- tracks current stable; bundles native binaries for all supported RIDs -->
     <PackageVersion Include="EFCore.BulkExtensions" Version="10.0.1" /> <!-- tracks current stable; revisit before publish -->
     <PackageVersion Include="ExcelDataReader" Version="3.7.0" /> <!-- tracks current stable; revisit before publish -->
     <PackageVersion Include="ExcelDataReader.DataSet" Version="3.7.0" /> <!-- tracks current stable; revisit before publish -->

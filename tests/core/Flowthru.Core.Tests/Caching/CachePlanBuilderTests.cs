@@ -180,6 +180,37 @@ public class CachePlanBuilderTests
   }
 
   [Test]
+  public async Task StepDeclaringItselfUncacheable_IsUncacheable_WithItsOwnReason()
+  {
+    // Even with a CodeVersion, fingerprintable inputs, and a matching
+    // manifest — everything else says "cacheable" — a step-declared
+    // opt-out wins, and the plan carries the step's reason verbatim so
+    // the decision is never silent.
+    var input = new FakeFingerprintItem<int>("in", fingerprint: "fp-in", exists: true);
+    var output = new FakeFingerprintItem<int>("out", fingerprint: "fp-out", exists: true);
+    var step = new SelfDeclaredUncacheableStep(
+      MakeStep("transform", "code-v1", input, output),
+      new StepUncacheableReason.DeclaredByStep("query text isn't fingerprinted yet")
+    );
+    var flow = BuildFlow(step);
+
+    var composite = CachePlanBuilder.ComposeStepFingerprint(
+      "code-v1", new[] { ("in", "fp-in") });
+    var manifest = Manifest(
+      steps: new[] { ("transform", composite) },
+      items: new[] { ("in", "fp-in") });
+
+    var plan = await CachePlanBuilder.BuildAsync(flow, manifest);
+
+    Assert.That(plan.UncacheableStepLabels, Is.EquivalentTo(new[] { "transform" }),
+      "A step-declared opt-out must override every other eligibility signal.");
+    var reason = plan.UncacheableReasons["transform"];
+    Assert.That(reason, Is.InstanceOf<StepUncacheableReason.DeclaredByStep>());
+    Assert.That(reason.Describe(), Is.EqualTo("query text isn't fingerprinted yet"),
+      "DeclaredByStep renders the step's own reason verbatim.");
+  }
+
+  [Test]
   public async Task StepWithUnfingerprintableInput_IsUncacheable()
   {
     var input = new FakeFingerprintItem<int>("in", fingerprint: null, exists: true);
@@ -514,6 +545,33 @@ public class CachePlanBuilderTests
     {
       foreach (var step in steps) b.Add(step);
     });
+
+  /// <summary>
+  /// Decorator that adds a <see cref="IStepNode.DeclaredUncacheableReason"/>
+  /// to an otherwise perfectly cacheable step — the shape an
+  /// engine-transform step (whose behaviour lives in wire-up data) uses
+  /// to opt out of caching loudly.
+  /// </summary>
+  private sealed class SelfDeclaredUncacheableStep : IStepNode
+  {
+    private readonly IStepNode _inner;
+
+    public SelfDeclaredUncacheableStep(IStepNode inner, StepUncacheableReason reason)
+    {
+      _inner = inner;
+      DeclaredUncacheableReason = reason;
+    }
+
+    public StepUncacheableReason? DeclaredUncacheableReason { get; }
+    public string Label => _inner.Label;
+    public NodeTraits Traits => _inner.Traits;
+    public string? CodeVersion => _inner.CodeVersion;
+    public IReadOnlyList<IItem> Inputs => _inner.Inputs;
+    public IReadOnlyList<IItem> Outputs => _inner.Outputs;
+    public IReadOnlyList<ServiceDependency> ServiceDependencies => _inner.ServiceDependencies;
+    public FlowIO<ValidationResult> Validate() => _inner.Validate();
+    public FlowIO<FlowUnit> Execute() => _inner.Execute();
+  }
 
   private static CacheManifest Manifest(
     (string Label, string Value)[]? steps = null,

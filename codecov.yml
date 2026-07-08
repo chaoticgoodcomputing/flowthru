@@ -146,6 +146,10 @@ component_management:
       name: Flowthru.Extensions.Csv
       paths:
         - src/extensions/Flowthru.Extensions.Csv/**
+    - component_id: flowthru_extensions_duckdb
+      name: Flowthru.Extensions.DuckDB
+      paths:
+        - src/extensions/Flowthru.Extensions.DuckDB/**
     - component_id: flowthru_extensions_efcore
       name: Flowthru.Extensions.EFCore
       paths:

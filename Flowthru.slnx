@@ -10,6 +10,7 @@
   <Project Path="src/extensions/Flowthru.Extensions.Csv/Flowthru.Extensions.Csv.csproj" />
   <Project Path="src/extensions/Flowthru.Extensions.Xml/Flowthru.Extensions.Xml.csproj" />
   <Project Path="src/extensions/Flowthru.Extensions.Excel/Flowthru.Extensions.Excel.csproj" />
+  <Project Path="src/extensions/Flowthru.Extensions.DuckDB/Flowthru.Extensions.DuckDB.csproj" />
   <Project Path="src/extensions/Flowthru.Extensions.EFCore/Flowthru.Extensions.EFCore.csproj" />
   <Project Path="src/extensions/Flowthru.Extensions.EFCore.Bulk/Flowthru.Extensions.EFCore.Bulk.csproj" />
   <Project Path="src/extensions/Flowthru.Extensions.GQL/Flowthru.Extensions.GQL.csproj" />
@@ -38,6 +39,7 @@
   <Project Path="tests/core/Flowthru.FUnit.CodeFixes.Tests/Flowthru.FUnit.CodeFixes.Tests.csproj" />
   <Project Path="tests/core/Flowthru.FUnit.SourceGenerators.Tests/Flowthru.FUnit.SourceGenerators.Tests.csproj" />
   <Project Path="tests/extensions/Flowthru.Extensions.Csv.Tests/Flowthru.Extensions.Csv.Tests.csproj" />
+  <Project Path="tests/extensions/Flowthru.Extensions.DuckDB.Tests/Flowthru.Extensions.DuckDB.Tests.csproj" />
   <Project Path="tests/extensions/Flowthru.Extensions.EFCore.Tests/Flowthru.Extensions.EFCore.Tests.csproj" />
   <Project Path="tests/extensions/Flowthru.Extensions.EFCore.Bulk.Tests/Flowthru.Extensions.EFCore.Bulk.Tests.csproj" />
   <Project Path="tests/extensions/Flowthru.Extensions.Excel.Tests/Flowthru.Extensions.Excel.Tests.csproj" />

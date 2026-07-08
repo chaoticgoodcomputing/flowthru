@@ -26,6 +26,8 @@ namespace Flowthru.Caching;
 /// when every one of these holds:
 /// </para>
 /// <list type="bullet">
+/// <item>The step has not opted out via
+/// <see cref="IStepNode.DeclaredUncacheableReason"/>.</item>
 /// <item>The step's <see cref="IStepNode.CodeVersion"/> is non-null.</item>
 /// <item>The step has no <see cref="IStepNode.ServiceDependencies"/>.</item>
 /// <item>Every input either is produced by another step in this flow
@@ -113,6 +115,16 @@ public static class CachePlanBuilder
       cancellationToken.ThrowIfCancellationRequested();
 
       // Phase 1 — eligibility checks that don't require I/O.
+      // A step-declared opt-out wins over every other verdict: the step
+      // knows its transform identity isn't fully fingerprinted (e.g.
+      // wire-up SQL), so caching it would risk stale hits. The declared
+      // reason is recorded verbatim so the opt-out is never silent.
+      if (step.DeclaredUncacheableReason is { } declaredReason)
+      {
+        uncacheable.Add(step.Label);
+        uncacheableReasons[step.Label] = declaredReason;
+        continue;
+      }
       if (step.CodeVersion is null)
       {
         uncacheable.Add(step.Label);

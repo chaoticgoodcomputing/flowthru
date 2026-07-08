@@ -91,6 +91,26 @@ public interface IStepNode : INode
   string? CodeVersion => null;
 
   /// <summary>
+  /// Non-null when this step declares itself uncacheable regardless of
+  /// its other cache eligibility. The cache planner records the returned
+  /// reason verbatim, so the opt-out is always observable — in pre-flight
+  /// logging, in the JSON metadata projection, and anywhere else
+  /// uncacheable reasons surface. Default-interface implementation
+  /// returns <c>null</c>: ordinary steps don't opt out.
+  /// </summary>
+  /// <remarks>
+  /// Intended for step types whose transform behaviour is driven by
+  /// wire-up data the cache identity doesn't fingerprint (e.g. a SQL
+  /// string supplied at <c>AddStep</c> time). Such a step must never be
+  /// cached under an identity blind to that data — a silent stale hit
+  /// after the data changes is exactly the failure smart caching exists
+  /// to prevent — and must never be <em>silently</em> uncacheable
+  /// either, which is why the opt-out carries a mandatory reason rather
+  /// than being a bare flag.
+  /// </remarks>
+  Caching.StepUncacheableReason? DeclaredUncacheableReason => null;
+
+  /// <summary>
   /// Items this step reads at the start of <see cref="Execute"/>.
   /// </summary>
   IReadOnlyList<IItem> Inputs { get; }
