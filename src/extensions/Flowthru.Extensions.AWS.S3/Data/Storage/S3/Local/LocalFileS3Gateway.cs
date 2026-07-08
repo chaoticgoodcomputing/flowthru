@@ -149,6 +149,20 @@ public sealed class LocalFileS3Gateway : IS3Gateway
     return Convert.ToHexString(hash).ToLowerInvariant();
   }
 
+  /// <inheritdoc/>
+  /// <remarks>
+  /// The stub's honest answer is the backing file itself: the object
+  /// <em>is</em> a local file at <c>{root}/{bucket}/{key}</c>, so a consumer
+  /// reading the store natively gets a direct path with no access handoff to
+  /// interpret. Absence is not an error — the location is where the object's
+  /// bytes live or would land.
+  /// </remarks>
+  public Task<ByteLocation> LocateObject(string bucket, string key, CancellationToken ct)
+  {
+    ct.ThrowIfCancellationRequested();
+    return Task.FromResult<ByteLocation>(new ByteLocation.LocalFile(ResolvePath(bucket, key)));
+  }
+
   // Map (bucket, key) to a path under the root, rejecting any key that escapes
   // it. Key segments are split on '/' so an S3 key maps to a nested path on any
   // platform.

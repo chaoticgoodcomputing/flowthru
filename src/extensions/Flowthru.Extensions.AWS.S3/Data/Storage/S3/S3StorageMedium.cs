@@ -24,7 +24,7 @@ namespace Flowthru.Data.Storage.S3;
 /// partial object behind.
 /// </para>
 /// </remarks>
-public sealed class S3StorageMedium : IStorageMedium, ISupportsFingerprint
+public sealed class S3StorageMedium : IStorageMedium, ISupportsFingerprint, ISupportsByteLocation
 {
   private readonly IS3Gateway _gateway;
   private readonly string _bucket;
@@ -129,6 +129,26 @@ public sealed class S3StorageMedium : IStorageMedium, ISupportsFingerprint
         }
       }
     });
+
+  /// <inheritdoc/>
+  public bool IsAddressable => true;
+
+  /// <inheritdoc/>
+  /// <remarks>
+  /// Routes through the gateway — the credential owner — so the access
+  /// handoff is minted by the same seam that reads and writes the object,
+  /// never from ambient state the medium holds. The production gateway
+  /// returns the object's <c>s3://</c> URI plus endpoint / region /
+  /// credential entries; the file-backed stub returns the backing file's
+  /// path directly. No object body is transferred, and the key need not
+  /// hold an object yet — a write target is addressable before the first
+  /// write.
+  /// </remarks>
+  public FlowIO<ByteLocation> LocateBytes() =>
+    FlowIO.LiftAsync(
+      ct => _gateway.LocateObject(_bucket, _key, ct),
+      source: $"S3StorageMedium.LocateBytes[s3://{_bucket}/{_key}]"
+    );
 
   /// <inheritdoc/>
   /// <remarks>

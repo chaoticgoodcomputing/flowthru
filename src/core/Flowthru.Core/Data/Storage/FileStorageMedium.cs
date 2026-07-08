@@ -12,7 +12,7 @@ namespace Flowthru.Data.Storage;
 /// Thread-safe for reads. Concurrent writes to the same path should be
 /// coordinated externally.
 /// </remarks>
-public sealed class FileStorageMedium : IStorageMedium, ISupportsFingerprint
+public sealed class FileStorageMedium : IStorageMedium, ISupportsFingerprint, ISupportsByteLocation
 {
   private readonly string _filePath;
 
@@ -111,6 +111,22 @@ public sealed class FileStorageMedium : IStorageMedium, ISupportsFingerprint
   /// <inheritdoc/>
   public FlowIO<ValidationResult> InspectTarget() =>
     FlowIO.LiftAsync(ct => LocalFileWriteProbe.ProbeAsync(_filePath, ct));
+
+  /// <inheritdoc/>
+  public bool IsAddressable => true;
+
+  /// <inheritdoc/>
+  /// <remarks>
+  /// Reports the absolute form of the configured path. The location
+  /// answers where the bytes live — or would land, for a write target
+  /// that has not been written yet — so a missing file is not a failure
+  /// here; existence stays <see cref="Exists"/>'s question.
+  /// </remarks>
+  public FlowIO<ByteLocation> LocateBytes() =>
+    FlowIO.Lift<ByteLocation>(
+      () => new ByteLocation.LocalFile(Path.GetFullPath(_filePath)),
+      source: $"FileStorageMedium.LocateBytes[{_filePath}]"
+    );
 
   /// <inheritdoc/>
   /// <remarks>

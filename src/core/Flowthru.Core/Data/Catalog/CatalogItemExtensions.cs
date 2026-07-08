@@ -119,6 +119,48 @@ public static class CatalogItemExtensions
   }
 
   /// <summary>
+  /// Demand the <em>byte location</em> of a catalog item: where the item's
+  /// bytes live — a local file path or a remote URI plus access handoff —
+  /// without loading rows. The seam for consumers that read the storage
+  /// natively (an embedded engine, a bulk copier) rather than through
+  /// <c>Load()</c>.
+  /// </summary>
+  /// <remarks>
+  /// Gated to byte-addressable adapters: demanding the location of an item
+  /// backed by a direct adapter (EFCore, Sheets, GQL), in-memory storage,
+  /// or a non-addressable medium throws at wire-up — a loud error naming
+  /// the item, never a silent fallback that materialises rows. A
+  /// <c>.Constrain()</c> wrapper is unwrapped to reach the composed
+  /// adapter, mirroring <see cref="AsStream"/>. The returned effect is
+  /// deferred: running it resolves the location and — for a remote
+  /// location — mints the access handoff through the medium's gateway.
+  /// </remarks>
+  public static FlowIO<ByteLocation> LocateBytes<T>(this IItem<T> item)
+  {
+    if (item is null) throw new ArgumentNullException(nameof(item));
+
+    var adapter = ResolveStorageAdapter(item);
+    if (adapter is ConstrainedStorageAdapter<T> constrained)
+    {
+      adapter = constrained.Inner;
+    }
+
+    if (adapter is not ISupportsByteLocation { IsAddressable: true } addressable)
+    {
+      throw new ArgumentException(
+        $"LocateBytes() requires item '{item.Label}' to be backed by a byte-addressable "
+        + $"adapter (a composed format over a file or object medium). Its adapter "
+        + $"({adapter?.GetType().Name ?? "none"}) cannot report where its bytes live — "
+        + "direct adapters (EFCore, Sheets, GQL) and in-memory storage have no byte "
+        + "location. Read the item through Load() instead.",
+        nameof(item)
+      );
+    }
+
+    return addressable.LocateBytes();
+  }
+
+  /// <summary>
   /// Best-effort extraction of the underlying <see cref="IStorageAdapter{T}"/>
   /// from a catalog item. Recognises <see cref="Item{T}"/> directly and
   /// <see cref="ConstrainedStorageAdapter{T}"/>-wrapped items; falls back to
