@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Deployment-story spike for Flowthru.Extensions.DuckDB (issue #140).
+       A minimal console consumer: Parquet → ORDER BY → Parquet through the
+       extension's IDuckDbEngine, used to probe NativeAOT, Lambda (AL2023),
+       and Alpine/musl deployment shapes. Not shipped; not in the solution. -->
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <!-- Set here, not via /p:PublishAot=true on the CLI: the global property
+         leaks into referenced netstandard2.0 source-generator projects, which
+         fail with NETSDK1207 (AOT unsupported for that TFM). -->
+    <PublishAot Condition="'$(SpikeAot)' == 'true'">true</PublishAot>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="$(RepoRoot)src/extensions/Flowthru.Extensions.DuckDB/Flowthru.Extensions.DuckDB.csproj" />
+    <!-- BuildServiceProvider — the extension itself only needs the DI abstractions -->
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
+  </ItemGroup>
+
+</Project>

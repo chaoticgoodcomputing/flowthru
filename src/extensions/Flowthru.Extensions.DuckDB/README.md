@@ -208,3 +208,132 @@ section or code-first via `UseDuckDb(opts => ...)`.
 - **Numeric strictness.** A result column type must round-trip losslessly into the declared
   property type (safe widenings are accepted; narrowings are not). Aggregates often widen —
   DuckDB's `SUM(INTEGER)` is `HUGEINT` — so `CAST` in your SQL to match the declared schema.
+
+## Deployment
+
+Everything below was observed, not assumed — verified 2026-07 against `DuckDB.NET.Data.Full`
+1.5.3 on .NET 10 with the spike consumer at `tools/spikes/DuckDbAot` (a Parquet → `ORDER BY` →
+Parquet transform through `IDuckDbEngine`). Cells we could not exercise are explicitly marked
+**unverified** with the exact repro to run.
+
+### What you ship
+
+`DuckDB.NET.Data.Full` pulls `DuckDB.NET.Bindings.Full`, which bundles one prebuilt native
+engine per RID (103.5 MB nupkg; 414 MB expanded in the NuGet cache). Publishing for a specific
+RID ships only that RID's library:
+
+| RID         | Native library     | Size     |
+| ----------- | ------------------ | -------- |
+| linux-x64   | `libduckdb.so`     | 67.1 MB  |
+| linux-arm64 | `libduckdb.so`     | 59.9 MB  |
+| osx (universal x64+arm64) | `libduckdb.dylib` | 107.1 MB |
+| win-x64     | `duckdb.dll`       | 35.2 MB  |
+| win-arm64   | `duckdb.dll`       | 40.4 MB  |
+
+There is **no `linux-musl` RID** — see Alpine below. The linux-x64 library links against glibc
+(`readelf`: max `GLIBC_2.25`, `GLIBCXX_3.4.22`) and needs `libstdc++` at runtime — satisfied by
+Amazon Linux 2023, Debian, Ubuntu, and the non-Alpine .NET base images.
+
+Measured deployment sizes for the spike app (linux-x64, docs/pdb/dbg excluded from zips):
+
+| Shape                              | On disk | Zipped   |
+| ---------------------------------- | ------- | -------- |
+| Framework-dependent (`--self-contained false`) | 70 MB | 22.6 MB |
+| NativeAOT (4.7 MB binary + native lib)         | 84 MB | 24.1 MB |
+
+### Containers on glibc Linux — works, prefer this
+
+**Verified:** the framework-dependent publish ran the full transform on `amazonlinux:2023`
+(glibc 2.34, `dnf install dotnet-runtime-10.0` — AL2023 ships .NET 10 in its own repo) and on
+the Debian-based .NET images. This is the recommended shape: no trim/AOT caveats, ~22.6 MB of
+app on top of a runtime base image (`mcr.microsoft.com/dotnet/runtime:10.0`, 234 MB for the
+aspnet variant).
+
+### NativeAOT — works, with three observed caveats
+
+**Verified:** `dotnet publish -c Release -r linux-x64` with `PublishAot=true` compiles and the
+published binary runs the engine transform end-to-end (`RuntimeFeature.IsDynamicCodeSupported ==
+false`; P/Invoke into `libduckdb.so` is unaffected by AOT). Warning counts observed
+(`TrimmerSingleWarn=false`): **2 from this extension** (IL2026/IL3050, one call site), **10 from
+DuckDB.NET.Data** (List/Map/Struct vector readers and the prepared-statement converter — none on
+the flat-schema Parquet path this extension uses), **0 from Flowthru.Core**.
+
+1. **`Flowthru:DuckDb` config binding silently no-ops under AOT.** `UseDuckDb()` binds options
+   with the reflection-based `ConfigurationBinder.Bind` — under AOT the section is ignored and
+   options keep their defaults, with no error (observed: `Threads=null` where JIT binds
+   `Threads=3`). Code-first `UseDuckDb(opts => ...)` works under AOT and is the recommended
+   configuration path for AOT apps. Verified fix (planned): building the extension with
+   `<EnableConfigurationBindingGenerator>true</EnableConfigurationBindingGenerator>` makes the
+   section bind correctly under AOT and removes both extension warnings.
+2. **Build on a glibc no newer than your target.** An AOT binary built on a rolling-release host
+   (glibc 2.42) failed on AL2023 with `GLIBC_2.38 not found`. Building inside an
+   `amazonlinux:2023` container (`dnf install dotnet-sdk-10.0 clang zlib-devel`) produced a
+   binary that runs on AL2023 — do AOT publishes in a container matching the deploy target.
+3. **Minimal images need invariant globalization.** On `public.ecr.aws/lambda/provided:al2023`
+   (no ICU) the AOT binary fail-fasts at startup (`Couldn't find a valid ICU package`); with
+   `DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1` (or `<InvariantGlobalization>true</>`) it passes.
+
+### AWS Lambda — two shapes, both fit the limits
+
+Both artifact shapes fit Lambda's packaging limits (50 MB zipped direct upload / 250 MB
+unzipped: measured 22.6–24.1 MB zipped, 70–84 MB on disk), and the engine workload itself is
+**verified on Lambda's OS base**: the AL2023-built AOT spike ran the full transform on
+`public.ecr.aws/lambda/provided:al2023` with `DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1`.
+
+- **Container image (prefer):** build the AOT publish in an AL2023 builder stage, copy onto
+  `public.ecr.aws/lambda/provided:al2023` (121 MB base) with your handler bootstrap, set the
+  invariant-globalization env var. Sidesteps the zip limit entirely and pins glibc at build time.
+- **Zip + managed runtime:** the framework-dependent zip (22.6 MB) fits direct upload; make sure
+  `libduckdb.so` lands at the package root (publish with `-r linux-x64`), and prefer 1769 MB+
+  memory (a full vCPU) since DuckDB is threaded.
+
+**Unverified (repro included):** an actual Lambda invocation through the Runtime Interface
+Emulator or a deployed function — the spike ran the workload directly on the base image, not
+behind a `Amazon.Lambda.RuntimeSupport` handler. To close: wrap the transform in a minimal
+`lambda_handler`, `podman build` the image above, run it locally with
+`podman run -p 9000:8080 <image>` (RIE is bundled in the AWS base images) and
+`curl -d '{}' http://localhost:9000/2015-03-31/functions/function/invocations`. Also note
+Lambda's writable disk is `/tmp` (512 MB default, configurable to 10 GB) — point
+`TempDirectory` there and treat spills beyond it as a hard bound. arm64 was not exercised
+(x64-only host); the package does bundle `linux-arm64`.
+
+### Alpine / musl — does not work, use a glibc image
+
+Unsupported at the packaging level and confirmed at runtime, in three observed failure modes:
+
+1. `DuckDB.NET.Bindings.Full` 1.5.3 bundles **no `linux-musl-*` native library** (package
+   inspection above).
+2. On `mcr.microsoft.com/dotnet/runtime:10.0-alpine`, loading fails with
+   `DllNotFoundException: Unable to load shared library 'duckdb'` — the bundled `.so` is
+   glibc-linked.
+3. With the `gcompat` + `libstdc++` shim installed, the process **segfaults** (SIGSEGV, exit
+   139) while loading the engine — the shim does not carry DuckDB.
+
+A glibc-based image (`runtime:10.0`, AL2023, Debian slim) is the supported path; the size
+difference against Alpine is far smaller than the 67 MB engine you're shipping anyway. Repro:
+
+```bash
+podman run --rm -v ./publish:/app:ro mcr.microsoft.com/dotnet/runtime:10.0-alpine \
+  sh -c 'apk add --no-cache gcompat libstdc++; dotnet /app/YourApp.dll'
+```
+
+### Memory-constrained hosts (1 GB Fargate task)
+
+DuckDB's default `memory_limit` is 80% of available RAM, and it **is cgroup-aware** (observed:
+`819.1 MiB` inside a 1 GiB-capped container, `100.4 GiB` on a 125 GiB host) — but 80% of a 1 GB
+task leaves ~200 MB for the CLR, GC, and everything else, and DuckDB's limit governs its buffer
+manager, not every allocation. Set it explicitly:
+
+```csharp
+b.UseDuckDb(opts =>
+{
+  opts.MaxConcurrentTransforms = 1;   // default — peak engine memory = 1 × MemoryLimit
+  opts.MemoryLimit = "512MB";         // leaves ~500 MB for the CLR and headroom
+  opts.Threads = 1;                   // match the task's vCPU (0.25–0.5 at 1 GB)
+  opts.TempDirectory = "/tmp/duckdb-spill";  // Fargate ephemeral storage (20 GB default)
+});
+```
+
+Work beyond `MemoryLimit` spills to `TempDirectory` instead of failing, so undersizing the
+limit costs speed, not correctness. Raise `MaxConcurrentTransforms` only when
+`MaxConcurrentTransforms × MemoryLimit` plus CLR headroom fits the task.
