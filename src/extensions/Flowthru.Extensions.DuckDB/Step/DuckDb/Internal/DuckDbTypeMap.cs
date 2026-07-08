@@ -77,6 +77,17 @@ internal static class DuckDbTypeMap
   public static bool IsSupported(Type clrType) => Accepted.ContainsKey(clrType);
 
   /// <summary>
+  /// The canonical DuckDB column type a declared CLR column materialises
+  /// as — the type the hermetic pre-flight check uses when it builds an
+  /// empty in-engine table from a declared input schema. Always the
+  /// first (exact-match) entry of the accepted list, so the same table
+  /// keeps satisfying <see cref="IsCompatible"/> for its own type.
+  /// Returns <c>null</c> for CLR types the map doesn't know.
+  /// </summary>
+  public static string? CanonicalDdlType(Type clrType) =>
+    Accepted.TryGetValue(clrType, out var accepted) ? accepted[0] : null;
+
+  /// <summary>
   /// The DuckDB types <paramref name="clrType"/> accepts, for mismatch
   /// messages ("expected BIGINT/INTEGER/...").
   /// </summary>

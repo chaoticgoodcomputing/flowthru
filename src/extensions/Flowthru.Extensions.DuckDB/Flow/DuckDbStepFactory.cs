@@ -27,11 +27,17 @@ namespace Flowthru.Flow;
 ///   engine: engine);                // IDuckDbEngine from UseDuckDb()
 /// </code>
 /// <para>
-/// The SQL's result schema is verified against the output item's
-/// declared schema before anything is written; a mismatch fails the
-/// step with a typed schema-mismatch error naming every disagreeing
-/// column. Wiring problems — a non-file-backed endpoint, duplicate
-/// relation names — fail here, at wire-up.
+/// The SQL is schema-validated in phases: at pre-flight the hermetic
+/// check registered by <c>UseDuckDb()</c> binds it against empty
+/// in-engine tables built from the declared input schemas and verifies
+/// the result against the output item's declared schema (no real data
+/// touched — failures name the step, relation binding, and offending
+/// columns); at execution the same verification runs against the real
+/// files before anything is written. Wiring problems — a
+/// non-file-backed endpoint, duplicate relation names — fail here, at
+/// wire-up, and a unit test can run the same check via
+/// <c>flow.ValidateDuckDbTransforms()</c> or
+/// <c>FUnitContext.Validate(step)</c>.
 /// </para>
 /// </remarks>
 public static class DuckDbStepFactory

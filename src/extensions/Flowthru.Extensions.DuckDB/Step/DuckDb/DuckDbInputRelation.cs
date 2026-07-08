@@ -27,11 +27,19 @@ namespace Flowthru.Step.DuckDb;
 /// </remarks>
 public sealed class DuckDbInputRelation
 {
-  private DuckDbInputRelation(IItem item, string relationName, FlowIO<ByteLocation> location)
+  private DuckDbInputRelation(
+    IItem item,
+    string relationName,
+    FlowIO<ByteLocation> location,
+    string rowSchemaName,
+    Internal.DuckDbSchemaProjection declaredSchema
+  )
   {
     Item = item;
     RelationName = relationName;
     Location = location;
+    RowSchemaName = rowSchemaName;
+    DeclaredSchema = declaredSchema;
   }
 
   /// <summary>The catalog item feeding this relation — the step's DAG input.</summary>
@@ -45,6 +53,19 @@ public sealed class DuckDbInputRelation
   /// step at execution time.
   /// </summary>
   internal FlowIO<ByteLocation> Location { get; }
+
+  /// <summary>The declared row record type's name, for diagnostics.</summary>
+  internal string RowSchemaName { get; }
+
+  /// <summary>
+  /// The declared row schema projected into DuckDB-checkable columns —
+  /// what the hermetic pre-flight check builds this relation's empty
+  /// in-engine table from. Carries a problem instead of columns when the
+  /// row type can't be modelled; pre-flight surfaces that as a typed
+  /// error rather than this constructor throwing (the runtime transform
+  /// never needs the projection — it binds views over the real files).
+  /// </summary>
+  internal Internal.DuckDbSchemaProjection DeclaredSchema { get; }
 
   /// <summary>
   /// Bind <paramref name="item"/> as a transform input relation named
@@ -78,7 +99,15 @@ public sealed class DuckDbInputRelation
 
     // LocateBytes() validates addressability eagerly (throwing for
     // memory/database-backed items) and defers the actual resolution
-    // until the returned effect runs.
-    return new DuckDbInputRelation(item, name, item.LocateBytes());
+    // until the returned effect runs. The declared-schema projection is
+    // captured here, where TRow is statically known, so pre-flight can
+    // model the relation without reflection.
+    return new DuckDbInputRelation(
+      item,
+      name,
+      item.LocateBytes(),
+      typeof(TRow).Name,
+      Internal.DuckDbDeclaredSchema.Project<TRow>()
+    );
   }
 }

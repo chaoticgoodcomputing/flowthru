@@ -74,6 +74,48 @@ The SQL's result schema is verified against the output item's declared schema be
 written; a mismatch (missing column, extra column, incompatible type) fails the step with a typed
 schema-mismatch error enumerating every disagreement — the output file is never written.
 
+## Schema-validated SQL: pre-flight and design-time
+
+The SQL is validated against the three error phases, not runtime-only. `UseDuckDb()` registers a
+**hermetic pre-flight check** that runs for every `AddDuckDbTransform` step before any step
+executes: empty in-memory tables are built from the *declared* input record schemas (named per
+the step's relation bindings), the SQL is `DESCRIBE`d against them — binding the query without
+executing it — and the described result schema is verified against the declared output schema.
+No real data is read and nothing outside the process is reached, so the check runs at every
+`ValidationDepth` from `Hermetic` up — a schema-breaking SQL edit fails even an offline smoke
+test (`DryRun.On + ValidationDepth.Hermetic`). Failures aggregate applicatively with all other
+pre-flight errors and name the step, the relation binding, and the offending column(s):
+
+```text
+FTDDB3002: DuckDB transform 'totals_by_country' SQL result does not satisfy output item
+'country_totals' declared schema CountryTotalRow: column 'TotalValue' is HUGEINT in the result
+but the declared schema expects Double (accepts DOUBLE/FLOAT/REAL) — add an explicit CAST in
+the transform SQL
+```
+
+The same check is a **design-time surface**: run it from a unit test and a schema-breaking SQL
+edit fails your test run. The embedded engine binds a query in milliseconds — this belongs in
+ordinary unit tests:
+
+```csharp
+[Test]
+public async Task TransformSqlAgreesWithDeclaredSchemas()
+{
+  var flow = AnalyticsFlow.Create(new Catalog(), new InProcessDuckDbEngine());
+  var result = await flow.ValidateDuckDbTransforms(); // every DuckDB step, aggregated
+  Assert.That(result.IsValid, Is.True,
+    string.Join("\n", result.Errors.Select(e => e.Message)));
+}
+```
+
+A single step is checkable through the standard FUnit sugar instead: `FUnitContext.Validate(step)`
+runs the same check via the step's `Validate()`.
+
+Pre-flight diagnostic codes (`FTDDB30xx`): `FTDDB3001` — the SQL doesn't prepare against the
+declared input schemas (unknown column/relation, syntax error); `FTDDB3002` — the result schema
+doesn't satisfy the declared output schema; `FTDDB3003` — an input's declared schema has a
+property the checks can't model.
+
 ## Concurrency and memory
 
 Each transform may use the engine's full memory budget (`MemoryLimit`, spilling to
@@ -94,12 +136,14 @@ section or code-first via `UseDuckDb(opts => ...)`.
   step's cache identity yet. Rather than risk serving stale output after a query edit, the step
   declares itself uncacheable, and the reason surfaces wherever cache decisions are reported.
   Query-aware cache identity is planned.
-- **Schema verification is runtime-phase and covers flat primitive/enum schemas.** The result
-  schema is checked (via `DESCRIBE`, before anything is written) when the step executes, not yet
-  at pre-flight; a full pre-flight check against declared schemas is planned. Nested and
-  `IScalar` schema properties aren't checkable and are rejected at wire-up. Nullability isn't
-  verified at transform time (DuckDB reports every query column as nullable) — a null in a
-  non-nullable column surfaces as a typed schema mismatch when the output is next loaded.
+- **Schema checks cover flat primitive/enum schemas.** Nested and `IScalar` schema properties
+  aren't checkable — the output schema rejects them at wire-up; an input schema carrying them
+  fails pre-flight with a typed error (`FTDDB3003`) rather than silently skipping the check.
+  Nullability isn't verified at transform time (DuckDB reports every query column as nullable) —
+  a null in a non-nullable column surfaces as a typed schema mismatch when the output is next
+  loaded. The runtime `DESCRIBE` verification (against the real files) still runs before the
+  `COPY`, so drift between a real file and its declared schema is caught before anything is
+  written.
 - **Numeric strictness.** A result column type must round-trip losslessly into the declared
   property type (safe widenings are accepted; narrowings are not). Aggregates often widen —
   DuckDB's `SUM(INTEGER)` is `HUGEINT` — so `CAST` in your SQL to match the declared schema.

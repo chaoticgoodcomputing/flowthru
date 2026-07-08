@@ -548,10 +548,22 @@ public sealed class FlowthruService : IFlowthruService
         _ => InspectionLevel.None,
       };
 
-      // Caller-supplied hooks/probes are skipped at Hermetic scope (they
-      // may do I/O); pass null there so the intent is explicit at the call
-      // site rather than relying on the pipeline's scope guard alone.
-      var hooks = fullScope ? _registry.ValidationHooks : null;
+      // Flow validation hooks come from two surfaces: instances added via
+      // builder.RegisterValidationHook(hook), and DI registrations
+      // (extension Use*() methods register AddSingleton<IFlowValidationHook, …>,
+      // the same plural-surface shape as the service-ref dispatchers below).
+      // Hooks self-classify on the I/O ladder via MinimumDepth, so admit
+      // exactly the hooks the run's depth allows — a Hermetic run keeps its
+      // hermetic-classified hooks (their checks reach nothing outside the
+      // process) while every live-probing hook (default Shallow) is skipped.
+      var hooks = _registry.ValidationHooks
+        .Concat(_services.GetServices<Flowthru.Validation.PreFlight.IFlowValidationHook>())
+        .Where(h => h.MinimumDepth <= options.ValidationDepth)
+        .ToList();
+
+      // Caller-supplied service probes are Full-scope only (they reach live
+      // resources); pass null at Hermetic scope so the intent is explicit at
+      // the call site rather than relying on the pipeline's scope guard alone.
       var probes = fullScope
         ? _registry.Inspectors.Select(reg => reg.Probe(_services)).ToList()
         : null;

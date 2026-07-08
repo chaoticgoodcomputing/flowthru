@@ -1,8 +1,9 @@
 using Flowthru.Caching;
 using Flowthru.Data.Catalog;
-using Flowthru.Data.Schema.Mapping;
 using Flowthru.Data.Storage;
 using Flowthru.Prelude;
+using Flowthru.Step.DuckDb.Internal;
+using Flowthru.Validation.PreFlight.DuckDb;
 using Flowthru.Validation.Runtime;
 using Flowthru.Validation.Runtime.DuckDb;
 
@@ -46,7 +47,7 @@ namespace Flowthru.Step.DuckDb;
 /// reported.
 /// </para>
 /// </remarks>
-public sealed class DuckDbTransformStep<TOut> : IStepNode
+public sealed class DuckDbTransformStep<TOut> : IStepNode, IDuckDbTransformDescriptor
   where TOut : notnull
 {
   /// <summary>
@@ -117,7 +118,18 @@ public sealed class DuckDbTransformStep<TOut> : IStepNode
     // Validates the output is byte-addressable now (throws for memory/
     // database-backed items); resolves the location when Execute runs.
     _outputLocation = output.LocateBytes();
-    _expectedColumns = BuildExpectedColumns();
+
+    // Project TOut's declared schema into the columns the SQL result is
+    // verified against. An unmappable output schema is a wiring bug at
+    // the author's call site, so it throws here rather than surfacing
+    // later as a confusing runtime mismatch.
+    var outputProjection = DuckDbDeclaredSchema.Project<TOut>();
+    _expectedColumns = outputProjection.Columns
+      ?? throw new ArgumentException(
+        $"Output schema for this DuckDB transform can't be verified: "
+        + outputProjection.Problem,
+        nameof(output)
+      );
 
     Inputs = inputs.Select(r => r.Item).ToArray();
     Outputs = new IItem[] { output };
@@ -181,8 +193,49 @@ public sealed class DuckDbTransformStep<TOut> : IStepNode
     );
 
   /// <inheritdoc/>
+  /// <remarks>
+  /// <para>
+  /// Runs the hermetic SQL schema check: empty in-memory tables are
+  /// built from the <em>declared</em> input record schemas (named per
+  /// this step's relation bindings), the SQL is <c>DESCRIBE</c>d against
+  /// them — binding without executing — and the described result schema
+  /// is verified against <typeparamref name="TOut"/>'s declared schema.
+  /// Nothing outside the process is reached and no real data is read.
+  /// </para>
+  /// <para>
+  /// This is the design-time surface: run it from a unit test (e.g.
+  /// <c>FUnitContext.Validate(step)</c>, or
+  /// <c>flow.ValidateDuckDbTransforms()</c> over a built flow) and a
+  /// schema-breaking SQL edit fails the test with the same diagnostics
+  /// pre-flight would report. The engine never calls it on the run
+  /// path — the happy path pays only the pre-flight check itself.
+  /// </para>
+  /// </remarks>
   public FlowIO<ValidationResult> Validate() =>
-    FlowIO.Pure(ValidationResult.Success());
+    FlowIO.LiftAsync(
+      async ct =>
+      {
+        var failures = await DuckDbSqlSchemaCheck.RunAsync(this, ct).ConfigureAwait(false);
+        return failures.Count == 0
+          ? ValidationResult.Success()
+          : new ValidationResult(
+              failures.Select(f => DuckDbSqlSchemaCheck.ToValidationError(Label, f))
+            );
+      },
+      source: $"DuckDbTransformStep[{Label}].Validate"
+    );
+
+  // ── Pre-flight descriptor (IDuckDbTransformDescriptor) ─────────────────
+
+  /// <inheritdoc/>
+  IItem IDuckDbTransformDescriptor.OutputItem => Output;
+
+  /// <inheritdoc/>
+  string IDuckDbTransformDescriptor.OutputSchemaName => typeof(TOut).Name;
+
+  /// <inheritdoc/>
+  IReadOnlyList<DuckDbExpectedColumn> IDuckDbTransformDescriptor.ExpectedOutputColumns =>
+    _expectedColumns;
 
   /// <inheritdoc/>
   /// <remarks>
@@ -241,48 +294,4 @@ public sealed class DuckDbTransformStep<TOut> : IStepNode
         ))
     ));
 
-  // ── Declared output schema ──────────────────────────────────────────────
-
-  /// <summary>
-  /// Project <typeparamref name="TOut"/>'s declared schema into the
-  /// column set the engine verifies the SQL result against — property
-  /// names (honouring <c>[SerializedLabel]</c>) and round-trip CLR
-  /// types, with enums unwrapped to their underlying integer type
-  /// (matching how Parquet stores them).
-  /// </summary>
-  private static IReadOnlyList<DuckDbExpectedColumn> BuildExpectedColumns()
-  {
-    var plan = PropertyMappingPlanner.Build<TOut>();
-    var columns = new List<DuckDbExpectedColumn>(plan.Bindings.Count);
-
-    foreach (var binding in plan.Bindings)
-    {
-      var clrType = binding.Kind switch
-      {
-        PropertyKind.Primitive => binding.EffectiveType,
-        PropertyKind.Enum => Enum.GetUnderlyingType(binding.EffectiveType),
-        _ => throw new ArgumentException(
-          $"Output schema property '{typeof(TOut).Name}.{binding.Property.Name}' is "
-          + $"classified as {binding.Kind}, which the DuckDB transform's schema "
-          + "verification doesn't support yet — it covers primitive and enum columns. "
-          + "Widen the property to a primitive, or transform into an intermediate "
-          + "schema and map it in an ordinary step."
-        ),
-      };
-
-      if (!Internal.DuckDbTypeMap.IsSupported(clrType))
-      {
-        throw new ArgumentException(
-          $"Output schema property '{typeof(TOut).Name}.{binding.Property.Name}' has type "
-          + $"{clrType.Name}, which the DuckDB transform's schema verification doesn't "
-          + "know how to check. Use a supported primitive type, or map the result in an "
-          + "ordinary step."
-        );
-      }
-
-      columns.Add(new DuckDbExpectedColumn(binding.FieldName, clrType, binding.IsNullable));
-    }
-
-    return columns;
-  }
 }

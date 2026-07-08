@@ -216,18 +216,15 @@ public sealed class InProcessDuckDbEngine : IDuckDbEngine
     };
 
   // ── SQL text assembly ───────────────────────────────────────────────────
+  // Shared with the hermetic pre-flight check via DuckDbSql, so the SQL
+  // pre-flight binds is byte-identical to the SQL this engine executes.
 
-  /// <summary>Strip trailing whitespace and statement terminators so the
-  /// query embeds cleanly in <c>DESCRIBE ...</c> and <c>COPY (...)</c>.</summary>
-  private static string TrimTerminator(string sql) => sql.TrimEnd().TrimEnd(';').TrimEnd();
+  private static string TrimTerminator(string sql) => DuckDbSql.TrimTerminator(sql);
 
-  /// <summary>Quote an identifier (view name), doubling embedded quotes.</summary>
   private static string QuoteIdentifier(string identifier) =>
-    $"\"{identifier.Replace("\"", "\"\"")}\"";
+    DuckDbSql.QuoteIdentifier(identifier);
 
-  /// <summary>Quote a string literal (file path, setting), doubling embedded quotes.</summary>
-  private static string QuoteLiteral(string value) =>
-    $"'{value.Replace("'", "''")}'";
+  private static string QuoteLiteral(string value) => DuckDbSql.QuoteLiteral(value);
 
   private static string CompressionName(DuckDbParquetCompression compression) =>
     compression switch

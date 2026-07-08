@@ -27,6 +27,15 @@ namespace Flowthru.Validation.PreFlight;
 /// <see cref="PreFlightError.InspectionFailed"/> by the pipeline
 /// rather than crashing pre-flight.
 /// </para>
+/// <para>
+/// <strong>I/O classification.</strong> Hooks self-classify via
+/// <see cref="MinimumDepth"/> on the same I/O ladder as the run's
+/// <see cref="Flowthru.Flow.ValidationDepth"/>, mirroring
+/// <see cref="IRegistrationValidationHook.MinimumDepth"/>: a check that
+/// reaches nothing outside the process declares <c>Hermetic</c> and runs
+/// even in an offline smoke test; a hook that probes a live resource
+/// keeps the default <c>Shallow</c> and is skipped below it.
+/// </para>
 /// </remarks>
 public interface IFlowValidationHook
 {
@@ -36,6 +45,20 @@ public interface IFlowValidationHook
   /// <c>"python.decorator-shape"</c>).
   /// </summary>
   string HookId { get; }
+
+  /// <summary>
+  /// The lightest <see cref="Flowthru.Flow.ValidationDepth"/> at which
+  /// this hook participates. Defaults to
+  /// <see cref="Flowthru.Flow.ValidationDepth.Shallow"/> — the historical
+  /// behaviour, where flow hooks ran only when live-resource probing was
+  /// enabled. A hook whose check reaches nothing outside the process (see
+  /// the hermetic promise on <see cref="Flowthru.Flow.ValidationDepth.Hermetic"/>)
+  /// should override this to
+  /// <see cref="Flowthru.Flow.ValidationDepth.Hermetic"/> so it still runs
+  /// in an offline smoke test. Hooks whose <c>MinimumDepth</c> exceeds the
+  /// run's depth are skipped.
+  /// </summary>
+  Flowthru.Flow.ValidationDepth MinimumDepth => Flowthru.Flow.ValidationDepth.Shallow;
 
   /// <summary>
   /// Inspect <paramref name="flow"/> and return any failures found.

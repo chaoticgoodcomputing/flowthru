@@ -2,6 +2,8 @@ using Flowthru.Hosting;
 using Flowthru.Prelude;
 using Flowthru.Step.DuckDb;
 using Flowthru.Step.DuckDb.Internal;
+using Flowthru.Validation.PreFlight;
+using Flowthru.Validation.PreFlight.DuckDb;
 using Flowthru.Validation.Runtime;
 using Flowthru.Validation.Runtime.DuckDb;
 using Microsoft.Extensions.Configuration;
@@ -81,6 +83,30 @@ public class DuckDbFlowthruBuilderExtensionsTests
 
     Assert.That(contributors, Has.Some.InstanceOf<DuckDbEngineProfileContributor>(),
       "Without the contributor the scheduler would treat the engine as unbounded.");
+  }
+
+  [Test]
+  public void UseDuckDb_RegistersTheHermeticSqlSchemaHook_Once()
+  {
+    var (builder, services) = MakeBuilder();
+    builder.UseDuckDb();
+    builder.UseDuckDb(); // idempotent — no duplicate findings
+
+    using var provider = services.BuildServiceProvider();
+    var hooks = provider.GetServices<IFlowValidationHook>()
+      .OfType<DuckDbTransformValidationHook>()
+      .ToList();
+
+    Assert.Multiple(() =>
+    {
+      Assert.That(hooks, Has.Count.EqualTo(1),
+        "TryAddEnumerable semantics: repeated UseDuckDb() calls must not stack "
+        + "duplicate hooks, or every finding would report twice.");
+      Assert.That(hooks.Single().MinimumDepth,
+        Is.EqualTo(Flowthru.Flow.ValidationDepth.Hermetic),
+        "The SQL schema check reaches nothing outside the process, so it "
+        + "participates in offline smoke tests.");
+    });
   }
 
   [Test]

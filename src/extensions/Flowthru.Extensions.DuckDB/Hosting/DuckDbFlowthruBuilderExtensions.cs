@@ -1,5 +1,7 @@
 using Flowthru.Step.DuckDb;
 using Flowthru.Step.DuckDb.Internal;
+using Flowthru.Validation.PreFlight;
+using Flowthru.Validation.PreFlight.DuckDb;
 using Flowthru.Validation.Runtime;
 using Flowthru.Validation.Runtime.DuckDb;
 using Microsoft.Extensions.Configuration;
@@ -13,8 +15,11 @@ namespace Flowthru.Hosting;
 /// <c>UseDuckDb()</c> extension methods on <see cref="IFlowthruBuilder"/>.
 /// Registers DuckDB transform support — engine options (bound from
 /// <c>Flowthru:DuckDb</c>), the embedded <see cref="IDuckDbEngine"/>
-/// singleton, and the <see cref="IServiceProfileContributor"/> that
-/// tells the scheduler how many transforms may run concurrently.
+/// singleton, the <see cref="IServiceProfileContributor"/> that tells
+/// the scheduler how many transforms may run concurrently, and the
+/// hermetic pre-flight <see cref="IFlowValidationHook"/> that
+/// schema-checks every transform's SQL against its declared input and
+/// output schemas.
 /// </summary>
 public static class DuckDbFlowthruBuilderExtensions
 {
@@ -57,6 +62,17 @@ public static class DuckDbFlowthruBuilderExtensions
     builder.Services.AddSingleton<IServiceProfileContributor>(sp =>
       new DuckDbEngineProfileContributor(sp.GetRequiredService<IDuckDbEngine>())
     );
+
+    // Pre-flight hook: the hermetic SQL schema check for every DuckDB
+    // transform in the registered flows — empty in-memory tables from
+    // the declared input schemas, DESCRIBE the SQL against them, verify
+    // the result against the declared output schema. Classified
+    // Hermetic (reaches nothing outside the process), so a
+    // schema-breaking SQL edit fails even an offline smoke test.
+    // TryAddEnumerable keeps repeated UseDuckDb() calls from stacking
+    // duplicate hooks (and duplicate findings).
+    builder.Services.TryAddEnumerable(
+      ServiceDescriptor.Singleton<IFlowValidationHook, DuckDbTransformValidationHook>());
 
     return builder;
   }

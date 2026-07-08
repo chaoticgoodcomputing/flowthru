@@ -127,15 +127,64 @@ public class PreFlightPipelineTests
     Assert.That(errors.OfType<PreFlightError.InspectionFailed>().Any(), Is.True);
   }
 
+  [Test]
+  public async Task HermeticScope_RunsHermeticClassifiedHooks_AndSkipsDefaultOnes()
+  {
+    // Hooks self-classify on the I/O ladder (the ADR-0021 follow-up):
+    // a hermetic-classified hook still runs in an offline smoke test,
+    // while the default (Shallow — may probe live resources) is skipped
+    // at Hermetic scope.
+    var input = ItemFactory.Singleton.Memory<int>("input");
+    var output = ItemFactory.Singleton.Memory<int>("output");
+    var flow = FlowBuilder.CreateFlow("hermetic-hooks", b =>
+      b.AddStep<int, int>("noop", x => x, input, output)
+    );
+
+    var hermeticHook = new FailingHook(
+      "hook.hermetic",
+      new PreFlightError.SchemaDrift("h", "expected", "actual"),
+      ValidationDepth.Hermetic
+    );
+    var liveHook = new FailingHook(
+      "hook.live",
+      new PreFlightError.MissingInput("l", "src-l")
+    );
+
+    var result = await PreFlightPipeline
+      .Run(flow,
+        hooks: new IFlowValidationHook[] { hermeticHook, liveHook },
+        scope: PreFlightScope.Hermetic)
+      .Run();
+    var inner = ((EffResult<Validated<PreFlightError, FlowUnit>>.Success)result).Value;
+
+    Assert.That(inner, Is.InstanceOf<Validated<PreFlightError, FlowUnit>.Invalid>(),
+      "The hermetic-classified hook must run at Hermetic scope.");
+    var errors = ((Validated<PreFlightError, FlowUnit>.Invalid)inner).Errors;
+    Assert.Multiple(() =>
+    {
+      Assert.That(errors.OfType<PreFlightError.SchemaDrift>().Any(), Is.True,
+        "The hermetic hook's finding must be present.");
+      Assert.That(errors.OfType<PreFlightError.MissingInput>().Any(), Is.False,
+        "The default (Shallow) hook may probe live resources, so it must be "
+        + "skipped at Hermetic scope.");
+    });
+  }
+
   private sealed class FailingHook : IFlowValidationHook
   {
     private readonly PreFlightError _error;
-    public FailingHook(string id, PreFlightError error)
+    public FailingHook(
+      string id,
+      PreFlightError error,
+      ValidationDepth minimumDepth = ValidationDepth.Shallow
+    )
     {
       HookId = id;
       _error = error;
+      MinimumDepth = minimumDepth;
     }
     public string HookId { get; }
+    public ValidationDepth MinimumDepth { get; }
     public FlowIO<Validated<PreFlightError, FlowUnit>> Validate(BuiltFlow flow) =>
       FlowIO.Pure<Validated<PreFlightError, FlowUnit>>(
         Validated<PreFlightError, FlowUnit>.Fail(_error)

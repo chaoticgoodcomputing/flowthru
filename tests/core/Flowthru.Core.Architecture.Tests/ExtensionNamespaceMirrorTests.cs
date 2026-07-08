@@ -222,6 +222,8 @@ public class ExtensionNamespaceMirrorTests
           // DuckDbRuntimeError + the engine profile contributor live
           // alongside Core's Validation.Runtime closed sums.
           "Flowthru.Validation.Runtime.DuckDb",
+          // DuckDbPreFlightError + DuckDbTransformValidationHook.
+          "Flowthru.Validation.PreFlight.DuckDb",
         },
         ForbiddenAlgebraRoots: new[]
         {
