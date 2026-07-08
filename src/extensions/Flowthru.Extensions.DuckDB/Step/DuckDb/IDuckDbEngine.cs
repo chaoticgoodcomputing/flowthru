@@ -15,9 +15,10 @@ namespace Flowthru.Step.DuckDb;
 /// step declares it as a service dependency, and the scheduler holds
 /// concurrent transforms to <see cref="MaxConcurrency"/> so a flow's
 /// peak engine memory/disk stays bounded. Its resolved profile is
-/// cache-neutral — the engine's identity adds no caching information —
-/// though v1 transform steps declare themselves uncacheable regardless
-/// (see <c>DuckDbTransformStep</c>).
+/// cache-neutral — which engine <em>instance</em> ran a transform adds
+/// no caching information. Which engine <em>version</em> ran it does:
+/// <see cref="EngineVersion"/> feeds every transform step's declared
+/// cache identity (see <c>DuckDbTransformStep</c>).
 /// </para>
 /// </remarks>
 public interface IDuckDbEngine
@@ -27,6 +28,16 @@ public interface IDuckDbEngine
   /// concurrently. The scheduler gates DuckDB steps on this capacity.
   /// </summary>
   int MaxConcurrency { get; }
+
+  /// <summary>
+  /// The DuckDB library version this engine executes transforms with
+  /// (e.g. <c>"v1.5.3"</c>). Folded into every transform step's cache
+  /// identity: results computed under one engine version must never be
+  /// served as cached output under another, because the engine's query
+  /// semantics and Parquet writer can change between versions. Must be
+  /// deterministic and stable for the life of the process.
+  /// </summary>
+  string EngineVersion { get; }
 
   /// <summary>
   /// Execute one engine-delegated transform: bind each requested

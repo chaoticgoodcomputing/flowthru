@@ -166,6 +166,17 @@ a property of the S3 medium, inherited through ordinary item wiring — a DuckDB
 S3-backed endpoints picks it up exactly as a plain load step does, with no DuckDB-specific
 configuration.
 
+## Caching
+
+Transforms are first-class cacheable. A step's SQL is wire-up data rather than compiled code, so
+the step declares it into its cache identity: a hash of the exact SQL text (no normalization —
+any edit invalidates), the DuckDB engine version, the relation-name bindings, and the
+output-affecting write options (compression codec, row-group size). Unchanged SQL over unchanged
+inputs with the output file present skips like any other cached step; editing the query, bumping
+the engine, rebinding relations, or changing how the output file is written each forces a re-run.
+Engine tuning that can't change output values (`MemoryLimit`, `Threads`, `TempDirectory`) is
+deliberately excluded, so re-tuning a host never busts caches.
+
 ## Concurrency and memory
 
 Each transform may use the engine's full memory budget (`MemoryLimit`, spilling to
@@ -186,10 +197,6 @@ section or code-first via `UseDuckDb(opts => ...)`.
   `FTDDB4003` failure — explicit, never papered over.
 - **Parquet endpoints only.** Inputs are bound via `read_parquet`; the output is written with
   `COPY ... (FORMAT PARQUET)`. Other formats (CSV, Postgres via `ATTACH`) are planned.
-- **Transforms are never cached — loudly.** The SQL text is wire-up data that isn't part of the
-  step's cache identity yet. Rather than risk serving stale output after a query edit, the step
-  declares itself uncacheable, and the reason surfaces wherever cache decisions are reported.
-  Query-aware cache identity is planned.
 - **Schema checks cover flat primitive/enum schemas.** Nested and `IScalar` schema properties
   aren't checkable — the output schema rejects them at wire-up; an input schema carrying them
   fails pre-flight with a typed error (`FTDDB3003`) rather than silently skipping the check.

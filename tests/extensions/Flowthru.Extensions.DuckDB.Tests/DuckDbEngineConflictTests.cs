@@ -174,6 +174,7 @@ public class DuckDbEngineConflictTests
     public RecordingEngine(int maxConcurrency = 1) => _maxConcurrency = maxConcurrency;
 
     public int MaxConcurrency => _maxConcurrency;
+    public string EngineVersion => "recording-engine-v1";
     public int MaxObserved { get { lock (_gate) return _max; } }
 
     public FlowIO<DuckDbTransformResult> ExecuteTransform(DuckDbTransformRequest request) =>

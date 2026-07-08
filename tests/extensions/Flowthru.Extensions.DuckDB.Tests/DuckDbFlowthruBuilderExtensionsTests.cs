@@ -199,6 +199,7 @@ public class DuckDbFlowthruBuilderExtensionsTests
   private sealed class StubEngine : IDuckDbEngine
   {
     public int MaxConcurrency => 1;
+    public string EngineVersion => "stub-engine-v1";
     public FlowIO<DuckDbTransformResult> ExecuteTransform(DuckDbTransformRequest request) =>
       FlowIO.Pure(new DuckDbTransformResult(0, Array.Empty<(string, string)>()));
   }

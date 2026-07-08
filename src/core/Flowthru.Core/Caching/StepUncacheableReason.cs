@@ -66,10 +66,14 @@ public abstract record StepUncacheableReason
   /// <see cref="Flowthru.Step.IStepNode.DeclaredUncacheableReason"/>.
   /// Used by step types whose transform identity isn't fully captured
   /// by <see cref="Flowthru.Step.IStepNode.CodeVersion"/> — e.g. a step
-  /// whose behaviour is driven by wire-up data (a SQL string, a remote
-  /// script) that the cache identity doesn't yet fingerprint. Caching
-  /// such a step would risk serving stale output after the wire-up data
-  /// changes, so the step opts out loudly instead of silently.
+  /// whose behaviour is driven by wire-up data (a remote script, an
+  /// opaque callback) that cannot be reduced to a stable
+  /// <see cref="Flowthru.Step.IStepNode.DeclaredCacheIdentity"/> token.
+  /// Caching such a step would risk serving stale output after the
+  /// wire-up data changes, so the step opts out loudly instead of
+  /// silently. Steps whose wire-up data <em>can</em> be fingerprinted
+  /// (e.g. SQL text hashed into the identity) should declare it through
+  /// <c>DeclaredCacheIdentity</c> and stay cacheable.
   /// </summary>
   /// <param name="Reason">
   /// Human-readable explanation supplied by the step — rendered

@@ -488,6 +488,8 @@ public class DuckDbTransformStepTests
 
     public int MaxConcurrency => 1;
 
+    public string EngineVersion => "v0.0.0-test";
+
     public FlowIO<DuckDbTransformResult> ExecuteTransform(DuckDbTransformRequest request)
     {
       LastRequest = request;

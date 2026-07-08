@@ -41,6 +41,14 @@ namespace Flowthru.Step.DuckDb.Internal;
 /// </remarks>
 public sealed class InProcessDuckDbEngine : IDuckDbEngine
 {
+  /// <summary>
+  /// The embedded library's version, probed once per process — every
+  /// <see cref="InProcessDuckDbEngine"/> instance shares the same
+  /// native library, so the probe (an in-memory connection open, a
+  /// microseconds-scale cost paid once) never repeats.
+  /// </summary>
+  private static readonly Lazy<string> ProbedLibraryVersion = new(ProbeLibraryVersion);
+
   private readonly DuckDbEngineOptions _options;
 
   public InProcessDuckDbEngine(DuckDbEngineOptions? options = null)
@@ -58,6 +66,35 @@ public sealed class InProcessDuckDbEngine : IDuckDbEngine
 
   /// <inheritdoc/>
   public int MaxConcurrency => _options.MaxConcurrentTransforms;
+
+  /// <inheritdoc/>
+  public string EngineVersion => ProbedLibraryVersion.Value;
+
+  /// <summary>
+  /// Read the embedded library's version from a throwaway in-memory
+  /// connection (<c>DuckDBConnection.ServerVersion</c>, backed by
+  /// <c>duckdb_library_version()</c>). If the native library can't
+  /// load, return a per-process-unique sentinel instead of throwing:
+  /// this property is consulted during cache-plan pre-flight, where an
+  /// exception would abort planning untyped, while the unique sentinel
+  /// merely keeps every transform permanently stale — and the real
+  /// failure then surfaces as a typed error value the moment a
+  /// transform executes. An unknown version must never produce a cache
+  /// hit; the sentinel guarantees it can't.
+  /// </summary>
+  private static string ProbeLibraryVersion()
+  {
+    try
+    {
+      using var connection = new DuckDBConnection("Data Source=:memory:");
+      connection.Open();
+      return connection.ServerVersion;
+    }
+    catch
+    {
+      return $"unavailable:{Guid.NewGuid():N}";
+    }
+  }
 
   /// <inheritdoc/>
   public FlowIO<DuckDbTransformResult> ExecuteTransform(DuckDbTransformRequest request)

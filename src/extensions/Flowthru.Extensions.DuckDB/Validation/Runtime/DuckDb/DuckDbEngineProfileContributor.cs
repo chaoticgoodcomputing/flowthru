@@ -23,11 +23,12 @@ namespace Flowthru.Validation.Runtime.DuckDb;
 /// <para>
 /// <see cref="ServiceProfile.AffectsOutputs"/> is <c>false</c>: the
 /// engine's runtime identity adds no caching information — a
-/// transform's determinism lives in its SQL text and inputs, not in
-/// which engine instance ran it. (v1 transform steps are uncacheable
-/// anyway, by their own declaration; keeping the engine dependency
-/// cache-neutral means that opt-out is the <em>only</em> thing holding
-/// them out of the cache, so lifting it later needs no profile change.)
+/// transform's determinism lives in its SQL text, engine version, and
+/// inputs, not in which engine instance ran it. Those first two enter
+/// the cache key through the step's declared cache identity
+/// (<c>DuckDbTransformStep.DeclaredCacheIdentity</c>); keeping the
+/// engine dependency cache-neutral is what lets the step be cacheable
+/// at all.
 /// </para>
 /// <para>
 /// Capacity is read from the resolved engine rather than hardcoded:

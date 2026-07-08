@@ -1,4 +1,6 @@
-using Flowthru.Caching;
+using System.Globalization;
+using System.Security.Cryptography;
+using System.Text;
 using Flowthru.Data.Catalog;
 using Flowthru.Data.Storage;
 using Flowthru.Prelude;
@@ -39,12 +41,15 @@ namespace Flowthru.Step.DuckDb;
 /// thrown exceptions.
 /// </para>
 /// <para>
-/// <strong>Caching.</strong> The step declares itself uncacheable (see
-/// <see cref="DeclaredUncacheableReason"/>): its behaviour lives in the
-/// SQL text, which the cache identity doesn't fingerprint yet, and a
-/// cached result that survived a query edit would be silently stale.
-/// The opt-out is loud — it surfaces wherever cache decisions are
-/// reported.
+/// <strong>Caching.</strong> First-class cacheable. The step's
+/// behaviour lives in wire-up data rather than compiled code, so it
+/// declares that data into its cache identity (see
+/// <see cref="DeclaredCacheIdentity"/>): a hash of the exact SQL text,
+/// the engine version, the relation-name bindings, and the
+/// output-affecting transform options. Unchanged SQL over unchanged
+/// inputs with the output present skips like any other cached step;
+/// editing the query, bumping the engine, or changing how the output
+/// file is written each invalidates.
 /// </para>
 /// </remarks>
 public sealed class DuckDbTransformStep<TOut> : IStepNode, IDuckDbTransformDescriptor
@@ -56,17 +61,33 @@ public sealed class DuckDbTransformStep<TOut> : IStepNode, IDuckDbTransformDescr
   /// concurrent transforms on the engine's capacity (each transform may
   /// use the engine's full memory budget) — see
   /// <c>DuckDbEngineProfileContributor</c>. Its resolved profile is
-  /// cache-neutral; the step's cache opt-out comes from
-  /// <see cref="DeclaredUncacheableReason"/> instead.
+  /// cache-neutral: which engine <em>instance</em> runs a transform
+  /// adds no caching information, while the engine <em>version</em>
+  /// enters the cache key through
+  /// <see cref="DeclaredCacheIdentity"/>.
   /// </summary>
   internal static readonly ServiceDependency EngineDependency =
     ServiceDependency.Of<IDuckDbEngine>();
+
+  /// <summary>
+  /// Build-time identity of the transform <em>machinery</em> — the
+  /// extension assembly version, which is what compiles this step's
+  /// relation binding, schema verification, and COPY assembly. The
+  /// wire-up data the machinery executes (SQL, engine version, output
+  /// options) is deliberately not here: it lives in
+  /// <see cref="DeclaredCacheIdentity"/>, the seam for identity that
+  /// isn't compiled step code.
+  /// </summary>
+  private static readonly string MachineryCodeVersion =
+    "flowthru-duckdb-transform:"
+    + (typeof(DuckDbTransformStep<>).Assembly.GetName().Version?.ToString() ?? "0.0.0.0");
 
   private readonly IDuckDbEngine _engine;
   private readonly IReadOnlyList<DuckDbInputRelation> _relations;
   private readonly FlowIO<ByteLocation> _outputLocation;
   private readonly IReadOnlyList<DuckDbExpectedColumn> _expectedColumns;
   private readonly DuckDbTransformOptions _options;
+  private readonly Lazy<string> _cacheIdentity;
 
   /// <summary>
   /// Construct a typed DuckDB transform description. No IO is performed;
@@ -134,6 +155,7 @@ public sealed class DuckDbTransformStep<TOut> : IStepNode, IDuckDbTransformDescr
     Inputs = inputs.Select(r => r.Item).ToArray();
     Outputs = new IItem[] { output };
     ServiceDependencies = new[] { EngineDependency };
+    _cacheIdentity = new Lazy<string>(ComposeCacheIdentity);
   }
 
   /// <inheritdoc/>
@@ -180,17 +202,40 @@ public sealed class DuckDbTransformStep<TOut> : IStepNode, IDuckDbTransformDescr
 
   /// <inheritdoc/>
   /// <remarks>
-  /// The step's behaviour is the SQL text — wire-up data, not compiled
-  /// step code — and the cache identity doesn't fingerprint it yet.
-  /// Caching under an identity blind to the query would serve stale
-  /// output after any edit, so the step opts out, loudly.
+  /// The extension machinery's identity — see
+  /// <see cref="MachineryCodeVersion"/>. Non-null is the promise that
+  /// two runs with the same inputs <em>and the same
+  /// <see cref="DeclaredCacheIdentity"/></em> produce equivalent
+  /// outputs, which is exactly the determinism a relational engine
+  /// offers for a fixed query, engine version, and write options.
   /// </remarks>
-  public StepUncacheableReason? DeclaredUncacheableReason { get; } =
-    new StepUncacheableReason.DeclaredByStep(
-      "DuckDB transform: the SQL text is wire-up data that isn't part of the step's "
-      + "cache identity, so results are never cached — an edited query must never be "
-      + "served stale output"
-    );
+  public string? CodeVersion => MachineryCodeVersion;
+
+  /// <inheritdoc/>
+  /// <remarks>
+  /// <para>
+  /// The wire-up data that decides this transform's output, reduced to
+  /// a stable token:
+  /// </para>
+  /// <list type="bullet">
+  /// <item>SHA-256 of the <em>exact</em> SQL text — no normalization,
+  /// so any edit (even whitespace) invalidates rather than risking a
+  /// stale hit on a semantic change a normalizer misjudged.</item>
+  /// <item>The engine version — query semantics and the engine's
+  /// Parquet writer can change between DuckDB releases.</item>
+  /// <item>The relation-name → item-label bindings (sorted by relation
+  /// name) — rebinding the same items to different names changes what
+  /// the same SQL text reads, which input fingerprints alone can't
+  /// see.</item>
+  /// <item>The output-affecting transform options — compression codec
+  /// and row-group size both change the produced file's bytes.</item>
+  /// </list>
+  /// <para>
+  /// Evaluated lazily (the engine version probe is deferred until the
+  /// cache planner first asks) and cached per step instance.
+  /// </para>
+  /// </remarks>
+  public string? DeclaredCacheIdentity => _cacheIdentity.Value;
 
   /// <inheritdoc/>
   /// <remarks>
@@ -256,6 +301,31 @@ public sealed class DuckDbTransformStep<TOut> : IStepNode, IDuckDbTransformDescr
       Options: _options
     ))
     select FlowUnit.Default;
+
+  // ── Cache identity ──────────────────────────────────────────────────────
+
+  /// <summary>
+  /// Assemble the declared cache identity from the output-affecting
+  /// wire-up data. See <see cref="DeclaredCacheIdentity"/> for what
+  /// goes in and why; segments are pipe-delimited and the SQL enters as
+  /// a SHA-256 over its exact UTF-8 bytes.
+  /// </summary>
+  private string ComposeCacheIdentity()
+  {
+    var sqlHash = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(Sql)));
+    var bindings = string.Join(",", _relations
+      .OrderBy(r => r.RelationName, StringComparer.Ordinal)
+      .Select(r => $"{r.RelationName}={r.Item.Label}"));
+    var rowGroupSize = _options.RowGroupSize is { } size
+      ? size.ToString(CultureInfo.InvariantCulture)
+      : "engine-default";
+
+    return $"duckdb|sql-sha256:{sqlHash}"
+      + $"|engine:{_engine.EngineVersion}"
+      + $"|relations:{bindings}"
+      + $"|compression:{_options.Compression}"
+      + $"|row-group-size:{rowGroupSize}";
+  }
 
   // ── Byte-location resolution ────────────────────────────────────────────
 
