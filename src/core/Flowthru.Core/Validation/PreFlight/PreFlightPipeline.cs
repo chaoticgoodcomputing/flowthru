@@ -144,6 +144,23 @@ public static class PreFlightPipeline
         }
       }
 
+      // Layer 0.5 (hermetic — runs at every scope) — bulk-transfer rung
+      // negotiation. Each transfer step's endpoints negotiated (lazily,
+      // once) which execution rung the pairing runs on; probing endpoint
+      // capabilities is type tests and identity metadata only, so an
+      // offline smoke test still catches a transfer with no executable
+      // rung. The pipeline folds each verdict into the aggregate; a
+      // successful negotiation's selected rung is reported by the host
+      // alongside the other plan decisions.
+      foreach (var step in flow.Steps)
+      {
+        foreach (var output in step.Outputs)
+        {
+          if (output is not IBulkTransferEndpoint endpoint) continue;
+          aggregated.Add(endpoint.Negotiation.Map(_ => FlowUnit.Default));
+        }
+      }
+
       // Layer 1 (Full scope only — reads each external input's storage
       // medium, which is I/O) — adapter-internal inspection of every external
       // input. An "external" input is one whose label is NOT produced by any

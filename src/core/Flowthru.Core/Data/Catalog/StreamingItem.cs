@@ -33,6 +33,7 @@ internal sealed class StreamingItem<TRow> : IReadOnlyItem<FlowSource<TRow>>
   public InspectionLevel? MaxInspectionLevel => _origin.MaxInspectionLevel;
   public bool HasEfficientCount => _origin.HasEfficientCount;
   public string? StorageKind => _origin.StorageKind;
+  public IReadOnlyList<ServiceDependency> ServiceDependencies => _origin.ServiceDependencies;
 
   public FlowIO<FlowSource<TRow>> Load() => FlowIO.Pure(_source.OpenStreamingSource());
 
@@ -53,4 +54,6 @@ internal sealed class StreamingItem<TRow> : IReadOnlyItem<FlowSource<TRow>>
   public FlowIO<FlowUnit> SaveUntyped(object data) => Save((FlowSource<TRow>)data);
 
   public FlowIO<string>? TryGetFingerprint() => _origin.TryGetFingerprint();
+  public ISupportsBulkExport? TryGetBulkExport() => _origin.TryGetBulkExport();
+  public ISupportsBulkImport? TryGetBulkImport() => _origin.TryGetBulkImport();
 }

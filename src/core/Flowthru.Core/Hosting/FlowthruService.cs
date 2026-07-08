@@ -623,6 +623,25 @@ public sealed class FlowthruService : IFlowthruService
         preFlightStopwatch.Elapsed.TotalMilliseconds
       );
 
+      // Report each bulk transfer's negotiated rung as part of the
+      // validated plan. Selection happened during pre-flight (the
+      // endpoints negotiate once, lazily, and the pipeline forced the
+      // verdict above); logging it here keeps a downgrade to the
+      // streaming fallback visible in the run output rather than silent —
+      // the same signal discipline as the uncacheable-step lines below.
+      foreach (var step in effectiveFlow.Steps)
+      {
+        foreach (var output in step.Outputs)
+        {
+          if (output is not IBulkTransferEndpoint endpoint) continue;
+          if (endpoint.Negotiation is not Validated<PreFlightError, BulkTransferDecision>.Valid valid) continue;
+          _logger.LogInformation(
+            "  ⇄ {StepLabel} transfer rung: {Rung} — {Reason}",
+            valid.Value.StepLabel, valid.Value.Rung, valid.Value.Reason
+          );
+        }
+      }
+
       // Pre-flight passed — build the cache plan from the
       // framework-managed manifest. Plan is consumed by the scheduler
       // (short-circuits fresh steps) and exposed on the metadata
@@ -824,6 +843,7 @@ public sealed class FlowthruService : IFlowthruService
           PreFlightError.DuplicateProducer dp => $"preflight:dag:{dp.ItemId}",
           PreFlightError.CircularDependency => $"preflight:dag:cycle[{i}]",
           PreFlightError.DuplicateLabel dl => $"preflight:dag:label:{dl.Scope}:{dl.Label}",
+          PreFlightError.BulkTransferRungUnavailable bt => $"preflight:transfer:{bt.StepLabel}",
           PreFlightError.RegistrationCheckFailed rcf => $"preflight:registration:{rcf.HookId}",
           PreFlightError.External ext => $"preflight:external:{ext.Cause.Category}",
           _ => $"preflight:[{i}]",

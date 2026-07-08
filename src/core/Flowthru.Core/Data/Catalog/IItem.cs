@@ -149,6 +149,28 @@ public interface IItem : INode
   FlowIO<string>? TryGetFingerprint() => null;
 
   /// <summary>
+  /// Returns the bulk-export capability when this item's storage adapter
+  /// (or any medium it wraps) implements
+  /// <see cref="ISupportsBulkExport"/>; otherwise <c>null</c>. Probed
+  /// during pre-flight bulk-transfer rung negotiation — <c>null</c> means
+  /// this item cannot be the source of a provider-native transfer, so
+  /// negotiation falls back (visibly) to the streaming rung. The probe is
+  /// metadata-only; no channel is opened.
+  /// </summary>
+  ISupportsBulkExport? TryGetBulkExport() => null;
+
+  /// <summary>
+  /// Returns the bulk-import capability when this item's storage adapter
+  /// (or any medium it wraps) implements
+  /// <see cref="ISupportsBulkImport"/>; otherwise <c>null</c>. The
+  /// target-side twin of <see cref="TryGetBulkExport"/>: <c>null</c>
+  /// means this item cannot receive a provider-native transfer, so
+  /// negotiation falls back (visibly) to the streaming rung. The probe is
+  /// metadata-only; no channel is opened.
+  /// </summary>
+  ISupportsBulkImport? TryGetBulkImport() => null;
+
+  /// <summary>
   /// Canonical lowercase identifier for the storage backend an item is
   /// bound to (e.g. <c>"gql"</c>, <c>"http"</c>, <c>"database"</c>,
   /// <c>"memory"</c>, <c>"excel"</c>). <c>null</c> or empty signals the

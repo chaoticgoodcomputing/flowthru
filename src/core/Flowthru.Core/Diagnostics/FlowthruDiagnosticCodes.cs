@@ -60,6 +60,7 @@ public static class FlowthruDiagnosticCodes
   public const string PreFlightInspectionFailed = "FT3005";
   public const string PreFlightRegistrationCheckFailed = "FT3006";
   public const string PreFlightDuplicateLabel = "FT3007";
+  public const string PreFlightBulkTransferRungUnavailable = "FT3008";
 
   // ── FT4xxx — runtime failures ───────────────────────────────────────────
 

@@ -70,6 +70,12 @@ public static class PreFlightErrorClassifier
         r.Message,
         r
       ),
+      PreFlightError.BulkTransferRungUnavailable b => new PreFlightErrorReport(
+        FlowthruDiagnosticCodes.PreFlightBulkTransferRungUnavailable,
+        "BulkTransferRungUnavailable",
+        b.Message,
+        b
+      ),
       PreFlightError.External e => new PreFlightErrorReport(
         e.Cause.DiagnosticCode,
         e.Cause.Category,
