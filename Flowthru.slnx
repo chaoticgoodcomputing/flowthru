@@ -58,6 +58,7 @@
   <Project Path="tests/extensions/Flowthru.Extensions.Xml.Tests/Flowthru.Extensions.Xml.Tests.csproj" />
   <Project Path="tests/misc/Flowthru.Misc.DataFrames.Tests/Flowthru.Misc.DataFrames.Tests.csproj" />
   <Project Path="tests/misc/Flowthru.Misc.DataFrames.SourceGenerators.Tests/Flowthru.Misc.DataFrames.SourceGenerators.Tests.csproj" />
+  <Project Path="examples/starter/SpaceflightsDuckDB/SpaceflightsDuckDB.csproj" />
   <Project Path="examples/starter/SpaceflightsEFCore/SpaceflightsEFCore.csproj" />
   <Project Path="examples/starter/Spaceflights/Spaceflights.csproj" />
   <Project Path="examples/starter/SpaceflightsFUnit/SpaceflightsFUnit.csproj" />

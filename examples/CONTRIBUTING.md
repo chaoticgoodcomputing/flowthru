@@ -277,6 +277,9 @@ _Avoid_: workflow, job, pipeline (fine as the general data-engineering concept; 
 **Step**: A logical unit of work in a Flow. Like a Jupyter notebook cell with named inputs and named outputs — but composable into a type-validated DAG rather than constrained to a linear order.
 _Avoid_: task, operator, node
 
+**Wide vs narrow transform**: A classification of Step logic. A *narrow* transform produces each output row from one input row at a time (parse, filter, map) and is a natural fit for an ordinary C# Step; a *wide* transform (join, aggregate, global sort, dedup) must see all of its input before it can emit any output — the set-oriented work worth handing to an engine-side SQL Step when the data is large.
+_Avoid_: blocking step ("blocking" reads as thread semantics in .NET), shuffle (cluster vocabulary; Flowthru is single-node)
+
 **Schema**: A typed contract for the shape of data flowing through a Flow, declared by both Steps (as their input/output types) and Catalog Items (as the data they hold). The compiler uses these declarations to verify connections at build time.
 _Avoid_: type, model, DTO
 
