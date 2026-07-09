@@ -9,6 +9,7 @@ using Flowthru.Data.Storage.Xml;
 using Flowthru.Diagnostics.Json;
 using Flowthru.Diagnostics.Mermaid;
 using Flowthru.Diagnostics.Run;
+using Flowthru.Step.DuckDb;
 using Flowthru.Step.Python;
 
 namespace Flowthru.Core.Architecture.Tests;
@@ -205,6 +206,30 @@ public class ExtensionNamespaceMirrorTests
         ForbiddenAlgebraRoots: new[]
         {
           "Flowthru.Data.Storage",
+        }
+      ),
+      new ExtensionMirror(
+        Name: "Flowthru.Extensions.DuckDB",
+        ProbeType: typeof(DuckDbTransformStep<>),
+        AllowedNamespacePrefixes: new[]
+        {
+          "Flowthru.Step.DuckDb",
+          // FlowBuilder.AddDuckDbTransform extension methods live in
+          // FlowBuilder's algebra root — the AddPythonStep shape.
+          "Flowthru.Flow",
+          // UseDuckDb() extension method on IFlowthruBuilder.
+          "Flowthru.Hosting",
+          // DuckDbRuntimeError + the engine profile contributor live
+          // alongside Core's Validation.Runtime closed sums.
+          "Flowthru.Validation.Runtime.DuckDb",
+          // DuckDbPreFlightError + DuckDbTransformValidationHook.
+          "Flowthru.Validation.PreFlight.DuckDb",
+        },
+        ForbiddenAlgebraRoots: new[]
+        {
+          // Step archetypes are Core's bookkeeping; concrete step
+          // impls must live in a sub-namespace.
+          "Flowthru.Step",
         }
       ),
       new ExtensionMirror(

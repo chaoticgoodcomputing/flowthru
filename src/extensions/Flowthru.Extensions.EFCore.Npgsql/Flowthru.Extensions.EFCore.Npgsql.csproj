@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <Description>Npgsql-native bulk transfer for Flowthru EFCore catalog items — PostgreSQL tables that pair over raw binary COPY so AddBulkTransfer moves Postgres-to-Postgres data as a byte passthrough instead of row-at-a-time.</Description>
+
+    <PackageId>Flowthru.Extensions.EFCore.Npgsql</PackageId>
+    <PackageTags>data-engineering;pipeline;entity-framework;efcore;database;postgresql;npgsql;copy;bulk</PackageTags>
+
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="$(RepoRoot)src/extensions/Flowthru.Extensions.EFCore/Flowthru.Extensions.EFCore.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Npgsql directly (PostgreSQL license) — deliberately NOT
+         EFCore.BulkExtensions, whose dual license is tracked in #129. -->
+    <PackageReference Include="Npgsql" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Flowthru.Extensions.EFCore.Npgsql.Tests" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="$(RepoRoot)LICENSE" Pack="true" PackagePath="/" />
+  </ItemGroup>
+
+</Project>

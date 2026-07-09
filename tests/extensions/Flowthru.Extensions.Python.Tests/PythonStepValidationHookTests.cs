@@ -1,4 +1,5 @@
 using Flowthru.Data.Catalog;
+using Flowthru.Data.Schema;
 using Flowthru.Flow;
 using Flowthru.Prelude;
 using Flowthru.Step.Python;
@@ -18,12 +19,17 @@ namespace Flowthru.Extensions.Python.Tests;
 /// </summary>
 [TestFixture]
 [Category("Python")]
-public class PythonStepValidationHookTests
+public partial class PythonStepValidationHookTests
 {
   // ── Probe schemas with predictable type names ───────────────────────
+  // [FlowthruSchema] is load-bearing: name agreement is only enforced at
+  // positions whose C# type is a schema type; undecorated payloads
+  // (byte[] artifacts, directories, scalars) are exempt.
 
-  public sealed record ProbeIn { public required int X { get; init; } }
-  public sealed record ProbeOut { public required int Y { get; init; } }
+  [FlowthruSchema]
+  public sealed partial record ProbeIn { public required int X { get; init; } }
+  [FlowthruSchema]
+  public sealed partial record ProbeOut { public required int Y { get; init; } }
 
   // ── Helpers ─────────────────────────────────────────────────────────
 
@@ -167,6 +173,43 @@ public class PythonStepValidationHookTests
     var validated = ((EffResult<Validated<PreFlightError, FlowUnit>>.Success)result).Value;
 
     Assert.That(validated, Is.InstanceOf<Validated<PreFlightError, FlowUnit>.Invalid>());
+  }
+
+  [Test]
+  public async Task Validate_NonSchemaPayloadOutput_IsExemptFromNameComparison()
+  {
+    // C# output is byte[] (an artifact, not a [FlowthruSchema] type); the
+    // decorator's output name is descriptive ("CoverageHeatmap"-style).
+    // Name comparison must skip the position — arity is still checked.
+    var executor = new RecordingExecutor
+    {
+      ValidateStepResult = FlowIO.Pure(new PythonStepMetadata(
+        Inputs: new[] { "ProbeIn" },
+        Outputs: new[] { "RenderedArtifact" },
+        Services: Array.Empty<string>()
+      ))
+    };
+    var hook = new PythonStepValidationHook(executor);
+
+    var input = ItemFactory.Singleton.Memory<ProbeIn>("input");
+    var output = ItemFactory.Singleton.Memory<byte[]>("output");
+    var flow = FlowBuilder.CreateFlow("python-bytes-test", b =>
+      b.AddPythonStep<ProbeIn, byte[]>(
+        label: "step",
+        module: "demo",
+        function: "step",
+        input: input,
+        output: output,
+        executor: executor
+      )
+    );
+
+    var io = hook.Validate(flow);
+    var result = await io.Run();
+    var validated = ((EffResult<Validated<PreFlightError, FlowUnit>>.Success)result).Value;
+
+    Assert.That(validated, Is.InstanceOf<Validated<PreFlightError, FlowUnit>.Valid>(),
+      "A non-schema payload position must not fail name agreement.");
   }
 
   [Test]

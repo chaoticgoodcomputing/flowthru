@@ -133,6 +133,23 @@ public abstract record PreFlightError
   }
 
   /// <summary>
+  /// A bulk transfer step has no executable rung: the requested native
+  /// path is unavailable (<c>RequireNative</c>), or the streaming
+  /// fallback's requirements — a streaming-capable source and a
+  /// sink-capable target — are unmet. Raised by pre-flight rung
+  /// negotiation so an impossible (or unacceptably downgraded) transfer
+  /// fails before any step runs.
+  /// </summary>
+  /// <param name="StepLabel">The transfer step whose negotiation failed.</param>
+  /// <param name="Detail">Which requirement was unmet, and by which endpoint.</param>
+  public sealed record BulkTransferRungUnavailable(string StepLabel, string Detail)
+    : PreFlightError
+  {
+    public override string Message =>
+      $"Bulk transfer '{StepLabel}' has no executable rung: {Detail}";
+  }
+
+  /// <summary>
   /// An extension-defined pre-flight failure. The wrapped
   /// <see cref="IExtensionPreFlightError"/> carries the extension's
   /// rendering data; Core's classifier and formatter dispatch to it

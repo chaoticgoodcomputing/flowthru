@@ -69,6 +69,12 @@ public sealed class Item<T> : IItem<T>
     _storage is ISupportsFingerprint fingerprintable ? fingerprintable.Fingerprint() : null;
 
   /// <inheritdoc/>
+  public ISupportsBulkExport? TryGetBulkExport() => _storage as ISupportsBulkExport;
+
+  /// <inheritdoc/>
+  public ISupportsBulkImport? TryGetBulkImport() => _storage as ISupportsBulkImport;
+
+  /// <inheritdoc/>
   public string? StorageKind =>
     _storage is IHasStorageKind kinded ? kinded.StorageKind : null;
 

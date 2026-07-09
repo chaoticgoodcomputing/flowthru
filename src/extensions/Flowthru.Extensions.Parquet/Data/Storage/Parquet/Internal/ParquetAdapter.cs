@@ -235,13 +235,18 @@ internal sealed class ParquetAdapter<TRow>
 
   /// <summary>
   /// If <typeparamref name="TRow"/> already has a public parameterless
-  /// constructor and no <c>[SerializedLabel]</c> remappings, use it
+  /// constructor, no <c>[SerializedLabel]</c> remappings, and (on the
+  /// read path) property types matching the file's column types, use it
   /// directly as the DTO type. Otherwise generate a runtime DTO via
   /// <see cref="System.Reflection.Emit"/>.
   /// </summary>
   private Type CreateDtoType()
   {
-    if (HasParameterlessConstructor(typeof(TRow)) && !HasSerializedLabelAttributes())
+    if (
+      HasParameterlessConstructor(typeof(TRow))
+      && !HasSerializedLabelAttributes()
+      && MatchesParquetColumnTypes()
+    )
     {
       return typeof(TRow);
     }
@@ -253,6 +258,43 @@ internal sealed class ParquetAdapter<TRow>
 
   private bool HasSerializedLabelAttributes() =>
     _propertyNameMap.Any(kvp => kvp.Key != kvp.Value);
+
+  /// <summary>
+  /// True when every on-disk column type (nullability-widened per
+  /// <see cref="MapParquetTypeToClr"/>) matches the corresponding
+  /// <typeparamref name="TRow"/> property type exactly, so Parquet.NET
+  /// can deserialize into <typeparamref name="TRow"/> directly. Always
+  /// true on the write path (no file schema to mirror). External
+  /// writers (DuckDB, Spark, pandas) conventionally mark every column
+  /// optional even for never-null data; deserializing such a file into
+  /// a non-nullable property is a definition-level mismatch inside
+  /// Parquet.NET, so those files must route through the runtime DTO,
+  /// which mirrors the file's types and converts (with null-contract
+  /// enforcement) in <see cref="FromDto"/>.
+  /// </summary>
+  private bool MatchesParquetColumnTypes()
+  {
+    if (_parquetColumnTypes is null)
+    {
+      return true;
+    }
+
+    foreach (var property in typeof(TRow).GetProperties(BindingFlags.Public | BindingFlags.Instance))
+    {
+      if (!property.CanRead)
+      {
+        continue;
+      }
+      if (
+        _parquetColumnTypes.TryGetValue(_propertyNameMap[property.Name], out var fileType)
+        && fileType != property.PropertyType
+      )
+      {
+        return false;
+      }
+    }
+    return true;
+  }
 
   /// <summary>
   /// Generate a runtime type that mirrors <typeparamref name="TRow"/>'s

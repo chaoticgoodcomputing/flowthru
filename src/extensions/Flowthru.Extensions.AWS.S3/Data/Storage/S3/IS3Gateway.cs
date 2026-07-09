@@ -66,4 +66,17 @@ public interface IS3Gateway
   /// the object body to compute it.
   /// </summary>
   Task<string?> GetETag(string bucket, string key, CancellationToken ct);
+
+  /// <summary>
+  /// Where the bytes of <paramref name="bucket"/>/<paramref name="key"/> live,
+  /// plus whatever access handoff a consumer reading the store natively needs.
+  /// The gateway is the credential owner, so the handoff is minted here — the
+  /// production gateway returns the object's <c>s3://</c> URI with
+  /// endpoint / region / credential entries resolved from the same chain its
+  /// client uses; the file-backed stub returns the backing file's path
+  /// directly. Implementations must not stream the object body, and must not
+  /// require an object to exist at the key — the location describes where
+  /// bytes live <em>or would land</em>.
+  /// </summary>
+  Task<ByteLocation> LocateObject(string bucket, string key, CancellationToken ct);
 }

@@ -27,13 +27,27 @@ public enum ValidationDepth
   None,
 
   /// <summary>
-  /// The maximal validation that performs <em>zero I/O</em>: dispatcher
-  /// presence for external service refs, C# service-dependency DI
-  /// registration, and registration hooks that classify as hermetic. No
-  /// socket, file, or database access — answers "is this flow sound and
-  /// fully wired, could it start in principle?" Has no <c>IItem</c>
-  /// inspection mapping (inspection reads data, which is I/O).
+  /// The maximal validation that reaches <em>nothing outside the
+  /// process</em>: dispatcher presence for external service refs, C#
+  /// service-dependency DI registration, and registration/flow hooks that
+  /// classify as hermetic. No socket, no data file, no external database
+  /// or service — nothing whose availability or state could differ
+  /// between environments — answers "is this flow sound and fully wired,
+  /// could it start in principle?" on a machine with no live environment
+  /// at all. Has no <c>IItem</c> inspection mapping (inspection reads
+  /// data, which is I/O).
   /// </summary>
+  /// <remarks>
+  /// The promise is <em>no external reach</em>, not "no syscalls":
+  /// process-local computation over declared metadata qualifies even when
+  /// it loads code shipped inside the application's own deployment — the
+  /// CLR loading an assembly, or an <em>embedded in-memory engine</em>
+  /// (e.g. DuckDB) instantiated purely to type-check declared schemas,
+  /// touching no real data and no state outside the process. An embedded
+  /// engine that reads or writes any file, or reaches any endpoint, is
+  /// <em>not</em> hermetic and must classify <see cref="Shallow"/> or
+  /// above.
+  /// </remarks>
   Hermetic,
 
   /// <summary>

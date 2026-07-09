@@ -16,7 +16,9 @@ namespace Flowthru.Caching;
 /// <strong>Uniform DAG-node walk (Phase 8).</strong> Items and steps
 /// are treated as a single node space. Each item has a leaf fingerprint
 /// (sourced from its storage adapter's <c>ISupportsFingerprint</c>); each
-/// step has a composite fingerprint composed of its <c>CodeVersion</c>
+/// step has a composite fingerprint composed of its <c>CodeVersion</c>,
+/// its declared cache identity (<see cref="IStepNode.DeclaredCacheIdentity"/>,
+/// for steps whose behaviour includes wire-up data such as a SQL string),
 /// and its inputs' fingerprints. Both kinds of fingerprint are persisted
 /// in <c>CacheManifest.{Steps, Items}</c>, and the walk compares the
 /// current value against the recorded value to decide freshness.
@@ -26,6 +28,8 @@ namespace Flowthru.Caching;
 /// when every one of these holds:
 /// </para>
 /// <list type="bullet">
+/// <item>The step has not opted out via
+/// <see cref="IStepNode.DeclaredUncacheableReason"/>.</item>
 /// <item>The step's <see cref="IStepNode.CodeVersion"/> is non-null.</item>
 /// <item>The step has no <see cref="IStepNode.ServiceDependencies"/>.</item>
 /// <item>Every input either is produced by another step in this flow
@@ -113,6 +117,16 @@ public static class CachePlanBuilder
       cancellationToken.ThrowIfCancellationRequested();
 
       // Phase 1 — eligibility checks that don't require I/O.
+      // A step-declared opt-out wins over every other verdict: the step
+      // knows its transform identity isn't fully fingerprinted (e.g.
+      // wire-up SQL), so caching it would risk stale hits. The declared
+      // reason is recorded verbatim so the opt-out is never silent.
+      if (step.DeclaredUncacheableReason is { } declaredReason)
+      {
+        uncacheable.Add(step.Label);
+        uncacheableReasons[step.Label] = declaredReason;
+        continue;
+      }
       if (step.CodeVersion is null)
       {
         uncacheable.Add(step.Label);
@@ -196,7 +210,8 @@ public static class CachePlanBuilder
       }
 
       // Phase 3 — derive the step's composite identity.
-      var composite = ComposeStepFingerprint(step.CodeVersion!, inputContributions);
+      var composite = ComposeStepFingerprint(
+        step.CodeVersion!, inputContributions, step.DeclaredCacheIdentity);
 
       // Phase 4 — fresh iff manifest entry matches AND every output exists.
       var manifestMatches =
@@ -241,18 +256,32 @@ public static class CachePlanBuilder
 
   /// <summary>
   /// Compose a step's composite fingerprint from its
-  /// <c>CodeVersion</c> and its inputs' contributions. The inputs are
-  /// sorted by label for stability across runs.
+  /// <c>CodeVersion</c>, its declared cache identity (when the step
+  /// contributes one — see
+  /// <see cref="IStepNode.DeclaredCacheIdentity"/>), and its inputs'
+  /// contributions. The inputs are sorted by label for stability across
+  /// runs.
   /// </summary>
+  /// <remarks>
+  /// A <c>null</c> <paramref name="declaredCacheIdentity"/> composes
+  /// byte-identically to the pre-seam shape, so manifests recorded
+  /// before the seam existed stay valid for every step that doesn't
+  /// declare an identity — no manifest schema bump required.
+  /// </remarks>
   internal static string ComposeStepFingerprint(
     string codeVersion,
-    IReadOnlyList<(string Label, string Value)> inputs
+    IReadOnlyList<(string Label, string Value)> inputs,
+    string? declaredCacheIdentity = null
   )
   {
     var sorted = inputs.OrderBy(c => c.Label, StringComparer.Ordinal).ToList();
     using var sha = SHA256.Create();
     var builder = new StringBuilder();
     builder.Append("code:").Append(codeVersion).Append('|');
+    if (declaredCacheIdentity is not null)
+    {
+      builder.Append("declared:").Append(declaredCacheIdentity).Append('|');
+    }
     foreach (var (label, value) in sorted)
     {
       builder.Append(label).Append('=').Append(value).Append('|');

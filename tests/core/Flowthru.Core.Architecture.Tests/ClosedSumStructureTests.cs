@@ -1,5 +1,6 @@
 using System.Reflection;
 using Flowthru.Data.Catalog;
+using Flowthru.Data.Storage;
 using Flowthru.Flow;
 using Flowthru.Prelude;
 using Flowthru.Validation.PreFlight;
@@ -27,6 +28,7 @@ public class ClosedSumStructureTests
     typeof(EffResult<>),
     typeof(Validated<,>),
     typeof(DependencyAnalyzer.Result),
+    typeof(ByteLocation),
   };
 
   [Test]

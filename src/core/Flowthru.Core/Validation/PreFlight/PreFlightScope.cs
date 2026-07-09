@@ -10,11 +10,15 @@ namespace Flowthru.Validation.PreFlight;
 public enum PreFlightScope
 {
   /// <summary>
-  /// Run only the checks that perform <em>no I/O</em>: dispatcher presence
-  /// for external service refs and C# service-dependency DI registration.
-  /// Skip adapter inspection, flow validation hooks, service-inspector
-  /// probes, and <c>dispatcher.Inspect</c> — anything that touches a live
-  /// resource.
+  /// Run only the checks that reach <em>nothing outside the process</em>
+  /// (see the promise spelled out on
+  /// <see cref="Flowthru.Flow.ValidationDepth.Hermetic"/>): dispatcher
+  /// presence for external service refs, C# service-dependency DI
+  /// registration, and flow validation hooks that self-classify as
+  /// hermetic via <see cref="IFlowValidationHook.MinimumDepth"/>. Skip
+  /// adapter inspection, non-hermetic flow validation hooks,
+  /// service-inspector probes, and <c>dispatcher.Inspect</c> — anything
+  /// that touches a live resource.
   /// </summary>
   Hermetic,
 

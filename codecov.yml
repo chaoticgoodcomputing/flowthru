@@ -36,6 +36,8 @@ flags:
     carryforward: true
   Flowthru.Extensions.EFCore.Bulk.Tests:
     carryforward: true
+  Flowthru.Extensions.EFCore.Npgsql.Tests:
+    carryforward: true
   Flowthru.Extensions.EFCore.Tests:
     carryforward: true
   Flowthru.Extensions.Excel.Tests:
@@ -148,6 +150,10 @@ component_management:
       name: Flowthru.Extensions.Csv
       paths:
         - src/extensions/Flowthru.Extensions.Csv/**
+    - component_id: flowthru_extensions_duckdb
+      name: Flowthru.Extensions.DuckDB
+      paths:
+        - src/extensions/Flowthru.Extensions.DuckDB/**
     - component_id: flowthru_extensions_efcore
       name: Flowthru.Extensions.EFCore
       paths:
@@ -156,6 +162,10 @@ component_management:
       name: Flowthru.Extensions.EFCore.Bulk
       paths:
         - src/extensions/Flowthru.Extensions.EFCore.Bulk/**
+    - component_id: flowthru_extensions_efcore_npgsql
+      name: Flowthru.Extensions.EFCore.Npgsql
+      paths:
+        - src/extensions/Flowthru.Extensions.EFCore.Npgsql/**
     - component_id: flowthru_extensions_excel
       name: Flowthru.Extensions.Excel
       paths:

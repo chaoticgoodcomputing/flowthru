@@ -20,7 +20,11 @@ namespace Flowthru.Data.Storage;
 /// </para>
 /// </remarks>
 public sealed class ComposedStorageAdapter<TContainer, TRow>
-  : IStorageAdapter<TContainer>, ISupportsFingerprint, IHasServiceDependencies, ISupportsStreamingView<TRow>
+  : IStorageAdapter<TContainer>,
+    ISupportsFingerprint,
+    IHasServiceDependencies,
+    ISupportsStreamingView<TRow>,
+    ISupportsByteLocation
   where TRow : notnull
 {
   private readonly IStorageMedium _medium;
@@ -166,6 +170,30 @@ public sealed class ComposedStorageAdapter<TContainer, TRow>
       .Bracket(resource, (stream, ct) => reader.DeserializeRows(stream, ct))
       .MapError(TranslateSchemaMismatch);
   }
+
+  // ── ISupportsByteLocation (the byte-addressing seam) ───────────────────
+
+  /// <inheritdoc/>
+  public bool IsAddressable => _medium is ISupportsByteLocation { IsAddressable: true };
+
+  /// <inheritdoc/>
+  /// <remarks>
+  /// Delegates to the underlying <see cref="IStorageMedium"/> when it is
+  /// byte-addressable — the medium (or its gateway) is where the bytes
+  /// actually live, so it owns the answer. A non-addressable medium
+  /// surfaces a FlowIO failure naming the medium and the reason — never a
+  /// silent fallback that loads rows.
+  /// </remarks>
+  public FlowIO<ByteLocation> LocateBytes() =>
+    _medium is ISupportsByteLocation { IsAddressable: true } addressable
+      ? addressable.LocateBytes()
+      : FlowIO.Fail<ByteLocation>(new RuntimeError.External(
+          $"ComposedStorageAdapter.LocateBytes[{typeof(TRow).Name}]",
+          new InvalidOperationException(
+            $"Underlying storage medium '{_medium.GetType().Name}' is not byte-addressable "
+            + "(it does not implement ISupportsByteLocation); this composed adapter cannot "
+            + "report where its bytes live."
+          )));
 
   /// <inheritdoc/>
   public FlowIO<FlowUnit> Save(TContainer data)

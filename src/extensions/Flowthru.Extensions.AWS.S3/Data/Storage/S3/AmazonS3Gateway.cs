@@ -1,5 +1,6 @@
 using System.Net;
 using Amazon;
+using Amazon.Runtime.Credentials;
 using Amazon.S3;
 using Amazon.S3.Model;
 using Microsoft.Extensions.Options;
@@ -151,6 +152,62 @@ public sealed class AmazonS3Gateway : IS3Gateway, IDisposable
     {
       return null;
     }
+  }
+
+  /// <inheritdoc/>
+  /// <remarks>
+  /// <para>
+  /// The access handoff is keyed by a neutral vocabulary a native S3 reader
+  /// interprets: <c>region</c>, <c>endpoint</c> (present only when a custom
+  /// endpoint is configured), <c>url_style</c> (<c>path</c> when path-style
+  /// addressing is forced), and the credential entries
+  /// <c>access_key_id</c> / <c>secret_access_key</c> / <c>session_token</c>.
+  /// </para>
+  /// <para>
+  /// Credentials are resolved through the same default chain the client
+  /// itself uses — environment variables, shared profile, ECS/EC2 role — so
+  /// the handoff carries exactly what a read or write through this gateway
+  /// would use. It is minted per call and never stored; an unresolvable
+  /// chain throws, which the medium lifts into a <c>FlowIO</c> failure.
+  /// </para>
+  /// </remarks>
+  public async Task<ByteLocation> LocateObject(string bucket, string key, CancellationToken ct)
+  {
+    ct.ThrowIfCancellationRequested();
+
+    var access = new Dictionary<string, string>();
+    var config = _client.Config;
+    if (config.RegionEndpoint is not null)
+    {
+      access["region"] = config.RegionEndpoint.SystemName;
+    }
+    if (!string.IsNullOrWhiteSpace(config.ServiceURL))
+    {
+      access["endpoint"] = config.ServiceURL;
+    }
+    if (config is AmazonS3Config { ForcePathStyle: true })
+    {
+      access["url_style"] = "path";
+    }
+
+    var chain = await DefaultAWSCredentialsIdentityResolver
+      .GetCredentialsAsync(config)
+      .ConfigureAwait(false);
+    var credentials = await chain.GetCredentialsAsync().ConfigureAwait(false);
+    if (!string.IsNullOrEmpty(credentials.AccessKey))
+    {
+      access["access_key_id"] = credentials.AccessKey;
+    }
+    if (!string.IsNullOrEmpty(credentials.SecretKey))
+    {
+      access["secret_access_key"] = credentials.SecretKey;
+    }
+    if (credentials.UseToken)
+    {
+      access["session_token"] = credentials.Token;
+    }
+
+    return new ByteLocation.RemoteUri(new Uri($"s3://{bucket}/{key}"), access);
   }
 
   /// <inheritdoc/>

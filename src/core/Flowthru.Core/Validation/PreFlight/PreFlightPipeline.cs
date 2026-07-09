@@ -16,10 +16,12 @@ namespace Flowthru.Validation.PreFlight;
 /// I/O boundary (see <see cref="PreFlightScope"/>):
 /// <list type="bullet">
 ///   <item><b>Hermetic</b> (run at every scope): C# service-dependency DI
-///   registration presence, and dispatcher presence for
-///   <see cref="ServiceDependency.External"/> refs.</item>
+///   registration presence, dispatcher presence for
+///   <see cref="ServiceDependency.External"/> refs, and
+///   <see cref="IFlowValidationHook"/>s that self-classify as hermetic via
+///   <see cref="IFlowValidationHook.MinimumDepth"/>.</item>
 ///   <item><b>Full only</b>: adapter-internal inspections of every input
-///   item, registered <see cref="IFlowValidationHook"/>s, caller-supplied
+///   item, non-hermetic <see cref="IFlowValidationHook"/>s, caller-supplied
 ///   service inspections, and <c>dispatcher.Inspect</c> probes.</item>
 /// </list>
 /// </summary>
@@ -64,8 +66,10 @@ public static class PreFlightPipeline
   /// <param name="scope">
   /// The I/O boundary. <see cref="PreFlightScope.Full"/> (default) runs
   /// every layer; <see cref="PreFlightScope.Hermetic"/> runs only the
-  /// zero-I/O checks (C# DI-presence and dispatcher presence) and skips
-  /// adapter inspection, hooks, service probes, and <c>dispatcher.Inspect</c>.
+  /// hermetic checks (C# DI-presence, dispatcher presence, and hooks whose
+  /// <see cref="IFlowValidationHook.MinimumDepth"/> is Hermetic) and skips
+  /// adapter inspection, non-hermetic hooks, service probes, and
+  /// <c>dispatcher.Inspect</c>.
   /// </param>
   /// <param name="serviceProviderIsService">
   /// DI-registration query used by the hermetic C# service-dependency
@@ -137,6 +141,23 @@ public static class PreFlightPipeline
               )
             ));
           }
+        }
+      }
+
+      // Layer 0.5 (hermetic — runs at every scope) — bulk-transfer rung
+      // negotiation. Each transfer step's endpoints negotiated (lazily,
+      // once) which execution rung the pairing runs on; probing endpoint
+      // capabilities is type tests and identity metadata only, so an
+      // offline smoke test still catches a transfer with no executable
+      // rung. The pipeline folds each verdict into the aggregate; a
+      // successful negotiation's selected rung is reported by the host
+      // alongside the other plan decisions.
+      foreach (var step in flow.Steps)
+      {
+        foreach (var output in step.Outputs)
+        {
+          if (output is not IBulkTransferEndpoint endpoint) continue;
+          aggregated.Add(endpoint.Negotiation.Map(_ => FlowUnit.Default));
         }
       }
 
@@ -245,12 +266,23 @@ public static class PreFlightPipeline
         aggregated.AddRange(perInput);
       }
 
-      // Layer 2 (Full scope only — hooks are caller black boxes that may
-      // probe files/endpoints) — caller-supplied flow validation hooks.
-      if (scope == PreFlightScope.Full && hooks is not null)
+      // Layer 2 — caller-supplied flow validation hooks. Hooks
+      // self-classify on the I/O ladder via MinimumDepth: at Hermetic
+      // scope only hooks that declare themselves hermetic (their check
+      // reaches nothing outside the process) run; Full scope runs every
+      // hook supplied. The caller (FlowthruService) additionally filters
+      // by the run's exact depth, so a Deep-only hook never reaches a
+      // Shallow run.
+      if (hooks is not null)
       {
         foreach (var hook in hooks)
         {
+          if (scope != PreFlightScope.Full
+              && hook.MinimumDepth > Flow.ValidationDepth.Hermetic)
+          {
+            continue;
+          }
+
           var result = await hook.Validate(flow).Run(ct).ConfigureAwait(false);
           aggregated.Add(result switch
           {

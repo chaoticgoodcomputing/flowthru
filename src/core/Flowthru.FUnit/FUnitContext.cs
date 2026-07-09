@@ -1,7 +1,9 @@
 using System.Reflection;
 using Flowthru.Data.Catalog;
 using Flowthru.Data.Storage;
+using Flowthru.Flow;
 using Flowthru.Prelude;
+using Flowthru.Validation.PreFlight;
 using Flowthru.Validation.Runtime;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -179,6 +181,23 @@ public class FUnitContext : IDisposable
     IFlowSink<A> sink,
     CancellationToken cancellationToken = default
   ) => source.Compile().Into(sink).Run(cancellationToken);
+
+  /// <summary>
+  /// Run pre-flight bulk-transfer rung negotiation against a source /
+  /// target item pair — the same decision
+  /// <c>FlowBuilder.AddBulkTransfer(...)</c> reaches at pre-flight — so a
+  /// test can assert the selected <see cref="BulkTransferRung"/> (or the
+  /// accumulated negotiation errors) without building a flow. Negotiation
+  /// is zero-I/O, so the call is safe against catalog items whose backing
+  /// media don't exist in the test environment.
+  /// </summary>
+  protected Validated<PreFlightError, BulkTransferDecision> NegotiateTransfer<T>(
+    IItem<IEnumerable<T>> source,
+    IItem<IEnumerable<T>> target,
+    BulkTransferOptions? options = null
+  )
+    where T : notnull =>
+    BulkTransferNegotiation.Negotiate(source, target, options);
 
   /// <summary>
   /// Run pre-flight <see cref="INode.Validate"/> on any DAG node and

@@ -62,6 +62,26 @@ public abstract record StepUncacheableReason
   public sealed record UnfingerprintableInput(string ItemLabel) : StepUncacheableReason;
 
   /// <summary>
+  /// The step itself declared that it must not be cached, via
+  /// <see cref="Flowthru.Step.IStepNode.DeclaredUncacheableReason"/>.
+  /// Used by step types whose transform identity isn't fully captured
+  /// by <see cref="Flowthru.Step.IStepNode.CodeVersion"/> — e.g. a step
+  /// whose behaviour is driven by wire-up data (a remote script, an
+  /// opaque callback) that cannot be reduced to a stable
+  /// <see cref="Flowthru.Step.IStepNode.DeclaredCacheIdentity"/> token.
+  /// Caching such a step would risk serving stale output after the
+  /// wire-up data changes, so the step opts out loudly instead of
+  /// silently. Steps whose wire-up data <em>can</em> be fingerprinted
+  /// (e.g. SQL text hashed into the identity) should declare it through
+  /// <c>DeclaredCacheIdentity</c> and stay cacheable.
+  /// </summary>
+  /// <param name="Reason">
+  /// Human-readable explanation supplied by the step — rendered
+  /// verbatim wherever uncacheable reasons surface.
+  /// </param>
+  public sealed record DeclaredByStep(string Reason) : StepUncacheableReason;
+
+  /// <summary>
   /// Render this reason as a single-line human-readable string suitable
   /// for log lines and CLI output. Per-case formatting keeps the
   /// structured information accessible without a switch at every call
@@ -73,6 +93,7 @@ public abstract record StepUncacheableReason
     HasServiceDependencies sd => $"declares {sd.Count} service dependency(ies) — service state can't be fingerprinted",
     CascadeFromStep cs => $"cascaded from uncacheable parent step '{cs.ParentStepLabel}'",
     UnfingerprintableInput ui => $"input '{ui.ItemLabel}' is unfingerprintable (likely a .Memory() adapter)",
+    DeclaredByStep db => db.Reason,
     _ => throw new InvalidOperationException(
       $"Unreachable: StepUncacheableReason is a closed sum, got {GetType().Name}."),
   };

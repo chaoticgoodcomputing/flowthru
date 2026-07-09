@@ -180,6 +180,37 @@ public class CachePlanBuilderTests
   }
 
   [Test]
+  public async Task StepDeclaringItselfUncacheable_IsUncacheable_WithItsOwnReason()
+  {
+    // Even with a CodeVersion, fingerprintable inputs, and a matching
+    // manifest — everything else says "cacheable" — a step-declared
+    // opt-out wins, and the plan carries the step's reason verbatim so
+    // the decision is never silent.
+    var input = new FakeFingerprintItem<int>("in", fingerprint: "fp-in", exists: true);
+    var output = new FakeFingerprintItem<int>("out", fingerprint: "fp-out", exists: true);
+    var step = new SelfDeclaredUncacheableStep(
+      MakeStep("transform", "code-v1", input, output),
+      new StepUncacheableReason.DeclaredByStep("query text isn't fingerprinted yet")
+    );
+    var flow = BuildFlow(step);
+
+    var composite = CachePlanBuilder.ComposeStepFingerprint(
+      "code-v1", new[] { ("in", "fp-in") });
+    var manifest = Manifest(
+      steps: new[] { ("transform", composite) },
+      items: new[] { ("in", "fp-in") });
+
+    var plan = await CachePlanBuilder.BuildAsync(flow, manifest);
+
+    Assert.That(plan.UncacheableStepLabels, Is.EquivalentTo(new[] { "transform" }),
+      "A step-declared opt-out must override every other eligibility signal.");
+    var reason = plan.UncacheableReasons["transform"];
+    Assert.That(reason, Is.InstanceOf<StepUncacheableReason.DeclaredByStep>());
+    Assert.That(reason.Describe(), Is.EqualTo("query text isn't fingerprinted yet"),
+      "DeclaredByStep renders the step's own reason verbatim.");
+  }
+
+  [Test]
   public async Task StepWithUnfingerprintableInput_IsUncacheable()
   {
     var input = new FakeFingerprintItem<int>("in", fingerprint: null, exists: true);
@@ -312,6 +343,145 @@ public class CachePlanBuilderTests
 
     Assert.That(plan.FreshStepLabels, Is.EquivalentTo(new[] { "B" }));
     Assert.That(plan.StaleStepLabels, Is.EquivalentTo(new[] { "A" }));
+  }
+
+  // ── Declared cache identity (query-bearing steps, #138) ───────────────
+
+  [Test]
+  public void ComposeStepFingerprint_NullDeclaredIdentity_MatchesLegacyShape()
+  {
+    // Back-compat pin: a step without a declared identity must compose
+    // byte-identically to the pre-seam shape, so manifests recorded
+    // before the seam existed keep serving hits for ordinary steps.
+    var inputs = new[] { ("in", "fp-in") };
+    Assert.That(
+      CachePlanBuilder.ComposeStepFingerprint("code-v1", inputs, declaredCacheIdentity: null),
+      Is.EqualTo(CachePlanBuilder.ComposeStepFingerprint("code-v1", inputs)));
+  }
+
+  [Test]
+  public void ComposeStepFingerprint_DeclaredIdentity_ChangesTheComposite()
+  {
+    var inputs = new[] { ("in", "fp-in") };
+    var without = CachePlanBuilder.ComposeStepFingerprint("code-v1", inputs);
+    var withA = CachePlanBuilder.ComposeStepFingerprint("code-v1", inputs, "sql:aaa");
+    var withB = CachePlanBuilder.ComposeStepFingerprint("code-v1", inputs, "sql:bbb");
+
+    Assert.Multiple(() =>
+    {
+      Assert.That(withA, Is.Not.EqualTo(without),
+        "Declaring an identity must move the composite — otherwise the wire-up data "
+        + "is invisible to the cache.");
+      Assert.That(withA, Is.Not.EqualTo(withB),
+        "Different declared identities must produce different composites.");
+      Assert.That(withA,
+        Is.EqualTo(CachePlanBuilder.ComposeStepFingerprint("code-v1", inputs, "sql:aaa")),
+        "The composition must be deterministic for a fixed identity.");
+    });
+  }
+
+  [Test]
+  public async Task StepWithDeclaredCacheIdentity_MatchingManifest_IsFresh()
+  {
+    var input = new FakeFingerprintItem<int>("in", fingerprint: "fp-in", exists: true);
+    var output = new FakeFingerprintItem<int>("out", fingerprint: "fp-out", exists: true);
+    var step = new DeclaredIdentityStep(
+      MakeStep("transform", "code-v1", input, output), "sql:v1");
+    var flow = BuildFlow(step);
+
+    var composite = CachePlanBuilder.ComposeStepFingerprint(
+      "code-v1", new[] { ("in", "fp-in") }, "sql:v1");
+    var manifest = Manifest(
+      steps: new[] { ("transform", composite) },
+      items: new[] { ("in", "fp-in") });
+
+    var plan = await CachePlanBuilder.BuildAsync(flow, manifest);
+
+    Assert.That(plan.FreshStepLabels, Is.EquivalentTo(new[] { "transform" }),
+      "Unchanged declared identity + unchanged inputs + existing output → cache hit. "
+      + "A declaring step is first-class cacheable, not a special case.");
+    Assert.That(plan.UncacheableStepLabels, Is.Empty);
+  }
+
+  [Test]
+  public async Task ChangedDeclaredCacheIdentity_MakesStepStale()
+  {
+    var input = new FakeFingerprintItem<int>("in", fingerprint: "fp-in", exists: true);
+    var output = new FakeFingerprintItem<int>("out", fingerprint: "fp-out", exists: true);
+    var step = new DeclaredIdentityStep(
+      MakeStep("transform", "code-v1", input, output), "sql:v2-edited");
+    var flow = BuildFlow(step);
+
+    // Manifest recorded under the previous identity — the query has
+    // since been edited, so nothing else about the step changed.
+    var recorded = CachePlanBuilder.ComposeStepFingerprint(
+      "code-v1", new[] { ("in", "fp-in") }, "sql:v1");
+    var manifest = Manifest(
+      steps: new[] { ("transform", recorded) },
+      items: new[] { ("in", "fp-in") });
+
+    var plan = await CachePlanBuilder.BuildAsync(flow, manifest);
+
+    Assert.That(plan.StaleStepLabels, Is.EquivalentTo(new[] { "transform" }),
+      "A changed declared identity must invalidate even though code version, inputs, "
+      + "and outputs are all unchanged — the wire-up data IS the transform.");
+  }
+
+  [Test]
+  public async Task Cascade_StaleDeclaredIdentityParent_ForcesChildStale()
+  {
+    // Downstream-of-engine-step behaviour follows the existing cascade
+    // rules unchanged: the declared identity only moves the parent's
+    // own verdict, and the verdict cascades exactly like any other.
+    var seedInput = new FakeFingerprintItem<int>("seed", fingerprint: "fp-seed", exists: true);
+    var mid = new FakeFingerprintItem<int>("mid", fingerprint: "fp-mid", exists: true);
+    var output = new FakeFingerprintItem<int>("out", fingerprint: "fp-out", exists: true);
+
+    var stepA = new DeclaredIdentityStep(
+      MakeStep("A", "code-A-v1", seedInput, mid), "sql:edited");
+    var stepB = MakeStep("B", "code-B-v1", mid, output);
+    var flow = BuildFlow(stepA, stepB);
+
+    var recordedA = CachePlanBuilder.ComposeStepFingerprint(
+      "code-A-v1", new[] { ("seed", "fp-seed") }, "sql:original");
+    var compositeB = CachePlanBuilder.ComposeStepFingerprint(
+      "code-B-v1", new[] { ("mid", "fp-mid") });
+    var manifest = Manifest(
+      steps: new[] { ("A", recordedA), ("B", compositeB) },
+      items: new[] { ("seed", "fp-seed"), ("mid", "fp-mid") });
+
+    var plan = await CachePlanBuilder.BuildAsync(flow, manifest);
+
+    Assert.That(plan.StaleStepLabels, Is.EquivalentTo(new[] { "A", "B" }),
+      "Editing the parent's wire-up data invalidates the parent AND cascades to the "
+      + "child, even though the child's own composite still matches the manifest.");
+  }
+
+  [Test]
+  public async Task Cascade_FreshDeclaredIdentityParent_LeavesChildFresh()
+  {
+    var seedInput = new FakeFingerprintItem<int>("seed", fingerprint: "fp-seed", exists: true);
+    var mid = new FakeFingerprintItem<int>("mid", fingerprint: "fp-mid", exists: true);
+    var output = new FakeFingerprintItem<int>("out", fingerprint: "fp-out", exists: true);
+
+    var stepA = new DeclaredIdentityStep(
+      MakeStep("A", "code-A-v1", seedInput, mid), "sql:v1");
+    var stepB = MakeStep("B", "code-B-v1", mid, output);
+    var flow = BuildFlow(stepA, stepB);
+
+    var compositeA = CachePlanBuilder.ComposeStepFingerprint(
+      "code-A-v1", new[] { ("seed", "fp-seed") }, "sql:v1");
+    var compositeB = CachePlanBuilder.ComposeStepFingerprint(
+      "code-B-v1", new[] { ("mid", "fp-mid") });
+    var manifest = Manifest(
+      steps: new[] { ("A", compositeA), ("B", compositeB) },
+      items: new[] { ("seed", "fp-seed"), ("mid", "fp-mid") });
+
+    var plan = await CachePlanBuilder.BuildAsync(flow, manifest);
+
+    Assert.That(plan.FreshStepLabels, Is.EquivalentTo(new[] { "A", "B" }),
+      "A declaring parent whose identity is unchanged behaves like any other fresh "
+      + "parent — its children stay cache-eligible and fresh.");
   }
 
   // ── Uncacheable reason capture (regression: MagicAtlas Bug 3) ─────────
@@ -514,6 +684,60 @@ public class CachePlanBuilderTests
     {
       foreach (var step in steps) b.Add(step);
     });
+
+  /// <summary>
+  /// Decorator that adds a <see cref="IStepNode.DeclaredUncacheableReason"/>
+  /// to an otherwise perfectly cacheable step — the shape an
+  /// engine-transform step (whose behaviour lives in wire-up data) uses
+  /// to opt out of caching loudly.
+  /// </summary>
+  private sealed class SelfDeclaredUncacheableStep : IStepNode
+  {
+    private readonly IStepNode _inner;
+
+    public SelfDeclaredUncacheableStep(IStepNode inner, StepUncacheableReason reason)
+    {
+      _inner = inner;
+      DeclaredUncacheableReason = reason;
+    }
+
+    public StepUncacheableReason? DeclaredUncacheableReason { get; }
+    public string Label => _inner.Label;
+    public NodeTraits Traits => _inner.Traits;
+    public string? CodeVersion => _inner.CodeVersion;
+    public IReadOnlyList<IItem> Inputs => _inner.Inputs;
+    public IReadOnlyList<IItem> Outputs => _inner.Outputs;
+    public IReadOnlyList<ServiceDependency> ServiceDependencies => _inner.ServiceDependencies;
+    public FlowIO<ValidationResult> Validate() => _inner.Validate();
+    public FlowIO<FlowUnit> Execute() => _inner.Execute();
+  }
+
+  /// <summary>
+  /// Decorator that adds a <see cref="IStepNode.DeclaredCacheIdentity"/>
+  /// to an otherwise ordinary cacheable step — the shape a query-bearing
+  /// step (whose output-affecting behaviour lives in wire-up data such
+  /// as SQL text) uses to stay cacheable with that data in the key.
+  /// </summary>
+  private sealed class DeclaredIdentityStep : IStepNode
+  {
+    private readonly IStepNode _inner;
+
+    public DeclaredIdentityStep(IStepNode inner, string identity)
+    {
+      _inner = inner;
+      DeclaredCacheIdentity = identity;
+    }
+
+    public string? DeclaredCacheIdentity { get; }
+    public string Label => _inner.Label;
+    public NodeTraits Traits => _inner.Traits;
+    public string? CodeVersion => _inner.CodeVersion;
+    public IReadOnlyList<IItem> Inputs => _inner.Inputs;
+    public IReadOnlyList<IItem> Outputs => _inner.Outputs;
+    public IReadOnlyList<ServiceDependency> ServiceDependencies => _inner.ServiceDependencies;
+    public FlowIO<ValidationResult> Validate() => _inner.Validate();
+    public FlowIO<FlowUnit> Execute() => _inner.Execute();
+  }
 
   private static CacheManifest Manifest(
     (string Label, string Value)[]? steps = null,

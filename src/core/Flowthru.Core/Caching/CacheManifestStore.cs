@@ -187,9 +187,11 @@ public static class CacheManifestStore
     {
       cancellationToken.ThrowIfCancellationRequested();
 
-      // Eligibility mirrors CachePlanBuilder: a dep is cache-neutral when
-      // it's ObservationOnly or its profile declares AffectsOutputs=false.
-      if (step.CodeVersion is null
+      // Eligibility mirrors CachePlanBuilder: a step-declared opt-out
+      // wins outright, and a dep is cache-neutral when it's
+      // ObservationOnly or its profile declares AffectsOutputs=false.
+      if (step.DeclaredUncacheableReason is not null
+          || step.CodeVersion is null
           || step.ServiceDependencies.Any(r =>
                r is not ServiceDependency.ObservationOnly
                && serviceProfiles.Resolve(r).AffectsOutputs))
@@ -229,7 +231,8 @@ public static class CacheManifestStore
       }
 
       stepComposites[step.Label] = CachePlanBuilder
-        .ComposeStepFingerprint(step.CodeVersion!, inputContributions);
+        .ComposeStepFingerprint(
+          step.CodeVersion!, inputContributions, step.DeclaredCacheIdentity);
 
       // Also fingerprint outputs — fresh on disk now that the step ran.
       foreach (var output in step.Outputs)

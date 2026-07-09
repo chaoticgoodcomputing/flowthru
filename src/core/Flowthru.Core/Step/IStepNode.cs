@@ -91,6 +91,62 @@ public interface IStepNode : INode
   string? CodeVersion => null;
 
   /// <summary>
+  /// Non-null when this step declares itself uncacheable regardless of
+  /// its other cache eligibility. The cache planner records the returned
+  /// reason verbatim, so the opt-out is always observable — in pre-flight
+  /// logging, in the JSON metadata projection, and anywhere else
+  /// uncacheable reasons surface. Default-interface implementation
+  /// returns <c>null</c>: ordinary steps don't opt out.
+  /// </summary>
+  /// <remarks>
+  /// Intended for step types whose transform behaviour is driven by
+  /// wire-up data the cache identity doesn't fingerprint. Such a step
+  /// must never be cached under an identity blind to that data — a
+  /// silent stale hit after the data changes is exactly the failure
+  /// smart caching exists to prevent — and must never be
+  /// <em>silently</em> uncacheable either, which is why the opt-out
+  /// carries a mandatory reason rather than being a bare flag. When the
+  /// wire-up data <em>can</em> be reduced to a stable token, prefer
+  /// declaring it through <see cref="DeclaredCacheIdentity"/> so the
+  /// step stays cacheable; opt out only when it can't.
+  /// </remarks>
+  Caching.StepUncacheableReason? DeclaredUncacheableReason => null;
+
+  /// <summary>
+  /// The step's declared contribution to its own cache identity — an
+  /// opaque token folded into the composite cache fingerprint alongside
+  /// <see cref="CodeVersion"/> and the step's input fingerprints.
+  /// Default-interface implementation returns <c>null</c>: ordinary
+  /// steps contribute nothing beyond their compiled code identity.
+  /// </summary>
+  /// <remarks>
+  /// <para>
+  /// <see cref="CodeVersion"/> identifies a step's <em>compiled</em>
+  /// transform logic, but some step types carry output-affecting
+  /// behaviour in <em>wire-up data</em> instead — a SQL string supplied
+  /// at <c>AddStep</c> time, the version of an external engine that
+  /// executes it, output-format options. Without this member such data
+  /// is invisible to the cache: editing a query would silently serve
+  /// stale cached output. Steps declare a token here that changes
+  /// whenever any output-affecting wire-up data changes, and the cache
+  /// planner folds it into the step's composite fingerprint wherever
+  /// code version and input fingerprints combine.
+  /// </para>
+  /// <para>
+  /// <strong>Contract.</strong> The token must be deterministic and
+  /// stable across processes and runs (compared ordinally), must change
+  /// whenever any wire-up data that can change the step's outputs
+  /// changes, and should exclude purely operational tuning (memory
+  /// limits, thread counts) that cannot alter output values. Returning
+  /// an unstable value (e.g. something time- or instance-derived)
+  /// degrades to permanent cache misses — safe, but defeats caching.
+  /// Steps whose wire-up data cannot be reduced to such a token must
+  /// use <see cref="DeclaredUncacheableReason"/> instead.
+  /// </para>
+  /// </remarks>
+  string? DeclaredCacheIdentity => null;
+
+  /// <summary>
   /// Items this step reads at the start of <see cref="Execute"/>.
   /// </summary>
   IReadOnlyList<IItem> Inputs { get; }

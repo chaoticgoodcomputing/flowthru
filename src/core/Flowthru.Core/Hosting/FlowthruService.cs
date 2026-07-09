@@ -548,10 +548,22 @@ public sealed class FlowthruService : IFlowthruService
         _ => InspectionLevel.None,
       };
 
-      // Caller-supplied hooks/probes are skipped at Hermetic scope (they
-      // may do I/O); pass null there so the intent is explicit at the call
-      // site rather than relying on the pipeline's scope guard alone.
-      var hooks = fullScope ? _registry.ValidationHooks : null;
+      // Flow validation hooks come from two surfaces: instances added via
+      // builder.RegisterValidationHook(hook), and DI registrations
+      // (extension Use*() methods register AddSingleton<IFlowValidationHook, …>,
+      // the same plural-surface shape as the service-ref dispatchers below).
+      // Hooks self-classify on the I/O ladder via MinimumDepth, so admit
+      // exactly the hooks the run's depth allows — a Hermetic run keeps its
+      // hermetic-classified hooks (their checks reach nothing outside the
+      // process) while every live-probing hook (default Shallow) is skipped.
+      var hooks = _registry.ValidationHooks
+        .Concat(_services.GetServices<Flowthru.Validation.PreFlight.IFlowValidationHook>())
+        .Where(h => h.MinimumDepth <= options.ValidationDepth)
+        .ToList();
+
+      // Caller-supplied service probes are Full-scope only (they reach live
+      // resources); pass null at Hermetic scope so the intent is explicit at
+      // the call site rather than relying on the pipeline's scope guard alone.
       var probes = fullScope
         ? _registry.Inspectors.Select(reg => reg.Probe(_services)).ToList()
         : null;
@@ -610,6 +622,25 @@ public sealed class FlowthruService : IFlowthruService
         "  ✓ Pre-flight passed ({Duration:F2} ms)",
         preFlightStopwatch.Elapsed.TotalMilliseconds
       );
+
+      // Report each bulk transfer's negotiated rung as part of the
+      // validated plan. Selection happened during pre-flight (the
+      // endpoints negotiate once, lazily, and the pipeline forced the
+      // verdict above); logging it here keeps a downgrade to the
+      // streaming fallback visible in the run output rather than silent —
+      // the same signal discipline as the uncacheable-step lines below.
+      foreach (var step in effectiveFlow.Steps)
+      {
+        foreach (var output in step.Outputs)
+        {
+          if (output is not IBulkTransferEndpoint endpoint) continue;
+          if (endpoint.Negotiation is not Validated<PreFlightError, BulkTransferDecision>.Valid valid) continue;
+          _logger.LogInformation(
+            "  ⇄ {StepLabel} transfer rung: {Rung} — {Reason}",
+            valid.Value.StepLabel, valid.Value.Rung, valid.Value.Reason
+          );
+        }
+      }
 
       // Pre-flight passed — build the cache plan from the
       // framework-managed manifest. Plan is consumed by the scheduler
@@ -812,6 +843,7 @@ public sealed class FlowthruService : IFlowthruService
           PreFlightError.DuplicateProducer dp => $"preflight:dag:{dp.ItemId}",
           PreFlightError.CircularDependency => $"preflight:dag:cycle[{i}]",
           PreFlightError.DuplicateLabel dl => $"preflight:dag:label:{dl.Scope}:{dl.Label}",
+          PreFlightError.BulkTransferRungUnavailable bt => $"preflight:transfer:{bt.StepLabel}",
           PreFlightError.RegistrationCheckFailed rcf => $"preflight:registration:{rcf.HookId}",
           PreFlightError.External ext => $"preflight:external:{ext.Cause.Category}",
           _ => $"preflight:[{i}]",

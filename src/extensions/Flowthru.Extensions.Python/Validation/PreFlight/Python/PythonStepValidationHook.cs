@@ -1,4 +1,5 @@
 using System.Reflection;
+using Flowthru.Data.Schema;
 using Flowthru.Flow;
 using Flowthru.Prelude;
 using Flowthru.Step;
@@ -183,19 +184,21 @@ public sealed class PythonStepValidationHook : IFlowValidationHook
     List<PreFlightError> failures,
     string stepLabel,
     PythonSchemaSide side,
-    IReadOnlyList<string> csNames,
+    IReadOnlyList<string?> csNames,
     IReadOnlyList<string> declaredNames
   )
   {
     var common = Math.Min(csNames.Count, declaredNames.Count);
     for (var i = 0; i < common; i++)
     {
-      if (csNames[i] == declaredNames[i]) continue;
+      // A null entry is a non-schema payload position (byte[] artifact,
+      // directory, scalar): arity is still checked, names are not.
+      if (csNames[i] is null || csNames[i] == declaredNames[i]) continue;
       failures.Add(new PreFlightError.External(new PythonPreFlightError.SchemaNameMismatch(
         StepLabel: stepLabel,
         Side: side,
         Position: i,
-        ExpectedName: csNames[i],
+        ExpectedName: csNames[i]!,
         ActualName: declaredNames[i]
       )));
     }
@@ -235,9 +238,14 @@ public sealed class PythonStepValidationHook : IFlowValidationHook
   /// parameter. Handles ValueTuple (multi-I/O), <c>IEnumerable&lt;T&gt;</c>
   /// (tabular), and bare scalar/byte[] types. Each entry's name is
   /// the underlying schema type's <c>Type.Name</c> — matched
-  /// for string equality against decorator-declared names.
+  /// for string equality against decorator-declared names. A position
+  /// whose underlying type is not a <c>[FlowthruSchema]</c> type (a
+  /// <c>byte[]</c> artifact, a directory payload, a plain scalar) has
+  /// no C# schema name to agree with — the decorator's name there is
+  /// descriptive, not a schema binding — so the entry is <c>null</c>
+  /// and the position is exempt from name comparison.
   /// </summary>
-  private static IReadOnlyList<string> ExtractSchemaNames(Type type)
+  private static IReadOnlyList<string?> ExtractSchemaNames(Type type)
   {
     if (IsValueTuple(type))
     {
@@ -246,13 +254,14 @@ public sealed class PythonStepValidationHook : IFlowValidationHook
     return new[] { ExtractSingleSchemaName(type) };
   }
 
-  private static string ExtractSingleSchemaName(Type type)
+  private static string? ExtractSingleSchemaName(Type type)
   {
-    if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(IEnumerable<>))
-    {
-      return type.GetGenericArguments()[0].Name;
-    }
-    return type.Name;
+    var underlying = type.IsGenericType && type.GetGenericTypeDefinition() == typeof(IEnumerable<>)
+      ? type.GetGenericArguments()[0]
+      : type;
+    return underlying.IsDefined(typeof(FlowthruSchemaAttribute), inherit: false)
+      ? underlying.Name
+      : null;
   }
 
   private static bool IsValueTuple(Type type)
