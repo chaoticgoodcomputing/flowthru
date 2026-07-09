@@ -1,3 +1,13 @@
+## 0.28.1 (2026-07-09)
+
+### 🩹 Fixes
+
+- DuckDB and server-to-server architecture ([#145](https://github.com/chaoticgoodcomputing/flowthru/pull/145), [#133](https://github.com/chaoticgoodcomputing/flowthru/issues/133), [#135](https://github.com/chaoticgoodcomputing/flowthru/issues/135), [#136](https://github.com/chaoticgoodcomputing/flowthru/issues/136), [#137](https://github.com/chaoticgoodcomputing/flowthru/issues/137), [#138](https://github.com/chaoticgoodcomputing/flowthru/issues/138), [#134](https://github.com/chaoticgoodcomputing/flowthru/issues/134), [#139](https://github.com/chaoticgoodcomputing/flowthru/issues/139), [#129](https://github.com/chaoticgoodcomputing/flowthru/issues/129), [#126](https://github.com/chaoticgoodcomputing/flowthru/issues/126), [#127](https://github.com/chaoticgoodcomputing/flowthru/issues/127))
+
+### ❤️ Thank You
+
+- Spencer Elkington
+
 ## 0.28.0 (2026-07-07)
 
 ### 🚀 Features

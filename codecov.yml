@@ -34,6 +34,8 @@ flags:
     carryforward: true
   Flowthru.Extensions.Csv.Tests:
     carryforward: true
+  Flowthru.Extensions.DuckDB.Tests:
+    carryforward: true
   Flowthru.Extensions.EFCore.Bulk.Tests:
     carryforward: true
   Flowthru.Extensions.EFCore.Npgsql.Tests:
