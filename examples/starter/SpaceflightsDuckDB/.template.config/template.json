@@ -1,0 +1,48 @@
+{
+  "$schema": "http://json.schemastore.org/template",
+  "author": "Chaotic Good Computing",
+  "classifications": [
+    "Data Engineering",
+    "Data Science",
+    "Flow",
+    "Kedro",
+    "DuckDB",
+    "SQL"
+  ],
+  "identity": "Flowthru.Starter.SpaceflightsDuckDB",
+  "name": "Flowthru Starter: Spaceflights (DuckDB)",
+  "shortName": "Flowthru.SpaceflightsDuckDB",
+  "description": "Spaceflights pipeline with the join and aggregate stages written as SQL, executed inside the embedded DuckDB engine",
+  "tags": {
+    "language": "C#",
+    "type": "project"
+  },
+  "sourceName": "SpaceflightsDuckDB",
+  "preferNameDirectory": true,
+  "symbols": {
+    "FlowthruVersion": {
+      "type": "parameter",
+      "dataType": "string",
+      "defaultValue": "0.25.0",
+      "replaces": "FlowthruVersion",
+      "description": "Flowthru package version (auto-injected at pack time)"
+    }
+  },
+  "primaryOutputs": [
+    {
+      "path": "SpaceflightsDuckDB.csproj"
+    }
+  ],
+  "postActions": [
+    {
+      "description": "Restore NuGet packages",
+      "manualInstructions": [
+        {
+          "text": "Run 'dotnet restore'"
+        }
+      ],
+      "actionId": "210D431B-A78B-4D2F-B762-4ED3E3EA9025",
+      "continueOnError": true
+    }
+  ]
+}

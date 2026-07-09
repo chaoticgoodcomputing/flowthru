@@ -1,0 +1,39 @@
+<!--
+  Directory.Packages.props — per-template Central Package Management.
+
+  This file is shipped as part of the template content. When the template is
+  instantiated by `dotnet new`, this file lands alongside the csproj in the
+  user's directory. The csproj uses <PackageReference Include="X" /> (no
+  Version) and resolves against the PackageVersion entries below.
+
+  In-repo, this file is shadowed by our repo-root Directory.Packages.props
+  (MSBuild walks up from the csproj and finds the nearest one first). The
+  root file always declares the same versions, so in-repo and template-
+  instantiated builds resolve to identical package versions.
+-->
+<Project>
+
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+    <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
+    <PackageVersion Include="NUnit" Version="4.2.2" />
+    <PackageVersion Include="NUnit.Analyzers" Version="4.4.0" />
+    <PackageVersion Include="NUnit3TestAdapter" Version="4.6.0" />
+  </ItemGroup>
+
+  <!-- Flowthru* packages — Version is replaced by the template engine at instantiation time.
+       Skipped in-repo: the consuming csproj uses <ProjectReference> directly to
+       src/core/Flowthru.* during monorepo development; the literal "FlowthruVersion"
+       placeholder would otherwise fail NuGet's PackageVersion validation at restore. -->
+  <ItemGroup Condition="'$(RepoRoot)' == ''">
+    <PackageVersion Include="Flowthru" Version="FlowthruVersion" />
+    <PackageVersion Include="Flowthru.Cli" Version="FlowthruVersion" />
+    <PackageVersion Include="Flowthru.Extensions.DuckDB" Version="FlowthruVersion" />
+    <PackageVersion Include="Flowthru.FUnit" Version="FlowthruVersion" />
+  </ItemGroup>
+
+</Project>
