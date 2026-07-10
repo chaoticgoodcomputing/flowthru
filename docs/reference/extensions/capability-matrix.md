@@ -60,5 +60,5 @@ Medium-level capabilities of each format. See `Flowthru.Data.Storage.StorageTrai
 | **CSV** | ✓ | ✓ | ✓ | ✗ | ✗ |
 | **Excel** | ✓ | — | — | ✗ | ✗ |
 | **Parquet** | ✓ | ✓ | ✓ | ✗ | ✗ |
-| **JSON** | ✓ | ✓ | — | ✗ | ✗ |
+| **JSON** | ✓ | ✓ | ✓ | ✗ | ✗ |
 
