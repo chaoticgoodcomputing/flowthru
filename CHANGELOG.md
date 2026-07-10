@@ -1,3 +1,14 @@
+## 0.29.0 (2026-07-10)
+
+### 🚀 Features
+
+- SpaceflightsDuckDB starter example ([#146](https://github.com/chaoticgoodcomputing/flowthru/pull/146))
+- wide-transform benchmark example with self-ingested profiling ([#147](https://github.com/chaoticgoodcomputing/flowthru/pull/147))
+
+### ❤️ Thank You
+
+- Spencer Elkington
+
 ## 0.28.1 (2026-07-09)
 
 ### 🩹 Fixes

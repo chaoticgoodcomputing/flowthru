@@ -102,6 +102,8 @@ flags:
     carryforward: true
   SpaceflightsDistributed:
     carryforward: true
+  SpaceflightsDuckDB:
+    carryforward: true
   SpaceflightsEFCore:
     carryforward: true
   SpaceflightsEnhanced:
@@ -121,6 +123,8 @@ flags:
   SpaceflightsStagingSchema:
     carryforward: true
   StreamingBulkLoad:
+    carryforward: true
+  WideTransformBenchmark:
     carryforward: true
 component_management:
   individual_components:
