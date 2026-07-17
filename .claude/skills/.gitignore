@@ -1,0 +1,11 @@
+# Dogfood: the public Flowthru skills (umbrella `flowthru` + per-package shards
+# flowthru-<ext> / flowthru-funit) are INSTALLED here from their co-located
+# sources at src/{extensions,core}/<Pkg>/skill/ via `npx skills add .` (see
+# scripts/install-skills.sh). They are install artifacts, not source — never
+# commit them; edit the source under src/ and regenerate/reinstall.
+#
+# flowthru-contributing is this repo's own agent-dev skill and stays committed
+# (the SessionStart hook loads it), so it is re-included below.
+/flowthru/
+/flowthru-*/
+!/flowthru-contributing/

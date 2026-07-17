@@ -28,23 +28,21 @@ import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { join, relative } from 'node:path';
 import { ROOT } from './_lib.mjs';
 
-const SKILL_DIRS = [join(ROOT, '.claude', 'skills', 'flowthru')];
+// Every skill lives co-located in an isolated `src/{extensions,core}/<Pkg>/skill/`
+// subdir — the umbrella (Flowthru.Core) with its subdocs, and each shard.
 const SHARD_DIRS = [join(ROOT, 'src', 'extensions'), join(ROOT, 'src', 'core')];
 
 function skillFiles() {
   const files = [];
-  for (const dir of SKILL_DIRS) {
-    if (!existsSync(dir)) continue;
-    for (const name of readdirSync(dir)) {
-      if (name.endsWith('.md')) files.push(join(dir, name));
-    }
-  }
   for (const dir of SHARD_DIRS) {
     if (!existsSync(dir)) continue;
     for (const entry of readdirSync(dir, { withFileTypes: true })) {
       if (!entry.isDirectory()) continue;
-      const p = join(dir, entry.name, 'SKILL.md');
-      if (existsSync(p)) files.push(p);
+      const skillDir = join(dir, entry.name, 'skill');
+      if (!existsSync(skillDir)) continue;
+      for (const name of readdirSync(skillDir)) {
+        if (name.endsWith('.md')) files.push(join(skillDir, name));
+      }
     }
   }
   return files.sort();

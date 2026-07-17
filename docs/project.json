@@ -106,9 +106,8 @@
         "{workspaceRoot}/docs/tutorials/**/*.md",
         "{workspaceRoot}/docs/guides/**/*.md",
         "{workspaceRoot}/docs/explanation/**/*.md",
-        "{workspaceRoot}/.claude/skills/flowthru/**/*.md",
-        "{workspaceRoot}/src/extensions/*/SKILL.md",
-        "{workspaceRoot}/src/core/*/SKILL.md",
+        "{workspaceRoot}/src/extensions/*/skill/*.md",
+        "{workspaceRoot}/src/core/*/skill/*.md",
         "{workspaceRoot}/scripts/generate-doc-snippets.mjs",
         "{workspaceRoot}/scripts/sync-doc-snippets.mjs"
       ],

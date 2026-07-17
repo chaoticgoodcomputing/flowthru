@@ -28,11 +28,11 @@
       }
     },
     "_inject_flowthru_skill": {
-      "//": "Copies the canonical Flowthru umbrella skill (SKILL.md + its subdocs) into each starter template before packing, landing at .claude/skills/flowthru/ so an instantiated `dotnet new` project is agent-ready with no extra step. The umbrella's extensions.md tells the agent how to pull stack-matched deep skills (`npx skills add chaoticgoodcomputing/flowthru --skill flowthru-<ext>`). Users on a non-Claude harness relocate the dir (or `npx skills add` for their agent). The injected dir is gitignored (see examples/starter/.gitignore) — it exists only at pack time.",
+      "//": "Copies the canonical Flowthru umbrella skill (SKILL.md + its subdocs) from its source at src/core/Flowthru.Core/skill/ into each starter template before packing, landing at .claude/skills/flowthru/ so an instantiated `dotnet new` project is agent-ready with no extra step. The umbrella's extensions.md tells the agent how to pull stack-matched deep skills (`npx skills add chaoticgoodcomputing/flowthru --skill flowthru-<ext>`). Users on a non-Claude harness relocate the dir (or `npx skills add` for their agent). The injected dir is gitignored (see examples/starter/.gitignore) — it exists only at pack time.",
       "executor": "nx:run-commands",
       "options": {
         "commands": [
-          "for dir in examples/starter/*/; do mkdir -p \"$dir.claude/skills/flowthru\" && cp .claude/skills/flowthru/*.md \"$dir.claude/skills/flowthru/\"; done"
+          "for dir in examples/starter/*/; do mkdir -p \"$dir.claude/skills/flowthru\" && cp src/core/Flowthru.Core/skill/*.md \"$dir.claude/skills/flowthru/\"; done"
         ],
         "cwd": "{workspaceRoot}",
         "parallel": false

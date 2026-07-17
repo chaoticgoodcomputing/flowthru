@@ -24,9 +24,8 @@
       "executor": "nx:run-commands",
       "cache": true,
       "inputs": [
-        "{workspaceRoot}/.claude/skills/flowthru/**/*.md",
-        "{workspaceRoot}/src/extensions/*/SKILL.md",
-        "{workspaceRoot}/src/core/*/SKILL.md",
+        "{workspaceRoot}/src/extensions/*/skill/*.md",
+        "{workspaceRoot}/src/core/*/skill/*.md",
         "{workspaceRoot}/scripts/_test/_lib.mjs",
         "{workspaceRoot}/scripts/_test/skill-links.mjs"
       ],
@@ -42,9 +41,9 @@
       "executor": "nx:run-commands",
       "cache": true,
       "inputs": [
-        "{workspaceRoot}/src/extensions/*/SKILL.md",
-        "{workspaceRoot}/src/core/*/SKILL.md",
-        "{workspaceRoot}/.claude/skills/flowthru/extensions.md",
+        "{workspaceRoot}/src/extensions/*/skill/SKILL.md",
+        "{workspaceRoot}/src/core/*/skill/SKILL.md",
+        "{workspaceRoot}/src/core/Flowthru.Core/skill/extensions.md",
         "{workspaceRoot}/.claude-plugin/marketplace.json",
         "{workspaceRoot}/scripts/generate-skill-extensions.mjs"
       ],
