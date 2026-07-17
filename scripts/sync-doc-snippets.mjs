@@ -45,18 +45,21 @@ const ROOT = resolve(__dirname, '..');
 const SNIPPET_DIR = join(ROOT, 'dist', 'examples', 'docs', 'snippets');
 const DOC_SECTIONS = ['docs/tutorials', 'docs/guides', 'docs/explanation'];
 // Skill surfaces that transcribe example source through the same sentinel
-// mechanism: the umbrella skill's subdocs and each per-extension shard.
+// mechanism: the umbrella skill's subdocs and each per-package shard
+// (extensions, plus optional core packages like Flowthru.FUnit).
 const SKILL_SECTIONS = ['.claude/skills/flowthru'];
-const EXTENSIONS_DIR = join(ROOT, 'src', 'extensions');
+const SHARD_DIRS = [join(ROOT, 'src', 'extensions'), join(ROOT, 'src', 'core')];
 
-/** The per-extension shards (`src/extensions/<Ext>/SKILL.md`) that exist today. */
+/** The per-package shards (`src/{extensions,core}/<Pkg>/SKILL.md`) that exist today. */
 function extensionSkillFiles() {
   const out = [];
-  if (!existsSync(EXTENSIONS_DIR)) return out;
-  for (const entry of readdirSync(EXTENSIONS_DIR, { withFileTypes: true })) {
-    if (!entry.isDirectory()) continue;
-    const p = join(EXTENSIONS_DIR, entry.name, 'SKILL.md');
-    if (existsSync(p)) out.push(p);
+  for (const dir of SHARD_DIRS) {
+    if (!existsSync(dir)) continue;
+    for (const entry of readdirSync(dir, { withFileTypes: true })) {
+      if (!entry.isDirectory()) continue;
+      const p = join(dir, entry.name, 'SKILL.md');
+      if (existsSync(p)) out.push(p);
+    }
   }
   return out;
 }

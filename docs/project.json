@@ -108,6 +108,7 @@
         "{workspaceRoot}/docs/explanation/**/*.md",
         "{workspaceRoot}/.claude/skills/flowthru/**/*.md",
         "{workspaceRoot}/src/extensions/*/SKILL.md",
+        "{workspaceRoot}/src/core/*/SKILL.md",
         "{workspaceRoot}/scripts/generate-doc-snippets.mjs",
         "{workspaceRoot}/scripts/sync-doc-snippets.mjs"
       ],

@@ -105,6 +105,7 @@ public static class PredictStep
     /// The step must emit exactly one <see cref="PredictionSchema"/> per input
     /// feature row — output length must equal input length.
     /// </summary>
+    #region docs:step-funit-test
     [FUnitStepTest(typeof(PredictStep))]
     public void ReturnsOnePredictionPerInputRow()
     {
@@ -126,6 +127,7 @@ public static class PredictStep
       // Assert
       Assert.That(predictions, Has.Count.EqualTo(5));
     }
+    #endregion
 
     /// <summary>
     /// The predicted class index must always fall in [0, numClasses-1].

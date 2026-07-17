@@ -38,6 +38,7 @@ public class Program
       .Build();
     services.AddSingleton<IConfiguration>(configuration);
 
+    #region docs:register-flows
     services.AddFlowthru(flowthru =>
     {
       flowthru.RegisterCatalog(_ => new Catalog(basePath));
@@ -52,6 +53,7 @@ public class Program
         .RegisterFlow<Catalog>("Greetings", GreetingsFlow.Create)
         .WithDescription("A minimal pipeline demonstrating name transformation into multiple greeting formats");
     });
+    #endregion
 
     services.AddLogging(logging =>
     {

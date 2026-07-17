@@ -49,9 +49,8 @@ public IItem<IEnumerable<RawSaleSchema>> RawSales =>
     tableName: "RawSales",
     gateway: _sheets));
 ```
+_(source: [`GoogleSheets/Catalog.Raw.cs`](https://github.com/chaoticgoodcomputing/flowthru/blob/main/examples/starter/GoogleSheets/Data/_01_Raw/Catalog.Raw.cs))_
 <!-- flowthru:snippet:docs:item-google-sheets:end -->
-
-_(real source: [GoogleSheets `Catalog.Raw.cs`](https://github.com/chaoticgoodcomputing/flowthru/blob/main/examples/starter/GoogleSheets/Data/_01_Raw/Catalog.Raw.cs))_
 
 ## Gotchas (FTGS diagnostics)
 

@@ -68,7 +68,7 @@ The Examples integration test exercises every worked example, which automaticall
 
 ## The Skill Shard
 
-Every extension ships an agent [[Skill shard]] at `src/extensions/<Extension>/SKILL.md`. It sits beside the README and serves the same audience the README's "Mental model" section does — a Flow/Catalog Developer meeting this stack — but written *for an agent working in a downstream project*, where a `README.md` isn't discoverable but a skill is.
+Every extension ships an agent [[Skill shard]] at `src/extensions/<Extension>/SKILL.md`. It sits beside the README and serves the same audience the README's "Mental model" section does — a Flow/Catalog Developer meeting this stack — but written *for an agent working in a downstream project*, where a `README.md` isn't discoverable but a skill is. (The same convention extends to core packages that are optional add-ons from a Flow Developer's perspective — e.g. `src/core/Flowthru.FUnit/SKILL.md` — the tooling scans `src/{extensions,core}/*/SKILL.md`.)
 
 The shard is deliberately **not** `SKILL.md`'s default discovery target: it lives under `src/`, which no agent harness walks, so it never pollutes an in-repo session. It becomes discoverable two ways, both driven by the repo-root `.claude-plugin/marketplace.json` manifest that declares it:
 
@@ -99,6 +99,10 @@ of the README; the README is human reference/how-to, the shard is agent how-to.>
 ```
 
 The `metadata.flowthru` block is the machine-read contract. Keep `capability` to one line — it is the umbrella index entry, and the whole point is that an agent can scan fifteen of them at a glance. `surface` groups the extension in that index; use an existing value unless a genuinely new kind of surface appears (and if it does, extend the generator's group order in the same change).
+
+### Code examples
+
+A shard's code examples are transcribed from real example source, never hand-written: drop a `<!-- flowthru:snippet docs:<label> -->` sentinel and back it with a `#region docs:<label>` … `#endregion` range in a worked example (`scripts/generate-doc-snippets.mjs` / `sync-doc-snippets.mjs` — the same pipeline the docs use). The sync **auto-appends a `_(real source: …)_` provenance link inside each managed block** from the region's actual file path — do not hand-author attribution lines; the generated one is refreshed on every sync and can't point at the wrong file. Hand-authored source notes are appropriate only for a fenced block with no backing region (e.g. code quoted verbatim from a README because no worked example exercises the API yet) — mark those `_(source: … README)_` and treat the missing worked example as a Quality-Bar gap.
 
 ### Linking
 

@@ -5,6 +5,7 @@
       "name": "flowthru",
       "skills": [
         "./.claude/skills/flowthru",
+        "./src/core/Flowthru.FUnit",
         "./src/extensions/Flowthru.Extensions.AWS.S3",
         "./src/extensions/Flowthru.Extensions.Csv",
         "./src/extensions/Flowthru.Extensions.DuckDB",

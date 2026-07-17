@@ -131,6 +131,7 @@ public partial record CompanySchema
   public string CompanyLocation { get; init; } = null!;
 }
 ```
+_(source: [`Spaceflights/CompanySchema.cs`](https://github.com/chaoticgoodcomputing/flowthru/blob/main/examples/starter/Spaceflights/Data/_01_Raw/Schemas/CompanySchema.cs))_
 <!-- flowthru:snippet:docs:schema-company:end -->
 
 Let's go through what we've done here, step by step.
@@ -214,6 +215,7 @@ public IItem<IEnumerable<CompanySchema>> Companies =>
     .AtPath($"{_basePath}/_01_Raw/Datasets/companies.csv")
     .Build());
 ```
+_(source: [`Spaceflights/Catalog.Raw.cs`](https://github.com/chaoticgoodcomputing/flowthru/blob/main/examples/starter/Spaceflights/Data/_01_Raw/Catalog.Raw.cs))_
 <!-- flowthru:snippet:docs:catalog-raw-companies:end -->
 
 We use the same pattern to add all three entries for our input tables. Note that the Excel item adds one extra call, `.WithSheet("Sheet1")`, to pick the worksheet:
@@ -250,6 +252,7 @@ public partial class Catalog
       .Build());
 }
 ```
+_(source: [`Spaceflights/Catalog.Raw.cs`](https://github.com/chaoticgoodcomputing/flowthru/blob/main/examples/starter/Spaceflights/Data/_01_Raw/Catalog.Raw.cs))_
 <!-- flowthru:snippet:docs:catalog-raw-all:end -->
 
 

@@ -35,9 +35,8 @@ public IItem<IEnumerable<ShuttleSchema>> Shuttles =>
     .WithSheet("Sheet1")
     .Build());
 ```
+_(source: [`Spaceflights/Catalog.Raw.cs`](https://github.com/chaoticgoodcomputing/flowthru/blob/main/examples/starter/Spaceflights/Data/_01_Raw/Catalog.Raw.cs))_
 <!-- flowthru:snippet:docs:item-excel:end -->
-
-_(real source: [Catalog.Raw.cs](https://github.com/chaoticgoodcomputing/flowthru/blob/main/examples/starter/Spaceflights/Data/_01_Raw/Catalog.Raw.cs))_
 
 ## Notes
 

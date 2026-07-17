@@ -25,14 +25,8 @@ dotnet add package Flowthru.Extensions.Metadata.Json
 ```csharp
 meta.AddJsonMetadata(opt => opt.WithOutputDirectory(metadataPath));
 ```
+_(source: [`Spaceflights/Program.cs`](https://github.com/chaoticgoodcomputing/flowthru/blob/main/examples/starter/Spaceflights/Program.cs))_
 <!-- flowthru:snippet:docs:register-metadata-json:end -->
-<!-- flowthru:snippet:docs:register-metadata-json:start -->
-```csharp
-meta.AddJsonMetadata(opt => opt.WithOutputDirectory(metadataPath));
-```
-<!-- flowthru:snippet:docs:register-metadata-json:end -->
-
-_(real source: [Spaceflights `Program.cs`](https://github.com/chaoticgoodcomputing/flowthru/blob/main/examples/starter/Spaceflights/Program.cs))_
 
 ## When to use
 

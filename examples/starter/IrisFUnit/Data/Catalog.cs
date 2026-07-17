@@ -33,12 +33,14 @@ public partial class Catalog : CatalogAbstract
   }
 
   /// <summary>Train/test split options sourced from <c>Flowthru:Flows:DataEngineering:SplitOptions</c>.</summary>
+  #region docs:item-config
   public IItem<SplitAndEncodeStep.Options> SplitOptions =>
     CreateItem(() =>
       Item.Of<SplitAndEncodeStep.Options>("SplitOptions")
         .FromConfiguration(_configuration)
         .AtSection("Flowthru:Flows:DataEngineering:SplitOptions")
         .Build());
+  #endregion
 
   /// <summary>Model training options sourced from <c>Flowthru:Flows:DataScience:TrainModelOptions</c>.</summary>
   public IItem<TrainModelStep.Options> TrainModelOptions =>

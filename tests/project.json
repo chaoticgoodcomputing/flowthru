@@ -26,6 +26,7 @@
       "inputs": [
         "{workspaceRoot}/.claude/skills/flowthru/**/*.md",
         "{workspaceRoot}/src/extensions/*/SKILL.md",
+        "{workspaceRoot}/src/core/*/SKILL.md",
         "{workspaceRoot}/scripts/_test/_lib.mjs",
         "{workspaceRoot}/scripts/_test/skill-links.mjs"
       ],
@@ -42,6 +43,7 @@
       "cache": true,
       "inputs": [
         "{workspaceRoot}/src/extensions/*/SKILL.md",
+        "{workspaceRoot}/src/core/*/SKILL.md",
         "{workspaceRoot}/.claude/skills/flowthru/extensions.md",
         "{workspaceRoot}/.claude-plugin/marketplace.json",
         "{workspaceRoot}/scripts/generate-skill-extensions.mjs"

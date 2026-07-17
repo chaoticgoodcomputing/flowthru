@@ -123,7 +123,7 @@ function extractRegions(file) {
     const open = stack.find((r) => r.doc) ?? stack[0];
     throw new Error(
       `Unterminated '#region${open.label ? ' ' + open.label : ''}' in `
-        + `${relative(ROOT, file)}:${open.startLine ?? '?'}`,
+      + `${relative(ROOT, file)}:${open.startLine ?? '?'}`,
     );
   }
   return regions;
@@ -147,6 +147,19 @@ function dedent(lines) {
   return trimmed.map((line) => (line.trim() === '' ? '' : line.slice(min)));
 }
 
+// Provenance line appended to every snippet artifact, so each consumer (doc or
+// skill) carries a machine-generated "real source" link inside the managed
+// block — never hand-authored, so it can't lie. The link is an absolute GitHub
+// URL (clickable for humans, fetchable for agents — the skill-links precedent);
+// deliberately file-level, no #L line anchor: line numbers shift on unrelated
+// edits above the region and would churn every committed consumer.
+function attribution(file) {
+  const rel = relative(ROOT, file).split('\\').join('/');
+  const m = /^examples\/(?:starter|advanced)\/([^/]+)\//.exec(rel);
+  const display = m ? `${m[1]}/${rel.split('/').pop()}` : rel;
+  return `_(source: [\`${display}\`](https://github.com/chaoticgoodcomputing/flowthru/blob/main/${rel}))_`;
+}
+
 function main() {
   const files = [];
   for (const group of SCAN_GROUPS) walk(join(ROOT, group), files);
@@ -160,9 +173,9 @@ function main() {
       if (prior) {
         console.error(
           `[generate-doc-snippets] duplicate region '${region.label}':\n`
-            + `  ${relative(ROOT, prior.file)}:${prior.startLine}\n`
-            + `  ${relative(ROOT, region.file)}:${region.startLine}\n`
-            + `Region labels must be globally unique.`,
+          + `  ${relative(ROOT, prior.file)}:${prior.startLine}\n`
+          + `  ${relative(ROOT, region.file)}:${region.startLine}\n`
+          + `Region labels must be globally unique.`,
         );
         process.exit(1);
       }
@@ -177,7 +190,7 @@ function main() {
     const ext = region.file.slice(region.file.lastIndexOf('.'));
     const lang = LANG_BY_EXT[ext];
     const code = dedent(region.body).join('\n');
-    const fenced = `\`\`\`${lang}\n${code}\n\`\`\`\n`;
+    const fenced = `\`\`\`${lang}\n${code}\n\`\`\`\n${attribution(region.file)}\n`;
     const fileName = `${label.replace(/:/g, '-')}.md`;
     writeFileSync(join(OUT_DIR, fileName), fenced, 'utf8');
   }

@@ -58,8 +58,8 @@ pipeline.AddDuckDbTransform(
   engine: engine
 );
 ```
+_(source: [`SpaceflightsDuckDB/ReportingFlow.cs`](https://github.com/chaoticgoodcomputing/flowthru/blob/main/examples/starter/SpaceflightsDuckDB/Flows/Reporting/ReportingFlow.cs))_
 <!-- flowthru:snippet:docs:transform-duckdb:end -->
-_(real source: [ReportingFlow.cs](https://github.com/chaoticgoodcomputing/flowthru/blob/main/examples/starter/SpaceflightsDuckDB/Flows/Reporting/ReportingFlow.cs))_
 
 For a **join**, pass `inputs:` a list of `DuckDbInputRelation.From(item, "name")` bindings and reference each `name` in the SQL. Column names in the SQL are the Schemas' serialized labels (the names in the Parquet files), not the C# property names. Full worked example: [SpaceflightsDuckDB](https://github.com/chaoticgoodcomputing/flowthru/tree/main/examples/starter/SpaceflightsDuckDB).
 

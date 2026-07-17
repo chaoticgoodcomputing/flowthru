@@ -8,6 +8,7 @@ namespace Minimal.Flows.Greetings.Steps;
 /// Transforms "Hello" greetings into two outputs: "Goodbye" and "So long" greetings.
 /// This demonstrates a 1→2 node transformation.
 /// </summary>
+#region docs:step-shape
 [FlowthruStep]
 public static class TransformGreetingsStep
 {
@@ -43,3 +44,4 @@ public static class TransformGreetingsStep
     };
   }
 }
+#endregion

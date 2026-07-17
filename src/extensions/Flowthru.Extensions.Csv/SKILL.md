@@ -34,9 +34,8 @@ public IItem<IEnumerable<CompanySchema>> Companies =>
     .AtPath($"{_basePath}/_01_Raw/Datasets/companies.csv")
     .Build());
 ```
+_(source: [`Spaceflights/Catalog.Raw.cs`](https://github.com/chaoticgoodcomputing/flowthru/blob/main/examples/starter/Spaceflights/Data/_01_Raw/Catalog.Raw.cs))_
 <!-- flowthru:snippet:docs:catalog-raw-companies:end -->
-
-_(real source: [Catalog.Raw.cs](https://github.com/chaoticgoodcomputing/flowthru/blob/main/examples/starter/Spaceflights/Data/_01_Raw/Catalog.Raw.cs))_
 
 ## Notes
 

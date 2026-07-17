@@ -31,9 +31,8 @@ services.AddDbContextFactory<StagingDbContext>(options =>
   options.UseNpgsql(connectionString)
 );
 ```
+_(source: [`SpaceflightsStagingSchema/Program.cs`](https://github.com/chaoticgoodcomputing/flowthru/blob/main/examples/advanced/SpaceflightsStagingSchema/Program.cs))_
 <!-- flowthru:snippet:docs:register-efcore-npgsql:end -->
-
-_(real source: [Program.cs](https://github.com/chaoticgoodcomputing/flowthru/blob/main/examples/advanced/SpaceflightsStagingSchema/Program.cs))_
 
 Declare both transfer endpoints as Npgsql tables (each needs `WithContextFactory` — every channel opens a dedicated connection), then write the transfer as intent:
 

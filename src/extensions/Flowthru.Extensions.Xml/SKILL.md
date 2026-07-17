@@ -45,9 +45,8 @@ public IItem<DirectoryOf<CoberturaReport>> CoverageXmlFiles =>
       .Build()
   );
 ```
+_(source: [`FlowthruCoverage/Catalog.Raw.cs`](https://github.com/chaoticgoodcomputing/flowthru/blob/main/examples/advanced/FlowthruCoverage/Data/_01_Raw/Catalog.Raw.cs))_
 <!-- flowthru:snippet:docs:item-xml:end -->
-
-_(real source: [Catalog.Raw.cs](https://github.com/chaoticgoodcomputing/flowthru/blob/main/examples/advanced/FlowthruCoverage/Data/_01_Raw/Catalog.Raw.cs))_
 
 ## Notes
 

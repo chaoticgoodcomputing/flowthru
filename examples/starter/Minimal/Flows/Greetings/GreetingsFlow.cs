@@ -12,6 +12,7 @@ namespace Minimal.Flows.Greetings;
 /// </summary>
 public static class GreetingsFlow
 {
+  #region docs:flow-wiring
   public static BuiltFlow Create(Catalog catalog)
   {
     return FlowBuilder.CreateFlow("Greetings", pipeline =>
@@ -35,4 +36,5 @@ public static class GreetingsFlow
       );
     });
   }
+  #endregion
 }

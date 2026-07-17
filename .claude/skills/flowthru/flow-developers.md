@@ -1,6 +1,6 @@
 # Flow Developers
 
-This is the **conceptual** guide to writing Flows and Steps. For catalog items and schemas, see [catalog-developers.md](catalog-developers.md). For stack-specific step hosts and formats, see [extensions.md](extensions.md).
+Read this when **writing Steps or wiring Flows**. For catalog items and schemas, see [catalog-developers.md](catalog-developers.md); for stack-specific step hosts and formats, see [extensions.md](extensions.md).
 
 ## Mental model
 
@@ -15,122 +15,122 @@ The split matters because the wiring is checked at **compile time**: passing a c
 
 ## Steps
 
-A Step is a `[FlowthruStep] public static class` exposing a `Create` method that returns the transform as a `Func<TIn, TOut>`. Dependencies (loggers, services) are parameters to `Create`, captured by the returned closure — the transform itself only ever sees its typed input.
+A Step is a `[FlowthruStep] public static class` exposing a `Create` method that returns the transform as a `Func<TIn, TOut>`. Dependencies (loggers, services) are parameters to `Create`, captured by the returned closure — the transform itself only ever sees its typed input:
 
+<!-- flowthru:snippet:docs:step-shape:start -->
 ```csharp
 [FlowthruStep]
-public static class SplitAndEncodeStep
+public static class TransformGreetingsStep
 {
-    // Step-specific options travel as an ordinary input (see catalog-developers.md
-    // for how a ConfigurationItem binds these from appsettings.json).
-    public record Options
+  /// <summary>
+  /// Creates a transformation function that converts "Hello" greetings into
+  /// both "Goodbye" and "So long" variants.
+  /// </summary>
+  /// <returns>
+  /// A function that takes hello greetings and returns a tuple of
+  /// (goodbye greetings, so long greetings).
+  /// </returns>
+  public static Func<
+    IEnumerable<GreetingSchema>,
+    (IEnumerable<GoodbyeSchema>, IEnumerable<SoLongSchema>)
+  > Create()
+  {
+    return (helloGreetings) =>
     {
-        public double TestDataRatio { get; init; } = 0.2;
-    }
+      // Convert to list to avoid multiple enumerations
+      var greetings = helloGreetings.ToList();
 
-    // Canonical shape: static Func<TIn, TOut> Create(deps) => input => { ... };
-    // Multiple inputs/outputs are carried as tuples; name the output elements.
-    public static Func<
-        (IEnumerable<IrisRawSchema>, Options),
-        (
-            IEnumerable<IrisFeatureSchema> Features,
-            IEnumerable<FeatureVectorSchema> TrainX,
-            IEnumerable<TargetLabelSchema> TrainY
-        )
-    > Create(ILogger logger) =>
-        input =>
-        {
-            var (rawData, options) = input;
-            // ... transform ...
-            return (features, trainX, trainY);
-        };
+      var goodbyeGreetings = greetings.Select(hello => new GoodbyeSchema
+      {
+        Greeting = hello.Greeting.Replace("Hello", "Goodbye"),
+      });
+
+      var soLongGreetings = greetings.Select(hello => new SoLongSchema
+      {
+        Greeting = hello.Greeting.Replace("Hello", "So long"),
+      });
+
+      return (goodbyeGreetings, soLongGreetings);
+    };
+  }
 }
 ```
+_(source: [`Minimal/TransformGreetingsStep.cs`](https://github.com/chaoticgoodcomputing/flowthru/blob/main/examples/starter/Minimal/Flows/Greetings/Steps/TransformGreetingsStep.cs))_
+<!-- flowthru:snippet:docs:step-shape:end -->
 
-Key points:
-
-- **`Create(deps) => input => …`** is the canonical authoring shape. Inject services as `Create` parameters; keep the transform body a pure function of `input`.
-- **Tuples carry arity.** A single `(A, B)` input or `(X, Y, Z)` output tuple is how a Step declares more than one input/output. Name the output tuple elements — the flow wiring and diagnostics read those names.
-- **Options-as-input.** A Step's configuration is just another typed input (often a nested `Options` record), sourced from the catalog. A config change then invalidates the step's cached output like any other input change — don't reach for ambient/global config.
+- **`Create(deps) => input => …`** is the canonical authoring shape. Inject services as `Create` parameters (`Create(ILogger logger)`); keep the transform body a pure function of `input`.
+- **Tuples carry arity.** A `(A, B)` input or `(X, Y)` output tuple is how a Step declares more than one input/output — the example above is a 1→2 transform.
+- **Options-as-input.** A Step's configuration is just another typed input (often a nested `Options` record), sourced from the catalog as a configuration-bound item (see [catalog-developers.md](catalog-developers.md)). A config change then invalidates the step's cached output like any other input change — don't reach for ambient/global config.
 
 ## Flows
 
-A Flow is a `public static class` with a `Create` method returning `BuiltFlow`. It takes the `Catalog` (and any services the wiring needs, e.g. `ILogger`) and calls `FlowBuilder.CreateFlow(label, pipeline => …)`, adding one `AddStep` per Step.
+A Flow factory is a `public static class` with a `Create` method returning `BuiltFlow`. It takes the catalog (and any services the wiring needs) and calls `FlowBuilder.CreateFlow(label, pipeline => …)`, adding one `AddStep` per Step:
 
+<!-- flowthru:snippet:docs:flow-wiring:start -->
 ```csharp
-public static class DataEngineeringFlow
+public static BuiltFlow Create(Catalog catalog)
 {
-    public static BuiltFlow Create(Catalog catalog, ILogger logger) =>
-        FlowBuilder.CreateFlow("DataEngineering", pipeline =>
-        {
-            pipeline.AddStep<
-                IEnumerable<IrisRawSchema>, SplitAndEncodeStep.Options,   // input types
-                IEnumerable<IrisFeatureSchema>,                            // output types
-                IEnumerable<FeatureVectorSchema>,
-                IEnumerable<TargetLabelSchema>
-            >(
-                label: "SplitAndEncode",
-                transform: SplitAndEncodeStep.Create(logger),
-                inputs: (catalog.IrisRaw, catalog.SplitOptions),
-                outputs: (catalog.IrisFeatures, catalog.TrainX, catalog.TrainY)
-            );
-        });
+  return FlowBuilder.CreateFlow("Greetings", pipeline =>
+  {
+    pipeline.AddStep<IEnumerable<NameSchema>, IEnumerable<GreetingSchema>>(
+      label: "CreateHello",
+      transform: CreateHelloStep.Create(),
+      inputs: catalog.Names,
+      outputs: catalog.HelloGreetings
+    );
+
+    pipeline.AddStep<
+      IEnumerable<GreetingSchema>,
+      IEnumerable<GoodbyeSchema>,
+      IEnumerable<SoLongSchema>
+    >(
+      label: "TransformGreetings",
+      transform: TransformGreetingsStep.Create(),
+      inputs: catalog.HelloGreetings,
+      outputs: (catalog.Goodbyes, catalog.SoLongs)
+    );
+  });
 }
 ```
+_(source: [`Minimal/GreetingsFlow.cs`](https://github.com/chaoticgoodcomputing/flowthru/blob/main/examples/starter/Minimal/Flows/Greetings/GreetingsFlow.cs))_
+<!-- flowthru:snippet:docs:flow-wiring:end -->
 
-- **`AddStep<…>` is fully typed.** The generic parameters are the Step's input types followed by its output types; `inputs`/`outputs` are tuples of catalog items. The compiler checks that each catalog item's schema type matches the Step's signature — wrong type, wrong arity, or swapped input/output all fail to compile.
+- **`AddStep<…>` is fully typed.** The generic parameters are the Step's input types followed by its output types; `inputs`/`outputs` are catalog items (tuples for arity > 1). The compiler checks that each item's schema type matches the Step's signature — wrong type, wrong arity, or swapped input/output all fail to compile.
 - **`BuiltFlow` is immutable.** `CreateFlow` returns a fully-built, validated flow; there is no mutate-after-build.
 - **The DAG is inferred from the wiring.** You don't declare edges; a Step that consumes an item another Step produces is automatically downstream of it.
 
 ## Registration & running
 
-Flows are registered in `Program.cs`. The entrypoint hands off to the Flowthru CLI runner, which discovers and executes registered flows:
+Flows register in the host's `AddFlowthru(...)` block; the entrypoint hands off to the Flowthru CLI runner (`FlowthruCli.RunStandaloneAsync`), which discovers and executes registered flows:
 
+<!-- flowthru:snippet:docs:register-flows:start -->
 ```csharp
-public static Task<int> Main(string[] args) =>
-    FlowthruCli.RunStandaloneAsync(args, ConfigureServices);
-
-static void ConfigureServices(IServiceCollection services)
+services.AddFlowthru(flowthru =>
 {
-    services.AddFlowthru(b =>
-    {
-        b.UseConfiguration(configuration);                 // if the catalog binds config items
-        b.RegisterCatalog(sp => new Catalog(basePath, sp.GetRequiredService<IConfiguration>()));
+  flowthru.RegisterCatalog(_ => new Catalog(basePath));
+  flowthru.ConfigureMetadata(meta =>
+  {
+    var metadataPath = Path.Combine(basePath, "Metadata");
+    meta.AddJsonMetadata(opt => opt.WithOutputDirectory(metadataPath));
+    meta.AddMermaidMetadata(opt => opt.WithOutputDirectory(metadataPath));
+  });
 
-        // Second generic = the service type the flow's Create() second parameter needs.
-        b.RegisterFlow<Catalog, ILogger>("DataEngineering", DataEngineeringFlow.Create)
-         .WithDescription("Splits iris data into training and test sets");
-
-        // Each consumed extension is enabled with its own b.UseXxx() — see extensions.md.
-    });
-}
+  flowthru
+    .RegisterFlow<Catalog>("Greetings", GreetingsFlow.Create)
+    .WithDescription("A minimal pipeline demonstrating name transformation into multiple greeting formats");
+});
 ```
+_(source: [`Minimal/Program.cs`](https://github.com/chaoticgoodcomputing/flowthru/blob/main/examples/starter/Minimal/Program.cs))_
+<!-- flowthru:snippet:docs:register-flows:end -->
 
-Run with **`dotnet run`** (no args) and confirm the output. `RegisterFlow<Catalog, TService>` names the flow and the DI service its factory's second parameter needs; chain `.WithDescription(...)` for the CLI listing.
+- A flow factory that needs a DI service takes it as its second parameter, declared as the second generic: `b.RegisterFlow<Catalog, ILogger>("DataEngineering", DataEngineeringFlow.Create)`. The runner resolves and injects it.
+- Chain `.WithDescription(...)` for the CLI listing. Each consumed extension is enabled with its own `b.UseXxx()` — see [extensions.md](extensions.md).
+- Run with **`dotnet run`** (no args) and confirm the output.
 
-## Effects & errors
+## Testing steps
 
-I/O is wrapped in `FlowIO<T>` (from `Flowthru.Prelude`). Failures are **typed values**, not exceptions: `RuntimeError` and `PreFlightError` are closed sums that you'd match on, and nothing throws across the `FlowIO` boundary. Most step bodies never touch this directly — the framework wraps your `Func<TIn, TOut>` for you. You mainly care that a failing read/write surfaces as a typed pre-flight or runtime error the runner reports, rather than an unhandled throw.
+Because a Step is a plain function, it unit-tests without any pipeline: build typed input rows, invoke the transform, assert on the result. The optional **`Flowthru.FUnit`** package puts those tests beside the Step itself (a nested `Tests : FUnitContext` class behind `#if FUNIT_ENABLED`) — if this project references `Flowthru.FUnit`, or you're adding step tests, pull its deep skill:
 
-## Testing steps (FUnit)
-
-Because a Step is a plain function, it unit-tests without any pipeline. Projects using FUnit put a nested test class behind `#if FUNIT_ENABLED`:
-
-```csharp
-#if FUNIT_ENABLED
-public class Tests : FUnitContext
-{
-    [FUnitStepTest(typeof(SplitAndEncodeStep))]
-    public void Splits20Percent()
-    {
-        var raw = Samples.Generate(10, i => new IrisRawSchema { /* ... */ });
-        var (features, trainX, trainY) = Invoke(
-            Create(NullLogger.Instance),
-            (raw, new Options { TestDataRatio = 0.2 }));
-        Assert.That(trainX.Count(), Is.EqualTo(8));
-    }
-}
-#endif
+```bash
+npx skills add chaoticgoodcomputing/flowthru --skill flowthru-funit
 ```
-
-`Invoke(Create(deps), input)` runs the transform; `Samples.Generate`/`Samples.Of` build typed input rows. These are fast design-time checks — the earliest, best place to catch a logic error.

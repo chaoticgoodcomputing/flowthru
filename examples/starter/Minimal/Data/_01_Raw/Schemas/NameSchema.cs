@@ -5,6 +5,7 @@ namespace Minimal.Data._01_Raw.Schemas;
 /// <summary>
 /// Schema for raw name data from the input CSV file.
 /// </summary>
+#region docs:schema-minimal
 [FlowthruSchema]
 public partial record NameSchema
 {
@@ -14,3 +15,4 @@ public partial record NameSchema
   [SerializedLabel("name")]
   public required string Name { get; init; }
 }
+#endregion

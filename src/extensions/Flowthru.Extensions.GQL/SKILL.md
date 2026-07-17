@@ -39,9 +39,8 @@ public IItem<GqlQuery<IGetCompaniesResult, IGetCompanies_Companies>> Companies =
     .AllowEmpty()
     .Build());
 ```
+_(source: [`SpaceflightsGQL/Catalog.Raw.cs`](https://github.com/chaoticgoodcomputing/flowthru/blob/main/examples/advanced/SpaceflightsGQL/Data/_01_Raw/Catalog.Raw.cs))_
 <!-- flowthru:snippet:docs:gql-usage:end -->
-
-_(real source: [SpaceflightsGQL `Catalog.Raw.cs`](https://github.com/chaoticgoodcomputing/flowthru/blob/main/examples/advanced/SpaceflightsGQL/Data/_01_Raw/Catalog.Raw.cs))_
 
 ## Choosing an item shape
 

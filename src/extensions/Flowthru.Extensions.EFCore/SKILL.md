@@ -56,9 +56,10 @@ public IItem<IEnumerable<TrainingData>> TrainSplit =>
     .WithContextFactory(_contextFactory)
     .Build());
 ```
+_(source: [`SpaceflightsEFCore/Catalog.ModelInput.cs`](https://github.com/chaoticgoodcomputing/flowthru/blob/main/examples/starter/SpaceflightsEFCore/Data/_05_ModelInput/Catalog.ModelInput.cs))_
 <!-- flowthru:snippet:docs:item-efcore-table:end -->
 
-_(real source: [SpaceflightsEFCore `Catalog.ModelInput.cs`](https://github.com/chaoticgoodcomputing/flowthru/blob/main/examples/starter/SpaceflightsEFCore/Data/_05_ModelInput/Catalog.ModelInput.cs))_ — add `.WithQuery(q => q.OrderBy(…))` before `.Build()` to shape or order the read.
+Add `.WithQuery(q => q.OrderBy(…))` before `.Build()` to shape or order the read.
 
 ## Notes
 

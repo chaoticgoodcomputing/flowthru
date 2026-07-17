@@ -36,8 +36,8 @@ flowthru.UseHttp(http =>
   };
 });
 ```
+_(source: [`RetailDataSplitFlow/Program.cs`](https://github.com/chaoticgoodcomputing/flowthru/blob/main/examples/advanced/RetailDataSplitFlow/Program.cs))_
 <!-- flowthru:snippet:docs:register-http:end -->
-_(real source: [RetailDataSplitFlow `Program.cs`](https://github.com/chaoticgoodcomputing/flowthru/blob/main/examples/advanced/RetailDataSplitFlow/Program.cs))_
 
 For the resolver to route an Item's `https://` URI, the Catalog must be constructed with the `IStorageMediumResolver` (`b.RegisterCatalog(sp => new Catalog(basePath, sp.GetRequiredService<IStorageMediumResolver>()))`), and the Item must carry that resolver.
 

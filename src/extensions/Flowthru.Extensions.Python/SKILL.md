@@ -32,6 +32,7 @@ flowthru.UsePython(python =>
   python.VenvPath = outputPath;
 });
 ```
+_(source: [`SpaceflightsPython/Program.cs`](https://github.com/chaoticgoodcomputing/flowthru/blob/main/examples/starter/SpaceflightsPython/Program.cs))_
 <!-- flowthru:snippet:docs:register-python:end -->
 
 Then register the flow with **`IPythonExecutor`** as the second generic, so the runner injects the executor into the flow factory: `b.RegisterFlow<Catalog, IPythonExecutor>("DataProcessing", DataProcessingFlow.Create)`.
@@ -51,6 +52,7 @@ pipeline.AddPythonStep(
   executor: executor
 );
 ```
+_(source: [`SpaceflightsPython/DataProcessingFlow.cs`](https://github.com/chaoticgoodcomputing/flowthru/blob/main/examples/starter/SpaceflightsPython/Flows/DataProcessing/DataProcessingFlow.cs))_
 <!-- flowthru:snippet:docs:step-python-wire:end -->
 
 The Python side declares its input/output schemas on the `@step` decorator — the names must match the Catalog Items wired on the C# side, and the pre-flight check verifies it. The body is ordinary `pandas`:
@@ -60,8 +62,8 @@ The Python side declares its input/output schemas on the `@step` decorator — t
 @step(inputs=["CompanySchema"], outputs=["PreprocessedCompanySchema"], cacheable=True)
 def preprocess_companies(companies: pd.DataFrame) -> pd.DataFrame:
 ```
+_(source: [`SpaceflightsPython/preprocess_companies.py`](https://github.com/chaoticgoodcomputing/flowthru/blob/main/examples/starter/SpaceflightsPython/Flows/DataProcessing/Steps/preprocess_companies.py))_
 <!-- flowthru:snippet:docs:step-python-def:end -->
-_(all three blocks: real source from [SpaceflightsPython](https://github.com/chaoticgoodcomputing/flowthru/tree/main/examples/starter/SpaceflightsPython))_
 
 ## Notes
 

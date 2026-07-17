@@ -27,16 +27,8 @@ meta.AddMermaidMetadata(opt => opt
   .WithOutputDirectory(metadataPath)
   .WithShowFullDag(false));
 ```
+_(source: [`Spaceflights/Program.cs`](https://github.com/chaoticgoodcomputing/flowthru/blob/main/examples/starter/Spaceflights/Program.cs))_
 <!-- flowthru:snippet:docs:register-metadata-mermaid:end -->
-<!-- flowthru:snippet:docs:register-metadata-mermaid:start -->
-```csharp
-meta.AddMermaidMetadata(opt => opt
-  .WithOutputDirectory(metadataPath)
-  .WithShowFullDag(false));
-```
-<!-- flowthru:snippet:docs:register-metadata-mermaid:end -->
-
-_(real source: [Spaceflights `Program.cs`](https://github.com/chaoticgoodcomputing/flowthru/blob/main/examples/starter/Spaceflights/Program.cs))_
 
 ## When to use
 

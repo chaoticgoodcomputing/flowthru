@@ -25,14 +25,8 @@ dotnet add package Flowthru.Extensions.Metadata.Diagnostics
 ```csharp
 meta.UseDiagnostics();
 ```
+_(source: [`SimpleEffectsExample/Program.cs`](https://github.com/chaoticgoodcomputing/flowthru/blob/main/examples/starter/SimpleEffectsExample/Program.cs))_
 <!-- flowthru:snippet:docs:register-diagnostics:end -->
-<!-- flowthru:snippet:docs:register-diagnostics:start -->
-```csharp
-meta.UseDiagnostics();
-```
-<!-- flowthru:snippet:docs:register-diagnostics:end -->
-
-_(real source: [SimpleEffectsExample `Program.cs`](https://github.com/chaoticgoodcomputing/flowthru/blob/main/examples/starter/SimpleEffectsExample/Program.cs))_
 
 Opt into the heavier providers via the configure lambda:
 

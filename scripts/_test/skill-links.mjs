@@ -29,7 +29,7 @@ import { join, relative } from 'node:path';
 import { ROOT } from './_lib.mjs';
 
 const SKILL_DIRS = [join(ROOT, '.claude', 'skills', 'flowthru')];
-const EXT_DIR = join(ROOT, 'src', 'extensions');
+const SHARD_DIRS = [join(ROOT, 'src', 'extensions'), join(ROOT, 'src', 'core')];
 
 function skillFiles() {
   const files = [];
@@ -39,10 +39,11 @@ function skillFiles() {
       if (name.endsWith('.md')) files.push(join(dir, name));
     }
   }
-  if (existsSync(EXT_DIR)) {
-    for (const entry of readdirSync(EXT_DIR, { withFileTypes: true })) {
+  for (const dir of SHARD_DIRS) {
+    if (!existsSync(dir)) continue;
+    for (const entry of readdirSync(dir, { withFileTypes: true })) {
       if (!entry.isDirectory()) continue;
-      const p = join(EXT_DIR, entry.name, 'SKILL.md');
+      const p = join(dir, entry.name, 'SKILL.md');
       if (existsSync(p)) files.push(p);
     }
   }

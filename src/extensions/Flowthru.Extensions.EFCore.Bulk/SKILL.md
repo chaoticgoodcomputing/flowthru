@@ -44,9 +44,8 @@ public IItem<IEnumerable<ModelPredictions>> ModelPredictions =>
     .WithScope(DbScope.Explicit(StagingCatalog.SharedScope))
     .Build());
 ```
+_(source: [`SpaceflightsStagingSchema/Catalog.ModelOutput.cs`](https://github.com/chaoticgoodcomputing/flowthru/blob/main/examples/advanced/SpaceflightsStagingSchema/Data/_07_ModelOutput/Catalog.ModelOutput.cs))_
 <!-- flowthru:snippet:docs:item-efcore-bulk:end -->
-
-_(real source: [Catalog.ModelOutput.cs](https://github.com/chaoticgoodcomputing/flowthru/blob/main/examples/advanced/SpaceflightsStagingSchema/Data/_07_ModelOutput/Catalog.ModelOutput.cs))_
 
 Tune batch size, timeout, or identity behaviour with `BulkSaveOptions`:
 

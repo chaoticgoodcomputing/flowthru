@@ -40,7 +40,10 @@ import yaml from 'js-yaml';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(__dirname, '..');
 
-const EXT_DIR = join(ROOT, 'src', 'extensions');
+// Shard containers: any shippable package under these roots may carry a
+// SKILL.md shard — extensions, plus core packages that are optional add-ons
+// from a Flow Developer's perspective (e.g. Flowthru.FUnit).
+const SHARD_DIRS = [join(ROOT, 'src', 'extensions'), join(ROOT, 'src', 'core')];
 const EXTENSIONS_MD = join(ROOT, '.claude', 'skills', 'flowthru', 'extensions.md');
 const MANIFEST = join(ROOT, '.claude-plugin', 'marketplace.json');
 const UMBRELLA_SKILL_DIR = './.claude/skills/flowthru';
@@ -57,6 +60,7 @@ const SURFACES = [
   ['database', 'Databases'],
   ['engine', 'Execution engines'],
   ['step', 'Step hosts'],
+  ['testing', 'Testing'],
   ['metadata', 'Metadata & diagnostics'],
 ];
 const KNOWN_SURFACES = new Set(SURFACES.map(([k]) => k));
@@ -91,12 +95,20 @@ function fail(msg) {
 /** Discover and validate every extension shard. */
 function collectShards() {
   const shards = [];
-  if (!existsSync(EXT_DIR)) fail(`extensions dir not found: ${rel(EXT_DIR)}`);
-  else {
-    for (const entry of readdirSync(EXT_DIR, { withFileTypes: true }).sort((a, b) => a.name.localeCompare(b.name))) {
-      if (!entry.isDirectory()) continue;
-      const skillPath = join(EXT_DIR, entry.name, 'SKILL.md');
-      if (!existsSync(skillPath)) continue; // not every extension has a shard yet
+  const entries = [];
+  for (const dir of SHARD_DIRS) {
+    if (!existsSync(dir)) {
+      fail(`shard container not found: ${rel(dir)}`);
+      continue;
+    }
+    for (const entry of readdirSync(dir, { withFileTypes: true })) {
+      if (entry.isDirectory()) entries.push(join(dir, entry.name));
+    }
+  }
+  {
+    for (const pkgDir of entries.sort((a, b) => a.localeCompare(b))) {
+      const skillPath = join(pkgDir, 'SKILL.md');
+      if (!existsSync(skillPath)) continue; // not every package has a shard
       const fm = parseFrontmatter(readFileSync(skillPath, 'utf8'), skillPath);
       if (!fm) continue; // parse failure already recorded by parseFrontmatter
       const ft = fm.metadata?.flowthru ?? {};
@@ -117,7 +129,7 @@ function collectShards() {
         continue;
       }
       shards.push({
-        dir: `./${relative(ROOT, join(EXT_DIR, entry.name)).split('\\').join('/')}`,
+        dir: `./${relative(ROOT, pkgDir).split('\\').join('/')}`,
         name: `${fm.name}`,
         extension: `${ft.extension}`,
         surface: `${ft.surface}`,

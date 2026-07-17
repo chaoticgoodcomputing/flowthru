@@ -31,9 +31,8 @@ public IItem<IEnumerable<PreprocessedShuttleSchema>> PreprocessedShuttles =>
     .AtPath($"{_basePath}/_02_Intermediate/Datasets/preprocessed_shuttles.parquet")
     .Build());
 ```
+_(source: [`Spaceflights/Catalog.Intermediate.cs`](https://github.com/chaoticgoodcomputing/flowthru/blob/main/examples/starter/Spaceflights/Data/_02_Intermediate/Catalog.Intermediate.cs))_
 <!-- flowthru:snippet:docs:item-parquet:end -->
-
-_(real source: [Spaceflights `Catalog.Intermediate.cs`](https://github.com/chaoticgoodcomputing/flowthru/blob/main/examples/starter/Spaceflights/Data/_02_Intermediate/Catalog.Intermediate.cs))_
 
 ## Notes
 

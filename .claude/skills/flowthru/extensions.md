@@ -59,6 +59,12 @@ Treat each pulled extension skill as an extra bit of competence matched to this 
 |---------|-----------|--------|-----------|
 | `Flowthru.Extensions.Python` | Run Python (pandas/scikit-learn) functions as typed Steps; rows cross the boundary as Arrow → pandas.DataFrame. | `b.UsePython(…)` | `--skill flowthru-python` |
 
+### Testing
+
+| Package | Capability | Enable | Deep skill |
+|---------|-----------|--------|-----------|
+| `Flowthru.FUnit` | Inline step tests beside the Step they exercise — typed Invoke + sample-data helpers; `dotnet test` discovers them via source-generated runners. | `— (tests compile behind FUNIT_ENABLED)` | `--skill flowthru-funit` |
+
 ### Metadata & diagnostics
 
 | Package | Capability | Enable | Deep skill |
