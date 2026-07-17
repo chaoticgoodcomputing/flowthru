@@ -44,12 +44,14 @@ public abstract record ByteLocation
   /// </summary>
   /// <param name="Uri">The object's URI; the scheme tells a consumer which access vocabulary applies.</param>
   /// <param name="Access">
-  /// Access material a native consumer needs to reach <paramref name="Uri"/>
-  /// — endpoint, region, credential entries — keyed by names the producing
-  /// medium documents. Minted at locate time by the medium's gateway;
-  /// empty when the endpoint needs none.
+  /// The typed access handoff a native consumer needs to reach
+  /// <paramref name="Uri"/> — a Core-owned closed sum
+  /// (<see cref="RemoteAccess"/>) carrying non-secret connection hints plus any
+  /// credentials contained in <see cref="SecretText"/>. Minted at locate time by
+  /// the medium's gateway; <see cref="RemoteAccess.Anonymous"/> when the
+  /// endpoint needs none.
   /// </param>
-  public sealed record RemoteUri(Uri Uri, IReadOnlyDictionary<string, string> Access) : ByteLocation;
+  public sealed record RemoteUri(Uri Uri, RemoteAccess Access) : ByteLocation;
 
   /// <summary>
   /// Terminal pattern match. Use this to consume a ByteLocation at the

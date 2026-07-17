@@ -157,58 +157,70 @@ public sealed class AmazonS3Gateway : IS3Gateway, IDisposable
   /// <inheritdoc/>
   /// <remarks>
   /// <para>
-  /// The access handoff is keyed by a neutral vocabulary a native S3 reader
-  /// interprets: <c>region</c>, <c>endpoint</c> (present only when a custom
-  /// endpoint is configured), <c>url_style</c> (<c>path</c> when path-style
-  /// addressing is forced), and the credential entries
-  /// <c>access_key_id</c> / <c>secret_access_key</c> / <c>session_token</c>.
+  /// The handoff is the Core-owned <see cref="RemoteAccess.S3Compatible"/> case:
+  /// non-secret connection hints (region, a custom endpoint, path-style
+  /// addressing) plus, when the chain resolves any, the credentials contained in
+  /// <see cref="SecretText"/>. A native S3 reader interprets the typed case
+  /// directly — no string vocabulary crosses the seam. Credentials are resolved
+  /// through the same default chain the client itself uses, so the handoff
+  /// carries exactly what a read or write through this gateway would use; it is
+  /// minted per call and never stored.
   /// </para>
   /// <para>
-  /// Credentials are resolved through the same default chain the client
-  /// itself uses — environment variables, shared profile, ECS/EC2 role — so
-  /// the handoff carries exactly what a read or write through this gateway
-  /// would use. It is minted per call and never stored; an unresolvable
-  /// chain throws, which the medium lifts into a <c>FlowIO</c> failure.
+  /// <strong>This is a reveal site.</strong> A credential-resolution
+  /// <em>failure</em> is contained here: the raw AWS SDK exception (which can
+  /// echo endpoint / request context) is not propagated into the <c>FlowIO</c>
+  /// error channel — a secret-free <see cref="S3CredentialResolutionException"/>
+  /// with no retained cause takes its place, so no error this call produces can
+  /// carry credential material.
   /// </para>
   /// </remarks>
   public async Task<ByteLocation> LocateObject(string bucket, string key, CancellationToken ct)
   {
     ct.ThrowIfCancellationRequested();
 
-    var access = new Dictionary<string, string>();
     var config = _client.Config;
-    if (config.RegionEndpoint is not null)
+    var region = config.RegionEndpoint?.SystemName;
+    var endpoint = string.IsNullOrWhiteSpace(config.ServiceURL) ? null : new Uri(config.ServiceURL);
+    var forcePathStyle = config is AmazonS3Config { ForcePathStyle: true };
+
+    // SECURITY (ADR-0026): resolving credentials here is an in-process handoff
+    // to a native consumer (the embedded DuckDB engine) authenticating to the
+    // same bucket the pipeline targets — not exfiltration. Static scanners may
+    // flag this pattern as DATA_EXFILTRATION; see SECURITY.md. The resolved
+    // values are contained in SecretText and scrubbed at every reveal site.
+    Amazon.Runtime.ImmutableCredentials resolved;
+    try
     {
-      access["region"] = config.RegionEndpoint.SystemName;
+      var chain = await DefaultAWSCredentialsIdentityResolver
+        .GetCredentialsAsync(config)
+        .ConfigureAwait(false);
+      resolved = await chain.GetCredentialsAsync().ConfigureAwait(false);
     }
-    if (!string.IsNullOrWhiteSpace(config.ServiceURL))
+    catch (Exception ex)
     {
-      access["endpoint"] = config.ServiceURL;
-    }
-    if (config is AmazonS3Config { ForcePathStyle: true })
-    {
-      access["url_style"] = "path";
+      throw new S3CredentialResolutionException(bucket, key, ex.GetType().Name);
     }
 
-    var chain = await DefaultAWSCredentialsIdentityResolver
-      .GetCredentialsAsync(config)
-      .ConfigureAwait(false);
-    var credentials = await chain.GetCredentialsAsync().ConfigureAwait(false);
-    if (!string.IsNullOrEmpty(credentials.AccessKey))
-    {
-      access["access_key_id"] = credentials.AccessKey;
-    }
-    if (!string.IsNullOrEmpty(credentials.SecretKey))
-    {
-      access["secret_access_key"] = credentials.SecretKey;
-    }
-    if (credentials.UseToken)
-    {
-      access["session_token"] = credentials.Token;
-    }
-
+    var access = new RemoteAccess.S3Compatible(
+      region, endpoint, forcePathStyle, ToS3Credentials(resolved));
     return new ByteLocation.RemoteUri(new Uri($"s3://{bucket}/{key}"), access);
   }
+
+  /// <summary>
+  /// Map resolved AWS credentials into the contained <see cref="S3Credentials"/>
+  /// handoff — the reveal-site step where the chain's plaintext becomes
+  /// <see cref="SecretText"/>. Null when the chain resolved no usable key pair
+  /// (a public object, or a consumer that resolves its own). Internal so the
+  /// mint can be unit-tested offline without a live client.
+  /// </summary>
+  internal static S3Credentials? ToS3Credentials(Amazon.Runtime.ImmutableCredentials resolved) =>
+    !string.IsNullOrEmpty(resolved.AccessKey) && !string.IsNullOrEmpty(resolved.SecretKey)
+      ? new S3Credentials(
+          new SecretText(resolved.AccessKey),
+          new SecretText(resolved.SecretKey),
+          resolved.UseToken ? new SecretText(resolved.Token) : null)
+      : null;
 
   /// <inheritdoc/>
   public void Dispose()

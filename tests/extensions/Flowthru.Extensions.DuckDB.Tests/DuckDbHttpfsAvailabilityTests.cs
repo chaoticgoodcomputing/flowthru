@@ -90,7 +90,7 @@ public class DuckDbHttpfsAvailabilityTests
           "rows",
           new ByteLocation.RemoteUri(
             new Uri("https://example.com/rows.parquet"),
-            new Dictionary<string, string>())),
+            new RemoteAccess.Anonymous())),
       },
       Sql: "SELECT * FROM rows",
       OutputLocation: new ByteLocation.LocalFile(SysIO.Path.Combine(_root, "out.parquet")),
@@ -117,12 +117,9 @@ public class DuckDbHttpfsAvailabilityTests
           "rows",
           new ByteLocation.RemoteUri(
             new Uri("s3://bucket/in.parquet"),
-            new Dictionary<string, string>
-            {
-              ["region"] = "us-east-1",
-              ["access_key_id"] = "id",
-              ["secret_access_key"] = "secret",
-            })),
+            new RemoteAccess.S3Compatible(
+              "us-east-1", null, false,
+              new S3Credentials(new SecretText("key-id"), new SecretText("secret-value"), null)))),
       },
       Sql: "SELECT * FROM rows",
       OutputLocation: new ByteLocation.LocalFile(SysIO.Path.Combine(_root, "out.parquet")),

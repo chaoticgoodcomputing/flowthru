@@ -59,12 +59,9 @@ public class S3ByteLocationTests
     var gateway = new RecordingGateway(
       new ByteLocation.RemoteUri(
         new Uri($"s3://{Bucket}/orders/2026.json"),
-        new Dictionary<string, string>
-        {
-          ["region"] = "eu-west-1",
-          ["access_key_id"] = "AKIATEST",
-          ["secret_access_key"] = "shh",
-        }
+        new RemoteAccess.S3Compatible(
+          "eu-west-1", null, false,
+          new S3Credentials(new SecretText("AKIATEST"), new SecretText("shh-secret"), null))
       )
     );
     var adapter = new ComposedStorageAdapter<IEnumerable<S3Order>, S3Order>(
@@ -80,7 +77,9 @@ public class S3ByteLocationTests
     Assert.Multiple(() =>
     {
       Assert.That(location.Uri, Is.EqualTo(new Uri($"s3://{Bucket}/orders/2026.json")));
-      Assert.That(location.Access["region"], Is.EqualTo("eu-west-1"),
+      Assert.That(location.Access, Is.InstanceOf<RemoteAccess.S3Compatible>(),
+        "The access handoff must be exactly what the gateway minted.");
+      Assert.That(((RemoteAccess.S3Compatible)location.Access).Region, Is.EqualTo("eu-west-1"),
         "The access handoff must be exactly what the gateway minted.");
       Assert.That(gateway.LocateCalls, Is.EqualTo(new[] { (Bucket, "orders/2026.json") }),
         "The medium must delegate to the gateway seam — the credential owner — not ambient state.");

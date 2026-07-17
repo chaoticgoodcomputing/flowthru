@@ -39,11 +39,20 @@ here.
 
 ## Credentials
 
-The extension **owns no credentials**. The AWS-backed gateway builds its client with
-no explicit credentials, so the AWS SDK resolves them through its standard chain —
-environment variables (`AWS_ACCESS_KEY_ID` / `AWS_SECRET_ACCESS_KEY` / `AWS_SESSION_TOKEN`),
-the shared profile (`~/.aws/credentials`), or an ECS/EC2 instance role. Flowthru never
-loads, stores, or sees a secret.
+The extension **holds no credentials of its own**. The AWS-backed gateway builds its
+client with no explicit credentials, so the AWS SDK resolves them through its standard
+chain — environment variables (`AWS_ACCESS_KEY_ID` / `AWS_SECRET_ACCESS_KEY` /
+`AWS_SESSION_TOKEN`), the shared profile (`~/.aws/credentials`), or an ECS/EC2 instance
+role.
+
+On the ordinary read/write path the SDK client uses those credentials internally and
+Flowthru never touches them. The one exception is the limited case where a consumer
+reaches the object **natively** — with its own S3 client, to read the bytes without
+round-tripping them through Flowthru — and so must be handed credentials to authenticate
+itself. There the gateway resolves them from that same chain, per call, into Core's
+access handoff. On that path Flowthru *does* resolve and pass the secret, but the handoff
+is minted on demand, never persisted to the catalog or DAG, never written to disk, and
+scrubbed from any error text. Flowthru never stores a secret.
 
 ## Configuration (`Flowthru:S3`)
 

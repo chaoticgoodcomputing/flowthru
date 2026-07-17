@@ -301,12 +301,9 @@ public class DuckDbTransformStepTests
   [Test]
   public async Task S3Endpoints_PassThroughToEngine_AsRemoteLocations()
   {
-    var s3Access = new Dictionary<string, string>
-    {
-      ["region"] = "us-east-1",
-      ["access_key_id"] = "AKIAEXAMPLE",
-      ["secret_access_key"] = "supersecret",
-    };
+    var s3Access = new RemoteAccess.S3Compatible(
+      "us-east-1", null, false,
+      new S3Credentials(new SecretText("AKIAEXAMPLE"), new SecretText("supersecret"), null));
     var s3Input = RemoteItem(
       "s3_events", new Uri("s3://bucket/in/events.parquet"), s3Access);
     var localOutput = ItemFactory.Enumerable.Parquet<EventRow>("sorted", Path("s.parquet"));
@@ -467,7 +464,7 @@ public class DuckDbTransformStepTests
   /// S3 dependency.
   /// </summary>
   private static IItem<IEnumerable<EventRow>> RemoteItem(
-    string label, Uri uri, IReadOnlyDictionary<string, string>? access = null
+    string label, Uri uri, RemoteAccess? access = null
   ) =>
     new Item<IEnumerable<EventRow>>(
       label,
@@ -505,12 +502,12 @@ public class DuckDbTransformStepTests
   private sealed class FakeRemoteMedium : IStorageMedium, ISupportsByteLocation
   {
     private readonly Uri _uri;
-    private readonly IReadOnlyDictionary<string, string> _access;
+    private readonly RemoteAccess _access;
 
-    public FakeRemoteMedium(Uri uri, IReadOnlyDictionary<string, string>? access = null)
+    public FakeRemoteMedium(Uri uri, RemoteAccess? access = null)
     {
       _uri = uri;
-      _access = access ?? new Dictionary<string, string>();
+      _access = access ?? new RemoteAccess.Anonymous();
     }
 
     public StorageTraits Traits => new() { CanRead = true, CanWrite = true, IsPersistent = true };

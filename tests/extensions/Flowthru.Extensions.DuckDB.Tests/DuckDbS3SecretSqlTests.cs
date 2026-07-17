@@ -5,11 +5,11 @@ namespace Flowthru.Extensions.DuckDB.Tests;
 
 /// <summary>
 /// Pins the pure S3-secret planning the engine runs before an
-/// <c>s3://</c> transform: how the gateway's access-handoff vocabulary
-/// maps onto DuckDB's <c>CREATE SECRET</c> parameters, how secrets are
-/// <c>SCOPE</c>d so multi-credential inputs never bleed into each
-/// other, and how credential material is scrubbed from engine messages.
-/// All offline — no engine, no network.
+/// <c>s3://</c> transform: how the gateway's typed <see cref="RemoteAccess"/>
+/// handoff maps onto DuckDB's <c>CREATE SECRET</c> parameters, how secrets are
+/// <c>SCOPE</c>d so multi-credential inputs never bleed into each other, and how
+/// credential material is scrubbed from engine messages. All offline — no
+/// engine, no network.
 /// </summary>
 [TestFixture]
 [Category("DuckDB")]
@@ -18,17 +18,16 @@ public class DuckDbS3SecretSqlTests
   // ── Access-handoff → CREATE SECRET mapping ──────────────────────────────
 
   [Test]
-  public void Plan_MapsEveryGatewayAccessKey_ToItsDuckDbParameter()
+  public void Plan_MapsEveryGatewayAccessField_ToItsDuckDbParameter()
   {
-    var endpoint = Remote("s3://bucket/data/in.parquet", new Dictionary<string, string>
-    {
-      ["region"] = "ap-southeast-2",
-      ["endpoint"] = "http://localhost:9000",
-      ["url_style"] = "path",
-      ["access_key_id"] = "AKIAEXAMPLE",
-      ["secret_access_key"] = "shhh-secret",
-      ["session_token"] = "sts-token",
-    });
+    var endpoint = Remote("s3://bucket/data/in.parquet", S3(
+      region: "ap-southeast-2",
+      endpoint: "http://localhost:9000",
+      forcePathStyle: true,
+      keyId: "AKIAEXAMPLE",
+      secret: "shhh-secret",
+      sessionToken: "sts-token"
+    ));
 
     var planned = DuckDbS3SecretSql.Plan(new[] { endpoint }).Single();
 
@@ -53,12 +52,11 @@ public class DuckDbS3SecretSqlTests
   [Test]
   public void Plan_HttpsEndpoint_KeepsSslOn()
   {
-    var endpoint = Remote("s3://b/k.parquet", new Dictionary<string, string>
-    {
-      ["endpoint"] = "https://minio.example.com",
-      ["access_key_id"] = "id",
-      ["secret_access_key"] = "secret",
-    });
+    var endpoint = Remote("s3://b/k.parquet", S3(
+      endpoint: "https://minio.example.com",
+      keyId: "key-id",
+      secret: "secret-value"
+    ));
 
     var sql = DuckDbS3SecretSql.Plan(new[] { endpoint }).Single().Sql;
 
@@ -70,16 +68,15 @@ public class DuckDbS3SecretSqlTests
   }
 
   [Test]
-  public void Plan_WithoutEndpointEntry_OmitsEndpointAndSsl()
+  public void Plan_WithoutEndpoint_OmitsEndpointAndSsl()
   {
-    // Plain AWS: the gateway mints no endpoint entry, and DuckDB's
-    // default (s3.amazonaws.com, SSL on) is exactly right.
-    var endpoint = Remote("s3://b/k.parquet", new Dictionary<string, string>
-    {
-      ["region"] = "us-east-1",
-      ["access_key_id"] = "id",
-      ["secret_access_key"] = "secret",
-    });
+    // Plain AWS: the gateway mints no endpoint, and DuckDB's default
+    // (s3.amazonaws.com, SSL on) is exactly right.
+    var endpoint = Remote("s3://b/k.parquet", S3(
+      region: "us-east-1",
+      keyId: "key-id",
+      secret: "secret-value"
+    ));
 
     var sql = DuckDbS3SecretSql.Plan(new[] { endpoint }).Single().Sql;
 
@@ -93,11 +90,10 @@ public class DuckDbS3SecretSqlTests
   [Test]
   public void Plan_EscapesEmbeddedQuotes_InValues()
   {
-    var endpoint = Remote("s3://b/k.parquet", new Dictionary<string, string>
-    {
-      ["access_key_id"] = "id",
-      ["secret_access_key"] = "it's'quoted",
-    });
+    var endpoint = Remote("s3://b/k.parquet", S3(
+      keyId: "key-id",
+      secret: "it's'quoted"
+    ));
 
     var sql = DuckDbS3SecretSql.Plan(new[] { endpoint }).Single().Sql;
 
@@ -106,12 +102,22 @@ public class DuckDbS3SecretSqlTests
   }
 
   [Test]
-  public void Plan_EmptyAccessHandoff_PlansNoSecret()
+  public void Plan_AnonymousHandoff_PlansNoSecret()
   {
-    var endpoint = Remote("s3://public-bucket/k.parquet", new Dictionary<string, string>());
+    var endpoint = Remote("s3://public-bucket/k.parquet", new RemoteAccess.Anonymous());
 
     Assert.That(DuckDbS3SecretSql.Plan(new[] { endpoint }), Is.Empty,
       "No handoff means nothing to configure — DuckDB's defaults apply (public object).");
+  }
+
+  [Test]
+  public void Plan_AllDefaultS3Compatible_PlansNoSecret()
+  {
+    // An S3Compatible with nothing set is equivalent to Anonymous.
+    var endpoint = Remote("s3://public-bucket/k.parquet", S3());
+
+    Assert.That(DuckDbS3SecretSql.Plan(new[] { endpoint }), Is.Empty,
+      "An all-default handoff has nothing to configure.");
   }
 
   // ── Scoping across multiple endpoints ───────────────────────────────────
@@ -119,17 +125,9 @@ public class DuckDbS3SecretSqlTests
   [Test]
   public void Plan_MultiCredentialEndpoints_GetDistinctSecrets_EachScopedToItsOwnObject()
   {
-    var first = Remote("s3://bucket-a/in.parquet", new Dictionary<string, string>
-    {
-      ["access_key_id"] = "key-a",
-      ["secret_access_key"] = "secret-a",
-    });
-    var second = Remote("s3://bucket-b/in.parquet", new Dictionary<string, string>
-    {
-      ["access_key_id"] = "key-b",
-      ["secret_access_key"] = "secret-b",
-      ["session_token"] = "token-b",
-    });
+    var first = Remote("s3://bucket-a/in.parquet", S3(keyId: "key-a-id", secret: "secret-a"));
+    var second = Remote("s3://bucket-b/in.parquet",
+      S3(keyId: "key-b-id", secret: "secret-b", sessionToken: "token-b"));
 
     var planned = DuckDbS3SecretSql.Plan(new[] { first, second });
 
@@ -139,8 +137,8 @@ public class DuckDbS3SecretSqlTests
       Assert.That(planned.Select(p => p.Name), Is.Unique,
         "DuckDB secret names must be unique within a connection.");
       Assert.That(planned[0].Sql, Does.Contain("SCOPE 's3://bucket-a/in.parquet'"));
-      Assert.That(planned[0].Sql, Does.Contain("KEY_ID 'key-a'"));
-      Assert.That(planned[0].Sql, Does.Not.Contain("key-b"),
+      Assert.That(planned[0].Sql, Does.Contain("KEY_ID 'key-a-id'"));
+      Assert.That(planned[0].Sql, Does.Not.Contain("key-b-id"),
         "Credentials must never leak across endpoint secrets.");
       Assert.That(planned[1].Sql, Does.Contain("SCOPE 's3://bucket-b/in.parquet'"));
       Assert.That(planned[1].Sql, Does.Contain("SESSION_TOKEN 'token-b'"));
@@ -151,11 +149,7 @@ public class DuckDbS3SecretSqlTests
   [Test]
   public void Plan_SameObjectTwice_WithSameHandoff_DedupesToOneSecret()
   {
-    var access = new Dictionary<string, string>
-    {
-      ["access_key_id"] = "id",
-      ["secret_access_key"] = "secret",
-    };
+    var access = S3(keyId: "key-id", secret: "secret-value");
 
     var planned = DuckDbS3SecretSql.Plan(new[]
     {
@@ -168,19 +162,28 @@ public class DuckDbS3SecretSqlTests
   }
 
   [Test]
+  public void Plan_SameObject_WithDistinctButEqualHandoffs_DedupesToOneSecret()
+  {
+    // Two independently-constructed but value-equal handoffs (records + value-
+    // equatable SecretText) must dedupe, not conflict.
+    var planned = DuckDbS3SecretSql.Plan(new[]
+    {
+      Remote("s3://bucket/k.parquet", S3(keyId: "key-id", secret: "secret-value")),
+      Remote("s3://bucket/k.parquet", S3(keyId: "key-id", secret: "secret-value")),
+    });
+
+    Assert.That(planned, Has.Count.EqualTo(1),
+      "Value-equal handoffs for the same object are one secret, not a conflict.");
+  }
+
+  [Test]
   public void Plan_SameObject_WithConflictingHandoffs_Throws()
   {
     Assert.That(
       () => DuckDbS3SecretSql.Plan(new[]
       {
-        Remote("s3://bucket/k.parquet", new Dictionary<string, string>
-        {
-          ["access_key_id"] = "id-1", ["secret_access_key"] = "secret-1",
-        }),
-        Remote("s3://bucket/k.parquet", new Dictionary<string, string>
-        {
-          ["access_key_id"] = "id-2", ["secret_access_key"] = "secret-2",
-        }),
+        Remote("s3://bucket/k.parquet", S3(keyId: "id-one", secret: "secret-one")),
+        Remote("s3://bucket/k.parquet", S3(keyId: "id-two", secret: "secret-two")),
       }),
       Throws.InvalidOperationException.With.Message.Contains("s3://bucket/k.parquet"),
       "One object with two credential sets is a wiring bug — silently picking one "
@@ -195,13 +198,8 @@ public class DuckDbS3SecretSqlTests
   {
     var endpoints = new[]
     {
-      Remote("s3://a/k.parquet", new Dictionary<string, string>
-      {
-        ["access_key_id"] = "AKIAEXAMPLE",
-        ["secret_access_key"] = "shhh-secret",
-        ["session_token"] = "sts-token",
-        ["region"] = "us-east-1",
-      }),
+      Remote("s3://a/k.parquet",
+        S3(region: "us-east-1", keyId: "AKIAEXAMPLE", secret: "shhh-secret", sessionToken: "sts-token")),
     };
     var sensitive = DuckDbS3SecretSql.SensitiveValues(endpoints);
 
@@ -228,24 +226,51 @@ public class DuckDbS3SecretSqlTests
   {
     var endpoints = new[]
     {
-      Remote("s3://a/k.parquet", new Dictionary<string, string>
-      {
-        ["access_key_id"] = "the-key-id",
-        ["secret_access_key"] = "the-secret",
-        ["session_token"] = "the-token",
-        ["region"] = "us-east-1",
-        ["endpoint"] = "http://localhost:9000",
-        ["url_style"] = "path",
-      }),
+      Remote("s3://a/k.parquet", S3(
+        region: "us-east-1",
+        endpoint: "http://localhost:9000",
+        forcePathStyle: true,
+        keyId: "the-key-id",
+        secret: "the-secret",
+        sessionToken: "the-token"
+      )),
     };
 
     var sensitive = DuckDbS3SecretSql.SensitiveValues(endpoints);
 
+    Assert.That(sensitive, Is.EquivalentTo(new[] { "the-key-id", "the-secret", "the-token" }),
+      "Region/endpoint/url-style are addressing, not secrets — redacting them "
+      + "would destroy diagnostic value.");
+  }
+
+  [Test]
+  public void SensitiveValues_ExcludesDegenerateShortValues()
+  {
+    // A one- or two-character credential value would corrupt benign text if used
+    // as a scrub needle; it is excluded from the scrub-list.
+    var endpoints = new[]
+    {
+      Remote("s3://a/k.parquet", S3(keyId: "ab", secret: "cd")),
+    };
+
+    Assert.That(DuckDbS3SecretSql.SensitiveValues(endpoints), Is.Empty,
+      "Sub-minimum-length values are not scrub needles.");
+  }
+
+  [Test]
+  public void Redact_LongestFirst_FullyScrubsOverlappingValues()
+  {
+    // A short secret that is a prefix of a longer one must not leave the longer
+    // one partially exposed. Shortest-first would replace "abcd" inside the
+    // longer value and leave "EFGH1234" dangling; longest-first scrubs whole.
+    var sensitive = new[] { "abcd", "abcdEFGH1234" };
+    var redacted = DuckDbS3SecretSql.Redact("leaked abcdEFGH1234 then abcd", sensitive);
+
     Assert.Multiple(() =>
     {
-      Assert.That(sensitive, Is.EquivalentTo(new[] { "the-key-id", "the-secret", "the-token" }),
-        "Region/endpoint/url-style are addressing, not secrets — redacting them "
-        + "would destroy diagnostic value.");
+      Assert.That(redacted, Does.Not.Contain("abcdEFGH1234"));
+      Assert.That(redacted, Does.Not.Contain("EFGH1234"),
+        "The longer secret must be scrubbed whole, not left as a fragment.");
     });
   }
 
@@ -256,7 +281,7 @@ public class DuckDbS3SecretSqlTests
   [TestCase("https://minio.internal:9443", "minio.internal:9443", true)]
   public void ParseEndpoint_SplitsSchemeHostAndPort(string raw, string host, bool ssl)
   {
-    var (parsedHost, useSsl) = DuckDbS3SecretSql.ParseEndpoint(raw);
+    var (parsedHost, useSsl) = DuckDbS3SecretSql.ParseEndpoint(new Uri(raw));
     Assert.Multiple(() =>
     {
       Assert.That(parsedHost, Is.EqualTo(host));
@@ -265,20 +290,40 @@ public class DuckDbS3SecretSqlTests
   }
 
   [Test]
-  public void ParseEndpoint_NonUrlValue_PassesThroughUntouched()
+  public void ParseEndpoint_NonAbsoluteValue_PassesThroughUntouched()
   {
-    var (host, useSsl) = DuckDbS3SecretSql.ParseEndpoint("s3.amazonaws.com");
+    var (host, useSsl) = DuckDbS3SecretSql.ParseEndpoint(new Uri("s3.amazonaws.com", UriKind.Relative));
     Assert.Multiple(() =>
     {
       Assert.That(host, Is.EqualTo("s3.amazonaws.com"));
-      Assert.That(useSsl, Is.Null, "No scheme → leave DuckDB's SSL default alone.");
+      Assert.That(useSsl, Is.Null, "No absolute http(s) scheme → leave DuckDB's SSL default alone.");
     });
   }
 
   // ── Harness ─────────────────────────────────────────────────────────────
 
-  private static ByteLocation.RemoteUri Remote(
-    string uri, IReadOnlyDictionary<string, string> access
-  ) =>
+  private static ByteLocation.RemoteUri Remote(string uri, RemoteAccess access) =>
     new(new Uri(uri), access);
+
+  /// <summary>Build an <see cref="RemoteAccess.S3Compatible"/> handoff; credentials are
+  /// present only when both <paramref name="keyId"/> and <paramref name="secret"/> are given.</summary>
+  private static RemoteAccess.S3Compatible S3(
+    string? region = null,
+    string? endpoint = null,
+    bool forcePathStyle = false,
+    string? keyId = null,
+    string? secret = null,
+    string? sessionToken = null
+  ) =>
+    new(
+      region,
+      endpoint is null ? null : new Uri(endpoint),
+      forcePathStyle,
+      keyId is not null && secret is not null
+        ? new S3Credentials(
+            new SecretText(keyId),
+            new SecretText(secret),
+            sessionToken is null ? null : new SecretText(sessionToken))
+        : null
+    );
 }
