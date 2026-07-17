@@ -13,6 +13,7 @@ public static class DataProcessingFlow
   {
     return FlowBuilder.CreateFlow("DataProcessing", pipeline =>
     {
+      #region docs:step-python-wire
       pipeline.AddPythonStep(
         label: "PreprocessCompanies",
         module: "Flows.DataProcessing.Steps.preprocess_companies",
@@ -21,6 +22,7 @@ public static class DataProcessingFlow
         output: catalog.PreprocessedCompanies,
         executor: executor
       );
+      #endregion
 
       pipeline.AddPythonStep(
         label: "PreprocessShuttles",

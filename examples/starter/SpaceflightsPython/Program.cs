@@ -90,12 +90,14 @@ public class Program
         meta.AddMermaidMetadata(opt => opt.WithOutputDirectory(metadataPath));
       });
 
+      #region docs:register-python
       flowthru.UsePython(python =>
       {
         python.ModuleSearchPaths.Add(basePath);
         python.ModuleSearchPaths.Add(outputPath);
         python.VenvPath = outputPath;
       });
+      #endregion
 
       flowthru
         .RegisterFlow<Catalog, IPythonExecutor>("DataProcessing", DataProcessingFlow.Create)

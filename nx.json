@@ -28,7 +28,7 @@
       "inputs": [ "default", "^production", "coverageConfig" ]
     },
     "pack": {
-      "dependsOn": [ "build:release", "templates:_inject_template_version", "templates:_inject_agents_md" ],
+      "dependsOn": [ "build:release", "templates:_inject_template_version", "templates:_inject_flowthru_skill" ],
       "outputs": [ "{workspaceRoot}/dist/packages" ]
     }
   },

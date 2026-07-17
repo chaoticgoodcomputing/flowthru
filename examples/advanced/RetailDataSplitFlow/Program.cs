@@ -82,6 +82,7 @@ public class Program
       // HTTP storage medium — routes https:// catalog item paths through
       // a cached HTTP client. Conditional GET avoids re-downloading the
       // 43MB CSV on every run.
+      #region docs:register-http
       flowthru.UseHttp(http =>
       {
         http.Cache = new Flowthru.Data.Storage.Http.HttpCacheOptions
@@ -90,6 +91,7 @@ public class Program
           MaxAge = TimeSpan.FromHours(24),
         };
       });
+      #endregion
 
       flowthru.UsePython(python =>
       {

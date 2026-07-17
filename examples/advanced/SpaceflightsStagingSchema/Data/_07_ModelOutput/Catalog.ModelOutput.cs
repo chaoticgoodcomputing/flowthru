@@ -18,6 +18,7 @@ public partial class ProductionCatalog
   /// Per-row model predictions on the test set. Bulk-inserted via
   /// <c>BulkSave.Insert</c>; consumed by Reporting as a deferred query handle.
   /// </summary>
+  #region docs:item-efcore-bulk
   public IItem<IEnumerable<ModelPredictions>> ModelPredictions =>
     CreateItem(() => Item.Of<IEnumerable<ModelPredictions>>("ModelPredictions")
       .EFCoreQuery<ModelPredictions, ProductionDbContext>()
@@ -25,4 +26,5 @@ public partial class ProductionCatalog
       .WithSave(BulkSave.Insert<ModelPredictions, ProductionDbContext>())
       .WithScope(DbScope.Explicit(StagingCatalog.SharedScope))
       .Build());
+  #endregion
 }

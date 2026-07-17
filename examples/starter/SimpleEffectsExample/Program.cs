@@ -85,7 +85,9 @@ public class Program
           // (StepTimings + RunSummary, both free post-run computations).
           // RowCounts and OutputExistence remain opt-in via the configure
           // lambda when an example wants the heavier observation.
+          #region docs:register-diagnostics
           meta.UseDiagnostics();
+          #endregion
         });
 
         flowthru

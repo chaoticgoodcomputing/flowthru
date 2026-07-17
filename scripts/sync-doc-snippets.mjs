@@ -1,9 +1,13 @@
 #!/usr/bin/env node
 /**
- * Splices example code snippets into the docs. The `docs` half of the
+ * Splices example code snippets into prose surfaces. The consuming half of the
  * doc-snippet pipeline: consumes the fenced snippet files produced by
  * `examples:generate-snippets` under `dist/examples/docs/snippets/` and
- * populates them into `docs/{tutorials,guides,explanation}/**​/*.md`.
+ * populates them into two surfaces that transcribe real example source:
+ *   - the docs:     `docs/{tutorials,guides,explanation}/**​/*.md`
+ *   - the skills:   `.claude/skills/flowthru/*.md` + `src/extensions/*​/SKILL.md`
+ * Both are walked in ONE pass so the orphan-snippet gate (below) sees a single
+ * consumer set — a `#region docs:` referenced only by a skill is not an orphan.
  *
  * Authoring: drop a one-line sentinel where the code should appear —
  *   <!-- flowthru:snippet docs:<label> -->
@@ -40,6 +44,22 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(__dirname, '..');
 const SNIPPET_DIR = join(ROOT, 'dist', 'examples', 'docs', 'snippets');
 const DOC_SECTIONS = ['docs/tutorials', 'docs/guides', 'docs/explanation'];
+// Skill surfaces that transcribe example source through the same sentinel
+// mechanism: the umbrella skill's subdocs and each per-extension shard.
+const SKILL_SECTIONS = ['.claude/skills/flowthru'];
+const EXTENSIONS_DIR = join(ROOT, 'src', 'extensions');
+
+/** The per-extension shards (`src/extensions/<Ext>/SKILL.md`) that exist today. */
+function extensionSkillFiles() {
+  const out = [];
+  if (!existsSync(EXTENSIONS_DIR)) return out;
+  for (const entry of readdirSync(EXTENSIONS_DIR, { withFileTypes: true })) {
+    if (!entry.isDirectory()) continue;
+    const p = join(EXTENSIONS_DIR, entry.name, 'SKILL.md');
+    if (existsSync(p)) out.push(p);
+  }
+  return out;
+}
 
 const SENTINEL_RE = /<!-- flowthru:snippet (docs:[\w.-]+) -->/g;
 const BLOCK_START_RE = /<!-- flowthru:snippet:(docs:[\w.-]+):start -->/g;
@@ -130,6 +150,8 @@ function main() {
   const snippets = loadSnippets();
   const docFiles = [];
   for (const section of DOC_SECTIONS) walk(join(ROOT, section), docFiles);
+  for (const section of SKILL_SECTIONS) walk(join(ROOT, section), docFiles);
+  docFiles.push(...extensionSkillFiles());
   docFiles.sort();
 
   // ── Lint pass (before any write) ──

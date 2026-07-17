@@ -56,7 +56,7 @@
       }
     },
     "sync-snippets": {
-      "//": "The `docs` half of the doc-snippet pipeline. Consumes dist/examples/docs/snippets/ (produced by examples:generate-snippets) and splices each snippet into managed marker blocks in docs/{tutorials,guides,explanation}. NOT cached — it mutates source docs in place (same as examples:sync-readmes); caching a source mutation would be wrong. The non-mutating freshness check lives in docs:_test:snippet-freshness (runs in `nx affected -t test`). Hard-fails on a sentinel referencing a missing snippet or an orphan snippet.",
+      "//": "The consuming half of the doc-snippet pipeline. Consumes dist/examples/docs/snippets/ (produced by examples:generate-snippets) and splices each snippet into managed marker blocks across two prose surfaces that transcribe real example source: the docs (docs/{tutorials,guides,explanation}) AND the skills (.claude/skills/flowthru/*.md + src/extensions/*/SKILL.md). Both are walked in one pass so the orphan-snippet gate sees a single consumer set. NOT cached — it mutates source in place (same as examples:sync-readmes); caching a source mutation would be wrong. The non-mutating freshness check lives in docs:_test:snippet-freshness (runs in `nx affected -t test`). Hard-fails on a sentinel referencing a missing snippet or an orphan snippet.",
       "executor": "nx:run-commands",
       "dependsOn": [ "examples:generate-snippets" ],
       "options": {
@@ -94,7 +94,7 @@
       }
     },
     "_test:snippet-freshness": {
-      "//": "GATING. Regenerates the snippet artifacts (via examples:generate-snippets) and asserts every committed doc is in sync — fails if a `#region docs:*` changed without a re-sync, if a sentinel references a missing snippet, or if a region is orphaned. Non-mutating (`--check`): writes nothing, so it leaves no working-tree side effects. Private subtarget; composed into docs:test.",
+      "//": "GATING. Regenerates the snippet artifacts (via examples:generate-snippets) and asserts every committed consumer is in sync — fails if a `#region docs:*` changed without a re-sync, if a sentinel references a missing snippet, or if a region is orphaned. Covers BOTH prose surfaces the splicer walks: docs and skills (.claude/skills/flowthru + src/extensions/*/SKILL.md). Non-mutating (`--check`): writes nothing, so it leaves no working-tree side effects. Note: this runs when `docs` is in the affected set (example edits reach it via implicitDependencies); a shard-only sentinel edit that doesn't touch examples is caught by tests:_test:skill-index-freshness's sibling coverage and the CI working-tree diff. Private subtarget; composed into docs:test.",
       "executor": "nx:run-commands",
       "cache": true,
       "dependsOn": [ "examples:generate-snippets" ],
@@ -106,6 +106,8 @@
         "{workspaceRoot}/docs/tutorials/**/*.md",
         "{workspaceRoot}/docs/guides/**/*.md",
         "{workspaceRoot}/docs/explanation/**/*.md",
+        "{workspaceRoot}/.claude/skills/flowthru/**/*.md",
+        "{workspaceRoot}/src/extensions/*/SKILL.md",
         "{workspaceRoot}/scripts/generate-doc-snippets.mjs",
         "{workspaceRoot}/scripts/sync-doc-snippets.mjs"
       ],

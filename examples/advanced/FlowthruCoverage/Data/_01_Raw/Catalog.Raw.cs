@@ -8,6 +8,7 @@ namespace FlowthruCoverage.Data;
 public partial class Catalog
 {
   /// <summary>Staged Cobertura XML files, one per test or example project.</summary>
+  #region docs:item-xml
   public IItem<DirectoryOf<CoberturaReport>> CoverageXmlFiles =>
     CreateItem(() =>
       Item.Of<DirectoryOf<CoberturaReport>>("CoverageXmlFiles")
@@ -15,6 +16,7 @@ public partial class Catalog
         .AtPath($"{_basePath}/_01_Raw/Datasets")
         .Build()
     );
+  #endregion
 
   /// <summary>Repository project manifest mapping assemblies to ProjectType and Subgroup.</summary>
   public IItem<IEnumerable<ProjectManifestEntry>> ProjectManifest =>

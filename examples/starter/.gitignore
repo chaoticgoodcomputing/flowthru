@@ -1,1 +1,5 @@
-*/SKILL.md
+# Pack-time artifact: the canonical Flowthru umbrella skill is copied into each
+# starter's .claude/skills/flowthru/ by the templates:_inject_flowthru_skill
+# nx target (see examples/starter/project.json). It ships inside the dotnet-new
+# template package, never in the repo.
+*/.claude/skills/flowthru/

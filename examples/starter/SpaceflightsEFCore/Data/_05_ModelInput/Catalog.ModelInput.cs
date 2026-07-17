@@ -8,11 +8,13 @@ namespace SpaceflightsEFCore.Data;
 /// </summary>
 public partial class Catalog
 {
+  #region docs:item-efcore-table
   public IItem<IEnumerable<TrainingData>> TrainSplit =>
     CreateItem(() => Item.Of<IEnumerable<TrainingData>>("XTrain")
       .EFCoreTable<TrainingData, SpaceflightsDbContext>()
       .WithContextFactory(_contextFactory)
       .Build());
+  #endregion
 
   public IItem<IEnumerable<TestData>> TestSplit =>
     CreateItem(() => Item.Of<IEnumerable<TestData>>("XTest")

@@ -64,9 +64,11 @@ public class Program
     );
     services.AddSingleton<PostgreSqlContainer>(_ => pg);
 
+    #region docs:register-efcore-npgsql
     services.AddDbContextFactory<StagingDbContext>(options =>
       options.UseNpgsql(connectionString)
     );
+    #endregion
     services.AddDbContextFactory<ProductionDbContext>(options =>
       options.UseNpgsql(connectionString)
     );

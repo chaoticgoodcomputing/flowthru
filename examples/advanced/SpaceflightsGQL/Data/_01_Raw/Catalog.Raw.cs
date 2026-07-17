@@ -55,6 +55,7 @@ public partial class Catalog
   /// Deferred GQL query handle for company data. The consuming step materializes this
   /// via <c>ToList()</c>, which fires the <c>GetCompanies</c> query against the server.
   /// </summary>
+  #region docs:gql-usage
   public IItem<GqlQuery<IGetCompaniesResult, IGetCompanies_Companies>> Companies =>
     CreateItem(() => Item.Of<GqlQuery<IGetCompaniesResult, IGetCompanies_Companies>>("GQLCompanies")
       .GqlDeferred(
@@ -62,6 +63,7 @@ public partial class Catalog
         selectData: r => r.Companies)
       .AllowEmpty()
       .Build());
+  #endregion
 
   /// <summary>
   /// Deferred GQL query handle for shuttle data. The consuming step materializes this

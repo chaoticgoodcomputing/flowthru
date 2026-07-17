@@ -13,9 +13,11 @@ public partial class Catalog
       .Build());
 
   /// <summary>Preprocessed shuttle data with validated and strongly-typed fields.</summary>
+  #region docs:item-parquet
   public IItem<IEnumerable<PreprocessedShuttleSchema>> PreprocessedShuttles =>
     CreateItem(() => Item.Of<IEnumerable<PreprocessedShuttleSchema>>("PreprocessedShuttles")
       .Parquet()
       .AtPath($"{_basePath}/_02_Intermediate/Datasets/preprocessed_shuttles.parquet")
       .Build());
+  #endregion
 }

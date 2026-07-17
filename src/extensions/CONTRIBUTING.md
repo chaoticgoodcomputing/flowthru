@@ -62,8 +62,51 @@ Every extension must include:
 2. **A README per extension** explaining what stack the extension covers, what mental model the user should bring from that stack, and how to start using it. Diátaxis: this is reference + how-to-guide.
 3. **Tests in `tests/extensions/<Extension>`** targeting **80% coverage**. See [tests/extensions/CONTRIBUTING.md](/tests/extensions/CONTRIBUTING.md) for the testing conventions and the `tests/helpers/` utilities.
 4. **A worked example** in `examples/starter/` (for stack integrations that are entry-points for new users) or `examples/advanced/` (for compositions or production patterns). The worked example demonstrates the extension end-to-end in a runnable project — and is what downstream users will copy as a template.
+5. **A skill shard** — `src/extensions/<Extension>/SKILL.md`, the agent-facing companion to the README (see [The Skill Shard](#the-skill-shard)). Its frontmatter feeds the umbrella `flowthru` skill's generated extension index; its body is the deep skill a downstream agent pulls when a project uses the extension.
 
 The Examples integration test exercises every worked example, which automatically exercises every extension. The [`FlowthruCoverage`](/examples/advanced/FlowthruCoverage/) advanced example then processes those coverage reports — extension coverage isn't a separate workflow. Tests in `tests/extensions/` cover the extension's *internals*; the worked example covers its *integration*.
+
+## The Skill Shard
+
+Every extension ships an agent [[Skill shard]] at `src/extensions/<Extension>/SKILL.md`. It sits beside the README and serves the same audience the README's "Mental model" section does — a Flow/Catalog Developer meeting this stack — but written *for an agent working in a downstream project*, where a `README.md` isn't discoverable but a skill is.
+
+The shard is deliberately **not** `SKILL.md`'s default discovery target: it lives under `src/`, which no agent harness walks, so it never pollutes an in-repo session. It becomes discoverable two ways, both driven by the repo-root `.claude-plugin/marketplace.json` manifest that declares it:
+
+1. **Aggregated** — its frontmatter is generated into the umbrella `flowthru` skill's `extensions.md` capability index (`scripts/generate-skill-extensions.mjs`), so an agent that has the umbrella skill can *discover* this extension and the command to pull it.
+2. **Individually installable** — `npx skills add chaoticgoodcomputing/flowthru --skill flowthru-<ext>` installs the shard as a standalone deep skill.
+
+This is the same **purpose → coverage** shape extensions already follow: the umbrella index is the purpose surface (what exists), the shard body is the coverage surface (how to use it).
+
+### Format
+
+```markdown
+---
+name: flowthru-<ext>                 # the `--skill` name; kebab-case, `flowthru-` prefixed
+description: <what it does + "Use when …"> — shown by the skills CLI and Claude Code
+metadata:
+  flowthru:
+    extension: Flowthru.Extensions.<Stack>   # the shippable package this shard documents
+    surface: format | medium | database | engine | step | metadata
+    capability: <one line — the umbrella index row; enough to recognize the capability>
+    register: <the b.UseXxx() call, or a short note if none>
+---
+
+# flowthru-<ext>
+
+<Deep skill body: mental model, register, wire/use, and the gotchas that produce
+errors — distilled from the README, written imperatively for an agent. Not a copy
+of the README; the README is human reference/how-to, the shard is agent how-to.>
+```
+
+The `metadata.flowthru` block is the machine-read contract. Keep `capability` to one line — it is the umbrella index entry, and the whole point is that an agent can scan fifteen of them at a glance. `surface` groups the extension in that index; use an existing value unless a genuinely new kind of surface appears (and if it does, extend the generator's group order in the same change).
+
+### Linking
+
+Link to a specific repo project, example, or source file by its **absolute `https://github.com/chaoticgoodcomputing/flowthru/…` URL** — `/blob/main/<path>` for a file, `/tree/main/<path>` for a directory — never a repo-relative path like `examples/starter/…`. A shard (and the umbrella `flowthru` skill) is read from an *installed copy* in a downstream project, where a repo-relative path resolves to nothing: an absolute URL is clickable for a human and directly fetchable for an agent. The lone exception is a link to a sibling file *inside the same skill* (the umbrella's subdocs cross-reference each other with plain relative names), which must stay relative so it resolves against the installed copy rather than pulling the reader back to the repo.
+
+### Freshness
+
+`extensions.md` is a generated artifact under the documentation-honesty model ([.claude/docs/adr/0008](/.claude/docs/adr/0008-documentation-honesty-three-error-phases.md)): a `--check` freshness test (`nx affected -t test`) fails if a shard changed without regenerating, and CI's `git diff --exit-code` catches an un-regenerated commit. Editing a shard's frontmatter means regenerating the index in the same change — never hand-edit the generated block in `extensions.md`.
 
 ## Compiler-Enforced Coverage (Design Intent)
 
@@ -92,6 +135,9 @@ _Avoid_: plugin developer (Flowthru extensions are first-class citizens, not plu
 
 **Extension surface**: The set of open (unclosed) polymorphic types in Core that Extension Developers implement to add new capability. Three primary surfaces: new Catalog entry types, new Step types, and public interfaces for cross-cutting concerns (metadata, diagnostics). An extension *closes* its slice of the surface by providing concrete implementations of the relevant interfaces or abstract base classes.
 _Avoid_: plugin API, extension point (too generic — Flowthru's surface is type-shaped, not callback-shaped)
+
+**Skill shard**: The agent-facing `SKILL.md` an extension ships at `src/extensions/<Extension>/SKILL.md` — the companion to its README, written for an agent working in a downstream project. Its `metadata.flowthru` frontmatter (`extension`, `surface`, `capability`, `register`) is generated into the umbrella `flowthru` skill's `extensions.md` capability index; its body is a standalone deep skill installable via `npx skills add … --skill flowthru-<ext>`. See [The Skill Shard](#the-skill-shard).
+_Avoid_: skill file (ambiguous with the umbrella skill), extension skill doc (the shard is a skill, not documentation about one)
 
 **Shippable package**: A `src/` project that ships to consumers as — or bundled inside — a NuGet package; the unit the per-package documentation standard governs (a README, an API-reference landing, and a per-package coverage badge). The packable libraries: `Flowthru.Core`, the `Flowthru` umbrella, `Flowthru.Cli`, `Flowthru.FUnit`, and every `Flowthru.Extensions.*`. *Excludes* source-generator and code-fix projects (`IsPackable=false` — they ride *inside* a parent package's `analyzers/`, never standalone) and test projects. The boundary is non-obvious because a package's namespace need not match its name — `Flowthru.Extensions.Csv` declares types in the `Flowthru.Core.Data` namespace, so "which package owns this type" is answered by the assembly, not the namespace, which is why cross-package reference links require an assembly-keyed symbol index rather than namespace inference.
 _Avoid_: project (too broad — sweeps in tests, source generators, and example Flows), assembly (an implementation artifact; a shippable package is the distributable unit and may bundle several assemblies)

@@ -27,6 +27,7 @@ public static class ReportingFlow
       // DuckDB widens aggregates (SUM over an integer column comes back as a
       // 128-bit integer), so the SQL CASTs each aggregate onto the type the
       // output Schema declares; COUNT(*) is already a 64-bit integer.
+      #region docs:transform-duckdb
       pipeline.AddDuckDbTransform(
         label: "SummarizeCompanies",
         input: catalog.ModelInputTable,
@@ -44,6 +45,7 @@ public static class ReportingFlow
           """,
         engine: engine
       );
+      #endregion
 
       // The summaries are small (one row per company), so they cross back into
       // C# here for the narrow per-row work: rank, round, and cut the report.

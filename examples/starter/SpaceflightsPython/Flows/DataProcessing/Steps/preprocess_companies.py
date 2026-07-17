@@ -21,8 +21,10 @@ def _parse_percentage(x: pd.Series) -> pd.Series:
     return x
 
 
+# region docs:step-python-def
 @step(inputs=["CompanySchema"], outputs=["PreprocessedCompanySchema"], cacheable=True)
 def preprocess_companies(companies: pd.DataFrame) -> pd.DataFrame:
+    # endregion
     """Preprocesses the data for companies.
 
     Args:

@@ -66,10 +66,14 @@ public class Program
       flowthru.ConfigureMetadata(meta =>
       {
         var metadataPath = Path.Combine(basePath, "Metadata");
+        #region docs:register-metadata-json
         meta.AddJsonMetadata(opt => opt.WithOutputDirectory(metadataPath));
+        #endregion
+        #region docs:register-metadata-mermaid
         meta.AddMermaidMetadata(opt => opt
           .WithOutputDirectory(metadataPath)
           .WithShowFullDag(false));
+        #endregion
       });
 
       flowthru

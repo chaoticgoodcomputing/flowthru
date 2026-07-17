@@ -14,8 +14,44 @@
         "_test:dead-fixtures",
         "_test:diagnostic-id-registration",
         "_test:package-versions",
-        "_test:starter-shape"
+        "_test:starter-shape",
+        "_test:skill-index-freshness",
+        "_test:skill-links"
       ]
+    },
+    "_test:skill-links": {
+      "//": "Skill files (.claude/skills/flowthru/*.md + src/extensions/*/SKILL.md) link to repo projects/examples/source files by absolute https://github.com/chaoticgoodcomputing/flowthru/… URL, never a repo-relative path — a skill is read from an installed copy downstream where `examples/…` resolves to nothing, but an absolute URL is clickable for a human and fetchable for an agent. Sibling links inside the same skill stay relative and are allowed. See src/extensions/CONTRIBUTING.md § 'The Skill Shard' → 'Linking'. Private subtarget.",
+      "executor": "nx:run-commands",
+      "cache": true,
+      "inputs": [
+        "{workspaceRoot}/.claude/skills/flowthru/**/*.md",
+        "{workspaceRoot}/src/extensions/*/SKILL.md",
+        "{workspaceRoot}/scripts/_test/_lib.mjs",
+        "{workspaceRoot}/scripts/_test/skill-links.mjs"
+      ],
+      "outputs": [],
+      "options": {
+        "commands": [ "node scripts/_test/skill-links.mjs" ],
+        "cwd": "{workspaceRoot}",
+        "parallel": false
+      }
+    },
+    "_test:skill-index-freshness": {
+      "//": "The umbrella `flowthru` skill's extension index (.claude/skills/flowthru/extensions.md) and the vercel-skills plugin manifest (.claude-plugin/marketplace.json) are generated from each src/extensions/<Ext>/SKILL.md shard's frontmatter by scripts/generate-skill-extensions.mjs. This asserts both committed artifacts match a fresh generation — drift means a shard's metadata.flowthru.{extension,surface,capability,register} or a shard add/remove landed without regenerating. Non-mutating (--check). Reliably triggered on any shard edit because the tests project depends on src/ in the graph. See src/extensions/CONTRIBUTING.md § 'The Skill Shard'. Private subtarget.",
+      "executor": "nx:run-commands",
+      "cache": true,
+      "inputs": [
+        "{workspaceRoot}/src/extensions/*/SKILL.md",
+        "{workspaceRoot}/.claude/skills/flowthru/extensions.md",
+        "{workspaceRoot}/.claude-plugin/marketplace.json",
+        "{workspaceRoot}/scripts/generate-skill-extensions.mjs"
+      ],
+      "outputs": [],
+      "options": {
+        "commands": [ "node scripts/generate-skill-extensions.mjs --check" ],
+        "cwd": "{workspaceRoot}",
+        "parallel": false
+      }
     },
     "_test:solution-membership": {
       "//": "Every first-party C# project under src/, tests/, and examples/ is registered in Flowthru.slnx, and every solution entry resolves to a project on disk. Guards the restore-critical invariant: flowthru:restore and docs:_build-reference (docfx --noRestore) restore the solution, not the nx graph, so a project missing from the slnx fails the docs reference build on a fresh CI checkout. Private subtarget.",

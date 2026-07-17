@@ -12,10 +12,12 @@ public partial class Catalog
   /// <see cref="RawSaleSchema"/>'s properties by name and coerces each cell to the
   /// property's declared type on read.
   /// </summary>
+  #region docs:item-google-sheets
   public IItem<IEnumerable<RawSaleSchema>> RawSales =>
     CreateItem(() => ItemFactory.Enumerable.GoogleSheets<RawSaleSchema>(
       label: "RawSales",
       spreadsheetId: _spreadsheetId,
       tableName: "RawSales",
       gateway: _sheets));
+  #endregion
 }

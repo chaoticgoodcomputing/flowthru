@@ -22,6 +22,7 @@ public partial class Catalog
       .AtPath($"{_basePath}/_01_Raw/Datasets/reviews.csv")
       .Build());
 
+  #region docs:item-excel
   /// <summary>Raw shuttle data imported from external sources (Excel).</summary>
   public IItem<IEnumerable<ShuttleSchema>> Shuttles =>
     CreateItem(() => Item.Of<IEnumerable<ShuttleSchema>>("Shuttles")
@@ -29,5 +30,6 @@ public partial class Catalog
       .AtPath($"{_basePath}/_01_Raw/Datasets/shuttles.xlsx")
       .WithSheet("Sheet1")
       .Build());
+  #endregion
 }
 #endregion
