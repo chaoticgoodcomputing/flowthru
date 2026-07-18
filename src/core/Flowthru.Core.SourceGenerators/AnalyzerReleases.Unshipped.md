@@ -34,3 +34,4 @@
 | FT4006  | Flowthru.Runtime    | Error    | Runtime: constraint violated                                       |
 | FT5001  | Flowthru.FUnit      | Warning  | FUnit context registered no fixtures                               |
 | FT5002  | Flowthru.FUnit      | Warning  | Core code attempts throw inside of method with IO/Eff return value |
+| FT5003  | Flowthru.Security   | Warning  | SecretText.Reveal() used in a log / interpolation / format position |
