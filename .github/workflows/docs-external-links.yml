@@ -34,11 +34,38 @@ jobs:
         uses: lycheeverse/lychee-action@v2
         with:
           # Scope to external links only; internal/relative links are gated at
-          # build time. `--no-progress` keeps the log readable in CI.
+          # build time by Starlight's link validator. `--no-progress` keeps the
+          # log readable in CI.
+          #
+          # `--scheme` alone does NOT keep local links out of the report --
+          # lychee still resolves and reports them -- so the local-link noise is
+          # suppressed explicitly:
+          #
+          #   --root-dir      lets root-relative links (`/CONTRIBUTING.md`)
+          #                   resolve at all; without it they fail as
+          #                   unresolvable. This was the bulk of the noise.
+          #   --exclude       drops file:// entirely, so only external links are
+          #                   reported -- which is this workflow's whole remit.
+          #                   Internal links are Starlight's job, and its
+          #                   extensionless URLs (`docs/guides/slicing-pipelines`)
+          #                   are correct for the site but are not files on disk.
+          #   --exclude-path  skips trees we do not author: docfx-generated API
+          #                   reference (broken xrefs there are a generator bug,
+          #                   filed separately) and vendored upstream repos
+          #                   under docs/reference/misc/external.
+          #
+          # `--accept` treats 429 as success: the docs cite learn.microsoft.com
+          # heavily and its rate limiter answers a CI burst with 429s that say
+          # nothing about link health.
           args: >-
             --no-progress
+            --root-dir "${{ github.workspace }}"
             --scheme https --scheme http
             --exclude-loopback
+            --accept 200..=299,429
+            --exclude '^file://'
+            --exclude-path docs/reference/src
+            --exclude-path docs/reference/misc/external
             "docs/**/*.md"
           output: ./lychee-report.md
           fail: false
