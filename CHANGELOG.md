@@ -1,3 +1,20 @@
+## 0.30.0 (2026-07-20)
+
+### 🚀 Features
+
+- SpaceflightsDuckDB starter example ([#146](https://github.com/chaoticgoodcomputing/flowthru/pull/146))
+- wide-transform benchmark example with self-ingested profiling ([#147](https://github.com/chaoticgoodcomputing/flowthru/pull/147))
+
+### 🩹 Fixes
+
+- DuckDB and server-to-server architecture ([#145](https://github.com/chaoticgoodcomputing/flowthru/pull/145), [#133](https://github.com/chaoticgoodcomputing/flowthru/issues/133), [#135](https://github.com/chaoticgoodcomputing/flowthru/issues/135), [#136](https://github.com/chaoticgoodcomputing/flowthru/issues/136), [#137](https://github.com/chaoticgoodcomputing/flowthru/issues/137), [#138](https://github.com/chaoticgoodcomputing/flowthru/issues/138), [#134](https://github.com/chaoticgoodcomputing/flowthru/issues/134), [#139](https://github.com/chaoticgoodcomputing/flowthru/issues/139), [#129](https://github.com/chaoticgoodcomputing/flowthru/issues/129), [#126](https://github.com/chaoticgoodcomputing/flowthru/issues/126), [#127](https://github.com/chaoticgoodcomputing/flowthru/issues/127))
+- secure mechanism for cross-extension handling in cases where extensions can natively use each others credentials. ([853fb12c](https://github.com/chaoticgoodcomputing/flowthru/commit/853fb12c))
+- error registration ([c40014f7](https://github.com/chaoticgoodcomputing/flowthru/commit/c40014f7))
+
+### ❤️ Thank You
+
+- Spencer Elkington
+
 ## 0.29.0 (2026-07-10)
 
 ### 🚀 Features
