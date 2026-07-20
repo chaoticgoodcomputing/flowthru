@@ -8,7 +8,7 @@ This project demonstrates the **effect-as-step** pattern — Steps that consume 
 This project:
 
 - Defines one Flow, `ReportTime`, with four Steps — each reports the current time in a different US timezone (Eastern, Central, Mountain, Pacific).
-- Shares a single `IRemoteTimeService` (an HTTP client for `timeapi.io`) across all four Steps via standard `IServiceCollection` DI; the metadata renderer collapses the shared service so the DAG shows one input Item fanning to four Steps, not a service-node-plus-four-edges.
+- Shares a single `IRemoteTimeService` (an HTTP client for `timeapi.io`) across all four Steps via standard `IServiceCollection` DI; the metadata renderer names the service inside each Step's node and describes it once in a `services` legend, so the shared effect is visible without four crossing edges.
 - Registers `AddFlowServiceInspector<IRemoteTimeService>(...)` to ping the upstream service at startup and fail the run before any Step executes if it's unreachable.
 - Includes inline FUnit tests that use a `FixedTimeService` stub so test runs are deterministic and offline-safe.
 
@@ -32,7 +32,7 @@ Four per-timezone report files land under [`Data/_08_Reporting/Datasets/`](./Dat
 - **[Effect-as-step factory](./Flows/Reporting/Steps/ReportTimeStep.cs):** `ReportTimeStep.Create(IRemoteTimeService, TimeZoneInfo, string)` returns the Step's `Func`. Unlike a vanilla Iris-style Step — where every dependency arrives through the typed input tuple — services arrive as factory parameters and live in the Step's closure, so each invocation calls `timeService.GetCurrentUtcAsync()` inside its own scope. The same factory is invoked four times in [`ReportTimeFlow.cs`](./Flows/Reporting/ReportTimeFlow.cs) with different `TimeZoneInfo` arguments.
 - **[DI registration](./Program.cs):** standard `services.AddSingleton<IRemoteTimeService, TimeApiClient>()` in `Program.cs`. Flowthru picks up service-typed Step parameters from the same container — no extra Flowthru-side wiring.
 - **[Pre-flight service inspector](./Program.cs):** `flowthru.AddFlowServiceInspector<IRemoteTimeService>(...)` registers a startup probe. If `timeapi.io` is unreachable, the harness aborts the run before invoking any Step — fail-fast at the effect boundary.
-- **[Metadata service-node collapse](./Program.cs):** the metadata renderer recognizes `IRemoteTimeService` as a shared effect across all four Steps and elides it from the rendered DAG — automatic, no opt-in needed. Only the Catalog inputs and outputs appear in the diagram, keeping the DAG focused on data flow rather than dependency wiring.
+- **[Metadata service rendering](./Program.cs):** the metadata renderer recognizes `IRemoteTimeService` as a shared effect across all four Steps and renders it without adding edges — automatic, no opt-in needed. Each consuming Step's node carries the service name in a second compartment (`ReportEastern ── IRemoteTimeService`), and a separate `services` legend describes it once, including its cache and concurrency profile (`cache: affecting`, `cap: ∞`). Arrows in the diagram therefore remain data flow only: a shared service would otherwise contribute one edge per consumer, and the crossings grow with the fan-out while telling you nothing you can't read off the node itself.
 - **[FixedTimeService stub](./Flows/Reporting/Steps/ReportTimeStep.cs):** the nested `Tests : FUnitContext` class inside `ReportTimeStep.cs` uses a fixed-time implementation of `IRemoteTimeService` so test runs don't depend on network access or wall-clock drift.
 
 ## Structure
