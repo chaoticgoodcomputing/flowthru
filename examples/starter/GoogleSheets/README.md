@@ -70,7 +70,7 @@ Set `<your-spreadsheet-id>` to the id from the sheet's URL (`docs.google.com/spr
 
 ### No Google Cloud project? Verify with Apps Script
 
-Apps Script can't *run* this .NET example — the example authenticates through a `SheetsService`, and Apps Script runs inside Google, not in your process. But if you have no GCP project and just want to **confirm native Tables behave as the extension expects**, or **inspect the table Flowthru created**, you can do it with zero project setup: open your sheet's *Extensions → Apps Script* editor and run [`spikes/google-sheets-tables/AppsScript.gs`](../../../spikes/google-sheets-tables). It creates and reads a typed table the same way the extension does, under your own account. (A deployed Apps Script *Web App* as a connection backend was considered and rejected on security grounds — see ADR-0018.)
+Apps Script can't *run* this .NET example — the example authenticates through a `SheetsService`, and Apps Script runs inside Google, not in your process. But if you have no GCP project and just want to **confirm native Tables behave as the extension expects**, or **inspect the table Flowthru created**, you can do it with zero project setup: open your sheet's *Extensions → Apps Script* editor and run the verification script, recoverable from git history with `git show ae788068:spikes/google-sheets-tables/AppsScript.gs` (the `spikes/` tree was removed in `d94cc3f9` once the design it validated had landed). It creates and reads a typed table the same way the extension does, under your own account. (A deployed Apps Script *Web App* as a connection backend was considered and rejected on security grounds — see ADR-0027.)
 
 ## Concepts
 
