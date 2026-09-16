@@ -52,6 +52,8 @@ Architectural decisions live in **per-context `docs/adr/` directories** — root
 
 Despite sitting under `docs/`, root ADRs are **not published**: `ingest-docs.mjs` ingests only `docs/{tutorials,guides,explanation,reference}`, and its link interceptor resolves `docs/adr/` as repo source so a citation never points at a page that cannot exist.
 
+**An ADR on `main` is implemented.** `main` is the canonical state of the repository, so an ADR merged into it describes something the repo actually does — it arrives with the work that implements it. A decision still under review lives on its own `adr/<slug>` branch and merges when its implementation does. There is deliberately no `proposed` status: it would need an exemption from the non-empty-`exemplars` rule, and every exemption is a way to assert a decision without practising it.
+
 **Numbering is per-directory**, so several directories each start at `0001` and a bare `ADR-NNNN` identifies nothing. Every citation — prose, and `.cs` doc comments alike — must be a link carrying the full root-anchored path: `[ADR-0006](/src/core/docs/adr/0006-….md)`. `CONTRIBUTING.md` files are the exception in the other direction: they reference only *that* an ADR directory exists, never a specific ADR.
 
 Citations are validated: `_test:adr-citations` fails on a **bare** `ADR-NNNN` (not resolvable under per-directory numbering) and on any Markdown link into an ADR directory that does not resolve on disk — including in `.cs` doc comments, which the Markdown link linter cannot see but which are built into reference documentation. `_test:adr-frontmatter` validates the `contexts` / `exemplars` / `status` contract on ADRs that declare it.
