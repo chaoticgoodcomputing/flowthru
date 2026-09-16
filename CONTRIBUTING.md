@@ -46,6 +46,30 @@ Testing-specific conventions for each context live in [tests/core/CONTRIBUTING.m
 
 The design rules in this document apply to all five roles regardless of which context they're working in.
 
+## Context Map
+
+<!-- flowthru:contexts:start -->
+
+A directory is a context iff it *directly* contains a `CONTRIBUTING.md`. This
+table is generated from the repo layout by `scripts/generate-context-map.mjs` —
+to add a context, add its `CONTRIBUTING.md` and re-run the generator.
+
+| Context | Conventions | Owns ADRs |
+|---|---|---|
+| `/` | [CONTRIBUTING.md](/CONTRIBUTING.md) | [`docs/adr/`](/docs/adr) |
+| `docs` | [docs/CONTRIBUTING.md](/docs/CONTRIBUTING.md) | no |
+| `examples` | [examples/CONTRIBUTING.md](/examples/CONTRIBUTING.md) | yes — none yet |
+| `src/core` | [src/core/CONTRIBUTING.md](/src/core/CONTRIBUTING.md) | yes — none yet |
+| `src/extensions` | [src/extensions/CONTRIBUTING.md](/src/extensions/CONTRIBUTING.md) | yes — none yet |
+| `src/tools` | [src/tools/CONTRIBUTING.md](/src/tools/CONTRIBUTING.md) | yes — none yet |
+| `tests/core` | [tests/core/CONTRIBUTING.md](/tests/core/CONTRIBUTING.md) | yes — none yet |
+| `tests/extensions` | [tests/extensions/CONTRIBUTING.md](/tests/extensions/CONTRIBUTING.md) | yes — none yet |
+
+8 context(s). A context may own ADRs under its own `docs/adr/`;
+`docs/` is the single exclusion, since documentation decisions are repo-wide.
+
+<!-- flowthru:contexts:end -->
+
 ## What Flowthru *Won't* Be
 
 Flowthru, at its core, will *not* be a full piece of orchestration software. The core library will not be concerned with when or how users want to run their Flows — just that it will be correctly configured, and as stable as possible, when they do.

@@ -21,8 +21,29 @@ or multiple repos / external indices.
 | `diagnostic-id-registration.mjs` | Every FT diagnostic constant is also listed in `AnalyzerReleases.{Shipped,Unshipped}.md` | Compares C# constants against markdown release tracking — straddles two source kinds. |
 | `package-versions.mjs` | Central package versions in `Directory.Packages.props` are consistent with consumer csprojs | Reads csproj XML across the repo. |
 | `project-mirror.mjs` | The mirror property holds: every csproj has a sibling test/code-fix/source-gen csproj where the layout demands it | Filesystem-shape check across projects. |
+| `context-file-guard.mjs` | No `CONTEXT.md` / `CONTEXT-MAP.md` exists anywhere | Walks the filesystem for a banned filename — there is no type graph to reflect over. |
+| `wikilink-terms.mjs` | Every `[[Term]]` resolves to a glossary entry in some context's `CONTRIBUTING.md` | Resolves Markdown prose against Markdown glossaries; no assembly involved. |
+| `adr-citations.mjs` | Every `ADR-NNNN` names a real ADR, and every link into an ADR directory resolves | Straddles `.cs` comments and `.md` prose — the bare-text citations are invisible to a link linter. |
+| `adr-frontmatter.mjs` | A migrated ADR's `contexts` / `exemplars` / `status` frontmatter is valid | Reads YAML frontmatter and resolves exemplar paths on disk. |
 | `capability-matrix.cs` | Source for the capability matrix derivation tool | Companion compiled binary, not a meta-test itself. |
 | `_lib.mjs` | Shared helpers used by the scripts above | — |
+| `_domain.mjs` | Shared definitions of context / glossary term / ADR for the four gates above | — |
+
+## Generators with a `--check` freshness gate
+
+Two invariants are enforced by *generating* the artifact and diffing it against
+the committed copy, rather than by re-deriving an assertion. The generator lives
+under `scripts/` (it has a write mode contributors run); the freshness check is
+the `--check` flag, wired as a `_test:` subtarget:
+
+| Generator | Artifact | Subtarget |
+|---|---|---|
+| `scripts/generate-context-map.mjs` | The context map block in root `/CONTRIBUTING.md` | `_test:context-map-freshness` |
+| `scripts/generate-skill-extensions.mjs` | `src/core/Flowthru.Core/skill/extensions.md` + `.claude-plugin/marketplace.json` | `_test:skill-index-freshness` |
+
+The context set is derivable — every directory *directly* containing a
+`CONTRIBUTING.md` (epic #154) — so a hand-maintained map is guaranteed to drift.
+On failure, run the generator and commit the result.
 
 ## Migrated to architecture tests
 
