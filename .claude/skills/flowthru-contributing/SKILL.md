@@ -19,11 +19,11 @@ The Agent stop hooks (`scripts/agents/hooks/on-stop/`) run affected tests automa
 
 ## Issues
 
-GitHub issues at [chaoticgoodcomputing/flowthru](https://github.com/chaoticgoodcomputing/flowthru/issues), via the `gh` CLI. Non-trivial in-session reports become filed issues before being acted on beyond the conversation. Conventions: [.claude/docs/issue-tracker.md](/.claude/docs/issue-tracker.md).
+GitHub issues at [chaoticgoodcomputing/flowthru](https://github.com/chaoticgoodcomputing/flowthru/issues), via the `github-cgc` MCP server (**not** the `gh` CLI — it is 1Password-wrapped and cannot authorize in an agent shell). Non-trivial in-session reports become filed issues before being acted on beyond the conversation. Conventions: [.claude/docs/issue-tracker.md](/.claude/docs/issue-tracker.md).
 
 ## Triage
 
-Five canonical role labels (`needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`), used verbatim. Mapping and `gh label create` commands: [.claude/docs/triage-labels.md](/.claude/docs/triage-labels.md).
+Five canonical role labels (`needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`), used verbatim. Mapping and label-creation commands: [.claude/docs/triage-labels.md](/.claude/docs/triage-labels.md).
 
 ## Domain output rules
 
