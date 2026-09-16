@@ -8,7 +8,7 @@ public sealed record ServiceUsageMember(string StepLabel, ConflictOp Op);
 
 /// <summary>
 /// A distinct service used across a flow, with its resolved
-/// <see cref="ServiceProfile"/> and the steps that touch it (ADR-0019). The
+/// <see cref="ServiceProfile"/> and the steps that touch it ([ADR-0006](/src/core/docs/adr/0006-concurrency-conflict-relation-and-resource-profiles.md)). The
 /// unified signal behind DAG metadata — the Mermaid services legend and the
 /// JSON <c>services</c> array both project this. A "conflict group" is the
 /// derived view: a service whose capacity is finite and exceeded by the

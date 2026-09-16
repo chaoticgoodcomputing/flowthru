@@ -5,7 +5,7 @@ using Flowthru.Data.Storage;
 namespace Flowthru.Core.Tests.Storage;
 
 /// <summary>
-/// Pins the <see cref="SecretText"/> containment invariants (ADR-0026): the
+/// Pins the <see cref="SecretText"/> containment invariants ([ADR-0010](/src/core/docs/adr/0010-typed-access-handoff-and-secret-containment.md)): the
 /// value is reachable only through <see cref="SecretText.Reveal"/>; it never
 /// surfaces through <c>ToString</c> (including by composition through an
 /// enclosing record); System.Text.Json refuses it in both directions; and

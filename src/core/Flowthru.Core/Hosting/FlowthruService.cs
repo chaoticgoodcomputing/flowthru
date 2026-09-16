@@ -338,7 +338,7 @@ public sealed class FlowthruService : IFlowthruService
       RequestedFlowLabel = flowLabel,
       BypassCacheReads = options.BypassCacheReads,
       // Hand providers the resolved profiles so they can surface conflict
-      // groups (ADR-0019) — the same provider the scheduler gates on.
+      // groups ([ADR-0006](/src/core/docs/adr/0006-concurrency-conflict-relation-and-resource-profiles.md)) — the same provider the scheduler gates on.
       ServiceProfiles = _services.GetService<IServiceProfileProvider>(),
     };
 

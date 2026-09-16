@@ -127,7 +127,7 @@ public static class S3FlowthruBuilderExtensions
   private static IFlowthruBuilder RegisterProvider(IFlowthruBuilder builder)
   {
     // Resolve the read profile for the medium's shared memory-domain dependency
-    // (ADR-0019, #111). Registered on every UseS3 path; a no-op until a finite
+    // ([ADR-0006](/src/core/docs/adr/0006-concurrency-conflict-relation-and-resource-profiles.md), #111). Registered on every UseS3 path; a no-op until a finite
     // MaxConcurrentReads is declared, so default behaviour is unchanged.
     builder.Services.TryAddEnumerable(
       ServiceDescriptor.Singleton<IServiceProfileContributor, S3ReadProfileContributor>());

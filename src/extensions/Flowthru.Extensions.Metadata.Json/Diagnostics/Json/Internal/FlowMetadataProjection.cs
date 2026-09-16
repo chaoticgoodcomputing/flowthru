@@ -61,7 +61,7 @@ internal sealed record DagMetadataProjection
 
   /// <summary>
   /// Every service used in the DAG with its resolved profile and the steps
-  /// that touch it (ADR-0019): capacity (write/read), cacheability, the ops
+  /// that touch it ([ADR-0006](/src/core/docs/adr/0006-concurrency-conflict-relation-and-resource-profiles.md)): capacity (write/read), cacheability, the ops
   /// it's used under, and its members. A service whose finite capacity is
   /// exceeded by its users reports <c>serializes: true</c> — the
   /// conflict-group view. Empty when the flow declares no service deps.
@@ -148,7 +148,7 @@ internal sealed record DagMetadataProjection
 /// <summary>
 /// One service used in the DAG: its resolved profile (capacities,
 /// cacheability), the ops it's touched under, whether it serializes its
-/// users, and the steps that use it (ADR-0019).
+/// users, and the steps that use it ([ADR-0006](/src/core/docs/adr/0006-concurrency-conflict-relation-and-resource-profiles.md)).
 /// </summary>
 internal sealed record ServiceProjection
 {

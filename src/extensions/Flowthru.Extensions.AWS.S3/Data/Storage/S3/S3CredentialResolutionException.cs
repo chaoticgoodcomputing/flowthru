@@ -7,7 +7,7 @@ namespace Flowthru.Data.Storage.S3;
 /// the underlying AWS SDK exception, which can echo endpoint or request context.
 /// It retains no inner cause, so nothing sensitive can be reconstructed from the
 /// error as it flows through the <c>FlowIO</c> channel to a persisted run
-/// record. See ADR-0026's reveal-site containment.
+/// record. See [ADR-0010](/src/core/docs/adr/0010-typed-access-handoff-and-secret-containment.md)'s reveal-site containment.
 /// </summary>
 public sealed class S3CredentialResolutionException : Exception
 {

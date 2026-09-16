@@ -7,7 +7,13 @@
  * The contract, from #154:
  *   contexts   — who DECIDED (direct application only)
  *   exemplars  — files demonstrating the decision in practice, non-empty
- *   status     — accepted | superseded | rejected
+ *   status     — accepted | proposed | superseded | rejected
+ *
+ * `proposed` extends #154's three-value vocabulary. The migration surfaced three
+ * ADRs that decide something nothing yet implements — the diagnostic anchor
+ * contract, the Inspector RPC surface, and the Lambda harness (whose package does
+ * not exist). That is precisely the "asserted but not practised" case the
+ * exemplars rule exists to expose, so it is recorded rather than papered over.
  *
  * `exemplars` is what makes an ADR falsifiable: it is the difference between a
  * decision that is *practised* and one that is merely *asserted*. ADR-0019
@@ -52,9 +58,18 @@ import {
 } from './_domain.mjs';
 
 const TARGET = '_test:adr-frontmatter';
-const VALID_STATUS = ['accepted', 'superseded', 'rejected'];
-/** Statuses exempt from the non-empty-exemplars requirement (their exemplars may be gone). */
-const EXEMPT_FROM_EXEMPLARS = new Set(['superseded', 'rejected']);
+const VALID_STATUS = ['accepted', 'proposed', 'superseded', 'rejected'];
+/**
+ * Statuses exempt from the non-empty-exemplars requirement.
+ *
+ * `superseded` / `rejected` — their exemplars are expected to be GONE (ADR-0001's
+ * exemplar was /GLOSSARY.md, which ADR-0004 deleted).
+ * `proposed` — their exemplars do not exist YET. A proposed decision is by
+ * definition not practised, so demanding one would force either a fabricated
+ * exemplar or a false `accepted`. Keeping `proposed` honest is what lets
+ * `accepted` keep its teeth: accepted means *something demonstrates this*.
+ */
+const EXEMPT_FROM_EXEMPLARS = new Set(['proposed', 'superseded', 'rejected']);
 
 const allContexts = contexts();
 const known = adrs(allContexts);
@@ -147,8 +162,8 @@ if (violations.length > 0) {
     'The #154 frontmatter contract:\n' +
       '    contexts:  who DECIDED — direct application only\n' +
       '    exemplars: files demonstrating the decision in practice (non-empty unless\n' +
-      '               status is superseded or rejected)\n' +
-      '    status:    accepted | superseded | rejected',
+      '               status is proposed, superseded or rejected)\n' +
+      '    status:    accepted | proposed | superseded | rejected',
   );
 }
 

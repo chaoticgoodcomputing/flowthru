@@ -1,3 +1,13 @@
+---
+status: accepted
+contexts:
+  - /
+exemplars:
+  - /docs/project.json
+  - /scripts/docfx-metadata.sh
+  - /src/website/scripts/ingest-docs.mjs
+---
+
 # Per-package documentation: colocated, committed, self-contained; scope-primary site IA
 
 Flowthru documents each [[Shippable package]] as a self-contained unit. Generated API reference (docfx markdown) colocates under `<project>/docs/reference/` and is committed and freshness-gated, mirroring the existing snippet and capability-matrix generated artifacts (`docs/project.json`, `scripts/docfx-metadata.sh`). Each package carries a hand-authored `README.md` — a uniform skeleton (title/blurb, coverage badge, "What it is", install/getting-started, reference link), with extensions adding a "stack + mental model" section — that serves as both the NuGet/GitHub landing and the package's reference index on the site. The site's information architecture is **scope-primary** — `Docs` (Flowthru-wide), `Packages`, `Examples` — with Diátaxis nested inside each scope, so a package's API reference lives under its package rather than in a single flat Reference quadrant.

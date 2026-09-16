@@ -10,7 +10,7 @@ namespace Flowthru.Data.Storage;
 /// <see cref="FileStream"/>. Already-seekable sources pass through untouched.
 /// </summary>
 /// <remarks>
-/// This is the shared "make-seekable" primitive (ADR-0023) so Parquet and Excel
+/// This is the shared "make-seekable" primitive ([ADR-0008](/src/core/docs/adr/0008-streaming-reads-as-catalog-item-type.md)) so Parquet and Excel
 /// don't each carry their own copy/seek/dispose logic. The temp file is created
 /// with <see cref="FileOptions.DeleteOnClose"/>, so <see cref="DisposeAsync"/>
 /// deletes it — and the lifetime is owned by the caller's <c>await using</c>,

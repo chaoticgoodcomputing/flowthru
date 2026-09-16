@@ -1,3 +1,11 @@
+---
+status: accepted
+contexts:
+  - /src/core
+exemplars:
+  - /src/core/Flowthru.Core/Prelude/IFlowResourceProvider.cs
+---
+
 # File-based Python transit and IFlowResourceProvider
 
 The Python step boundary serializes all inputs/outputs — including large tabular data — as base64 Arrow IPC embedded in a JSON line over stdin. This hits `System.Text.Json`'s value-length cap at ~160 MB and wastes memory on the 4/3× base64 inflation for every payload regardless of size. We're replacing the inline encoding with file-based transit: tabular data writes to Arrow IPC files on disk, bytes write to raw binary files, and the JSON envelope shrinks to metadata + file paths. To manage the transit scratch directory lifecycle with error-aware cleanup ("preserve on failure for debugging"), we're introducing `IFlowResourceProvider` — a new Core interface that generalizes `FlowResource` discovery beyond catalogs to any DI-registered service.

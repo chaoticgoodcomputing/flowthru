@@ -1,3 +1,10 @@
+---
+status: proposed
+contexts:
+  - /src/tools
+exemplars: []
+---
+
 # Inspector RPC: protocol, consent, schema, v1 surface
 
 The [[Inspector]]'s RPC binds Editor Frontends (the planned VSCode extension) and Agent Frontends (an MCP server) to the same Flowthru introspection backbone. Four decisions define the v1 contract.

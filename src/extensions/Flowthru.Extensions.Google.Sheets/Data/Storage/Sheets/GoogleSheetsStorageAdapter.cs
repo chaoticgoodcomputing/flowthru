@@ -53,7 +53,7 @@ public sealed class GoogleSheetsStorageAdapter<TRow>
   /// Concurrent writers permitted against one spreadsheet. A Save is a
   /// single atomic <c>batchUpdate</c> per spreadsheet, and two of them
   /// race on overlapping ranges while doubling the per-user quota draw —
-  /// so writes to one spreadsheet serialize (ADR-0019).
+  /// so writes to one spreadsheet serialize ([ADR-0006](/src/core/docs/adr/0006-concurrency-conflict-relation-and-resource-profiles.md)).
   /// </summary>
   private const int SpreadsheetWriteCapacity = 1;
 
@@ -103,7 +103,7 @@ public sealed class GoogleSheetsStorageAdapter<TRow>
     IsTransactional = true,
     CanStream = false,
     // The spreadsheet is the conflict resource: concurrent writers
-    // serialize (ADR-0019), readers parallelize.
+    // serialize ([ADR-0006](/src/core/docs/adr/0006-concurrency-conflict-relation-and-resource-profiles.md)), readers parallelize.
     WriteCapacity = SpreadsheetWriteCapacity,
     ReadCapacity = int.MaxValue,
   };

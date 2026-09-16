@@ -1,12 +1,18 @@
 ---
 status: accepted
+contexts:
+  - /src/core
+exemplars:
+  - /src/core/Flowthru.Core/Validation/Runtime/ConflictKeys.cs
+  - /src/core/Flowthru.Core/Step/IStepNode.cs
+  - /src/core/Flowthru.Core/Flow/ExecutionOptions.cs
 ---
 
 # Step concurrency is a conflict relation over the DAG, driven by per-resource capacity profiles
 
 The DAG encodes one relation between nodes — **precedence** (a producer before its consumer), the partial order `DependencyAnalyzer` topologically sorts and `ParallelFlowScheduler` relaxes into parallel execution. That relaxation is currently unsound: the scheduler assumes any two precedence-incomparable steps may co-run, but two steps that share a non-shareable side-effecting resource must not, even with no data dependency between them. We will model that second, orthogonal relation — **conflict** — at the scheduler layer, derived from per-resource **capacity profiles**, without changing the place/arrow category itself. A node may run iff it is unblocked by precedence (already handled) *and* admitting it would not exceed any shared resource's capacity. The motivating instance is the Python worker: `IPythonExecutor` is a singleton ([PythonFlowthruBuilderExtensions.cs:67](/src/extensions/Flowthru.Extensions.Python/Hosting/PythonFlowthruBuilderExtensions.cs#L67)) whose `SendRequest` serializes every call on one lock over one worker pipe ([SubprocessPythonExecutor.cs:587](/src/extensions/Flowthru.Extensions.Python/Step/Python/Internal/SubprocessPythonExecutor.cs#L587)), so raising `ExecutionOptions.Parallelism` ([ExecutionOptions.cs](/src/core/Flowthru.Core/Flow/ExecutionOptions.cs)) above 1 on a Python-heavy flow yields zero real concurrency and a net loss (lock queueing plus blocked threadpool threads). EFCore is the second instance on a different node archetype: SQLite is single-writer, so concurrent saves to one `DbScope` ([DbScope.cs](/src/extensions/Flowthru.Extensions.EFCore/Data/Storage/EFCore/DbScope.cs)) fail at runtime — the same class of silent-runtime failure, surfaced through an item rather than a step.
 
-This is the **orthogonal twin of the caching decision**. The cache planner already triages the same `ServiceDependencies` ([IStepNode.cs:110](/src/core/Flowthru.Core/Step/IStepNode.cs#L110)) on a different axis — a step is cacheable iff it has no output-affecting service deps, with the `ObservationOnly` variant carved out as cache-neutral ([CachePlanBuilder.cs:126](/src/core/Flowthru.Core/Caching/CachePlanBuilder.cs#L126), [ADR-0010](./0010-observation-only-service-refs.md)). Parallel-safety is the same fold over the same carrier, reading a different per-service bit. A service therefore has a **profile** with independent fields: `AffectsOutputs` (cache) and a concurrency `Capacity` (scheduler). The Python executor is the proof these must be independent: it is cache-*neutral* (determinism is captured by `CodeVersion` derived from `.py` source + interpreter + lockfile, so a pure `@step(cacheable=True)` Python step is correctly cacheable) yet concurrency-*constrained* (capacity 1). No single flag — including `ObservationOnly` — can express "cache-neutral but serial," because the executor is the opposite of observation-only: its call *produces* the output.
+This is the **orthogonal twin of the caching decision**. The cache planner already triages the same `ServiceDependencies` ([IStepNode.cs:110](/src/core/Flowthru.Core/Step/IStepNode.cs#L110)) on a different axis — a step is cacheable iff it has no output-affecting service deps, with the `ObservationOnly` variant carved out as cache-neutral ([CachePlanBuilder.cs:126](/src/core/Flowthru.Core/Caching/CachePlanBuilder.cs#L126), [ADR-0003](/src/core/docs/adr/0003-observation-only-service-refs.md)). Parallel-safety is the same fold over the same carrier, reading a different per-service bit. A service therefore has a **profile** with independent fields: `AffectsOutputs` (cache) and a concurrency `Capacity` (scheduler). The Python executor is the proof these must be independent: it is cache-*neutral* (determinism is captured by `CodeVersion` derived from `.py` source + interpreter + lockfile, so a pure `@step(cacheable=True)` Python step is correctly cacheable) yet concurrency-*constrained* (capacity 1). No single flag — including `ObservationOnly` — can express "cache-neutral but serial," because the executor is the opposite of observation-only: its call *produces* the output.
 
 ## Decided
 
@@ -45,7 +51,7 @@ Extension rework (bounded by the default-∞ choice):
 - **Opt-in cap** — GQL, HTTP (network/rate-limited; ∞ is the default, a cap is opt-in).
 - **None** — the file adapters Csv, Parquet, Excel, Xml (∞ holds; the single-producer law already prevents two steps writing one file — Excel multi-sheet-in-one-workbook is the lone edge case) and the Metadata.* report emitters.
 
-The profile is the natural carrier for a third axis when the AWS Lambda harness ([ADR-0017](./0017-aws-lambda-harness.md)) needs to describe how a service behaves across an invocation boundary — same pattern, additional field.
+The profile is the natural carrier for a third axis when the AWS Lambda harness ([ADR-0017](/docs/adr/0017-aws-lambda-harness.md)) needs to describe how a service behaves across an invocation boundary — same pattern, additional field.
 
 ## Anchor code
 

@@ -319,7 +319,7 @@ public class DuckDbSqlPreFlightTests
   {
     var service = HostService(sql: "SELECT Id, Country, 1 AS Extra FROM events");
 
-    // The offline smoke test pairing from ADR-0021: nothing executes,
+    // The offline smoke test pairing from [ADR-0007](/src/core/docs/adr/0007-hermetic-preflight-depth-and-structural-validation-as-data.md): nothing executes,
     // nothing external is reached — and the broken SQL still fails.
     var result = await service.RunAsync(options: new ExecutionOptions
     {

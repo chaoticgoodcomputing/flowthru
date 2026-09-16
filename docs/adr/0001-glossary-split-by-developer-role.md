@@ -1,5 +1,9 @@
 ---
-status: superseded by 0004
+status: superseded
+superseded_by: /docs/adr/0004-multi-context-contributing-supersedes-glossary.md
+contexts:
+  - /
+exemplars: []
 ---
 
 # Glossary split into /GLOSSARY.md, sectioned by Developer role

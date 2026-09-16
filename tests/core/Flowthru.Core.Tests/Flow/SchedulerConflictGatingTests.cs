@@ -14,7 +14,7 @@ namespace Flowthru.Core.Tests.Flow;
 /// conflict key, derived from a step's
 /// <see cref="IStepNode.ServiceDependencies"/>. Two steps that share a
 /// capacity-1 service must serialize even under high parallelism, while
-/// steps with no constrained dependency run concurrently. (ADR-0019.)
+/// steps with no constrained dependency run concurrently. ([ADR-0006](/src/core/docs/adr/0006-concurrency-conflict-relation-and-resource-profiles.md).)
 /// </summary>
 [TestFixture]
 public class SchedulerConflictGatingTests

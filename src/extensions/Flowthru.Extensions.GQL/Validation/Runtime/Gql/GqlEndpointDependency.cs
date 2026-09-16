@@ -2,7 +2,7 @@ namespace Flowthru.Validation.Runtime.Gql;
 
 /// <summary>
 /// Conflict identity of a GraphQL endpoint a catalog item has been
-/// <em>opted in</em> to throttle (ADR-0019, issue #104). GQL adapters are
+/// <em>opted in</em> to throttle ([ADR-0006](/src/core/docs/adr/0006-concurrency-conflict-relation-and-resource-profiles.md), issue #104). GQL adapters are
 /// parallel-safe by default — reads are idempotent and there's no shared
 /// mutable state — so this dependency only exists when a catalog author
 /// caps concurrency against a rate-limited endpoint via

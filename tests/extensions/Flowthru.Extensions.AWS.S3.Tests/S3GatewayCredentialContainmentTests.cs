@@ -4,7 +4,7 @@ using Flowthru.Data.Storage.S3;
 namespace Flowthru.Extensions.AWS.S3.Tests;
 
 /// <summary>
-/// The S3 gateway's reveal site (ADR-0026): resolved AWS credentials become
+/// The S3 gateway's reveal site ([ADR-0010](/src/core/docs/adr/0010-typed-access-handoff-and-secret-containment.md)): resolved AWS credentials become
 /// contained <c>SecretText</c>, and a resolution failure is contained as a
 /// secret-free exception that retains no raw cause. Exercises the mint and the
 /// containment contract offline — the gated MinIO/live backends cover the wiring.

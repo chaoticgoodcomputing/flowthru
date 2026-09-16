@@ -6,7 +6,7 @@ namespace Flowthru.Data.Storage.EFCore.Internal;
 
 /// <summary>
 /// Derives the scheduler conflict profile for the database a context
-/// targets (ADR-0019). The conflict <em>identity</em> is the physical
+/// targets ([ADR-0006](/src/core/docs/adr/0006-concurrency-conflict-relation-and-resource-profiles.md)). The conflict <em>identity</em> is the physical
 /// database (provider + data source + database name), so two catalog
 /// items that point at the same SQLite file serialize their writes even
 /// when wired from separate factories. The per-operation <em>capacity</em>

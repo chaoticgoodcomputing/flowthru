@@ -13,7 +13,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Flowthru.Extensions.AWS.S3.Tests;
 
 /// <summary>
-/// Prototype validation for the issue #111 fix (ADR-0019): declaring
+/// Prototype validation for the issue #111 fix ([ADR-0006](/src/core/docs/adr/0006-concurrency-conflict-relation-and-resource-profiles.md)): declaring
 /// <c>S3Options.MaxConcurrentReads</c> bounds how many <c>s3://</c> Parquet reads
 /// the scheduler dispatches at once. All S3 reads share one memory-domain
 /// conflict key (<c>Read:s3:read</c>), so distinct objects gate together — the

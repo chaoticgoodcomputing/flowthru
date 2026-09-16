@@ -63,6 +63,12 @@ const DOCFX_ANCHOR_RE = /<a\s+id="[^"]*"\s*><\/a>\s*/gi;
 //   - resolves INSIDE docs/ → site-internal. Root-anchored `/docs/...` links
 //     get the Astro base prefix + slug normalisation; file-relative links are
 //     left untouched for Astro to resolve.
+//   - EXCEPT `docs/adr/` → GitHub. ADRs live under docs/ but are deliberately
+//     never ingested (ingest covers {tutorials,guides,explanation,reference}
+//     only), so treating them as site-internal mints a link to a page that
+//     cannot exist. They are repo-only by decision, so they resolve like any
+//     other repo source. This matters because generated reference pages carry
+//     ADR citations from C# docstrings.
 //   - ESCAPES docs/ (repo source: src/, examples/, CONTRIBUTING.md, …) →
 //     rewritten to an absolute GitHub URL (blob for files, tree for dirs), so a
 //     contributor page can reference source with a natural relative path and
@@ -98,7 +104,9 @@ function rewriteOneLink(url, relPath) {
     repoRel = posix.normalize(posix.join("docs", fileDir, path));
   }
   const clean = repoRel.replace(/\/+$/, "");
-  const inDocs = clean === "docs" || clean.startsWith("docs/");
+  // ADRs sit under docs/ but are never ingested — resolve them as repo source.
+  const isAdr = clean === "docs/adr" || clean.startsWith("docs/adr/");
+  const inDocs = !isAdr && (clean === "docs" || clean.startsWith("docs/"));
 
   if (inDocs) {
     if (!path.startsWith("/")) return url; // relative in-docs link — Astro resolves it

@@ -11,7 +11,7 @@ using SysIO = System.IO;
 namespace Flowthru.Extensions.Metadata.Json.Tests;
 
 /// <summary>
-/// Coverage for the <c>services</c> signal (ADR-0019, #100 s7) in the JSON
+/// Coverage for the <c>services</c> signal ([ADR-0006](/src/core/docs/adr/0006-concurrency-conflict-relation-and-resource-profiles.md), #100 s7) in the JSON
 /// DAG manifest: every service used in the flow is listed with its profile
 /// (capacity, cacheability) and the steps that use it; a finite capacity
 /// exceeded by its users reports <c>serializes: true</c> — the conflict-group

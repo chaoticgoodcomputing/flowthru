@@ -228,7 +228,7 @@ public class Ft1303ExtensionCapabilityMarshallerAlignmentTests
   public async Task SourceDeclared_WithoutMarshaller_Silent()
   {
     // StepContainerKind.Source (a FlowSource<T> streaming payload) has no
-    // marshaller marker — per ADR-0023 a FlowSource is consumed by
+    // marshaller marker — per [ADR-0008](/src/core/docs/adr/0008-streaming-reads-as-catalog-item-type.md) a FlowSource is consumed by
     // compiling back into FlowIO, not marshalled across a marker seam —
     // so declaring it never fires an alignment diagnostic.
     var consumer = """

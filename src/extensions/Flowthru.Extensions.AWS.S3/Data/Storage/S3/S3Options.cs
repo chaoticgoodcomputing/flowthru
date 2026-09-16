@@ -51,7 +51,7 @@ public sealed class S3Options
   /// <summary>
   /// Maximum number of <c>s3://</c> object reads the scheduler may run
   /// concurrently across the whole flow. <see cref="int.MaxValue"/> (the
-  /// default) is unbounded — the ADR-0019 "network is parallel-safe" posture.
+  /// default) is unbounded — the [ADR-0006](/src/core/docs/adr/0006-concurrency-conflict-relation-and-resource-profiles.md) "network is parallel-safe" posture.
   /// </summary>
   /// <remarks>
   /// Lower this on memory-constrained hosts. A seek-required format (Parquet,

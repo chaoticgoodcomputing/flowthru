@@ -59,13 +59,15 @@ to add a context, add its `CONTRIBUTING.md` and re-run the generator.
 | `/` | [CONTRIBUTING.md](/CONTRIBUTING.md) | [`docs/adr/`](/docs/adr) |
 | `docs` | [docs/CONTRIBUTING.md](/docs/CONTRIBUTING.md) | no |
 | `examples` | [examples/CONTRIBUTING.md](/examples/CONTRIBUTING.md) | yes — none yet |
-| `src/core` | [src/core/CONTRIBUTING.md](/src/core/CONTRIBUTING.md) | yes — none yet |
+| `src/core` | [src/core/CONTRIBUTING.md](/src/core/CONTRIBUTING.md) | [`src/core/docs/adr/`](/src/core/docs/adr) |
 | `src/extensions` | [src/extensions/CONTRIBUTING.md](/src/extensions/CONTRIBUTING.md) | yes — none yet |
-| `src/tools` | [src/tools/CONTRIBUTING.md](/src/tools/CONTRIBUTING.md) | yes — none yet |
+| `src/extensions/Flowthru.Extensions.Google.Sheets` | [src/extensions/Flowthru.Extensions.Google.Sheets/CONTRIBUTING.md](/src/extensions/Flowthru.Extensions.Google.Sheets/CONTRIBUTING.md) | [`src/extensions/Flowthru.Extensions.Google.Sheets/docs/adr/`](/src/extensions/Flowthru.Extensions.Google.Sheets/docs/adr) |
+| `src/extensions/Flowthru.Extensions.Python` | [src/extensions/Flowthru.Extensions.Python/CONTRIBUTING.md](/src/extensions/Flowthru.Extensions.Python/CONTRIBUTING.md) | [`src/extensions/Flowthru.Extensions.Python/docs/adr/`](/src/extensions/Flowthru.Extensions.Python/docs/adr) |
+| `src/tools` | [src/tools/CONTRIBUTING.md](/src/tools/CONTRIBUTING.md) | [`src/tools/docs/adr/`](/src/tools/docs/adr) |
 | `tests/core` | [tests/core/CONTRIBUTING.md](/tests/core/CONTRIBUTING.md) | yes — none yet |
 | `tests/extensions` | [tests/extensions/CONTRIBUTING.md](/tests/extensions/CONTRIBUTING.md) | yes — none yet |
 
-8 context(s). A context may own ADRs under its own `docs/adr/`;
+10 context(s). A context may own ADRs under its own `docs/adr/`;
 `docs/` is the single exclusion, since documentation decisions are repo-wide.
 
 <!-- flowthru:contexts:end -->

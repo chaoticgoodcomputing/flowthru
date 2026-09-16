@@ -26,7 +26,7 @@ namespace Flowthru.Step.Marshalling;
 /// the floor's <see cref="IContainerMarshaller{TExtension}"/> is the
 /// only one strictly required. Streaming
 /// (<see cref="StepContainerKind.Source"/>) has no marshaller marker:
-/// per ADR-0023 a <c>FlowSource&lt;T&gt;</c> is consumed by compiling
+/// per [ADR-0008](/src/core/docs/adr/0008-streaming-reads-as-catalog-item-type.md) a <c>FlowSource&lt;T&gt;</c> is consumed by compiling
 /// back into <c>FlowIO</c>, not shuttled across a marker seam.
 /// </para>
 /// </remarks>

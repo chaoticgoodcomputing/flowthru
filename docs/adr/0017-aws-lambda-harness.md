@@ -1,3 +1,10 @@
+---
+status: proposed
+contexts:
+  - /
+exemplars: []
+---
+
 # AWS Lambda support is a harness, not an orchestrator
 
 Flowthru will support running a built Flow as an AWS Lambda via a thin **harness** — `Flowthru.Harness.AWS.Lambda` — that maps a Lambda invocation event onto a `FlowSliceStrategy` + `ExecutionOptions` and serializes the resulting `FlowResult` back as the response. A harness is the scaffolding that drives a built Flow under a given invocation mechanism; the CLI is the existing one. Harnesses live in their own source domain `src/harness/` and package family `Flowthru.Harness.*`, deliberately separate from core, Extensions, and Tools (none fit). The existing `Flowthru.Cli` is renamed `Flowthru.Harness.Cli` as the first member of that family, and the Lambda harness re-expresses the same substance as the CLI's argument parser — slice + options selection — for event payloads rather than `argv`. The managed `dotnet10` Lambda runtime (GA Jan 2026) matches Flowthru's target framework, so a built assembly runs on it directly; AWS's constructor-once / handler-per-invocation lifecycle already provides the build-once split, so the harness owns no lifecycle of its own.

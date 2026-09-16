@@ -80,7 +80,7 @@ public sealed class EFCoreStorageAdapter<T>
     // IAsyncEnumerable cursor support; we always materialise on Load
     // for now but the trait stays honest about the underlying capability.
     // WriteCapacity comes from the provider — SQLite is single-writer
-    // (1); pooled servers stay unbounded (ADR-0019).
+    // (1); pooled servers stay unbounded ([ADR-0006](/src/core/docs/adr/0006-concurrency-conflict-relation-and-resource-profiles.md)).
     var conflict = EFCoreConflictProfile.Probe(context);
     Traits = new StorageTraits
     {

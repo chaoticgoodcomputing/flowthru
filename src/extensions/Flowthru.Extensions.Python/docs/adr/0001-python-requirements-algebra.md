@@ -1,6 +1,15 @@
+---
+status: accepted
+contexts:
+  - /src/extensions/Flowthru.Extensions.Python
+exemplars:
+  - /src/extensions/Flowthru.Extensions.Python/Step/Python/PythonPackageRequirement.cs
+  - /src/extensions/Flowthru.Extensions.Python/Step/Python/PythonPackageRequirementAttribute.cs
+---
+
 # Python requirements algebra
 
-The Python extension's framework-level Python dependencies (pyarrow for IPC, the `flowthru` Python companion package, launcher-specific packages like `accelerate`) are declared as data by the capabilities that need them, folded into a single closure at flow-construction time, and enforced at the earliest possible phase. The launcher seam in [ADR-0014](0014-python-launcher-and-distributed-training.md) is the first non-base consumer; the algebra exists independently so future capabilities (new marshallers, service inspectors with library requirements) compose into the same enforcement pipeline rather than each inventing its own dep-check story.
+The Python extension's framework-level Python dependencies (pyarrow for IPC, the `flowthru` Python companion package, launcher-specific packages like `accelerate`) are declared as data by the capabilities that need them, folded into a single closure at flow-construction time, and enforced at the earliest possible phase. The launcher seam in [ADR-0002](/src/extensions/Flowthru.Extensions.Python/docs/adr/0002-python-launcher-and-distributed-training.md) is the first non-base consumer; the algebra exists independently so future capabilities (new marshallers, service inspectors with library requirements) compose into the same enforcement pipeline rather than each inventing its own dep-check story.
 
 ## What declares requirements
 

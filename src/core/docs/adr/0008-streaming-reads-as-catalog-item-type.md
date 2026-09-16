@@ -1,10 +1,15 @@
 ---
-status: proposed
+status: accepted
+contexts:
+  - /src/core
+exemplars:
+  - /src/core/Flowthru.Core/Prelude/FlowSource.cs
+  - /src/core/Flowthru.Core/Prelude/FlowResource.cs
 ---
 
 # Streaming is a `FlowSource<T>` catalog payload — a minimal, vendored Prelude primitive consumed by compiling back into `FlowIO`
 
-A Parquet read carries two O(file) memory costs: the medium buffers the whole S3 object into a `MemoryStream` (the [ADR-0020](./0020-s3-storage-medium-via-gateway-seam.md) / #105 seek fix), and the read path materialises the decoded rows into a `List<TRow>` (`EnumerableContainerAdapter.FromRows`). Under the `ParallelFlowScheduler` a whole layer of such reads runs at once, so peak memory scales with layer width — the #111 crash-loop on a 1 GB Fargate task. #111's first remedy (a memory-domain concurrency cap on `s3:read`) shipped. **This ADR is the principled second remedy: bound per-read memory to O(batch) so Flowthru can process large datasets on memory-constrained hosts (AWS Lambda, lightweight ECS) rather than over-provisioning to hold buffers.**
+A Parquet read carries two O(file) memory costs: the medium buffers the whole S3 object into a `MemoryStream` (the [ADR-0020](/docs/adr/0020-s3-storage-medium-via-gateway-seam.md) / #105 seek fix), and the read path materialises the decoded rows into a `List<TRow>` (`EnumerableContainerAdapter.FromRows`). Under the `ParallelFlowScheduler` a whole layer of such reads runs at once, so peak memory scales with layer width — the #111 crash-loop on a 1 GB Fargate task. #111's first remedy (a memory-domain concurrency cap on `s3:read`) shipped. **This ADR is the principled second remedy: bound per-read memory to O(batch) so Flowthru can process large datasets on memory-constrained hosts (AWS Lambda, lightweight ECS) rather than over-provisioning to hold buffers.**
 
 The naive encoding — a bare `IAsyncEnumerable<TRow>` payload — fails, because a raw async-enumerable is an *un-enveloped* effect: it enumerates in user step code, throws instead of returning error-values, and has no principled resource lifetime, breaking the three guarantees `FlowIO` exists to provide (typed errors, deterministic disposal, cancellation). Every mature effectful-streaming system (fs2, ZIO `ZStream`, conduit, Rust `Stream`) solves this the same way: the stream type carries the effect envelope inside itself, and its only exit is *compiling* back into the base effect. Flowthru owns that base effect — `FlowIO<A>`, itself a de-HKT'd fork of LanguageExt's `IO`. **The decision is to grow its streaming sibling, `FlowSource<T>`, as a minimal, purpose-built, vendored Prelude primitive** — de-HKT'd to compose with `FlowIO` natively — and make it the catalog streaming payload. This expands the deliberately-minimal Prelude: "Streams" moves from *Excluded (and not planned)* to a documented primitive, scoped to the minimum shape the streaming grain needs.
 

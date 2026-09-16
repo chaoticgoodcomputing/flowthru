@@ -14,6 +14,7 @@
  * derives from that one rule.
  */
 
+import { execFileSync } from 'node:child_process';
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { ROOT, rel } from './_lib.mjs';
@@ -89,20 +90,47 @@ export function walkFiles(predicate, { includeVendored = false } = {}) {
   return found.sort();
 }
 
-/** Repo-authored Markdown: every `.md` outside vendored and generated trees. */
+/**
+ * Files a contributor actually authors: tracked, plus untracked-but-not-ignored.
+ *
+ * Asking git rather than re-deriving the rules is what keeps this honest. The repo
+ * carries several large GENERATED trees — docfx output under `docs/reference/src/`,
+ * the 783-file Starlight mirror under `src/website/src/content/docs/docs/`,
+ * `docs/scratch/` — that are all gitignored. A hand-maintained skip list would
+ * drift from `.gitignore` the moment a new generated tree appears; this cannot.
+ */
+function authoredFiles(extension) {
+  let out;
+  try {
+    out = execFileSync('git', ['ls-files', '--cached', '--others', '--exclude-standard', '-z'], {
+      cwd: ROOT,
+      encoding: 'utf8',
+      maxBuffer: 64 * 1024 * 1024,
+    });
+  } catch {
+    // Not a git checkout (or git unavailable) — fall back to the filesystem walk.
+    return walkFiles((name) => name.endsWith(extension));
+  }
+  return out
+    .split('\0')
+    .filter((p) => p !== '' && p.endsWith(extension) && !isVendored(p))
+    .sort();
+}
+
+/**
+ * Repo-authored Markdown.
+ *
+ * Committed docfx output under `docs/reference/src/` is excluded even where it is
+ * still tracked: it is regenerated from `src/` XML doc comments, so a defect there
+ * is a defect in the source comment and is reported at the source.
+ */
 export function authoredMarkdown() {
-  return walkFiles(
-    (name, relative) =>
-      name.endsWith('.md') &&
-      // Committed docfx output — regenerated from `src/` XML docs, so a defect
-      // here is a defect in the source comment. Report the source, not the copy.
-      !relative.startsWith('docs/reference/src/'),
-  );
+  return authoredFiles('.md').filter((p) => !p.startsWith('docs/reference/src/'));
 }
 
 /** Repo-authored C# sources. */
 export function authoredCSharp() {
-  return walkFiles((name) => name.endsWith('.cs'));
+  return authoredFiles('.cs');
 }
 
 // ---------------------------------------------------------------------------
@@ -144,8 +172,12 @@ export function contexts() {
  * leading-slash root convention. Returns the context, or `undefined`.
  */
 export function findContext(value, all = contexts()) {
-  const needle = String(value).trim().replace(/^\.\//, '').replace(/\/$/, '');
-  return all.find((c) => c.id === needle || c.dir === needle || (needle === '' && c.id === '/'));
+  const raw = String(value).trim().replace(/^\.\//, '').replace(/\/+$/, '');
+  if (raw === '' || raw === '/') return all.find((c) => c.id === '/');
+  // `/src/core` is the root-anchored spelling used by every other path in the repo;
+  // `src/core` is the bare id. Accept both so `contexts:` reads like a link target.
+  const needle = raw.replace(/^\//, '');
+  return all.find((c) => c.id === needle || c.dir === needle);
 }
 
 /**

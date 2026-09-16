@@ -16,7 +16,7 @@ namespace Flowthru.Core.SourceGenerators.Security;
 /// <remarks>
 /// <para>
 /// This is a <strong>syntactic, argument-position</strong> check — the
-/// design-time backstop for <c>SecretText</c>'s containment (ADR-0026). It is
+/// design-time backstop for <c>SecretText</c>'s containment ([ADR-0010](/src/core/docs/adr/0010-typed-access-handoff-and-secret-containment.md)). It is
 /// deliberately <strong>not</strong> a taint tracker: it does not follow a
 /// <c>Reveal()</c> result through a local variable or across a method call, so
 /// <c>var s = secret.Reveal(); log(s);</c> is not flagged. The guarantee it
@@ -48,7 +48,7 @@ public sealed class RevealInSensitivePositionAnalyzer : DiagnosticAnalyzer
     description:
       "SecretText holds a credential's plaintext, reachable only through Reveal(). "
         + "Interpolating or logging that result would defeat the containment. This is a "
-        + "syntactic position check (ADR-0026), not full taint tracking."
+        + "syntactic position check ([ADR-0010](/src/core/docs/adr/0010-typed-access-handoff-and-secret-containment.md)), not full taint tracking."
   );
 
   private static readonly ImmutableHashSet<string> LoggingSinkNames = ImmutableHashSet.Create(

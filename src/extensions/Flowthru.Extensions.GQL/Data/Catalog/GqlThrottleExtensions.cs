@@ -5,7 +5,7 @@ using Flowthru.Validation.Runtime.Gql;
 namespace Flowthru.Data.Catalog;
 
 /// <summary>
-/// Opt-in concurrency throttling for GraphQL catalog items (ADR-0019,
+/// Opt-in concurrency throttling for GraphQL catalog items ([ADR-0006](/src/core/docs/adr/0006-concurrency-conflict-relation-and-resource-profiles.md),
 /// issue #104). GQL adapters are parallel-safe by default (capacity ∞);
 /// a catalog author calls <see cref="WithGqlConcurrency{T}"/> on an item
 /// bound to a rate-limited endpoint to cap concurrent calls.

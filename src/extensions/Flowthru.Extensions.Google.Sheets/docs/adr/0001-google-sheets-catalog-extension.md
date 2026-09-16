@@ -1,3 +1,12 @@
+---
+status: accepted
+contexts:
+  - /src/extensions/Flowthru.Extensions.Google.Sheets
+exemplars:
+  - /src/extensions/Flowthru.Extensions.Google.Sheets/Data/Storage/Sheets/ISheetsGateway.cs
+  - /src/extensions/Flowthru.Extensions.Google.Sheets/Data/Storage/Sheets/ColumnType.cs
+---
+
 # Google Sheets is a typed tabular catalog store, modeled on EFCore
 
 Flowthru reads and writes Google Sheets through `Flowthru.Extensions.Google.Sheets` — a direct `IStorageAdapter<IEnumerable<TRow>>` (the EFCore/GQL grain, not the Medium → Format → Container composition) over the officially-vendored `Google.Apis.Sheets.v4` client. Sheets is modeled as a **typed tabular store in the EFCore mold**: a catalog item is a table of typed rows whose columns correspond to `TRow`'s properties. The write unit is one tab/table, never the spreadsheet — Flowthru owns a "Raw Data" surface and must not clobber the human-readable formula tabs that reference it.

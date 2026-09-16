@@ -94,7 +94,7 @@ public sealed record FlowMetadataContext
   /// The resolved service-profile provider for this run — lets a metadata
   /// provider compute the flow's
   /// <see cref="Flowthru.Validation.Runtime.ConflictGroup"/>s (which steps
-  /// serialize against a shared finite-capacity resource, ADR-0019). Null
+  /// serialize against a shared finite-capacity resource, [ADR-0006](/src/core/docs/adr/0006-concurrency-conflict-relation-and-resource-profiles.md)). Null
   /// when the host built the context without one (e.g. the
   /// <see cref="Unsliced"/> test convenience); consumers fall back to the
   /// permissive default, under which no resource is constrained and there

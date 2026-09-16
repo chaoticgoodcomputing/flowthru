@@ -9,5 +9,11 @@
     href: Flowthru.Step.Testing.FUnitStepTestAttribute.md
   - name: FUnitStubContainerAttribute
     href: Flowthru.Step.Testing.FUnitStubContainerAttribute.md
+  - name: FlowSourceTesting
+    href: Flowthru.Step.Testing.FlowSourceTesting.md
+  - name: RecordingSink<T>
+    href: Flowthru.Step.Testing.RecordingSink-1.md
   - name: SampleBuilder
     href: Flowthru.Step.Testing.SampleBuilder.md
+  - name: TrackingSource<T>
+    href: Flowthru.Step.Testing.TrackingSource-1.md

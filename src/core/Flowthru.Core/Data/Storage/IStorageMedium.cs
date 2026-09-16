@@ -55,7 +55,7 @@ public interface IStorageMedium
 
   /// <summary>
   /// Conflict resources this medium's reads and writes contend on
-  /// (ADR-0019). Default: none — a filesystem file has no shared-resource
+  /// ([ADR-0006](/src/core/docs/adr/0006-concurrency-conflict-relation-and-resource-profiles.md)). Default: none — a filesystem file has no shared-resource
   /// contention. A networked medium (HTTP, S3) backed by a rate-limited or
   /// single-writer endpoint declares it here; <see cref="ComposedStorageAdapter{TContainer, TRow}"/>
   /// surfaces these up to the item so the scheduler can gate concurrent

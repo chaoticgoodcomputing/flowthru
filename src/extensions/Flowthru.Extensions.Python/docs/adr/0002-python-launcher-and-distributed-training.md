@@ -1,6 +1,16 @@
+---
+status: accepted
+contexts:
+  - /src/extensions/Flowthru.Extensions.Python
+exemplars:
+  - /src/extensions/Flowthru.Extensions.Python/Step/Python/IPythonLauncher.cs
+  - /src/extensions/Flowthru.Extensions.Python/Step/Python/TorchrunLauncher.cs
+  - /src/extensions/Flowthru.Extensions.Python/Step/Python/AccelerateLauncher.cs
+---
+
 # Python launcher abstraction and distributed training
 
-The Python extension's worker subprocess is spawned via a swappable `IPythonLauncher` rather than the hardcoded `[pyExe, workerScript]` invocation in `SubprocessPythonExecutor.StartWorker`. The default preserves current behavior; alternative launchers unlock single-box multi-GPU training (PyTorch DDP, HuggingFace Accelerate, etc.) without forking the executor. The seam is designed alongside a rank-aware worker protocol so a step author writes ordinary single-process Python and the framework handles fanout. Requirements declared by each launcher fold into the [Python requirements algebra](0013-python-requirements-algebra.md).
+The Python extension's worker subprocess is spawned via a swappable `IPythonLauncher` rather than the hardcoded `[pyExe, workerScript]` invocation in `SubprocessPythonExecutor.StartWorker`. The default preserves current behavior; alternative launchers unlock single-box multi-GPU training (PyTorch DDP, HuggingFace Accelerate, etc.) without forking the executor. The seam is designed alongside a rank-aware worker protocol so a step author writes ordinary single-process Python and the framework handles fanout. Requirements declared by each launcher fold into the [Python requirements algebra](/src/extensions/Flowthru.Extensions.Python/docs/adr/0001-python-requirements-algebra.md).
 
 ## The launcher seam
 
@@ -11,7 +21,7 @@ Four members:
 - `ProcessStartInfo Build(string pyExe, string workerScript, IReadOnlyDictionary<string, string> envVars)` — constructs the worker PSI. Launcher controls the final env-var merge so launcher-set rank vars (`RANK`, `LOCAL_RANK`, `WORLD_SIZE`, `MASTER_ADDR`, `MASTER_PORT`) overlay cleanly on top of the existing IConfiguration→env-var bridge.
 - `string Identity { get; }` — folds into `PythonCodeVersion.Derive` so a launcher change invalidates cached results. DDP outputs are not bitwise-reproducible across `nproc_per_node` changes; treating launcher choice as cache-equivalent would be wrong.
 - `Validated<PythonPreFlightError, FlowUnit> Probe()` — pre-flight check the launcher can do that nothing else can: `TorchrunLauncher` reads `nvidia-smi -L` and refuses `nproc_per_node > available`; `AccelerateLauncher` validates the user's `accelerate config`. This is what makes per-launcher classes worth shipping versus a generic `ProcessLauncher`.
-- `IReadOnlyList<PythonPackageRequirement> Requirements` — fed into the algebra in [ADR-0013](0013-python-requirements-algebra.md). `AccelerateLauncher → accelerate>=0.30`, `DirectPythonLauncher → []`.
+- `IReadOnlyList<PythonPackageRequirement> Requirements` — fed into the algebra in [ADR-0001](/src/extensions/Flowthru.Extensions.Python/docs/adr/0001-python-requirements-algebra.md). `AccelerateLauncher → accelerate>=0.30`, `DirectPythonLauncher → []`.
 
 Every per-launcher class exposes a `BinaryPath` override defaulting to `Path.Combine(venvBin, "<launcher-name>")` so site-specific renames (`lab-srun`, `mycorp-torchrun-wrapper`) don't require a new class.
 

@@ -3,7 +3,7 @@ namespace Flowthru.Validation.Runtime;
 /// <summary>
 /// An <see cref="IExtensionServiceDependency"/> whose conflict capacities
 /// can be ratcheted down when the item that declares it is constrained
-/// (ADR-0019). The dependency owns the narrowing — it knows which of its
+/// ([ADR-0006](/src/core/docs/adr/0006-concurrency-conflict-relation-and-resource-profiles.md)). The dependency owns the narrowing — it knows which of its
 /// fields are capacities — so the generic
 /// <c>ConstrainedStorageAdapter</c> can lower an inherited resource's
 /// concurrency without knowing the extension's concrete dependency type.

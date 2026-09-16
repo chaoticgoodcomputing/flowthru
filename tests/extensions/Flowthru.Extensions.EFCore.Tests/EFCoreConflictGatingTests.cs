@@ -18,7 +18,7 @@ namespace Flowthru.Extensions.EFCore.Tests;
 /// resolves it to the provider's read/write capacity. Concurrent writes
 /// to one SQLite database serialize (no "database is locked"); concurrent
 /// reads parallelize; an unrecognised dependency is left unbounded.
-/// (ADR-0019.)
+/// ([ADR-0006](/src/core/docs/adr/0006-concurrency-conflict-relation-and-resource-profiles.md).)
 /// </summary>
 [TestFixture]
 [Category("EFCore")]

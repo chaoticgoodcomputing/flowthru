@@ -1,5 +1,10 @@
 ---
 status: accepted
+contexts:
+  - /src/core
+exemplars:
+  - /src/core/Flowthru.Core/Flow/ValidationDepth.cs
+  - /src/core/Flowthru.Core/Validation/PreFlight/PreFlightError.cs
 ---
 
 # Pre-flight introspection is an I/O-boundary ladder, and structural validity is a plan-build precondition surfaced as data

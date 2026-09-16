@@ -1,3 +1,12 @@
+---
+status: accepted
+contexts:
+  - /src/core
+exemplars:
+  - /src/core/Flowthru.Core.SourceGenerators/Step/StepMetadataGenerator.cs
+  - /src/core/Flowthru.Core/Hosting/ServiceCollectionExtensions.cs
+---
+
 # `ILogger` declared on `Create()` is the canonical step-logging surface
 
 Steps that need logging declare `ILogger` (non-generic) as a parameter on their `Create()` factory, resolved via the existing `[FlowthruStep]` source generator's interface-typed-parameter → `ServiceRef` mechanism ([StepMetadataGenerator.cs:149–167](/src/core/Flowthru.Core.SourceGenerators/Step/StepMetadataGenerator.cs#L149-L167)). `AddFlowthru` registers a singleton `ILogger` resolved as `loggerFactory.CreateLogger("Flowthru")`, so the engine internals (`FlowthruService`, `ParallelFlowScheduler`) and every step share **one logger identity** under the single category `Flowthru`. Hosts that haven't called `AddLogging()` see a `NullLogger` via `AddFlowthru`'s `TryAdd<NullLoggerFactory>` fallback; calls are silently dropped, the run still succeeds.

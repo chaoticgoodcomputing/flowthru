@@ -3,7 +3,7 @@ namespace Flowthru.Validation.Runtime.Http;
 /// <summary>
 /// Resolves an <see cref="HttpEndpointDependency"/> to its
 /// <see cref="ServiceProfile"/> — the opt-in concurrency cap on a
-/// rate-limited HTTP host (ADR-0019, #104). Registered by <c>UseHttp()</c>
+/// rate-limited HTTP host ([ADR-0006](/src/core/docs/adr/0006-concurrency-conflict-relation-and-resource-profiles.md), #104). Registered by <c>UseHttp()</c>
 /// and aggregated by Core's <c>CompositeServiceProfileProvider</c>;
 /// recognises only HTTP endpoint dependencies and stays silent otherwise.
 /// </summary>

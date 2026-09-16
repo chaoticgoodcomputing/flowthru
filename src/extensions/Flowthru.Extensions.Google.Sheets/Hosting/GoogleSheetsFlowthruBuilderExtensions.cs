@@ -151,7 +151,7 @@ public static class GoogleSheetsFlowthruBuilderExtensions
       builder.Services.AddSingleton(provider);
     }
 
-    // Conflict gating (ADR-0019): resolves each Sheets item's spreadsheet
+    // Conflict gating ([ADR-0006](/src/core/docs/adr/0006-concurrency-conflict-relation-and-resource-profiles.md)): resolves each Sheets item's spreadsheet
     // dependency to write capacity 1 / read capacity ∞, so the scheduler
     // serializes concurrent writes to one spreadsheet. Registered here —
     // the single chokepoint every AddGoogleSheets* overload funnels

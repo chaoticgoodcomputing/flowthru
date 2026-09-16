@@ -5,7 +5,7 @@ namespace Flowthru.Core.Tests.Runtime;
 /// <summary>
 /// Tests for <see cref="CompositeServiceProfileProvider"/> — the default
 /// <see cref="IServiceProfileProvider"/> that folds every registered
-/// <see cref="IServiceProfileContributor"/> by conservative meet. (ADR-0019.)
+/// <see cref="IServiceProfileContributor"/> by conservative meet. ([ADR-0006](/src/core/docs/adr/0006-concurrency-conflict-relation-and-resource-profiles.md).)
 /// </summary>
 [TestFixture]
 public class CompositeServiceProfileProviderTests

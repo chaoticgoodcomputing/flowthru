@@ -74,6 +74,6 @@ public class PythonStepExtensionDescriptorTests
       "The Python extension does not currently support Queryable inputs.");
     Assert.That(attr.Inputs & StepContainerKind.Source, Is.EqualTo(StepContainerKind.None),
       "The Python extension does not currently declare Source (FlowSource) inputs — "
-      + "it consumes the eager Enumerable view and marshals via Arrow (ADR-0023).");
+      + "it consumes the eager Enumerable view and marshals via Arrow ([ADR-0008](/src/core/docs/adr/0008-streaming-reads-as-catalog-item-type.md)).");
   }
 }

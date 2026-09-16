@@ -83,7 +83,7 @@ public sealed class ComposedStorageAdapter<TContainer, TRow>
 
   /// <inheritdoc/>
   /// <remarks>
-  /// Surfaces the underlying medium's conflict resources (ADR-0019) so a
+  /// Surfaces the underlying medium's conflict resources ([ADR-0006](/src/core/docs/adr/0006-concurrency-conflict-relation-and-resource-profiles.md)) so a
   /// composed item — e.g. JSON over a rate-limited HTTP endpoint — gates
   /// the same way a direct adapter does. File-backed mediums declare none,
   /// so file-format items stay ungated.

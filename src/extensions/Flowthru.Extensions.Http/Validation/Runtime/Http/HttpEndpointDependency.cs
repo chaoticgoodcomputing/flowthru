@@ -2,7 +2,7 @@ namespace Flowthru.Validation.Runtime.Http;
 
 /// <summary>
 /// Conflict identity of an HTTP endpoint a catalog item has been
-/// <em>opted in</em> to throttle (ADR-0019, issue #104). HTTP mediums are
+/// <em>opted in</em> to throttle ([ADR-0006](/src/core/docs/adr/0006-concurrency-conflict-relation-and-resource-profiles.md), issue #104). HTTP mediums are
 /// parallel-safe by default (idempotent reads, no shared mutable state),
 /// so this dependency only exists when
 /// <c>HttpOptions.MaxConcurrentRequestsPerHost</c> caps concurrency against

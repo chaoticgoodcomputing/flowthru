@@ -2,7 +2,7 @@ namespace Flowthru.Validation.Runtime.Sheets;
 
 /// <summary>
 /// Conflict identity of the Google spreadsheet a Sheets catalog item
-/// reads from or writes to (ADR-0019). A spreadsheet is shared mutable
+/// reads from or writes to ([ADR-0006](/src/core/docs/adr/0006-concurrency-conflict-relation-and-resource-profiles.md)). A spreadsheet is shared mutable
 /// state behind a per-user API quota: concurrent writes race (overlapping
 /// <c>batchUpdate</c> ranges, last-write-wins) and pile onto the quota.
 /// Surfaced through Core's <see cref="ServiceDependency.External"/> so the

@@ -28,7 +28,7 @@ namespace Flowthru.Data.Storage;
 /// contexts are documented boundaries, not covered guarantees. It makes
 /// <strong>no</strong> memory-zeroing claim: .NET strings are immutable and
 /// GC-copied, so the plaintext lives on the managed heap until collected. See
-/// ADR-0026.
+/// [ADR-0010](/src/core/docs/adr/0010-typed-access-handoff-and-secret-containment.md).
 /// </para>
 /// <para>
 /// <strong>Revealing is explicit and greppable.</strong> <see cref="Reveal"/>
@@ -106,7 +106,7 @@ public sealed class SecretText : IEquatable<SecretText>
 
 /// <summary>
 /// The System.Text.Json converter for <see cref="SecretText"/>. Both directions
-/// throw: serializing a secret would violate ADR-0020's "a secret never enters
+/// throw: serializing a secret would violate [ADR-0020](/docs/adr/0020-s3-storage-medium-via-gateway-seam.md)'s "a secret never enters
 /// the catalog or the DAG" invariant, and no legitimate path deserializes one.
 /// Failing fast beats a converter that silently emits <c>{}</c> (the shape a
 /// property-less type would otherwise serialize to).
@@ -116,7 +116,7 @@ public sealed class SecretText : IEquatable<SecretText>
 /// serializer. It does not cover Newtonsoft (which ignores this attribute) or a
 /// source-generated <see cref="JsonSerializerContext"/> that may not honor a
 /// runtime, type-level converter — those are documented boundaries per
-/// ADR-0026, not covered guarantees.
+/// [ADR-0010](/src/core/docs/adr/0010-typed-access-handoff-and-secret-containment.md), not covered guarantees.
 /// </remarks>
 public sealed class SecretTextJsonConverter : JsonConverter<SecretText>
 {
@@ -139,6 +139,6 @@ public sealed class SecretTextJsonConverter : JsonConverter<SecretText>
   ) =>
     throw new JsonException(
       "A SecretText cannot be serialized: a credential handoff must never enter "
-        + "the catalog, the DAG, or a persisted document (ADR-0020, ADR-0026)."
+        + "the catalog, the DAG, or a persisted document ([ADR-0020](/docs/adr/0020-s3-storage-medium-via-gateway-seam.md), [ADR-0010](/src/core/docs/adr/0010-typed-access-handoff-and-secret-containment.md))."
     );
 }

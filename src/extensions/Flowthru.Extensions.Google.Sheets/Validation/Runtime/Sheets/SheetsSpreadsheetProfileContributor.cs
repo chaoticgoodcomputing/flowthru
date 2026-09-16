@@ -3,7 +3,7 @@ namespace Flowthru.Validation.Runtime.Sheets;
 /// <summary>
 /// Resolves a <see cref="SheetsSpreadsheetDependency"/> to its
 /// <see cref="ServiceProfile"/> — the read/write capacities the Sheets
-/// adapter declared for the spreadsheet (ADR-0019). Registered by
+/// adapter declared for the spreadsheet ([ADR-0006](/src/core/docs/adr/0006-concurrency-conflict-relation-and-resource-profiles.md)). Registered by
 /// <c>AddGoogleSheets()</c> and aggregated by Core's
 /// <c>CompositeServiceProfileProvider</c>; it recognises only Sheets
 /// spreadsheet dependencies and stays silent on everything else.

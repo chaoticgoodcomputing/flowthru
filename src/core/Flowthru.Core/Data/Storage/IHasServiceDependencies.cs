@@ -7,7 +7,7 @@ namespace Flowthru.Data.Storage;
 /// <see cref="ServiceDependency"/>s its reads and writes touch; the item
 /// surfaces them as <see cref="Flowthru.Data.Catalog.INode.ServiceDependencies"/>,
 /// and the scheduler gates steps that share a finite-capacity resource
-/// (ADR-0019).
+/// ([ADR-0006](/src/core/docs/adr/0006-concurrency-conflict-relation-and-resource-profiles.md)).
 /// </summary>
 /// <remarks>
 /// <para>
