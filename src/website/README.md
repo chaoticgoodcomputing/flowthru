@@ -33,7 +33,7 @@ src/
 │       ├── tutorials/        Diátaxis: Tutorials
 │       ├── how-to/           Diátaxis: How-to guides
 │       ├── explanation/      Diátaxis: Explanation
-│       ├── reference/        Auto-generated from C# XML (see INTEGRATION.md)
+│       ├── reference/        Auto-generated from C# XML (see CONTRIBUTING.md)
 │       └── extensions/       Per-extension docs
 └── styles/
     ├── marketing.css         Marketing homepage styles
@@ -42,6 +42,16 @@ src/
 
 ## Integration
 
-See [INTEGRATION.md](./INTEGRATION.md) for the full handoff guide:
-how to wire this into the Nx monorepo, the C# → Markdown reference
-generator contract, and GitHub Pages deployment.
+See [CONTRIBUTING.md](./CONTRIBUTING.md) for this context's conventions and
+glossary — the ingest pipeline, the frontmatter contract, the link interceptor,
+and the nx caching rules that keep the build honest.
+
+The moving parts:
+
+- **nx wiring** — `src/website/project.json`. `implicitDependencies: ["docs"]`
+  is load-bearing: nx does not synthesize graph edges from target-level
+  `dependsOn`, so without it a docs change would not mark the site affected.
+- **C# → Markdown reference** — `scripts/docfx-metadata.sh` generates
+  `docs/reference/src/` from XML doc comments; `scripts/ingest-docs.mjs` copies
+  it into the content tree, synthesizing frontmatter that docfx does not emit.
+- **Deployment** — GitHub Pages, via this package's own workflow.

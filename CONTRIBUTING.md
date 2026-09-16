@@ -35,16 +35,17 @@ Every possible failure in a Flow falls into one of three phases:
 
 ## Flowthru Development Roles
 
-Contributions to Flowthru fall under one of five roles. Each role's full definition, conventions, and vocabulary live in a per-context CONTRIBUTING file:
+Contributions to Flowthru fall under one of six roles. Each role's full definition, conventions, and vocabulary live in a per-context CONTRIBUTING file:
 
 - **Flow Developer** / **Catalog Developer** — writing Flows and Catalogs on top of Flowthru. See [examples/CONTRIBUTING.md](/examples/CONTRIBUTING.md).
 - **Extension Developer** — extending Flowthru with new Catalog formats, Step types, or type-safety patterns. See [src/extensions/CONTRIBUTING.md](/src/extensions/CONTRIBUTING.md).
 - **Core Developer** — curating Flowthru's core library and Roslyn surface. See [src/core/CONTRIBUTING.md](/src/core/CONTRIBUTING.md).
 - **Tool Developer** — building processes that consume Flowthru from outside a Flow Dev's project: editor frontends, agent frontends, CLI utilities, and the shared Inspector backbone they rely on. See [src/tools/CONTRIBUTING.md](/src/tools/CONTRIBUTING.md).
+- **Website Developer** — maintaining the Astro/Starlight site that publishes this documentation: the ingest pipeline, frontmatter validation, link resolution, and theming. See [src/website/CONTRIBUTING.md](/src/website/CONTRIBUTING.md).
 
 Testing-specific conventions for each context live in [tests/core/CONTRIBUTING.md](/tests/core/CONTRIBUTING.md) and [tests/extensions/CONTRIBUTING.md](/tests/extensions/CONTRIBUTING.md).
 
-The design rules in this document apply to all five roles regardless of which context they're working in.
+The design rules in this document apply to all six roles regardless of which context they're working in.
 
 ## Context Map
 
@@ -64,10 +65,11 @@ to add a context, add its `CONTRIBUTING.md` and re-run the generator.
 | `src/extensions/Flowthru.Extensions.Google.Sheets` | [src/extensions/Flowthru.Extensions.Google.Sheets/CONTRIBUTING.md](/src/extensions/Flowthru.Extensions.Google.Sheets/CONTRIBUTING.md) | [`src/extensions/Flowthru.Extensions.Google.Sheets/docs/adr/`](/src/extensions/Flowthru.Extensions.Google.Sheets/docs/adr) |
 | `src/extensions/Flowthru.Extensions.Python` | [src/extensions/Flowthru.Extensions.Python/CONTRIBUTING.md](/src/extensions/Flowthru.Extensions.Python/CONTRIBUTING.md) | [`src/extensions/Flowthru.Extensions.Python/docs/adr/`](/src/extensions/Flowthru.Extensions.Python/docs/adr) |
 | `src/tools` | [src/tools/CONTRIBUTING.md](/src/tools/CONTRIBUTING.md) | [`src/tools/docs/adr/`](/src/tools/docs/adr) |
+| `src/website` | [src/website/CONTRIBUTING.md](/src/website/CONTRIBUTING.md) | yes — none yet |
 | `tests/core` | [tests/core/CONTRIBUTING.md](/tests/core/CONTRIBUTING.md) | yes — none yet |
 | `tests/extensions` | [tests/extensions/CONTRIBUTING.md](/tests/extensions/CONTRIBUTING.md) | yes — none yet |
 
-10 context(s). A context may own ADRs under its own `docs/adr/`;
+11 context(s). A context may own ADRs under its own `docs/adr/`;
 `docs/` is the single exclusion, since documentation decisions are repo-wide.
 
 <!-- flowthru:contexts:end -->
