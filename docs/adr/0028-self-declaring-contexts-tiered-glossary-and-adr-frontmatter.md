@@ -21,11 +21,11 @@ This supersedes [ADR-0004](/docs/adr/0004-multi-context-contributing-supersedes-
 
 ## What went wrong under the previous arrangement
 
-**Vocabulary flowed uphill.** Of 11 glossary terms in `src/extensions/CONTRIBUTING.md`, only 3 were extensions-owned; the rest were Core or repo-wide concepts that had simply landed there. `src/core/CONTRIBUTING.md` could not state the Core Developer's two primary responsibilities without linking *down* into the extensions tier for **API Surface** and **Error Surface**. ADR-0004 removed `/GLOSSARY.md` without leaving anywhere for genuinely repo-wide terms to live, so they silted up in whichever context was written next.
+**Vocabulary flowed uphill.** Of 11 glossary terms in `src/extensions/CONTRIBUTING.md`, only 3 were extensions-owned; the rest were Core or repo-wide concepts that had simply landed there. `src/core/CONTRIBUTING.md` could not state the Core Developer's two primary responsibilities without linking *down* into the extensions tier for **API Surface** and **Error Surface**. [ADR-0004](/docs/adr/0004-multi-context-contributing-supersedes-glossary.md) removed `/GLOSSARY.md` without leaving anywhere for genuinely repo-wide terms to live, so they silted up in whichever context was written next.
 
 **Nothing verified that an ADR was practised.** The concurrency ADR ([now /src/core/docs/adr/0006](/src/core/docs/adr/0006-concurrency-conflict-relation-and-resource-profiles.md)) declared 3 packages in its anchor-code section while being cited in source by 8. Only 12 of 27 ADRs carried a governed-code section at all, under three different headings.
 
-**`CONTEXT.md` had no defense.** ADR-0004 recorded the substance of Flowthru's per-context arrangement but never said the words "do not create a `CONTEXT.md`" — and four vendored skills under `.agents/skills/` actively instruct agents to create one, mid-task, forever.
+**`CONTEXT.md` had no defense.** [ADR-0004](/docs/adr/0004-multi-context-contributing-supersedes-glossary.md) recorded the substance of Flowthru's per-context arrangement but never said the words "do not create a `CONTEXT.md`" — and four vendored skills under `.agents/skills/` actively instruct agents to create one, mid-task, forever.
 
 ## Decided
 
@@ -35,7 +35,7 @@ This supersedes [ADR-0004](/docs/adr/0004-multi-context-contributing-supersedes-
 
 - **No `CONTEXT.md` or `CONTEXT-MAP.md`, ever.** Per-context `CONTRIBUTING.md` is Flowthru's equivalent; root carries the map. Enforced by `_test:context-file-guard`, which scans vendored trees too, since a confused agent could drop one there.
 
-- **Root regains a glossary**, partially reversing ADR-0004. Where a term genuinely means different things to different readers it is disambiguated in the **entry name** — `Runtime error (phase)` vs `Runtime error (Core Developer)` — never by reciprocal prose notes. Root vocabulary never references a context's.
+- **Root regains a glossary**, partially reversing [ADR-0004](/docs/adr/0004-multi-context-contributing-supersedes-glossary.md). Where a term genuinely means different things to different readers it is disambiguated in the **entry name** — `Runtime error (phase)` vs `Runtime error (Core Developer)` — never by reciprocal prose notes. Root vocabulary never references a context's.
 
 - **ADR frontmatter carries `contexts`, `exemplars`, `status`.** `contexts` is *direct* application only: if a decision governs how Core interacts with extensions, Core is the context and the conforming extensions are `exemplars`. One context ⇒ the ADR lives in that context's `docs/adr/`; more than one ⇒ root.
 
@@ -49,7 +49,7 @@ This supersedes [ADR-0004](/docs/adr/0004-multi-context-contributing-supersedes-
 
 **`proposed` joins the status vocabulary.** The original contract was `accepted | superseded | rejected`. Backfilling frontmatter immediately surfaced three ADRs deciding something nothing implements: the diagnostic anchor contract (no analyzer carries anchor metadata), the Inspector RPC surface (`src/tools` contains no .NET project at all), and the Lambda harness (its package does not exist). That is precisely the "asserted but not practised" case `exemplars` exists to expose. Forcing them to `accepted` would have required fabricated exemplars; leaving them unmigrated would have exempted them from the contract. `proposed` is exempt from the non-empty-`exemplars` requirement, which is what lets `accepted` keep its teeth: **accepted means something demonstrates this.**
 
-**`superseded` and `rejected` ADRs are frozen.** Not relocated, not renumbered, and exempt from `exemplars` — their exemplars are expected to be gone. ADR-0001 is the proof: its exemplar was `/GLOSSARY.md`, which ADR-0004 deleted. Their value is being findable at the number the superseding ADR cites.
+**`superseded` and `rejected` ADRs are frozen.** Not relocated, not renumbered, and exempt from `exemplars` — their exemplars are expected to be gone. [ADR-0001](/docs/adr/0001-glossary-split-by-developer-role.md) is the proof: its exemplar was `/GLOSSARY.md`, which [ADR-0004](/docs/adr/0004-multi-context-contributing-supersedes-glossary.md) deleted. Their value is being findable at the number the superseding ADR cites.
 
 ## Considered options
 

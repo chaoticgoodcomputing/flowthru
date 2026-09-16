@@ -12,8 +12,13 @@
  *
  * Two checks, because a citation can rot in two independent ways:
  *
- *   1. UNKNOWN NUMBER — `ADR-0042` where no ADR 0042 exists. Catches a renumber
- *      that left citations behind, and a citation invented from memory.
+ *   1. BARE NUMBER — `ADR-0042` not carrying a path. Since ADRs are numbered
+ *      PER DIRECTORY, five directories each start at `0001`, so a bare number
+ *      identifies nothing. Worse, it reads as valid: the old form of this check
+ *      asked only "does some ADR have that number?", which every bare citation
+ *      passes by accident. A citation must be a link carrying the full
+ *      root-anchored path, which is also what makes it survive being built into
+ *      reference documentation.
  *
  *   2. BROKEN LINK PATH — `[ADR-0012](/some/path/adr/0012-….md)` whose target is
  *      not on disk. A number can resolve while its link does not: 19 references
@@ -59,7 +64,6 @@ const ADR_LINK_RE = /\[([^\]]*)\]\(([^)\s]*(?:\/|^)adr(?:\/[^)\s]*)?)\)/gi;
 
 const allContexts = contexts();
 const known = adrs(allContexts);
-const byNumber = new Map(known.map((a) => [a.number, a]));
 
 if (known.length === 0) {
   reportFailures(
@@ -70,7 +74,7 @@ if (known.length === 0) {
   );
 }
 
-const unknownNumbers = [];
+const bareNumbers = [];
 const brokenLinks = [];
 
 /** Resolve a Markdown link target to an absolute path, or null if not repo-local. */
@@ -89,10 +93,13 @@ for (const file of [...authoredMarkdown(), ...authoredCSharp()]) {
   lines.forEach((line, i) => {
     const where = `${file}:${i + 1}`;
 
+    // A citation must carry its path. `[ADR-0006](/src/core/docs/adr/0006-….md)`
+    // is a link and is checked below; a naked `ADR-0006` is not resolvable at all.
     for (const m of line.matchAll(CITATION_RE)) {
-      if (!byNumber.has(m[1])) {
-        unknownNumbers.push(`${where}  ADR-${m[1]}  (no such ADR)`);
-      }
+      const before = line.slice(0, m.index);
+      const after = line.slice(m.index + m[0].length);
+      if (/\[$/.test(before) && /^\]\(/.test(after)) continue; // link label — checked as a link
+      bareNumbers.push(`${where}  ADR-${m[1]}  (bare — carry the full path)`);
     }
 
     for (const m of line.matchAll(ADR_LINK_RE)) {
@@ -104,11 +111,11 @@ for (const file of [...authoredMarkdown(), ...authoredCSharp()]) {
   });
 }
 
-if (unknownNumbers.length > 0 || brokenLinks.length > 0) {
+if (bareNumbers.length > 0 || brokenLinks.length > 0) {
   const violations = [];
-  if (unknownNumbers.length > 0) {
-    violations.push(`UNKNOWN ADR NUMBER (${unknownNumbers.length}):`);
-    violations.push(...unknownNumbers.map((v) => `  ${v}`));
+  if (bareNumbers.length > 0) {
+    violations.push(`BARE ADR NUMBER (${bareNumbers.length}) — not resolvable under per-directory numbering:`);
+    violations.push(...bareNumbers.map((v) => `  ${v}`));
   }
   if (brokenLinks.length > 0) {
     if (violations.length > 0) violations.push('');
@@ -119,12 +126,12 @@ if (unknownNumbers.length > 0 || brokenLinks.length > 0) {
   const dirs = [...new Set(known.map((a) => a.dir))].sort();
   reportFailures(
     TARGET,
-    `${unknownNumbers.length + brokenLinks.length} bad ADR citation(s) against ${known.length} known ADR(s):`,
+    `${bareNumbers.length + brokenLinks.length} bad ADR citation(s) against ${known.length} known ADR(s):`,
     violations,
     `ADR directories on disk: ${dirs.join(', ')}`,
-    'Fix: point the citation at a real ADR. If an ADR was renumbered on relocation\n' +
-      '  (#154), update every citation in the same change — including bare-text ones in\n' +
-      '  `.cs` comments, which the Markdown link linter cannot see.',
+    'Fix: write the citation as a link carrying the full root-anchored path —\n' +
+      '  [ADR-0006](/src/core/docs/adr/0006-….md) — including in `.cs` doc comments,\n' +
+      '  which are built into reference markdown where a bare number is useless.',
   );
 }
 

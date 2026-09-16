@@ -2,7 +2,7 @@
 
 This document is for **Website Developers** — maintaining the Astro/Starlight site that publishes Flowthru's documentation. Where a Documentation Developer writes the prose under `docs/`, a Website Developer maintains the machinery that turns it into a deployed site: ingestion, frontmatter validation, link resolution, theming, and the nx wiring that keeps all of it honest.
 
-**Audience scope:** assumes the repo-wide glossary in [/CONTRIBUTING.md](/CONTRIBUTING.md) and the tone and Diátaxis conventions in [/docs/CONTRIBUTING.md](/docs/CONTRIBUTING.md). Nothing here requires .NET knowledge — this is the one context in the repo that is Node/Astro/TypeScript rather than C#, which is why it is a context at all under the bar ADR-0007 set (structurally different artifacts: an application, not a library; `"private": true`; not in `Flowthru.slnx`; deployed by its own workflow).
+**Audience scope:** assumes the repo-wide glossary in [/CONTRIBUTING.md](/CONTRIBUTING.md) and the tone and Diátaxis conventions in [/docs/CONTRIBUTING.md](/docs/CONTRIBUTING.md). Nothing here requires .NET knowledge — this is the one context in the repo that is Node/Astro/TypeScript rather than C#, which is why it clears the bar for minting a context that `src/tools/` first established (structurally different artifacts: an application, not a library; `"private": true`; not in `Flowthru.slnx`; deployed by its own workflow). The decisions behind that bar are recorded under [`docs/adr/`](/docs/adr).
 
 ## The canonical direction
 

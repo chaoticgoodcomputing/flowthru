@@ -14,10 +14,10 @@ exemplars:
 
 ## Governed code
 
-- `src/core/Flowthru.Core/Hosting/ServiceCollectionExtensions.cs` — shared `ILogger` registration (also governed by [ADR-0001](/docs/adr/0001-glossary-split-by-developer-role.md))
+- `src/core/Flowthru.Core/Hosting/ServiceCollectionExtensions.cs` — shared `ILogger` registration (also governed by [ADR-0001](/src/core/docs/adr/0001-step-logging-via-shared-ilogger.md))
 - `src/core/Flowthru.Core/Hosting/FlowthruService.cs` — direct lifecycle logging (run-start, cache-uncacheable decisions)
 - `src/core/Flowthru.Core/Diagnostics/FlowthruActivitySource.cs` — activity source scoped to OTel tracing only; human-readable logging excluded
-- `src/core/Flowthru.Core/Flow/ParallelFlowScheduler.cs` — per-step logging via shared `ILogger` (also governed by [ADR-0001](/docs/adr/0001-glossary-split-by-developer-role.md))
+- `src/core/Flowthru.Core/Flow/ParallelFlowScheduler.cs` — per-step logging via shared `ILogger` (also governed by [ADR-0001](/src/core/docs/adr/0001-step-logging-via-shared-ilogger.md))
 - `tests/core/Flowthru.Core.Tests/Hosting/FlowthruServiceLoggingTests.cs` — regression tests for direct engine logging
 - `tests/core/Flowthru.Core.Tests/Flow/ParallelFlowSchedulerLoggingTests.cs` — regression tests for direct per-step logging
 - `tests/core/Flowthru.Core.Tests/Diagnostics/ActivitySourceTests.cs` — verifies activity spans exist for tracing consumers only
