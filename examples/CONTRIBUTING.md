@@ -119,7 +119,7 @@ public static Func<...> Create(ILoggerFactory loggerFactory)
 
 This is the escape hatch, not the default — most flows are fine with the single shared category.
 
-The full rationale lives in [.claude/docs/adr/0005-step-logging-via-shared-ilogger.md](/.claude/docs/adr/0005-step-logging-via-shared-ilogger.md).
+The full rationale is recorded in the architecture decision records under [`docs/adr/`](/docs/adr).
 
 ## README Standards
 

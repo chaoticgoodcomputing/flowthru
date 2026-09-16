@@ -4,7 +4,7 @@ The canonical **Editor Frontend** for [Flowthru](https://github.com/chaoticgoodc
 
 ## Status
 
-**Scaffold only.** This package establishes the build / install / test loop. Feature implementation ships in subsequent work — see the v1 milestone definition for the five-step golden path (F2 → F3 → F4 → F5 → F6) and [ADR-0012](../../../.claude/docs/adr/0012-inspector-rpc-protocol-and-surface.md) for the Inspector RPC contract this extension consumes.
+**Scaffold only.** This package establishes the build / install / test loop. Feature implementation ships in subsequent work — see the v1 milestone definition for the five-step golden path (F2 → F3 → F4 → F5 → F6). The Inspector RPC contract this extension consumes is documented in [src/tools/CONTRIBUTING.md](../CONTRIBUTING.md#tools-vocabulary).
 
 ## Development
 
@@ -29,11 +29,9 @@ pnpm --filter flowthru-vscode run watch
 
 ## Architecture
 
-This extension is a [[Tool]] in Flowthru's contributor model — a process that consumes a Flow Developer's compiled Flowthru project from outside it. See [src/tools/CONTRIBUTING.md](../CONTRIBUTING.md) for Tool Developer conventions and the [Inspector](../CONTRIBUTING.md#tools-vocabulary) introspection backbone this extension talks to over JSON-RPC.
+This extension is a Tool in Flowthru's contributor model — a process that consumes a Flow Developer's compiled Flowthru project from outside it. See [src/tools/CONTRIBUTING.md](../CONTRIBUTING.md) for Tool Developer conventions and the [Inspector](../CONTRIBUTING.md#tools-vocabulary) introspection backbone this extension talks to over JSON-RPC.
 
-Related decisions:
-
-- [ADR-0007](../../../.claude/docs/adr/0007-tools-as-development-context.md) — Tools as a development context
-- [ADR-0011](../../../.claude/docs/adr/0011-diagnostic-anchor-contract.md) — diagnostic anchor contract (F2's data source)
-- [ADR-0012](../../../.claude/docs/adr/0012-inspector-rpc-protocol-and-surface.md) — Inspector RPC protocol and surface
-- [ADR-0015](../../../.claude/docs/adr/0015-snapshot-lifecycle.md) — `.flowthru/manifests/` snapshot lifecycle (F6's data source)
+The decisions this extension is built on — Tools as a development context, the
+diagnostic anchor contract behind F2, the Inspector RPC protocol, and the
+`.flowthru/manifests/` snapshot lifecycle behind F6 — are recorded in the
+repository's architecture decision records (`docs/adr/`).

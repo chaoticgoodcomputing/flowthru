@@ -68,7 +68,7 @@ The streaming sibling of `FlowIO<A>`: where `FlowIO<A>` describes a computation 
 - **Resources release deterministically.** The byte source is a `FlowResource` (below) acquired on the *first pull* and released on every exit path — completion, failure, cancellation. A source built but never run acquires nothing.
 - **Backpressure is pull-based.** A slow consumer paces a fast producer with no buffering, so a read → transform → write pipeline runs in bounded (`O(batch)`) memory rather than `O(file)`.
 
-This is why a streaming catalog read can process a dataset larger than RAM. The full rationale — including why we vendor a minimal `FlowSource` rather than take a LanguageExt dependency — is [ADR-0023](/.claude/docs/adr/0023-streaming-reads-as-catalog-item-type.md).
+This is why a streaming catalog read can process a dataset larger than RAM. `FlowSource` is a minimal vendored implementation rather than a LanguageExt dependency, which keeps the Prelude's surface — and its dependency footprint — small enough to justify a seat.
 
 #### `EffResult<A>` — [Prelude/EffResult.cs](/src/core/Flowthru.Core/Prelude/EffResult.cs)
 

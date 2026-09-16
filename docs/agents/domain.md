@@ -22,7 +22,7 @@ Flowthru does not use these files and will not. Several installed skills will te
 | `CONTEXT-MAP.md` — root, lists the contexts | the context map section in `/CONTRIBUTING.md` |
 | `docs/adr/` — decision records | `docs/adr/` (unchanged) |
 
-This follows ADR-0004: per-context CONTRIBUTING files carry the glossaries, root `/CONTRIBUTING.md` carries the map, and `/GLOSSARY.md` was removed. When you resolve a term or need to record vocabulary, edit the relevant `CONTRIBUTING.md` glossary — never create a new file type for it.
+This follows the accepted decision recorded under `docs/adr/`: per-context CONTRIBUTING files carry the glossaries, root `/CONTRIBUTING.md` carries the map, and `/GLOSSARY.md` was removed. When you resolve a term or need to record vocabulary, edit the relevant `CONTRIBUTING.md` glossary — never create a new file type for it.
 
 **This is enforced, not merely requested.** `nx run tests:test` fails if either file exists anywhere in the repo (`_test:context-file-guard`), so creating one breaks the build rather than quietly diverging.
 

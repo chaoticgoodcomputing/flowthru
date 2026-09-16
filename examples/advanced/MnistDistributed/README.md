@@ -1,7 +1,7 @@
 # MnistDistributed — distributed PyTorch training via TorchrunLauncher
 
 A one-step Flowthru pipeline that trains a small CNN on synthetic
-28×28 grayscale data using `TorchrunLauncher` (ADR-0014). The model
+28×28 grayscale data using `TorchrunLauncher`. The model
 and dataset are deliberately tiny — a few KB of model weights, a few
 hundred synthetic samples — because the example is for **exercising
 the distributed launcher seam**, not for training quality.
