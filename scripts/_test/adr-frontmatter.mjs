@@ -124,7 +124,9 @@ for (const adr of known) {
   }
 
   // --- exemplars ---------------------------------------------------------
-  if (!EXEMPT_FROM_EXEMPLARS.has(statusWord)) {
+  // Only meaningful once the status is valid — otherwise the status violation
+  // above already says what to do, and a second line about exemplars contradicts it.
+  if (VALID_STATUS.includes(statusWord) && !EXEMPT_FROM_EXEMPLARS.has(statusWord)) {
     if (declaredExemplars.length === 0) {
       violations.push(
         `${adr.file}: status '${statusWord || 'accepted'}' requires at least one exemplar — ` +
