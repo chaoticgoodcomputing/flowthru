@@ -51,7 +51,7 @@ Extension rework (bounded by the default-∞ choice):
 - **Opt-in cap** — GQL, HTTP (network/rate-limited; ∞ is the default, a cap is opt-in).
 - **None** — the file adapters Csv, Parquet, Excel, Xml (∞ holds; the single-producer law already prevents two steps writing one file — Excel multi-sheet-in-one-workbook is the lone edge case) and the Metadata.* report emitters.
 
-The profile is the natural carrier for a third axis when the AWS Lambda harness ([ADR-0017](/docs/adr/0017-aws-lambda-harness.md)) needs to describe how a service behaves across an invocation boundary — same pattern, additional field.
+The profile is the natural carrier for a third axis when a Lambda-style invocation harness needs to describe how a service behaves across an invocation boundary — same pattern, additional field. (That harness is still a proposal under review, so it is deliberately not cited here: an ADR on `main` names only decisions `main` implements.)
 
 ## Anchor code
 

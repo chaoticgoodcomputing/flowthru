@@ -4,16 +4,21 @@
  * honors it: `exemplars` is non-empty and every path resolves, and every
  * `contexts` value names a real context.
  *
- * The contract, from #154:
+ * The contract:
  *   contexts   — who DECIDED (direct application only)
  *   exemplars  — files demonstrating the decision in practice, non-empty
- *   status     — accepted | proposed | superseded | rejected
+ *   status     — accepted | superseded | rejected
  *
- * `proposed` extends #154's three-value vocabulary. The migration surfaced three
- * ADRs that decide something nothing yet implements — the diagnostic anchor
- * contract, the Inspector RPC surface, and the Lambda harness (whose package does
- * not exist). That is precisely the "asserted but not practised" case the
- * exemplars rule exists to expose, so it is recorded rather than papered over.
+ * **An ADR reaches `main` with the work that implements it.** `main` is the
+ * canonical state of the repository, so an ADR merged into it describes something
+ * the repository actually does. A decision still under review lives on its own
+ * `adr/<slug>` branch and merges when its implementation does.
+ *
+ * This is why there is no `proposed` status. A `proposed` ADR on `main` would need
+ * an exemption from the non-empty-`exemplars` rule, and every exemption is a way
+ * to assert a decision without practising it — exactly what `exemplars` exists to
+ * prevent. Removing the status removes the loophole: on `main`, `accepted` means
+ * something demonstrates this, with no escape hatch.
  *
  * `exemplars` is what makes an ADR falsifiable: it is the difference between a
  * decision that is *practised* and one that is merely *asserted*. ADR-0019
@@ -58,25 +63,22 @@ import {
 } from './_domain.mjs';
 
 const TARGET = '_test:adr-frontmatter';
-const VALID_STATUS = ['accepted', 'proposed', 'superseded', 'rejected'];
+const VALID_STATUS = ['accepted', 'superseded', 'rejected'];
 /**
- * Statuses exempt from the non-empty-exemplars requirement.
+ * Statuses exempt from the non-empty-exemplars requirement — and the ONLY two,
+ * deliberately.
  *
- * `superseded` / `rejected` — their exemplars are expected to be GONE (ADR-0001's
- * exemplar was /GLOSSARY.md, which ADR-0004 deleted).
- * `proposed` — their exemplars do not exist YET. A proposed decision is by
- * definition not practised, so demanding one would force either a fabricated
- * exemplar or a false `accepted`. Keeping `proposed` honest is what lets
- * `accepted` keep its teeth: accepted means *something demonstrates this*.
+ * Both describe a decision whose exemplars are expected to be GONE: ADR-0001's
+ * exemplar was /GLOSSARY.md, which ADR-0004 deleted. There is no exemption for a
+ * decision whose exemplars do not exist YET, because such an ADR does not belong
+ * on `main` at all — see the header note.
  */
-const EXEMPT_FROM_EXEMPLARS = new Set(['proposed', 'superseded', 'rejected']);
+const EXEMPT_FROM_EXEMPLARS = new Set(['superseded', 'rejected']);
 
 const allContexts = contexts();
 const known = adrs(allContexts);
 
 const violations = [];
-/** Accepted ADRs that predate the frontmatter contract — #157's worklist, reported not failed. */
-const awaitingMigration = [];
 let migrated = 0;
 
 for (const adr of known) {
@@ -102,12 +104,7 @@ for (const adr of known) {
   const status = typeof fm.status === 'string' ? fm.status.trim() : '';
   const statusWord = status.split(/[\s;,]+/)[0].toLowerCase();
 
-  if (!hasContractKeys) {
-    // Pre-#157 ADR: the contract is not in force yet. Record the ones already
-    // claiming `accepted` so the gap they represent is visible, not silent.
-    if (statusWord === 'accepted') awaitingMigration.push(adr.file);
-    continue;
-  }
+  if (!hasContractKeys) continue; // no frontmatter contract declared — nothing to check
   migrated++;
 
   // Status strictness is part of the migrated contract, not a pre-condition of it.
@@ -162,18 +159,13 @@ if (violations.length > 0) {
     'The #154 frontmatter contract:\n' +
       '    contexts:  who DECIDED — direct application only\n' +
       '    exemplars: files demonstrating the decision in practice (non-empty unless\n' +
-      '               status is proposed, superseded or rejected)\n' +
-      '    status:    accepted | proposed | superseded | rejected',
+      '               status is superseded or rejected)\n' +
+      '    status:    accepted | superseded | rejected\n\n' +
+      '  If the decision is not implemented yet, it does not belong on `main`:\n' +
+      '  move it to an `adr/<slug>` branch and merge it with its implementation.',
   );
 }
 
-if (awaitingMigration.length > 0) {
-  console.log(
-    `${TARGET} — ${awaitingMigration.length} ADR(s) say 'accepted' but predate the ` +
-      'contexts/exemplars contract, so nothing is enforced on them yet (#157 adds it):',
-  );
-  for (const file of awaitingMigration) console.log(`    ${file}`);
-}
 
 reportOk(
   TARGET,
