@@ -46,7 +46,7 @@ public sealed class S3StorageMedium : IStorageMedium, ISupportsFingerprint, ISup
     _key = key;
 
     // Only attach the memory-domain read dependency when a finite cap is
-    // declared (ADR-0019 opt-in). Unbounded reads carry no dependency, so the
+    // declared ([ADR-0006](/src/core/docs/adr/0006-concurrency-conflict-relation-and-resource-profiles.md) opt-in). Unbounded reads carry no dependency, so the
     // scheduler's default behaviour is unchanged. See S3ReadDependency (#111).
     _serviceDependencies = readCapacity >= int.MaxValue
       ? Array.Empty<ServiceDependency>()

@@ -17,6 +17,8 @@
     href: Flowthru.Data.Catalog.GqlPagedRelayBuilder-2.md
   - name: GqlSingleBuilder<TResult, T>
     href: Flowthru.Data.Catalog.GqlSingleBuilder-2.md
+  - name: GqlThrottleExtensions
+    href: Flowthru.Data.Catalog.GqlThrottleExtensions.md
 - name: Flowthru.Data.Storage.Gql
   href: Flowthru.Data.Storage.Gql.md
   items:
@@ -43,3 +45,9 @@
     href: Flowthru.Data.Storage.Gql.PaginationStrategy-2.md
   - name: RelayPaginationStrategy<TResult, T>
     href: Flowthru.Data.Storage.Gql.RelayPaginationStrategy-2.md
+- name: Flowthru.Hosting
+  href: Flowthru.Hosting.md
+  items:
+  - name: Classes
+  - name: GqlFlowthruBuilderExtensions
+    href: Flowthru.Hosting.GqlFlowthruBuilderExtensions.md

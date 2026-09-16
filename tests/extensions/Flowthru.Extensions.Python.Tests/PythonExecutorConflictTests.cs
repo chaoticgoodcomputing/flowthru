@@ -15,7 +15,7 @@ namespace Flowthru.Extensions.Python.Tests;
 /// to the executor's <see cref="IPythonExecutor.MaxConcurrency"/> capacity
 /// (cache-neutral). End to end, two independent Python steps backed by a
 /// serial executor must not co-run under the
-/// <see cref="ParallelFlowScheduler"/>. (ADR-0019.)
+/// <see cref="ParallelFlowScheduler"/>. ([ADR-0006](/src/core/docs/adr/0006-concurrency-conflict-relation-and-resource-profiles.md).)
 /// </summary>
 [TestFixture]
 [Category("Python")]

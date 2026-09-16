@@ -61,7 +61,7 @@ public enum StepContainerKind
   /// resource-safe streaming catalog payload produced by
   /// <c>.AsStream()</c>, whose sole consumption path is
   /// compile-to-<c>FlowIO</c>. Supersedes the removed bare-
-  /// <c>IAsyncEnumerable</c> <c>AsyncStream</c> kind (see ADR-0023):
+  /// <c>IAsyncEnumerable</c> <c>AsyncStream</c> kind (see [ADR-0008](/src/core/docs/adr/0008-streaming-reads-as-catalog-item-type.md)):
   /// <c>FlowSource</c> keeps enumeration inside the effect envelope,
   /// so errors-as-values, disposal, and cancellation are preserved by
   /// construction. Nice-to-have; not part of the Phase 9 minimum floor.

@@ -3,7 +3,7 @@ using Flowthru.Data.Catalog;
 namespace Flowthru.Validation.Runtime;
 
 /// <summary>
-/// Canonical derivation of a step's scheduler conflict keys (ADR-0019).
+/// Canonical derivation of a step's scheduler conflict keys ([ADR-0006](/src/core/docs/adr/0006-concurrency-conflict-relation-and-resource-profiles.md)).
 /// The single source of truth shared by <c>ParallelFlowScheduler</c> (which
 /// gates on these keys) and the diagnostics layer (which surfaces them as
 /// conflict groups) — so what a metadata diagram shows can never drift from

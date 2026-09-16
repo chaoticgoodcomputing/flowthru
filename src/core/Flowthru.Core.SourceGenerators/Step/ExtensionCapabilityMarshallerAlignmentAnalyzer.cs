@@ -99,7 +99,7 @@ public sealed class ExtensionCapabilityMarshallerAlignmentAnalyzer : DiagnosticA
     }
 
     // Note: StepContainerKind.Source (a FlowSource<T> streaming payload) has
-    // no marshaller marker — per ADR-0023 a FlowSource is consumed by
+    // no marshaller marker — per [ADR-0008](/src/core/docs/adr/0008-streaming-reads-as-catalog-item-type.md) a FlowSource is consumed by
     // compiling back into FlowIO, not marshalled across a marker seam — so
     // there is no alignment check for it here.
   }

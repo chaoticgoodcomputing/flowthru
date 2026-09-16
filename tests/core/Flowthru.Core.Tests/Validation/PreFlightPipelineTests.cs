@@ -130,7 +130,7 @@ public class PreFlightPipelineTests
   [Test]
   public async Task HermeticScope_RunsHermeticClassifiedHooks_AndSkipsDefaultOnes()
   {
-    // Hooks self-classify on the I/O ladder (the ADR-0021 follow-up):
+    // Hooks self-classify on the I/O ladder (the [ADR-0007](/src/core/docs/adr/0007-hermetic-preflight-depth-and-structural-validation-as-data.md) follow-up):
     // a hermetic-classified hook still runs in an offline smoke test,
     // while the default (Shallow — may probe live resources) is skipped
     // at Hermetic scope.

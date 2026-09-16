@@ -23,7 +23,7 @@ namespace Flowthru.Diagnostics.Mermaid.Internal;
 /// on steps and items) render two ways: an inline compartment inside the
 /// node — node label, a Unicode rule divider, one service per line — and a
 /// distinct-coloured <c>services</c> legend subgraph carrying each
-/// service's capacity / cacheability (ADR-0019). No step→service edges; the
+/// service's capacity / cacheability ([ADR-0006](/src/core/docs/adr/0006-concurrency-conflict-relation-and-resource-profiles.md)). No step→service edges; the
 /// reader joins the inline name to its legend entry. The compartment
 /// inherits whatever fill the node has (heat-map, cache-plan blue, inactive
 /// grey).
@@ -70,7 +70,7 @@ internal static class MermaidDiagramRenderer
     // renders with this fill. Distinct from the heat-map curve so
     // cache hits are immediately distinguishable from ran-fast steps.
     string CachedStepColor = "#1976D2",
-    // The service-legend subgraph (ADR-0019 #100 s7) — a deliberately
+    // The service-legend subgraph ([ADR-0006](/src/core/docs/adr/0006-concurrency-conflict-relation-and-resource-profiles.md) #100 s7) — a deliberately
     // distinct fill/stroke from the per-flow subgraphs (which have no
     // explicit fill) so the "what services does this DAG use" key reads
     // as a separate region, not another flow.
@@ -333,7 +333,7 @@ internal static class MermaidDiagramRenderer
     // A key for the services annotated on steps and item cylinders: one
     // node per distinct service, carrying capacity + cacheability. No
     // edges — the reader joins by name (a node lists "IPythonExecutor",
-    // the legend says what cap/cache that implies). (ADR-0019 #100 s7.)
+    // the legend says what cap/cache that implies). ([ADR-0006](/src/core/docs/adr/0006-concurrency-conflict-relation-and-resource-profiles.md) #100 s7.)
     RenderServiceLegend(
       sb,
       ServiceUsageAnalyzer.Analyze(topology, ctx.ServiceProfiles ?? new DefaultServiceProfileProvider()),
@@ -860,7 +860,7 @@ internal static class MermaidDiagramRenderer
   /// <summary>
   /// Append a node's service dependencies as an inline compartment —
   /// divider rule + one service display-name per line. Shared by steps and
-  /// item cylinders so the annotation is node-generic (ADR-0019 #100 s7);
+  /// item cylinders so the annotation is node-generic ([ADR-0006](/src/core/docs/adr/0006-concurrency-conflict-relation-and-resource-profiles.md) #100 s7);
   /// returns <paramref name="baseLabel"/> unchanged when there are none.
   /// </summary>
   private static string AppendServices(string baseLabel, IReadOnlyList<ServiceDependency> deps)

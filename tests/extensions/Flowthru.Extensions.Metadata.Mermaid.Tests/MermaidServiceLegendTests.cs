@@ -11,7 +11,7 @@ using Flowthru.Validation.Runtime;
 namespace Flowthru.Extensions.Metadata.Mermaid.Tests;
 
 /// <summary>
-/// Coverage for the service-legend rendering (ADR-0019, #100 s7): services
+/// Coverage for the service-legend rendering ([ADR-0006](/src/core/docs/adr/0006-concurrency-conflict-relation-and-resource-profiles.md), #100 s7): services
 /// annotate nodes inline (node-generic across steps and item cylinders) and
 /// appear once in a distinct-coloured <c>services</c> legend subgraph with
 /// capacity / cacheability metadata. The source-language parenthetical is

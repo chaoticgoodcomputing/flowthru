@@ -35,16 +35,72 @@ Every possible failure in a Flow falls into one of three phases:
 
 ## Flowthru Development Roles
 
-Contributions to Flowthru fall under one of five roles. Each role's full definition, conventions, and vocabulary live in a per-context CONTRIBUTING file:
+Contributions to Flowthru fall under one of six roles. Each role's full definition, conventions, and vocabulary live in a per-context CONTRIBUTING file:
 
 - **Flow Developer** / **Catalog Developer** — writing Flows and Catalogs on top of Flowthru. See [examples/CONTRIBUTING.md](/examples/CONTRIBUTING.md).
 - **Extension Developer** — extending Flowthru with new Catalog formats, Step types, or type-safety patterns. See [src/extensions/CONTRIBUTING.md](/src/extensions/CONTRIBUTING.md).
 - **Core Developer** — curating Flowthru's core library and Roslyn surface. See [src/core/CONTRIBUTING.md](/src/core/CONTRIBUTING.md).
 - **Tool Developer** — building processes that consume Flowthru from outside a Flow Dev's project: editor frontends, agent frontends, CLI utilities, and the shared Inspector backbone they rely on. See [src/tools/CONTRIBUTING.md](/src/tools/CONTRIBUTING.md).
+- **Website Developer** — maintaining the Astro/Starlight site that publishes this documentation: the ingest pipeline, frontmatter validation, link resolution, and theming. See [src/website/CONTRIBUTING.md](/src/website/CONTRIBUTING.md).
 
 Testing-specific conventions for each context live in [tests/core/CONTRIBUTING.md](/tests/core/CONTRIBUTING.md) and [tests/extensions/CONTRIBUTING.md](/tests/extensions/CONTRIBUTING.md).
 
-The design rules in this document apply to all five roles regardless of which context they're working in.
+The design rules in this document apply to all six roles regardless of which context they're working in.
+
+## Context Map
+
+<!-- flowthru:contexts:start -->
+
+A directory is a context iff it *directly* contains a `CONTRIBUTING.md`. This
+table is generated from the repo layout by `scripts/generate-context-map.mjs` —
+to add a context, add its `CONTRIBUTING.md` and re-run the generator.
+
+| Context | Conventions | Owns ADRs |
+|---|---|---|
+| `/` | [CONTRIBUTING.md](/CONTRIBUTING.md) | [`docs/adr/`](/docs/adr) |
+| `docs` | [docs/CONTRIBUTING.md](/docs/CONTRIBUTING.md) | no |
+| `examples` | [examples/CONTRIBUTING.md](/examples/CONTRIBUTING.md) | yes — none yet |
+| `src/core` | [src/core/CONTRIBUTING.md](/src/core/CONTRIBUTING.md) | [`src/core/docs/adr/`](/src/core/docs/adr) |
+| `src/extensions` | [src/extensions/CONTRIBUTING.md](/src/extensions/CONTRIBUTING.md) | yes — none yet |
+| `src/extensions/Flowthru.Extensions.Google.Sheets` | [src/extensions/Flowthru.Extensions.Google.Sheets/CONTRIBUTING.md](/src/extensions/Flowthru.Extensions.Google.Sheets/CONTRIBUTING.md) | [`src/extensions/Flowthru.Extensions.Google.Sheets/docs/adr/`](/src/extensions/Flowthru.Extensions.Google.Sheets/docs/adr) |
+| `src/extensions/Flowthru.Extensions.Python` | [src/extensions/Flowthru.Extensions.Python/CONTRIBUTING.md](/src/extensions/Flowthru.Extensions.Python/CONTRIBUTING.md) | [`src/extensions/Flowthru.Extensions.Python/docs/adr/`](/src/extensions/Flowthru.Extensions.Python/docs/adr) |
+| `src/tools` | [src/tools/CONTRIBUTING.md](/src/tools/CONTRIBUTING.md) | [`src/tools/docs/adr/`](/src/tools/docs/adr) |
+| `src/website` | [src/website/CONTRIBUTING.md](/src/website/CONTRIBUTING.md) | yes — none yet |
+| `tests/core` | [tests/core/CONTRIBUTING.md](/tests/core/CONTRIBUTING.md) | yes — none yet |
+| `tests/extensions` | [tests/extensions/CONTRIBUTING.md](/tests/extensions/CONTRIBUTING.md) | yes — none yet |
+
+11 context(s). A context may own ADRs under its own `docs/adr/`;
+`docs/` is the single exclusion, since documentation decisions are repo-wide.
+
+<!-- flowthru:contexts:end -->
+
+## Glossary
+
+Repo-wide vocabulary — the terms every context depends on and none of them owns.
+Terms specific to a context live in that context's own `CONTRIBUTING.md`; see the
+context map above. Each entry's `_Avoid_` line is the enforcement: those synonyms
+are not interchangeable substitutes, and output that reaches for one has drifted.
+
+**Context**: A directory that *directly* contains a `CONTRIBUTING.md`. That is the whole rule, which is what makes the context set mechanically enumerable and the map above generated rather than maintained. Contexts are minted **lazily** — a directory becomes one when it accrues vocabulary or decisions with nowhere else to live, and a package cannot own an ADR until it does. The relationship to [[Shippable package]] runs one way and loosely: a shippable package *becomes* a context once it has its own words, but many contexts ship nothing at all (`examples`, `tests/core`, `tests/extensions`, `docs`).
+_Avoid_: module (no build or packaging meaning here), bounded context (the DDD term carries a domain-model boundary Flowthru does not claim), package (a context need not ship, and a shipping package need not be a context yet)
+
+**Shippable package**: A `src/` project that ships to consumers as — or bundled inside — a NuGet package; the unit the per-package documentation standard governs (a README, an API-reference landing, and a per-package coverage badge). The packable libraries: `Flowthru.Core`, the `Flowthru` umbrella, `Flowthru.Cli`, `Flowthru.FUnit`, and every `Flowthru.Extensions.*`. *Excludes* source-generator and code-fix projects (`IsPackable=false` — they ride *inside* a parent package's `analyzers/`, never standalone) and test projects. The boundary is non-obvious because a package's namespace need not match its name — `Flowthru.Extensions.Csv` declares types in the `Flowthru.Core.Data` namespace, so "which package owns this type" is answered by the assembly, not the namespace, which is why cross-package reference links require an assembly-keyed symbol index rather than namespace inference.
+_Avoid_: project (too broad — sweeps in tests, source generators, and example Flows), assembly (an implementation artifact; a shippable package is the distributable unit and may bundle several assemblies)
+
+**API Surface**: The set of public types, methods, and attributes that Flow-Project code touches when writing a Flow. One of two primary contributor concerns (alongside [[Error Surface]]) — contributor changes are reviewed against "does this keep the user surface small, expressive, and ceremony-free?"
+_Avoid_: public API (correct but missing Flowthru's design-axis framing), surface area
+
+**Error Surface**: The complete set of failure modes a Flow can exhibit — what can fail, in which [[Design-time error|design-time]] / [[Pre-flight error|pre-flight]] / [[Runtime error (phase)|runtime]] phase, what the failure looks like, and how it surfaces to the user. The second primary contributor concern (alongside [[API Surface]]) — every new feature is reviewed against "when can this break, and is that point as early as we can make it?"
+_Avoid_: error model, failure surface
+
+**Design-time error**: An error caught while the developer is authoring code — surfaced as IDE squigglies, blocked autocomplete, build failures, or failing FUnit tests, all before any Flow reaches production pre-flight. Flowthru's gold standard error phase, enabled by the C# type system, source generators, Roslyn analyzers, code fixes, and rapid FUnit test execution — push every constraint here that those tools can express.
+_Avoid_: compile-time error (too narrow — design-time also covers analyzer diagnostics, IDE guidance, and FUnit test runs), build-time error (too broad — includes linker/packaging failures)
+
+**Pre-flight error**: An error caught after a Flow is invoked but before any Step's logic runs. Used for environmental checks the type system can't express — file existence, schema drift in external data, DAG validation (duplicate producers, cycles).
+_Avoid_: startup error, initialization error
+
+**Runtime error (phase)**: The third error phase — an error that occurs during actual Step execution. Reserved for truly unpredictable failures (network drops, out-of-memory, hardware faults) that cannot be pushed earlier. Flowthru minimizes these by design; they are captured as values rather than thrown. The `(phase)` parenthetical is load-bearing: Core carries a `RuntimeError` *type* under the same name, disambiguated in its own entry name rather than by a note here — root vocabulary never reaches down into a context's.
+_Avoid_: execution error, "raised exception" (Flowthru's runtime errors are values, not throws)
 
 ## What Flowthru *Won't* Be
 

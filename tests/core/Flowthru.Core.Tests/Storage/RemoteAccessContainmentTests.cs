@@ -5,7 +5,7 @@ namespace Flowthru.Core.Tests.Storage;
 
 /// <summary>
 /// Structural containment laws for the <see cref="RemoteAccess"/> handoff
-/// (ADR-0026): a handoff carrying credentials never renders them through
+/// ([ADR-0010](/src/core/docs/adr/0010-typed-access-handoff-and-secret-containment.md)): a handoff carrying credentials never renders them through
 /// <c>ToString</c>, refuses serialization, and cannot silently drop a secret
 /// from its <see cref="RemoteAccess.Secrets"/> scrub-list. These make the
 /// guarantee a property of the types, not of case-author discipline — a future

@@ -19,7 +19,7 @@ namespace Flowthru.Extensions.AWS.S3.Tests;
 /// <summary>
 /// Regression coverage for reading a <strong>multi-row-group</strong>
 /// <c>s3://</c> Parquet object back through the <em>streaming</em> catalog view —
-/// the ADR-0023 path that bounds peak read memory to O(one row group) instead of
+/// the [ADR-0008](/src/core/docs/adr/0008-streaming-reads-as-catalog-item-type.md) path that bounds peak read memory to O(one row group) instead of
 /// O(whole object). Drives the production wiring end-to-end:
 /// <c>ItemFactory.Enumerable.Parquet(...).AsStream()</c> →
 /// <c>Load()</c> (deferred <see cref="FlowSource{T}"/>) →

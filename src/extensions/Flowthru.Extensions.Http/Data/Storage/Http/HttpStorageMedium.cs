@@ -51,7 +51,7 @@ public sealed class HttpStorageMedium : IStorageMedium, ISupportsFingerprint
   /// <inheritdoc/>
   /// <remarks>
   /// Empty unless an opt-in per-host cap was configured — HTTP is
-  /// unbounded and parallel-safe by default (ADR-0019, #104).
+  /// unbounded and parallel-safe by default ([ADR-0006](/src/core/docs/adr/0006-concurrency-conflict-relation-and-resource-profiles.md), #104).
   /// </remarks>
   public IReadOnlyList<ServiceDependency> ServiceDependencies => _serviceDependencies;
 

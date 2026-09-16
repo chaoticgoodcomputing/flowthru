@@ -118,5 +118,5 @@
     href: Flowthru.Validation.Runtime.Python.PythonRuntimeError.WorkerCrashed.md
   - name: PythonRuntimeError.WorkerError
     href: Flowthru.Validation.Runtime.Python.PythonRuntimeError.WorkerError.md
-  - name: PythonServiceRef
-    href: Flowthru.Validation.Runtime.Python.PythonServiceRef.md
+  - name: PythonServiceDependency
+    href: Flowthru.Validation.Runtime.Python.PythonServiceDependency.md

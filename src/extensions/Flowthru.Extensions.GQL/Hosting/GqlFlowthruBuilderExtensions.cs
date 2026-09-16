@@ -11,7 +11,7 @@ namespace Flowthru.Hosting;
 /// own StrawberryShake client and passes operation delegates — so this is
 /// the one piece of host wiring it needs: registering the
 /// <see cref="IServiceProfileContributor"/> that enforces opt-in endpoint
-/// concurrency caps (ADR-0019, issue #104).
+/// concurrency caps ([ADR-0006](/src/core/docs/adr/0006-concurrency-conflict-relation-and-resource-profiles.md), issue #104).
 /// </summary>
 public static class GqlFlowthruBuilderExtensions
 {

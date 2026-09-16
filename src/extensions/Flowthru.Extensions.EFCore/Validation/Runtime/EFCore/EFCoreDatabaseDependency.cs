@@ -2,7 +2,7 @@ namespace Flowthru.Validation.Runtime.EFCore;
 
 /// <summary>
 /// Conflict identity of the database an EF Core catalog item reads from
-/// or writes to (ADR-0019). Surfaced through Core's
+/// or writes to ([ADR-0006](/src/core/docs/adr/0006-concurrency-conflict-relation-and-resource-profiles.md)). Surfaced through Core's
 /// <see cref="ServiceDependency.External"/> variant so the
 /// <c>ParallelFlowScheduler</c> can gate concurrent steps that contend on
 /// the same database: a step's input items contribute a

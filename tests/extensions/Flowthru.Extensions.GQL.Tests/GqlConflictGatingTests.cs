@@ -16,7 +16,7 @@ namespace Flowthru.Extensions.GQL.Tests;
 /// <c>WithGqlConcurrency</c> declares its endpoint as a conflict resource,
 /// and <see cref="GqlEndpointProfileContributor"/> resolves it to the
 /// declared cap. Throttled calls to one endpoint serialize; without the
-/// opt-in (the default) they parallelize. (ADR-0019.)
+/// opt-in (the default) they parallelize. ([ADR-0006](/src/core/docs/adr/0006-concurrency-conflict-relation-and-resource-profiles.md).)
 /// </summary>
 [TestFixture]
 public sealed class GqlConflictGatingTests

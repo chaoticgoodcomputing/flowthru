@@ -64,7 +64,7 @@ public class ItemIntrospectionTests
     // FlowSource<T> is the streaming catalog payload (.AsStream()). It
     // implements none of the sequence interfaces, so introspection must
     // recognise it structurally — otherwise it falls through to Singleton
-    // with row type FlowSource<T>, the bug ADR-0023 corrects.
+    // with row type FlowSource<T>, the bug [ADR-0008](/src/core/docs/adr/0008-streaming-reads-as-catalog-item-type.md) corrects.
     Assert.That(
       Item.ContainerKindOf<FlowSource<Row>>(),
       Is.EqualTo(StepContainerKind.Source)
@@ -72,7 +72,7 @@ public class ItemIntrospectionTests
 
   [Test]
   public void ContainerKindOf_IAsyncEnumerable_IsSingleton() =>
-    // The bare-IAsyncEnumerable AsyncStream kind was removed (ADR-0023);
+    // The bare-IAsyncEnumerable AsyncStream kind was removed ([ADR-0008](/src/core/docs/adr/0008-streaming-reads-as-catalog-item-type.md));
     // a raw IAsyncEnumerable is no longer a recognised container kind and
     // now resolves to Singleton. FlowSource is the sole streaming kind.
     Assert.That(

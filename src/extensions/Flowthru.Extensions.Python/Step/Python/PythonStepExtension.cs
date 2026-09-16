@@ -32,7 +32,7 @@ namespace Flowthru.Step.Python;
 /// push computation down into the data source, so declaring
 /// <see cref="StepContainerKind.Queryable"/> would be a false claim.
 /// Streaming (<see cref="StepContainerKind.Source"/>) has no marker:
-/// per ADR-0023 the eager <see cref="StepContainerKind.Enumerable"/>
+/// per [ADR-0008](/src/core/docs/adr/0008-streaming-reads-as-catalog-item-type.md) the eager <see cref="StepContainerKind.Enumerable"/>
 /// path already covers what a step consumes, and Arrow marshalling
 /// materialises the batch today (chunk-wise streaming is a follow-up).
 /// </para>

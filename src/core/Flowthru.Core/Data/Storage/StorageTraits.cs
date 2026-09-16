@@ -44,7 +44,7 @@ public record StorageTraits
   /// <summary>Are writes atomic (all-or-nothing)? Default <c>false</c>.</summary>
   public bool IsTransactional { get; init; } = false;
 
-  // ── Concurrency capacity (conflict gating, ADR-0019) ──
+  // ── Concurrency capacity (conflict gating, [ADR-0006](/src/core/docs/adr/0006-concurrency-conflict-relation-and-resource-profiles.md)) ──
 
   /// <summary>
   /// Maximum number of concurrent <em>writers</em> the medium tolerates.

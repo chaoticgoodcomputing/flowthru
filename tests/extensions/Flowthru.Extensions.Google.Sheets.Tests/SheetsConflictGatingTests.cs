@@ -17,7 +17,7 @@ namespace Flowthru.Extensions.Google.Sheets.Tests;
 /// conflict resource, and <see cref="SheetsSpreadsheetProfileContributor"/>
 /// resolves it to write capacity 1 / read capacity ∞. Concurrent writes
 /// to one spreadsheet serialize (no race, no quota spike); concurrent
-/// reads parallelize. (ADR-0019.)
+/// reads parallelize. ([ADR-0006](/src/core/docs/adr/0006-concurrency-conflict-relation-and-resource-profiles.md).)
 /// </summary>
 [TestFixture]
 public sealed class SheetsConflictGatingTests

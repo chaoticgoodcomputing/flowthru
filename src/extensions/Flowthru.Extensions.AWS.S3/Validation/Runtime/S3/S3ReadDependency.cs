@@ -1,7 +1,7 @@
 namespace Flowthru.Validation.Runtime.S3;
 
 /// <summary>
-/// Conflict identity of the memory an <c>s3://</c> read consumes (ADR-0019,
+/// Conflict identity of the memory an <c>s3://</c> read consumes ([ADR-0006](/src/core/docs/adr/0006-concurrency-conflict-relation-and-resource-profiles.md),
 /// issue #111). Surfaced through Core's <see cref="ServiceDependency.External"/>
 /// so <c>ParallelFlowScheduler</c> can bound how many S3 reads run at once.
 /// </summary>
@@ -24,7 +24,7 @@ namespace Flowthru.Validation.Runtime.S3;
 /// the op-class is part of the key (<c>Read:</c> vs <c>Write:</c>), so bounding
 /// reads never serialises writes. The read bound is opt-in — unbounded by
 /// default (this dependency is only attached when a capacity is declared via
-/// <c>S3Options.MaxConcurrentReads</c>), keeping the ADR-0019 "network is
+/// <c>S3Options.MaxConcurrentReads</c>), keeping the [ADR-0006](/src/core/docs/adr/0006-concurrency-conflict-relation-and-resource-profiles.md) "network is
 /// ∞ by default" posture while giving memory-constrained hosts a safe cap.
 /// </para>
 /// </remarks>

@@ -19,7 +19,7 @@ namespace Flowthru.Extensions.Http.Tests;
 /// an opt-in <c>HttpOptions.MaxConcurrentRequestsPerHost</c> cap declares
 /// the endpoint as a conflict resource. The medium surfaces it through
 /// <c>ComposedStorageAdapter</c> (the S3-style medium pattern), so a flow
-/// can throttle concurrent calls to one host. (ADR-0019.)
+/// can throttle concurrent calls to one host. ([ADR-0006](/src/core/docs/adr/0006-concurrency-conflict-relation-and-resource-profiles.md).)
 /// </summary>
 [TestFixture]
 [Category("Http")]

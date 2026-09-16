@@ -1,0 +1,144 @@
+#!/usr/bin/env node
+/**
+ * `_test:adr-citations` — every `ADR-NNNN` citation names an ADR that exists, and
+ * every Markdown link into an ADR directory resolves on disk.
+ *
+ * **This is the gate that makes renumbering safe.** Per #154, ADRs are renumbered
+ * when they relocate, AND code comments are explicitly permitted to cite them —
+ * two rules that collide silently without this test. There are 61 bare-text
+ * `ADR-00NN` citations in `src/**\/*.cs`; they are comments, not Markdown links,
+ * so `scripts/lint-doc-links.mjs` cannot see them. A renumber invalidates every
+ * one with no signal at all.
+ *
+ * Two checks, because a citation can rot in two independent ways:
+ *
+ *   1. BARE NUMBER — `ADR-0042` not carrying a path. Since ADRs are numbered
+ *      PER DIRECTORY, five directories each start at `0001`, so a bare number
+ *      identifies nothing. Worse, it reads as valid: the old form of this check
+ *      asked only "does some ADR have that number?", which every bare citation
+ *      passes by accident. A citation must be a link carrying the full
+ *      root-anchored path, which is also what makes it survive being built into
+ *      reference documentation.
+ *
+ *   2. BROKEN LINK PATH — `[ADR-0012](/some/path/adr/0012-….md)` whose target is
+ *      not on disk. A number can resolve while its link does not: 19 references
+ *      point into `.claude/docs/adr/`, a directory that has never existed in this
+ *      repo. The number check alone would pass all 19.
+ *
+ * ADRs are discovered across the root `docs/adr/` and every context-owned
+ * `<context>/docs/adr/`, so this keeps working across #157's relocation without
+ * an edit here.
+ *
+ * Scope: repo-authored Markdown and C#. Committed docfx output under
+ * `docs/reference/src/` is excluded — it is regenerated from `src/` XML doc
+ * comments, so a stale citation there is a defect in the source comment and is
+ * reported at the source.
+ *
+ * Usage:
+ *   node scripts/_test/adr-citations.mjs
+ */
+
+import { existsSync, readFileSync } from 'node:fs';
+import { join, resolve, dirname } from 'node:path';
+import { ROOT } from './_lib.mjs';
+import { maskCode } from '../lib/markdown-code.mjs';
+import {
+  adrs,
+  authoredCSharp,
+  authoredMarkdown,
+  contexts,
+  reportFailures,
+  reportOk,
+} from './_domain.mjs';
+
+const TARGET = '_test:adr-citations';
+
+/** A bare citation anywhere — prose, a Markdown link label, or a `//` comment. */
+const CITATION_RE = /\bADR-(\d{4})\b/g;
+/**
+ * A Markdown link whose target reaches an ADR directory or a file inside one.
+ * The trailing slash is optional so a link to the bare directory — `](/docs/adr)`,
+ * which `scripts/generate-context-map.mjs` emits for its "Owns ADRs" column — is
+ * validated too, rather than silently skipped.
+ */
+const ADR_LINK_RE = /\[([^\]]*)\]\(([^)\s]*(?:\/|^)adr(?:\/[^)\s]*)?)\)/gi;
+
+const allContexts = contexts();
+const known = adrs(allContexts);
+
+if (known.length === 0) {
+  reportFailures(
+    TARGET,
+    'no ADRs found — nothing to validate citations against:',
+    [`searched: docs/adr/ and ${allContexts.filter((c) => c.ownsAdrs).length} context ADR director(ies)`],
+    'An ADR file is named `NNNN-slug.md`.',
+  );
+}
+
+const bareNumbers = [];
+const brokenLinks = [];
+
+/** Resolve a Markdown link target to an absolute path, or null if not repo-local. */
+function resolveTarget(target, fromFile) {
+  const clean = target.split('#')[0].trim();
+  if (clean === '' || /^(?:https?:|mailto:)/i.test(clean)) return null;
+  // A leading `/` is root-anchored (the repo's convention), not filesystem-absolute.
+  if (clean.startsWith('/')) return join(ROOT, clean.slice(1));
+  return resolve(ROOT, dirname(fromFile), clean);
+}
+
+for (const file of [...authoredMarkdown(), ...authoredCSharp()]) {
+  const raw = readFileSync(join(ROOT, file), 'utf8');
+  // Documentation ABOUT this convention has to quote an example citation, so
+  // code spans and fenced blocks are masked — the same rule lint-doc-links.mjs
+  // and the ingest interceptor already apply. Masking is length-preserving, so
+  // line numbers still line up with the source.
+  const text = file.endsWith('.md') ? maskCode(raw) : raw;
+  const lines = text.split('\n');
+
+  lines.forEach((line, i) => {
+    const where = `${file}:${i + 1}`;
+
+    // A citation must carry its path. `[ADR-0006](/src/core/docs/adr/0006-….md)`
+    // is a link and is checked below; a naked `ADR-0006` is not resolvable at all.
+    for (const m of line.matchAll(CITATION_RE)) {
+      const before = line.slice(0, m.index);
+      const after = line.slice(m.index + m[0].length);
+      if (/\[$/.test(before) && /^\]\(/.test(after)) continue; // link label — checked as a link
+      bareNumbers.push(`${where}  ADR-${m[1]}  (bare — carry the full path)`);
+    }
+
+    for (const m of line.matchAll(ADR_LINK_RE)) {
+      const [, label, target] = m;
+      const abs = resolveTarget(target, file);
+      if (abs === null || existsSync(abs)) continue;
+      brokenLinks.push(`${where}  [${label}](${target})`);
+    }
+  });
+}
+
+if (bareNumbers.length > 0 || brokenLinks.length > 0) {
+  const violations = [];
+  if (bareNumbers.length > 0) {
+    violations.push(`BARE ADR NUMBER (${bareNumbers.length}) — not resolvable under per-directory numbering:`);
+    violations.push(...bareNumbers.map((v) => `  ${v}`));
+  }
+  if (brokenLinks.length > 0) {
+    if (violations.length > 0) violations.push('');
+    violations.push(`BROKEN ADR LINK PATH (${brokenLinks.length}) — target not on disk:`);
+    violations.push(...brokenLinks.map((v) => `  ${v}`));
+  }
+
+  const dirs = [...new Set(known.map((a) => a.dir))].sort();
+  reportFailures(
+    TARGET,
+    `${bareNumbers.length + brokenLinks.length} bad ADR citation(s) against ${known.length} known ADR(s):`,
+    violations,
+    `ADR directories on disk: ${dirs.join(', ')}`,
+    'Fix: write the citation as a link carrying the full root-anchored path —\n' +
+      '  [ADR-0006](/src/core/docs/adr/0006-….md) — including in `.cs` doc comments,\n' +
+      '  which are built into reference markdown where a bare number is useless.',
+  );
+}
+
+reportOk(TARGET, `all ADR citations resolve against ${known.length} ADR(s)`);

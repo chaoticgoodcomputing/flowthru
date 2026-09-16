@@ -4,7 +4,7 @@ using Flowthru.Validation.Runtime.Http;
 namespace Flowthru.Data.Storage.Http.Internal;
 
 /// <summary>
-/// Builds the scheduler conflict dependency for an HTTP medium (ADR-0019,
+/// Builds the scheduler conflict dependency for an HTTP medium ([ADR-0006](/src/core/docs/adr/0006-concurrency-conflict-relation-and-resource-profiles.md),
 /// #104). Shared by <see cref="HttpStorageMedium"/> and
 /// <see cref="CachedHttpStorageMedium"/> so both key the endpoint
 /// identically. Returns nothing when concurrency is unbounded — HTTP's

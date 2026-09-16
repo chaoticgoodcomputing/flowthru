@@ -16,8 +16,103 @@
         "_test:package-versions",
         "_test:starter-shape",
         "_test:skill-index-freshness",
-        "_test:skill-links"
+        "_test:skill-links",
+        "_test:context-file-guard",
+        "_test:wikilink-terms",
+        "_test:adr-citations",
+        "_test:context-map-freshness",
+        "_test:adr-frontmatter"
       ]
+    },
+    "_test:context-file-guard": {
+      "//": "No CONTEXT.md or CONTEXT-MAP.md exists anywhere in the repo. Flowthru's equivalents are per-context CONTRIBUTING.md glossaries and the generated context map in root /CONTRIBUTING.md (ADR-0004). A test rather than a prose rule because four VENDORED skills under .agents/skills/ actively instruct agents to create one (domain-modeling, improve-codebase-architecture, triage, wait-what) and will keep saying so through every upstream update — docs/agents/domain.md only works if the agent read it, and domain-modeling's instruction fires mid-task. Scans vendored trees too: a stray file inside .agents/ is exactly the accident this guards. Private subtarget.",
+      "executor": "nx:run-commands",
+      "cache": true,
+      "inputs": [
+        "{workspaceRoot}/**/*.md",
+        "{workspaceRoot}/scripts/_test/_domain.mjs",
+        "{workspaceRoot}/scripts/_test/_lib.mjs",
+        "{workspaceRoot}/scripts/_test/context-file-guard.mjs"
+      ],
+      "outputs": [],
+      "options": {
+        "commands": [ "node scripts/_test/context-file-guard.mjs" ],
+        "cwd": "{workspaceRoot}",
+        "parallel": false
+      }
+    },
+    "_test:wikilink-terms": {
+      "//": "Every [[Term]] in repo-authored Markdown resolves to a glossary entry (**Term**: definition, under a '## Glossary' heading) in some context's CONTRIBUTING.md. Also fails a BARE wikilink whose term carries role-parenthetical variants — per #154, a term meaning different things to different roles is disambiguated in the entry name ([[Wide transform (Flow Developer)]]), so references must carry the full form. Closes a real hole: scripts/_test/skill-links.mjs parses standard Markdown links only, so before this gate NOTHING resolved wikilinks and two had already rotted in tests/extensions/CONTRIBUTING.md. Vendored skill prose under .agents/ and .claude/skills/ is excluded — it is upstream's and replaced wholesale on update. Private subtarget.",
+      "executor": "nx:run-commands",
+      "cache": true,
+      "inputs": [
+        "{workspaceRoot}/**/*.md",
+        "{workspaceRoot}/**/CONTRIBUTING.md",
+        "{workspaceRoot}/scripts/_test/_domain.mjs",
+        "{workspaceRoot}/scripts/_test/_lib.mjs",
+        "{workspaceRoot}/scripts/_test/wikilink-terms.mjs"
+      ],
+      "outputs": [],
+      "options": {
+        "commands": [ "node scripts/_test/wikilink-terms.mjs" ],
+        "cwd": "{workspaceRoot}",
+        "parallel": false
+      }
+    },
+    "_test:adr-citations": {
+      "//": "Every ADR-NNNN citation names an ADR that exists, and every Markdown link into an ADR directory resolves on disk. THIS IS THE GATE THAT MAKES RENUMBERING SAFE: #154 renumbers ADRs on relocation AND permits code comments to cite them — two rules that collide silently, because the 61 bare-text ADR-00NN citations in src/**/*.cs are comments, not Markdown links, so scripts/lint-doc-links.mjs cannot see them. The separate link-path check catches a citation whose number resolves while its path does not (18 references point into .claude/docs/adr/, a directory that has never existed). ADRs are discovered across docs/adr/ and every context-owned <context>/docs/adr/, so this survives #157's relocation unedited. Private subtarget.",
+      "executor": "nx:run-commands",
+      "cache": true,
+      "inputs": [
+        "{workspaceRoot}/**/*.md",
+        "{workspaceRoot}/src/**/*.cs",
+        "{workspaceRoot}/docs/adr/**/*.md",
+        "{workspaceRoot}/scripts/_test/_domain.mjs",
+        "{workspaceRoot}/scripts/_test/_lib.mjs",
+        "{workspaceRoot}/scripts/_test/adr-citations.mjs"
+      ],
+      "outputs": [],
+      "options": {
+        "commands": [ "node scripts/_test/adr-citations.mjs" ],
+        "cwd": "{workspaceRoot}",
+        "parallel": false
+      }
+    },
+    "_test:context-map-freshness": {
+      "//": "The context map in root /CONTRIBUTING.md matches a fresh derivation from the repo layout. Per #154 a directory is a context iff it DIRECTLY contains a CONTRIBUTING.md — the set is mechanically derivable, so a hand-maintained map is guaranteed to drift. Generated into a managed block by scripts/generate-context-map.mjs; same generate-then-freshness-gate pattern as _test:skill-index-freshness (ADR-0025) and the '#region docs:' splicing in scripts/sync-doc-snippets.mjs (ADR-0009). Non-mutating (--check). Fix on failure: run the generator and commit. Private subtarget.",
+      "executor": "nx:run-commands",
+      "cache": true,
+      "inputs": [
+        "{workspaceRoot}/**/CONTRIBUTING.md",
+        "{workspaceRoot}/CONTRIBUTING.md",
+        "{workspaceRoot}/scripts/_test/_domain.mjs",
+        "{workspaceRoot}/scripts/_test/_lib.mjs",
+        "{workspaceRoot}/scripts/generate-context-map.mjs"
+      ],
+      "outputs": [],
+      "options": {
+        "commands": [ "node scripts/generate-context-map.mjs --check" ],
+        "cwd": "{workspaceRoot}",
+        "parallel": false
+      }
+    },
+    "_test:adr-frontmatter": {
+      "//": "An ADR declaring the #154 frontmatter contract honors it: exemplars non-empty with every path resolving, every contexts value naming a real context, and status one of accepted/superseded/rejected. exemplars is what makes an ADR falsifiable — the difference between a decision practised and one merely asserted (ADR-0019 declares 3 packages but is cited by 8). superseded and rejected are exempt from the exemplars requirement since theirs are expected to be gone — ADR-0001's exemplar was /GLOSSARY.md, which ADR-0004 deleted. MIGRATION-TOLERANT: an ADR counts as migrated once it declares contexts or exemplars, so this lands before #157 without failing the 27 unmigrated ADRs, and tightens automatically as #157 migrates each file — no follow-up edit needed to turn it on. Private subtarget.",
+      "executor": "nx:run-commands",
+      "cache": true,
+      "inputs": [
+        "{workspaceRoot}/docs/adr/**/*.md",
+        "{workspaceRoot}/**/CONTRIBUTING.md",
+        "{workspaceRoot}/scripts/_test/_domain.mjs",
+        "{workspaceRoot}/scripts/_test/_lib.mjs",
+        "{workspaceRoot}/scripts/_test/adr-frontmatter.mjs"
+      ],
+      "outputs": [],
+      "options": {
+        "commands": [ "node scripts/_test/adr-frontmatter.mjs" ],
+        "cwd": "{workspaceRoot}",
+        "parallel": false
+      }
     },
     "_test:skill-links": {
       "//": "Skill files (.claude/skills/flowthru/*.md + src/extensions/*/SKILL.md) link to repo projects/examples/source files by absolute https://github.com/chaoticgoodcomputing/flowthru/… URL, never a repo-relative path — a skill is read from an installed copy downstream where `examples/…` resolves to nothing, but an absolute URL is clickable for a human and fetchable for an agent. Sibling links inside the same skill stay relative and are allowed. See src/extensions/CONTRIBUTING.md § 'The Skill Shard' → 'Linking'. Private subtarget.",

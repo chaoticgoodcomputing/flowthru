@@ -2,7 +2,7 @@ namespace Flowthru.Validation.Runtime.S3;
 
 /// <summary>
 /// Resolves an <see cref="S3ReadDependency"/> to its <see cref="ServiceProfile"/>
-/// — the read capacity the S3 medium declared (ADR-0019, issue #111). Registered
+/// — the read capacity the S3 medium declared ([ADR-0006](/src/core/docs/adr/0006-concurrency-conflict-relation-and-resource-profiles.md), issue #111). Registered
 /// by <c>UseS3()</c> and aggregated by Core's
 /// <c>CompositeServiceProfileProvider</c>; it recognises only S3 read
 /// dependencies and stays silent on everything else.

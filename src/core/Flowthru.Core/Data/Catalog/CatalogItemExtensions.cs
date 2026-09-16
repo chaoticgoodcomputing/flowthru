@@ -87,7 +87,7 @@ public static class CatalogItemExtensions
   /// </summary>
   /// <remarks>
   /// Read-only because composed streaming <em>writes</em> are out of scope
-  /// (ADR-0023). Gated to streaming-capable composed formats: calling this on a
+  /// ([ADR-0008](/src/core/docs/adr/0008-streaming-reads-as-catalog-item-type.md)). Gated to streaming-capable composed formats: calling this on a
   /// direct adapter (EFCore, Sheets, GQL) or a non-streaming format throws at
   /// wire-up — a design-time error, never a silent O(file) materialise. A
   /// <c>.Constrain()</c> wrapper is unwrapped to reach the composed format.

@@ -3,7 +3,7 @@ namespace Flowthru.Validation.Runtime.Gql;
 /// <summary>
 /// Resolves a <see cref="GqlEndpointDependency"/> to its
 /// <see cref="ServiceProfile"/> — the opt-in concurrency cap a catalog
-/// author placed on a rate-limited GraphQL endpoint (ADR-0019, #104).
+/// author placed on a rate-limited GraphQL endpoint ([ADR-0006](/src/core/docs/adr/0006-concurrency-conflict-relation-and-resource-profiles.md), #104).
 /// Registered by <c>UseGql()</c> and aggregated by Core's
 /// <c>CompositeServiceProfileProvider</c>; recognises only GQL endpoint
 /// dependencies and stays silent on everything else.

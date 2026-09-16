@@ -23,7 +23,7 @@ namespace Flowthru.Hosting;
 public static class EFCoreFlowthruBuilderExtensions
 {
   /// <summary>
-  /// Enable EF Core scheduler conflict gating (ADR-0019). Registers the
+  /// Enable EF Core scheduler conflict gating ([ADR-0006](/src/core/docs/adr/0006-concurrency-conflict-relation-and-resource-profiles.md)). Registers the
   /// <see cref="IServiceProfileContributor"/> that resolves an EF Core
   /// database dependency to its read/write capacity, so the scheduler
   /// serializes concurrent writes to a single-writer database (SQLite)
@@ -34,7 +34,7 @@ public static class EFCoreFlowthruBuilderExtensions
   /// EF Core catalog items always <em>declare</em> their database as a
   /// conflict resource; this call supplies the contributor that turns
   /// that declaration into an enforced capacity. Without it, EF Core
-  /// concurrency is ungated — preserving pre-ADR-0019 behaviour, but a
+  /// concurrency is ungated — preserving pre-[ADR-0006](/src/core/docs/adr/0006-concurrency-conflict-relation-and-resource-profiles.md) behaviour, but a
   /// SQLite flow run at <c>Parallelism &gt; 1</c> can still hit
   /// "database is locked". Call it once when wiring an EF Core catalog.
   /// </para>

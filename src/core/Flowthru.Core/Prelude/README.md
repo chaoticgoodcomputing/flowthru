@@ -26,9 +26,9 @@ containing only the FP primitives Flowthru actively uses.
 - `FlowSource<T>` — the streaming sibling of the effect type: a lazy,
   resource-safe stream consumed by compiling back into `FlowIO`. Its minimum
   shape earns a Prelude seat because streaming is a first-class grain (bounded
-  `O(batch)` reads on memory-constrained hosts); see
-  [ADR-0023](/.claude/docs/adr/0023-streaming-reads-as-catalog-item-type.md)
-  for why it is vendored, not taken as a LanguageExt dependency
+  `O(batch)` reads on memory-constrained hosts). It is vendored rather than
+  taken as a LanguageExt dependency, keeping the Prelude's dependency
+  footprint at zero
 
 **Excluded** (and not planned):
 
@@ -38,7 +38,7 @@ containing only the FP primitives Flowthru actively uses.
 - `Either`, `Option`, `Try`, `Fin` — Flowthru's `RuntimeError` ADT and
   `Validated<E, T>` cover these roles
 - Free monads and Pipes (but **not** Streams — see `FlowSource<T>` above,
-  added under ADR-0023)
+  added alongside the streaming grain)
 - Immutable collections (`Seq`, `Lst`, `Iterable`, `HashMap`, …)
 
 ## Maintenance policy

@@ -23,7 +23,7 @@ namespace Flowthru.Data.Storage;
 /// leak medium knowledge upward: the S3-compatible access shape is a de-facto
 /// protocol (AWS, MinIO, R2, LocalStack), and typing it here moves ownership of
 /// the vocabulary from an extension's doc comment into Core's type system. See
-/// ADR-0026.
+/// [ADR-0010](/src/core/docs/adr/0010-typed-access-handoff-and-secret-containment.md).
 /// </para>
 /// <para>
 /// <see cref="Secrets"/> is the single scrub-list vocabulary: the credential

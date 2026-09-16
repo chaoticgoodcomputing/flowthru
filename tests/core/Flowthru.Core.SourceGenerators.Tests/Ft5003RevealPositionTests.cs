@@ -7,7 +7,7 @@ namespace Flowthru.Core.SourceGenerators.Tests;
 /// <c>SecretText.Reveal()</c>-position analyzer. Reveal() interpolated or passed
 /// to a logging / console / format sink fires; Reveal() assigned to a local or
 /// passed to a non-logging consumer (the legitimate reveal-site use) does not.
-/// The negative cases pin the deliberate non-taint-tracking boundary (ADR-0026).
+/// The negative cases pin the deliberate non-taint-tracking boundary ([ADR-0010](/src/core/docs/adr/0010-typed-access-handoff-and-secret-containment.md)).
 /// </summary>
 [TestFixture]
 public class Ft5003RevealPositionTests

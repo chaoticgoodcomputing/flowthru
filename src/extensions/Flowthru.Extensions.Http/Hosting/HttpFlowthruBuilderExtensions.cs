@@ -49,7 +49,7 @@ public static class HttpFlowthruBuilderExtensions
 
     builder.Services.AddSingleton<IStorageMediumProvider, HttpStorageMediumProvider>();
 
-    // Conflict gating (ADR-0019, #104): resolves the opt-in per-host
+    // Conflict gating ([ADR-0006](/src/core/docs/adr/0006-concurrency-conflict-relation-and-resource-profiles.md), #104): resolves the opt-in per-host
     // concurrency cap (HttpOptions.MaxConcurrentRequestsPerHost) into an
     // enforced capacity. A no-op unless a cap is set — HTTP is unbounded
     // and parallel-safe by default. TryAddEnumerable keeps it idempotent.

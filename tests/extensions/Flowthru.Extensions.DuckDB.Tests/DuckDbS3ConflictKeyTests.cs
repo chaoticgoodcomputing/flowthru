@@ -12,7 +12,7 @@ using SysIO = System.IO;
 namespace Flowthru.Extensions.DuckDB.Tests;
 
 /// <summary>
-/// Pins ADR-0023's note for engine transforms: the <c>s3:read</c>
+/// Pins [ADR-0008](/src/core/docs/adr/0008-streaming-reads-as-catalog-item-type.md)'s note for engine transforms: the <c>s3:read</c>
 /// concurrency cap is a <em>medium</em> property, inherited by any step
 /// through ordinary item wiring — a DuckDB transform whose endpoint
 /// items are S3-backed picks up the cap via
@@ -79,7 +79,7 @@ public class DuckDbS3ConflictKeyTests
   [Test]
   public void UncappedS3Endpoints_CarryNoReadConflictKey()
   {
-    // ADR-0019 posture: the cap is opt-in; an unbounded medium attaches no
+    // [ADR-0006](/src/core/docs/adr/0006-concurrency-conflict-relation-and-resource-profiles.md) posture: the cap is opt-in; an unbounded medium attaches no
     // dependency, so the scheduler's default behaviour is unchanged.
     var input = S3Item("s3_events", "in/events.parquet", readCapacity: int.MaxValue);
     var output = ItemFactory.Enumerable.Parquet<EventRow>(

@@ -53,7 +53,7 @@ public static partial class Item
     // view). It is a sealed class implementing none of the sequence
     // interfaces, so without this structural case it falls through to
     // Singleton with row type FlowSource<T> — the exact
-    // misclassification ADR-0023 corrects.
+    // misclassification [ADR-0008](/src/core/docs/adr/0008-streaming-reads-as-catalog-item-type.md) corrects.
     if (ImplementsOpenGeneric(type, typeof(FlowSource<>)))
       return StepContainerKind.Source;
 

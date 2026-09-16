@@ -3,7 +3,7 @@ namespace Flowthru.Validation.Runtime.EFCore;
 /// <summary>
 /// Resolves an <see cref="EFCoreDatabaseDependency"/> to its
 /// <see cref="ServiceProfile"/> — the read and write capacities the
-/// EF Core adapter declared for the database (ADR-0019). Registered by
+/// EF Core adapter declared for the database ([ADR-0006](/src/core/docs/adr/0006-concurrency-conflict-relation-and-resource-profiles.md)). Registered by
 /// <c>UseEFCore()</c> and aggregated by Core's
 /// <c>CompositeServiceProfileProvider</c> alongside every other
 /// extension's contributor; it recognises only EF Core database

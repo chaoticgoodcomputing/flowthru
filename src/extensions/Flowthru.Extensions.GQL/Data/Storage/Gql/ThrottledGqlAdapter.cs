@@ -5,7 +5,7 @@ namespace Flowthru.Data.Storage.Gql;
 
 /// <summary>
 /// Wraps a GQL storage adapter to declare its endpoint as a scheduler
-/// conflict resource (ADR-0019, #104). Every operation delegates to the
+/// conflict resource ([ADR-0006](/src/core/docs/adr/0006-concurrency-conflict-relation-and-resource-profiles.md), #104). Every operation delegates to the
 /// inner adapter unchanged; the only addition is
 /// <see cref="IHasServiceDependencies"/>, which surfaces the opt-in
 /// endpoint concurrency cap so the scheduler throttles concurrent calls.

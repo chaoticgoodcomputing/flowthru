@@ -137,7 +137,7 @@ public class ExtensionNamespaceMirrorTests
           // per §3.2 / §4.8.0.5.
           "Flowthru.Hosting",
           // The DbScope conflict dependency + its profile contributor
-          // (ADR-0019) live alongside Core's Validation.Runtime closed
+          // ([ADR-0006](/src/core/docs/adr/0006-concurrency-conflict-relation-and-resource-profiles.md)) live alongside Core's Validation.Runtime closed
           // sums — same placement as Python's PythonServiceDependency.
           "Flowthru.Validation.Runtime.EFCore",
         },
@@ -170,7 +170,7 @@ public class ExtensionNamespaceMirrorTests
           // — same shape as EFCore's VerifyEFCoreXxx hooks.
           "Flowthru.Hosting",
           // The opt-in endpoint-throttle dependency + its profile
-          // contributor (ADR-0019 #104) live alongside Core's
+          // contributor ([ADR-0006](/src/core/docs/adr/0006-concurrency-conflict-relation-and-resource-profiles.md) #104) live alongside Core's
           // Validation.Runtime closed sums.
           "Flowthru.Validation.Runtime.Http",
         },
@@ -197,7 +197,7 @@ public class ExtensionNamespaceMirrorTests
           "Flowthru.Data.Storage.Gql",
           "Flowthru.Data.Catalog",
           // UseGql() registers the opt-in endpoint-throttle contributor
-          // (ADR-0019 #104) in the Hosting algebra root.
+          // ([ADR-0006](/src/core/docs/adr/0006-concurrency-conflict-relation-and-resource-profiles.md) #104) in the Hosting algebra root.
           "Flowthru.Hosting",
           // The endpoint throttle dependency + its profile contributor
           // live alongside Core's Validation.Runtime closed sums.

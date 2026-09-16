@@ -32,9 +32,10 @@ credentials to authenticate to **the same bucket the pipeline already targets**.
 Nothing is transmitted to any external or unauthorized destination. Consumer-side
 credential resolution (DuckDB's `credential_chain`) was considered and rejected
 because it authenticates the engine as a *different principal* than the gateway
-read, silently breaking explicitly-wired clients (LocalStack/MinIO). See
-**[ADR-0026](.claude/docs/adr/0026-typed-access-handoff-and-secret-containment.md)**
-(and ADR-0020, ADR-0024).
+read, silently breaking explicitly-wired clients (LocalStack/MinIO). The
+reasoning behind the typed handoff, the gateway seam it rides on, and the
+engine-delegation model above it is recorded in this repository's architecture
+decision records (`docs/adr/`).
 
 **Controls that make the residual risk defensible.** Credentials are:
 
@@ -53,4 +54,4 @@ read, silently breaking explicitly-wired clients (LocalStack/MinIO). See
 - **Guarded at design time (in progress).** A syntactic `Reveal()`-position
   analyzer flags a revealed credential used in a logging / interpolation /
   destructuring argument position. It is a position check, not full taint
-  tracking; see ADR-0026.
+  tracking.

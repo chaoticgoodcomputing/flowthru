@@ -119,7 +119,7 @@ public static Func<...> Create(ILoggerFactory loggerFactory)
 
 This is the escape hatch, not the default — most flows are fine with the single shared category.
 
-The full rationale lives in [.claude/docs/adr/0005-step-logging-via-shared-ilogger.md](/.claude/docs/adr/0005-step-logging-via-shared-ilogger.md).
+The full rationale is recorded in the architecture decision records under [`src/core/docs/adr/`](/src/core/docs/adr).
 
 ## README Standards
 
@@ -277,7 +277,7 @@ _Avoid_: workflow, job, pipeline (fine as the general data-engineering concept; 
 **Step**: A logical unit of work in a Flow. Like a Jupyter notebook cell with named inputs and named outputs — but composable into a type-validated DAG rather than constrained to a linear order.
 _Avoid_: task, operator, node
 
-**Wide vs narrow transform**: A classification of Step logic. A *narrow* transform produces each output row from one input row at a time (parse, filter, map) and is a natural fit for an ordinary C# Step; a *wide* transform (join, aggregate, global sort, dedup) must see all of its input before it can emit any output — the set-oriented work worth handing to an engine-side SQL Step when the data is large.
+**Wide vs narrow transform (Flow Developer)**: A classification of Step logic. A *narrow* transform produces each output row from one input row at a time (parse, filter, map) and is a natural fit for an ordinary C# Step; a *wide* transform (join, aggregate, global sort, dedup) must see all of its input before it can emit any output — the set-oriented work worth handing to an engine-side SQL Step when the data is large. The Extension Developer entry, [[Wide vs narrow transform (Extension Developer)]], draws the same line by streamability (a wide transform runs in O(input) rather than O(batch) memory) — the same transforms, described by what the *engine* must do rather than what the author must see.
 _Avoid_: blocking step ("blocking" reads as thread semantics in .NET), shuffle (cluster vocabulary; Flowthru is single-node)
 
 **Schema**: A typed contract for the shape of data flowing through a Flow, declared by both Steps (as their input/output types) and Catalog Items (as the data they hold). The compiler uses these declarations to verify connections at build time.

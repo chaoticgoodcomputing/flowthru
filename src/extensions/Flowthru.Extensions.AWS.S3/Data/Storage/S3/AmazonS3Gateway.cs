@@ -184,7 +184,7 @@ public sealed class AmazonS3Gateway : IS3Gateway, IDisposable
     var endpoint = string.IsNullOrWhiteSpace(config.ServiceURL) ? null : new Uri(config.ServiceURL);
     var forcePathStyle = config is AmazonS3Config { ForcePathStyle: true };
 
-    // SECURITY (ADR-0026): resolving credentials here is an in-process handoff
+    // SECURITY ([ADR-0010](/src/core/docs/adr/0010-typed-access-handoff-and-secret-containment.md)): resolving credentials here is an in-process handoff
     // to a native consumer (the embedded DuckDB engine) authenticating to the
     // same bucket the pipeline targets — not exfiltration. Static scanners may
     // flag this pattern as DATA_EXFILTRATION; see SECURITY.md. The resolved
