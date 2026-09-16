@@ -119,7 +119,7 @@ public static Func<...> Create(ILoggerFactory loggerFactory)
 
 This is the escape hatch, not the default — most flows are fine with the single shared category.
 
-The full rationale is recorded in the architecture decision records under [`docs/adr/`](/docs/adr).
+The full rationale is recorded in the architecture decision records under [`src/core/docs/adr/`](/src/core/docs/adr).
 
 ## README Standards
 

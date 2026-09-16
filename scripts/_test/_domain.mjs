@@ -173,7 +173,7 @@ export function contexts() {
  */
 export function findContext(value, all = contexts()) {
   const raw = String(value).trim().replace(/^\.\//, '').replace(/\/+$/, '');
-  if (raw === '' || raw === '/') return all.find((c) => c.id === '/');
+  if (raw === '' || raw === '/' || raw === '.') return all.find((c) => c.id === '/');
   // `/src/core` is the root-anchored spelling used by every other path in the repo;
   // `src/core` is the bare id. Accept both so `contexts:` reads like a link target.
   const needle = raw.replace(/^\//, '');

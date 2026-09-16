@@ -41,6 +41,7 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { join, resolve, dirname } from 'node:path';
 import { ROOT } from './_lib.mjs';
+import { maskCode } from '../lib/markdown-code.mjs';
 import {
   adrs,
   authoredCSharp,
@@ -87,7 +88,12 @@ function resolveTarget(target, fromFile) {
 }
 
 for (const file of [...authoredMarkdown(), ...authoredCSharp()]) {
-  const text = readFileSync(join(ROOT, file), 'utf8');
+  const raw = readFileSync(join(ROOT, file), 'utf8');
+  // Documentation ABOUT this convention has to quote an example citation, so
+  // code spans and fenced blocks are masked — the same rule lint-doc-links.mjs
+  // and the ingest interceptor already apply. Masking is length-preserving, so
+  // line numbers still line up with the source.
+  const text = file.endsWith('.md') ? maskCode(raw) : raw;
   const lines = text.split('\n');
 
   lines.forEach((line, i) => {
