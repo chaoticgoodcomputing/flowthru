@@ -2,7 +2,7 @@
 
 This document is for **Core Developers** — folks curating Flowthru's core engine and the packages that ship with it (Cli, FUnit, source generators, code fixes). Core is what every other role builds on.
 
-**Audience scope:** assumes familiarity with [examples/CONTRIBUTING.md](/examples/CONTRIBUTING.md) (Flow/Catalog Developer vocabulary) and [src/extensions/CONTRIBUTING.md](/src/extensions/CONTRIBUTING.md) (Extension Developer vocabulary — especially [[Closed sum]] and the [[Extension surface]] concept). Terms defined here are the *additional* vocabulary specific to Core work.
+**Audience scope:** assumes the repo-wide glossary in [/CONTRIBUTING.md](/CONTRIBUTING.md) (the three error phases, [[API Surface]], [[Error Surface]]), plus [examples/CONTRIBUTING.md](/examples/CONTRIBUTING.md) (Flow/Catalog Developer vocabulary) and [src/extensions/CONTRIBUTING.md](/src/extensions/CONTRIBUTING.md) (Extension Developer vocabulary — especially the [[Extension surface]] concept). Terms defined here are the *additional* vocabulary specific to Core work.
 
 See [/CONTRIBUTING.md](/CONTRIBUTING.md) for cross-cutting design rules.
 
@@ -73,7 +73,7 @@ There is no formal graduation criterion for what earns a place in Prelude; the L
 
 **Responsibilities:**
 - Keep the [[API Surface]] small, expressive, and ceremony-free for Flow and Catalog Developers
-- Keep the [[Error Surface]] biased toward [[Design-time error|design-time]] and [[Pre-flight error|pre-flight]] — minimize [[Runtime error|runtime]] failures
+- Keep the [[Error Surface]] biased toward [[Design-time error|design-time]] and [[Pre-flight error|pre-flight]] — minimize [[Runtime error (phase)|runtime]] failures
 - Provide clear extension points for Extension Developers; ship Core changes that fail dependent extensions at compile time, not runtime
 - Reason in correct FP terms ([[Closed sum]], [[Kleisli arrow]], [[Combinator]], [[Applicative vs monadic composition]]) — the architecture's correctness depends on it
 - Ship every new Roslyn diagnostic with a companion code fix
@@ -97,6 +97,12 @@ _Avoid_: ServiceRef (the pre-0.x name this replaced), ServiceReference (carries 
 
 **Service profile**: The resolved behavioural metadata of a [[Service dependency]], on two orthogonal axes: `AffectsOutputs` (the cache axis) and `Capacity` / `ReadCapacity` (the [[Conflict]] axis). Resolved per host by an `IServiceProfileProvider` — capacity is contextual, so it is computed, not stored on the dependency. The orthogonality is load-bearing: the Python worker is cache-*neutral* (`AffectsOutputs=false` — its determinism is captured by code version) yet concurrency-*constrained* (`Capacity=1`), which no single subtype flag could express.
 _Avoid_: capacity (one field of the profile, not the whole), service metadata
+
+**Closed sum**: An abstract record with a private constructor and a fixed set of sealed nested record variants, consumed by exhaustive pattern matching (typically via a terminal `Match` method). Used throughout Flowthru to model outcomes whose alternatives are known up-front — `EffResult` (Success/Failure), `Validated` (Valid/Invalid), `StepResult`, `RuntimeError`, `PreFlightError` — so consumers must handle every variant and the compiler enforces it.
+_Avoid_: discriminated union (correct in theory, but C# users will reach for F#'s `DU` and miss the closed-vs-open distinction), tagged union, polymorphism
+
+**Runtime error (Core Developer)**: The `RuntimeError` type — a [[Closed sum]] whose variants name the ways a Step's execution can fail, carried as a *value* through `FlowIO` rather than thrown. Distinct from the error phase of the same name ([[Runtime error (phase)]]), which is *when* a failure is caught; this is the type that represents one. The distinction matters in Core because a great deal of Core's machinery manipulates `RuntimeError` values during phases that are not the runtime phase — pre-flight can construct and inspect them without any Step having run.
+_Avoid_: exception (a `RuntimeError` is never thrown — turning one into a throw is the bug this vocabulary exists to prevent), failure (too broad — `Validated` and `PreFlightError` are also failures)
 
 **Kleisli arrow**: A function of shape `A → M<B>` for some monad `M`. In Flowthru, `IStepNode<TIn, TOut>.Transform` is `Func<TIn, FlowIO<TOut>>` — a Kleisli arrow of the `FlowIO` monad. The user-supplied pure `A → B` from a `[FlowthruStep]`-attributed `Create()` is lifted into this shape at flow-construction time, which is why composition through the engine has clean monadic semantics rather than ad-hoc plumbing.
 _Avoid_: transform (correct at the user surface; in Core the precise term is Kleisli arrow), callback, handler
