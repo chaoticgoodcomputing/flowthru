@@ -21,7 +21,8 @@
         "_test:wikilink-terms",
         "_test:adr-citations",
         "_test:context-map-freshness",
-        "_test:adr-frontmatter"
+        "_test:adr-frontmatter",
+        "_test:capability-matrix-freshness"
       ]
     },
     "_test:context-file-guard": {
@@ -230,7 +231,7 @@
       }
     },
     "_test:capability-matrix-freshness": {
-      "//": "QUARANTINED pending FP-rewrite migration: the capability-matrix.cs script references legacy namespaces (Flowthru.Core.Data.Capabilities.FormatRowFeatures, Flowthru.Core.Abstractions, etc.) that don't exist post-rewrite. The committed capability-matrix.md was generated before the rewrite and may now drift from the new RowFeatures/StorageTraits surface. Reactivate alongside the §4.6 architecture-test scripts when the post-rewrite capability surface stabilizes; until then this target exists for manual invocation but is not in the tests:test dependsOn. Regenerates docs/reference/extensions/capability-matrix.md via the file-based C# program at scripts/_test/capability-matrix.cs and asserts the regenerated content matches the committed file. Drift means a format's RowFeatures, [OptOutOfPropertyPlanner] reason, or implemented capability segment changed without a paired matrix update. Private subtarget. The same generator script is invoked by docs:_build-capability-matrix; freshness is a workspace-discipline concern (here), generation is a docs-build concern (in docs:project.json).",
+      "//": "Regenerates docs/reference/extensions/capability-matrix.md via the file-based C# program at scripts/_test/capability-matrix.cs and asserts the regenerated content matches the committed file. Drift means a format's RowFeatures, [OptOutOfPropertyPlanner] reason, or implemented capability segment changed without a paired matrix update. Was quarantined during the FP rewrite on the grounds that capability-matrix.cs referenced legacy namespaces; that is no longer true — the generator builds and runs clean, and its output already matches the committed matrix, so the target is back in the barrel. The same generator is invoked by docs:_build-capability-matrix; freshness is a workspace-discipline concern (here), generation is a docs-build concern (in docs/project.json). Private subtarget.",
       "executor": "nx:run-commands",
       "inputs": [
         "{workspaceRoot}/src/core/Flowthru.Core/Data/Schema/ISupportsIScalar.cs",
