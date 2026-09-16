@@ -111,8 +111,15 @@ for (const adr of known) {
   // Enforcing it on unmigrated ADRs would fail the tree over `status: proposed` —
   // a reformat this issue puts out of scope (#157 owns it).
   if (!VALID_STATUS.includes(statusWord)) {
+    // `proposed` is the common case and deserves a signpost rather than a bare
+    // rejection: it means the ADR is on the right track but the wrong branch.
     violations.push(
-      `${adr.file}: status '${status || '(absent)'}' is not one of ${VALID_STATUS.join(' / ')}`,
+      statusWord === 'proposed'
+        ? `${adr.file}: status 'proposed' — an ADR on the mainline describes what the ` +
+          'repository already does. Keep this on its `adr/<slug>` branch and merge it ' +
+          'with the work that implements it, then set `status: accepted` and name the ' +
+          'files that demonstrate it.'
+        : `${adr.file}: status '${status || '(absent)'}' is not one of ${VALID_STATUS.join(' / ')}`,
     );
   }
 
