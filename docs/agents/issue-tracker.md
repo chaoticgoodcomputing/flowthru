@@ -65,6 +65,16 @@ When work would benefit from being tracked beyond the current conversation:
 
 Do not skip this step for non-trivial work — an unfiled bug or unscoped PRD is invisible to anyone outside the conversation.
 
+## A batch of issues becomes an epic
+
+When in-session work produces **more than one issue**, group them under a single epic rather than filing a flat batch. The epic carries the shared problem statement, the decisions behind it, and the cross-cutting hazards; each sub-issue carries one stream of work and is self-contained enough to hand to an agent without the epic in context.
+
+Create the parent first, then pass `parent_issue_number` to `issue_write` `method: "create"` for each child — the sub-issue is created and attached in a single call, so no separate `sub_issue_write` step is needed. (`sub_issue_write` remains the tool for re-parenting or reordering an issue that already exists; note it takes a sub-issue **ID**, not its number.)
+
+Label the epic with a **category role only**. It is a tracking container rather than implementable work, so a state role would be misleading — states live on the sub-issues, which may legitimately differ from one another (one `ready-for-human`, the rest `ready-for-agent`).
+
+If a sub-issue ends up holding two conflicting states — part of it delegable, part needing a maintainer decision — **split it** rather than labelling it with the more restrictive of the two. A mixed-state issue blocks its agent-ready half behind its human-gated half for no reason.
+
 ## When a skill says "publish to the issue tracker"
 
 Create a GitHub issue with `mcp__github-cgc__issue_write`, `method: "create"`.
