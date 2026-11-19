@@ -167,7 +167,7 @@ function passthrough(raw, relPath) {
   return `---\n${match[1]}\n---\n${body}`;
 }
 
-function synthesize(raw) {
+function synthesize(raw, relPath) {
   const lines = raw.replace(/\r\n/g, "\n").split("\n");
 
   let h1Index = -1;
@@ -205,7 +205,11 @@ function synthesize(raw) {
   const fm = ["---", `title: ${JSON.stringify(title)}`];
   if (description) fm.push(`description: ${JSON.stringify(description)}`);
   fm.push("---", "");
-  return fm.join("\n") + lines.join("\n").replace(DOCFX_ANCHOR_RE, "");
+  // Run the link interceptor here too: docfx passes docstring links through
+  // verbatim, so generated reference pages carry root-anchored repo links
+  // (ADR citations like `/src/core/docs/adr/…`) that must become GitHub URLs.
+  const body = lines.join("\n").replace(DOCFX_ANCHOR_RE, "");
+  return fm.join("\n") + rewriteLinks(body, relPath);
 }
 
 async function ingest() {
@@ -235,7 +239,7 @@ async function ingest() {
       }
 
       if (SYNTHESIS_ALLOWED.has(section)) {
-        await writeFile(dest, synthesize(raw), "utf8");
+        await writeFile(dest, synthesize(raw, rel), "utf8");
         stats.synthesized++;
         continue;
       }
