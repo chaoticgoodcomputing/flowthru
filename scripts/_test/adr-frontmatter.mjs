@@ -21,8 +21,8 @@
  * something demonstrates this, with no escape hatch.
  *
  * `exemplars` is what makes an ADR falsifiable: it is the difference between a
- * decision that is *practised* and one that is merely *asserted*. ADR-0019
- * declares 3 packages but is cited by 8; only 12 of 27 ADRs carry a governed-code
+ * decision that is *practised* and one that is merely *asserted*. The concurrency
+ * ADR (then ADR-0019, now [ADR-0006](/src/core/docs/adr/0006-concurrency-conflict-relation-and-resource-profiles.md)) declared 3 packages but is cited by 8; only 12 of 27 ADRs carry a governed-code
  * section at all. An accepted decision with nothing demonstrating it is a claim.
  *
  * `superseded` and `rejected` ADRs are exempt from the exemplars requirement —
@@ -38,7 +38,7 @@
  *
  * The cost is that the gate is presently vacuous — no ADR declares the contract,
  * so nothing is enforced. Five ADRs already say `status: accepted` with no
- * exemplar at all (ADR-0019 among them, the epic's own poster child: it declares
+ * exemplar at all (the concurrency ADR among them, the epic's own poster child: it declares
  * 3 packages but is cited by 8). Failing them here would be correct in principle
  * and wrong in practice — adding their frontmatter is #157's job, which #158 puts
  * out of scope, and only tests 2 and 3 are meant to be red on the current tree.

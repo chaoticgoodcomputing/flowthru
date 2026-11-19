@@ -31,7 +31,9 @@ pnpm --filter flowthru-vscode run watch
 
 This extension is a Tool in Flowthru's contributor model — a process that consumes a Flow Developer's compiled Flowthru project from outside it. See [src/tools/CONTRIBUTING.md](../CONTRIBUTING.md) for Tool Developer conventions and the [Inspector](../CONTRIBUTING.md#tools-vocabulary) introspection backbone this extension talks to over JSON-RPC.
 
-The decisions this extension is built on — Tools as a development context, the
-diagnostic anchor contract behind F2, the Inspector RPC protocol, and the
-`.flowthru/manifests/` snapshot lifecycle behind F6 — are recorded in the
-repository's architecture decision records (`docs/adr/`).
+The decisions this extension is built on are recorded in the repository's
+architecture decision records: Tools as a development context (`docs/adr/`) and
+the `.flowthru/manifests/` snapshot lifecycle behind F6 (`src/tools/docs/adr/`).
+The diagnostic anchor contract behind F2 and the Inspector RPC protocol are
+decided but unbuilt; their ADRs are parked on the `adr/diagnostic-anchor-contract`
+and `adr/inspector-rpc` branches until an implementation lands.
