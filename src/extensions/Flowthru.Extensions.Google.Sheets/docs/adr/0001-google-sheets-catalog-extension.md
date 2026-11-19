@@ -31,5 +31,5 @@ Flowthru reads and writes Google Sheets through `Flowthru.Extensions.Google.Shee
 ## Consequences
 
 - **A schema mismatch — including a `byte[]` column, which has no table column type — surfaces at pre-flight**, when `TRow` is validated against the table's `ColumnProperties`. This is consistent with how EFCore reports a bad entity mapping. It is one phase later than a design-time constraint would catch it, but it matches the store mental model and avoids a single-extension marker in Core.
-- **The native-Tables decision is gated on a service-account spike** (`spikes/google-sheets-tables/`, tracked in the milestone). Tab + A1 range is the cell-free fallback.
+- **The native-Tables decision is verified, not pending.** The spike (`spikes/google-sheets-tables/`, since deleted; recoverable from git history) confirmed native Tables round-trip under a user principal; confirming creation under a *service-account* principal is tracked as the auth-walkthrough verification (#87). Tab + A1 range remains the cell-free fallback if that check fails.
 - **Output size is unknowable at pre-flight** (it is produced by upstream Steps), so the single-batch ceiling (~2 MB recommended payload / 180 s timeout) is a runtime `FTGS` failure. Quota pressure (`429`, ~60 writes/min/user) is handled by retry-with-exponential-backoff at runtime, not a pre-flight count.

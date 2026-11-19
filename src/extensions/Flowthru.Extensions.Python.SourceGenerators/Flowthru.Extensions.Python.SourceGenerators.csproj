@@ -27,7 +27,7 @@
   </ItemGroup>
 
   <!-- Shared with the runtime extension: the requirements algebra
-       (ADR-0013). The analyzer (FTPY1501 / FTPY1502) uses the same
+       ([ADR-0001](/src/extensions/Flowthru.Extensions.Python/docs/adr/0001-python-requirements-algebra.md)). The analyzer (FTPY1501 / FTPY1502) uses the same
        PythonVersion / PythonVersionConstraint / PythonRequirementsAlgebra
        primitives as the pre-flight hook (FTPY3011 / FTPY3012) so design-
        time and runtime enforcement cannot diverge on what "satisfies"
