@@ -10,8 +10,10 @@ import * as vscode from 'vscode';
  *   - F5: failure debug panel (logs + input/output peek via Inspector)
  *   - F6: built-last vs. now diff against the .flowthru/manifests/ snapshot
  *
- * See ADR-0012 (Inspector RPC protocol) and ADR-0015 (snapshot lifecycle)
- * for the contracts this extension consumes.
+ * Contracts this extension consumes: the snapshot lifecycle
+ * ([ADR-0002](/src/tools/docs/adr/0002-snapshot-lifecycle.md)), and the
+ * Inspector RPC protocol, whose ADR is parked on the `adr/inspector-rpc` branch
+ * until the Inspector is built.
  */
 export function activate(context: vscode.ExtensionContext): void {
   context.subscriptions.push(

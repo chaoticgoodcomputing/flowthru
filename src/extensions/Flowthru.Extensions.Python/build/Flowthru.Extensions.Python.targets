@@ -91,7 +91,8 @@
       so it can statically check the project's locked Python deps
       against the algebra closure (base extension requirements + every
       [PythonPackageRequirement]-decorated capability). Condition guards
-      against projects that don't use uv. Per ADR-0013.
+      against projects that don't use uv. Per
+      [ADR-0001](/src/extensions/Flowthru.Extensions.Python/docs/adr/0001-python-requirements-algebra.md).
     -->
     <AdditionalFiles Include="uv.lock"
                      Condition="Exists('uv.lock')"
